@@ -516,6 +516,15 @@ export function routeBlockers(routeInput: RouteContentDraft, payload: WordDraftP
     }
   }
   if (route.routeId === "compound_word_lab") {
+    const parts = payload.canonicalMorphology.parts as { id?: string; kind?: string; surfaceText?: string; gloss?: string }[];
+    const components = Array.isArray(route.content.components) ? route.content.components as { displaySurface?: string; meaning?: string }[] : [];
+    if (payload.canonicalMorphology.analysisStatus === "approved" && parts.every(part => part.kind === "base" && part.surfaceText)) {
+      if (components.length !== parts.length || components.some((component, index) => component.displaySurface !== parts[index]?.surfaceText || component.meaning !== parts[index]?.gloss))
+        blockers.push("Refresh the compound components from the approved Word parts for this meaning.");
+      const joins = payload.canonicalMorphology.joins as { joinType?: string }[];
+      if (JSON.stringify(route.content.joins) !== JSON.stringify(joins.map(join => join.joinType)))
+        blockers.push("Refresh the compound joins from the approved Word parts for this meaning.");
+    }
     for (const [field, label] of [["components", "component words and meanings"], ["joins", "component joins"],
       ["componentToWholeRelationship", "component-to-whole explanation"], ["morphologyProvenance", "morphology provenance"]] as const) {
       const fact = route.content[field];

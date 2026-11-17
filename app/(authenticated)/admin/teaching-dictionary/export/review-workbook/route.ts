@@ -1,3 +1,5 @@
+import { isCompoundWorkbookSkill, compoundWorkbookTitle } from "@/lib/teaching-dictionary-manager/compound-workbook";
+import { prefillCompoundWorkbook } from "@/lib/teaching-dictionary-manager/compound-review";
 import { prefillComparativeWorkbook } from "@/lib/teaching-dictionary-manager/comparative-review";
 import { isComparativeReviewSkill } from "@/lib/teaching-dictionary-manager/lesson-candidate";
 import { loadSpecialistBulkReview } from "@/lib/teaching-dictionary-manager/specialist-bulk-review";
@@ -29,6 +31,7 @@ export async function GET(request: Request) {
   const batch = Number(params.get("batch") ?? "1");
   if (!canUpdateIngLesson() || !supportsReviewWorkbook(skill))
     return new Response("Workbook review is unavailable for this lesson.", { status: 404 });
+  if (scope === "blank" && isCompoundWorkbookSkill(skill)) return downloadWorkbook(await buildReviewWorkbook({ skill, title: compoundWorkbookTitle(skill), bundles: [], notes: new Map(), families: new Map() }), `teaching-dictionary-blank-${skill}.xlsx`);
   if (scope === "blank" && isComparativeReviewSkill(skill)) {
     return downloadWorkbook(await buildReviewWorkbook({skill, title: "Comparative and superlative", bundles: [], notes: new Map(), families: new Map()}),
       `teaching-dictionary-blank-${skill}.xlsx`);
@@ -92,10 +95,11 @@ export async function GET(request: Request) {
     }
     const notes = new Map(selected.map(row => [row.id, row.note]));
     const reviewed = await prefillReviewWorkbookMeanings(db, await reviewBundles(db, selected, bundles), notes);
-    const prepared = isComparativeReviewSkill(skill) ? await prefillComparativeWorkbook(db, skill, reviewed) : reviewed;
+    const compound = isCompoundWorkbookSkill(skill) ? await prefillCompoundWorkbook(db, skill, reviewed) : null;
+    const prepared = compound?.bundles ?? (isComparativeReviewSkill(skill) ? await prefillComparativeWorkbook(db, skill, reviewed) : reviewed);
     const facts = await prefillReviewWorkbookFacts(db, prepared, skill,
       new Map(current.map(word => [word.canonicalWordId, word.base])));
-    return downloadWorkbook(await buildReviewWorkbook({ skill, title, ...facts, notes, requestedSenses }),
+    return downloadWorkbook(await buildReviewWorkbook({ skill, title, ...facts, notes, requestedSenses, compoundFacts: compound?.compoundFacts }),
     `teaching-dictionary-review-${skill}-${batch}.xlsx`);
   }
   if (!isStagingIngSkill(skill)) return new Response("Workbook review is unavailable for this lesson.", { status: 404 });

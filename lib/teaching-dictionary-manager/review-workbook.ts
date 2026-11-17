@@ -1,3 +1,4 @@
+import { isCompoundWorkbookSkill, type CompoundWorkbookFacts } from "./compound-workbook";
 import { isComparativeReviewSkill } from "./lesson-candidate";
 import { ING_RULE_FOR_SKILL, type IngMicroSkill, type IngDictionaryWordV1 } from "@/lib/adle/ing/contracts";
 import { ABLE_IBLE_SKILL, FUL_LESS_SKILL, isSuffixReviewSkill, type SuffixWorkbookFacts } from "./able-ible-workbook";
@@ -25,18 +26,19 @@ const prefixMeaningKey = "prefix_meaning_group";
 const partIndexes = Array.from({ length: FLAT_IMPORT_PART_LIMIT }, (_, index) => index + 1);
 const workbookPrefixParts = (row: Record<string, string>, allowed: readonly string[]) => partIndexes.filter(index =>
   row[`part_${index}_kind`] === "prefix" && allowed.includes(row[`part_${index}_underlying_form`]?.toLowerCase()));
-const workbookKeys = (skill: string) => isSuffixReviewSkill(skill) ? [...reviewKeys, ...suffixFields]
+const workbookKeys = (skill: string) => isCompoundWorkbookSkill(skill) ? [...reviewKeys, ...suffixFields, "component_to_whole_relationship"]
+  : isSuffixReviewSkill(skill) ? [...reviewKeys, ...suffixFields]
   : isPrefixWorkbookSkill(skill) ? [...reviewKeys.slice(0, 4), prefixMeaningKey, ...reviewKeys.slice(4)] : reviewKeys;
 const hidden = new Set(["canonical_word_id", "source_sense_reviewed_at", "sense_id", "pronunciation_id"]);
 const label = (key: string) => ({
   display_word: "Word", definition: "Meaning", family_key: "Word family",
-  use_in_lesson: "Use in lesson", needs_review: "Needs review", ipa: "IPA",
+  component_to_whole_relationship: "How the parts make the meaning", use_in_lesson: "Use in lesson", needs_review: "Needs review", ipa: "IPA",
 }[key] ?? key.replace(/^part_(\d+)_/, "Part $1 ").replaceAll("_", " ").replace(/^./, char => char.toUpperCase()));
 const workbookLabel = (skill: string, key: string) => key === prefixMeaningKey ? prefixWorkbookFieldLabel(skill) : label(key);
 
 export async function buildReviewWorkbook(input: { skill: string; title: string; bundles: MultiSenseCsvBundle[];
   notes: ReadonlyMap<string, string>; families: ReadonlyMap<string, string[]>;
-  suffixFacts?: ReadonlyMap<string, SuffixWorkbookFacts>; requestedSenses?: ReadonlyMap<string, string | null> }) {
+  compoundFacts?: ReadonlyMap<string, CompoundWorkbookFacts>; suffixFacts?: ReadonlyMap<string, SuffixWorkbookFacts>; requestedSenses?: ReadonlyMap<string, string | null> }) {
   const keys = workbookKeys(input.skill);
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet(sheetName, { views: [{ state: "frozen", xSplit: 1, ySplit: headerRow }] });
@@ -64,7 +66,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     use_in_lesson: list(["Review", "Yes", "No"], false),
     part_of_speech: list(["verb", "noun", "adjective", "adverb", "pronoun", "preposition", "conjunction", "determiner", "interjection", "root"]),
   };
-  if (suffixWorkbook) {
+  if (suffixWorkbook || isCompoundWorkbookSkill(input.skill)) {
     Object.assign(commonDropdowns, {
       age_band: list(DICTIONARY_BANDS.ageBand),
       frequency_band: list(DICTIONARY_BANDS.frequencyBand),
@@ -75,7 +77,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   if (prefixWorkbook) commonDropdowns[prefixMeaningKey] = list(prefixWorkbook.choices.map(choice => choice.label));
   commonDropdowns.relationship_kind = list(["derived", "free_base", "regular_inflection", "irregular_inflection", "contraction", "historical_relative"]);
   for (let index = 1; index <= FLAT_IMPORT_PART_LIMIT; index++) {
-    commonDropdowns[`part_${index}_kind`] = list(["prefix", "base", "root", "suffix", "connector"]);
+    commonDropdowns[`part_${index}_kind`] = list(isCompoundWorkbookSkill(input.skill) ? ["base"] : ["prefix", "base", "root", "suffix", "connector"]);
     if (index > 1) commonDropdowns[`part_${index}_join_before`] = list(["none", "space", "hyphen"]);
   }
   const addDropdowns = (row: ExcelJS.Row) => {
@@ -101,7 +103,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
         entry[prefixMeaningKey] = (choices.length === 1 ? choices[0] : choices.find(choice => choice.gloss === gloss))?.label ?? "";
       }
     }
-    const row = sheet.addRow({ ...entry, ...input.suffixFacts?.get(entry.canonical_word_id), use_in_lesson: input.requestedSenses?.get(entry.canonical_word_id) === entry.sense_id ? "Yes" : "Review", needs_review: notes });
+    const row = sheet.addRow({ ...entry, ...input.suffixFacts?.get(entry.canonical_word_id), component_to_whole_relationship: input.compoundFacts?.get(entry.canonical_word_id)?.componentToWholeRelationship ?? "", use_in_lesson: input.requestedSenses?.get(entry.canonical_word_id) === entry.sense_id ? "Yes" : "Review", needs_review: notes });
     row.height = 32;
     row.alignment = { vertical: "middle", wrapText: true };
     addDropdowns(row);
@@ -120,7 +122,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
       row.getCell(key).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFDEDF7" } };
     }
   }
-  if (suffixWorkbook || blankPrefixWorkbook || isComparativeReviewSkill(input.skill)) {
+  if (suffixWorkbook || blankPrefixWorkbook || isComparativeReviewSkill(input.skill) || isCompoundWorkbookSkill(input.skill)) {
     const firstBlankRow = headerRow + rows.length + 1;
     for (let number = firstBlankRow; number < firstBlankRow + 100; number++) {
       const row = sheet.getRow(number);
@@ -159,6 +161,11 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     ["Family relationship", "Selecting a family for a single base links that base. For words with multiple bases, specify the component part ID."],
     ["Dictation", "Use the word once. Count from zero for the target position. In She is caring for a sick bird, caring is position 2."],
     ["Existing facts", "Confirm any facts copied from older Dictionary or lesson records. Keep the hidden IDs and source revision supplied in the workbook."],
+  ]);
+  if (isCompoundWorkbookSkill(input.skill)) guide.addRows([
+    ["Compound components", "Enter each whole component as a base, with its approved meaning. Use none, space or hyphen for every join. The visible parts and joins must reproduce the exact spelling."],
+    ["How the parts make the meaning", "One plain sentence explaining the compound meaning. Example: A bedroom is a room with a bed, used for sleeping. Existing reviewed explanations are prefilled."],
+    ["Teaching family", "Choose the family for the component identified by Component part id. The first component is used when that field is empty. Other component meanings remain in the approved word parts."],
   ]);
   if (input.skill === UN_PREFIX_SKILL) guide.addRow([
     "Prefix meaning group",
@@ -252,6 +259,7 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
     group.push(entry);
     groups.set(groupKey, group);
   }
+  const compoundFacts = new Map<number, CompoundWorkbookFacts>();
   const pendingFamilies: WorkbookFamilyTask[] = [];
   const records: Record<string, string>[] = [];
   const decisions = new Map(options?.decisions.map(decision => [decision.row, decision]));
@@ -259,6 +267,7 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
     && (!options?.targetRow || Number(row.workbook_row) === options.targetRow)));
   if (!selected.length) throw new Error("Choose Yes under Use in lesson for at least one meaning.");
   for (const group of selected) {
+    if (isCompoundWorkbookSkill(skill)) for (const row of group) compoundFacts.set(Number(row.workbook_row), { componentToWholeRelationship: row.component_to_whole_relationship ?? "" });
     const tasks: WorkbookFamilyTask[] = [];
     if (hasPrefixChoice) {
       const lessonRows = group.filter(row => row.use_in_lesson === "Yes");
@@ -290,7 +299,7 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
       const bases = Array.from({ length: FLAT_IMPORT_PART_LIMIT }, (_, index) => index + 1)
         .filter(index => row[`part_${index}_kind`] === "base" ||
           (skill === ABLE_IBLE_SKILL && row[`part_${index}_kind`] === "root"));
-      const part = bases.length === 1 ? bases[0] : bases.find(index =>
+      const part = bases.length === 1 || isCompoundWorkbookSkill(skill) && !row.component_part_id ? bases[0] : bases.find(index =>
         (row[`part_${index}_id`] || `part_${index}`) === row.component_part_id);
       const base = part ? row[`part_${part}_underlying_form`].toLocaleLowerCase("en-GB") : "";
       const decision = decisions.get(rowNumber) ?? (row.family_key ? { row: rowNumber, familyKey: row.family_key } : null);
@@ -309,6 +318,7 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
       if (!row.relationship_kind && ING_RULE_FOR_SKILL[skill as IngMicroSkill]) row.relationship_kind = "regular_inflection";
       if (!row.relationship_kind && isComparativeReviewSkill(skill))
         row.relationship_kind = row.part_2_kind ? "regular_inflection" : "free_base";
+      if (!row.relationship_kind && isCompoundWorkbookSkill(skill)) row.relationship_kind = "derived";
       if (!row.relationship_kind && isSuffixReviewSkill(skill)) row.relationship_kind = "derived";
       if (!row.relationship_kind)
         throw new Error(`Row ${rowNumber}: choose the relationship to the teaching family.`);
@@ -333,6 +343,6 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
   const prefixMeanings = new Map<number, string>();
   if (hasPrefixChoice) for (const row of requestedRows)
     prefixMeanings.set(Number(row.workbook_row), row[prefixMeaningKey]);
-  return { prefixMeanings, suffixFacts: new Map(requestedRows.map(row => [Number(row.workbook_row),
+  return { compoundFacts, prefixMeanings, suffixFacts: new Map(requestedRows.map(row => [Number(row.workbook_row),
     { age_band: row.age_band ?? "", frequency_band: row.frequency_band ?? "", complexity_band: row.complexity_band ?? "", has_schwa: row.has_schwa ?? "" } satisfies SuffixWorkbookFacts])), csv, rowNumbers: records.map(row => Number(row.workbook_row)), pendingFamilies };
 }

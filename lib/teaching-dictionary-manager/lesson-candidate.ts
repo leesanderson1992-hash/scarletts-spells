@@ -1,3 +1,4 @@
+import { isCompoundWorkbookSkill } from "./compound-workbook";
 import { COMPARATIVE_MICRO_SKILLS, degreeRuleForSkill, type ComparativeMicroSkill } from "@/lib/adle/inflection/contracts";
 import { ABLE_IBLE_SKILL } from "./able-ible-workbook";
 import { ING_RULE_FOR_SKILL, ingStem, type IngDoublingPattern, type IngMicroSkill } from "@/lib/adle/ing/contracts";
@@ -52,7 +53,7 @@ function expectedInForm(base: string): "in" | "im" | "il" | "ir" {
 export const IDENTIFY_BASE_SKILL = "D4_MOR_BASE_WORDS_IDENTIFY_BASE";
 export const isComparativeReviewSkill = (skill: unknown): skill is ComparativeMicroSkill =>
   COMPARATIVE_MICRO_SKILLS.some(key => key === skill);
-export const hasCandidateRule = (skillKey: string) => isComparativeReviewSkill(skillKey) || ingKeys.has(skillKey)
+export const hasCandidateRule = (skillKey: string) => isCompoundWorkbookSkill(skillKey) || isComparativeReviewSkill(skillKey) || ingKeys.has(skillKey)
   || Object.hasOwn(suffixForms, skillKey) || Object.hasOwn(prefixForms, skillKey);
 
 /** Rules are evaluated from approved facts. A skill choice is never evidence by itself. */
@@ -98,6 +99,19 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
         `Choose the reviewed meaning of this ${acceptedPrefixes ? "prefix" : "suffix"}.`, "td-canonical-parts");
     else add("REVIEWED_PARTS", "Approve typed parts and joins that spell this word.", "td-canonical-parts");
     return done("needs_facts");
+  }
+  if (isCompoundWorkbookSkill(input.skillKey)) {
+    if (parts.length < 2 || parts.some(part => part.kind !== "base"
+      || String(part.sourceText).toLowerCase() !== String(part.surfaceText).toLowerCase())) return done("not_match");
+    const joins = input.morphology?.joins as { joinType?: string }[];
+    const separated = joins.some(join => join.joinType === "space" || join.joinType === "hyphen");
+    if (input.skillKey.endsWith("CLOSED_COMPOUNDS") === separated) return done("not_match");
+    if (!selectedSense?.dictationSentence) add("DICTATION", "Approve a dictation sentence for this compound meaning.", "td-dictation");
+    if (!input.familyLinks.some(link => link.sense_id === input.senseId && parts.some(part =>
+      part.id === link.component_part_id && ["derived", "free_base"].includes(link.relationship_kind))))
+      add("FAMILY_LINK", "Link a component to its reviewed teaching family.", "td-base-family");
+    evidence.push("Reviewed component words and joins reproduce the compound spelling.");
+    return done(issues.length ? "needs_facts" : "ready");
   }
   if (isComparativeReviewSkill(input.skillKey)) {
     if (selectedSense?.partOfSpeech !== "adjective") return done("not_match");

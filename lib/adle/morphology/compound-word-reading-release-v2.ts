@@ -34,6 +34,7 @@ export function resolveSeparatedHyphenatedReadingIntroductionV2(
     authority.microSkillKey !== SEPARATED_HYPHENATED_MICRO_SKILL_KEY ||
     !nonEmpty(content.childFriendlyExplanation) ||
     !nonEmpty(content.ruleExplanation) ||
+    !Array.isArray(content.readingPages) ||
     !validateCompoundWordLessonReadingPagesV2(content.readingPages)
   ) return null;
   return {

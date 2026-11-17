@@ -1,3 +1,5 @@
+import { isCompoundWorkbookSkill } from "./compound-workbook";
+import { loadCompoundBulkReview } from "./compound-review";
 import { loadPendingPrefixWorkbookQueue } from "./prefix-bulk-review";
 import { loadComparativeReview } from "./comparative-review";
 import { prefixWorkbookEnabled, prefixWorkbooks } from "./prefix-workbook";
@@ -24,6 +26,7 @@ import type { MultiSenseCsvBundle } from "./multi-sense-csv";
 type Db = ReturnType<typeof createServiceRoleClient>;
 type PoolWord = { canonicalWordId: string; word: string; base: string; meaning: string; dictationSentence: string };
 export async function loadSpecialistBulkReview(db: Db, skill: string, routeId: string, includeBundles = false) {
+  if (isCompoundWorkbookSkill(skill)) return loadCompoundBulkReview(db, skill, includeBundles);
   const environment = ingReviewEnvironment();
   if (!environment) throw new Error("Bulk review is unavailable.");
   if (routeId === "base_word_lab") {

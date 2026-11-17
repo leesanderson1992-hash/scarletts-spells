@@ -1,3 +1,7 @@
+import { isCompoundWorkbookSkill } from "@/lib/teaching-dictionary-manager/compound-workbook";
+import { loadPendingCompoundWorkbookQueue } from "@/lib/teaching-dictionary-manager/compound-workbook-draft";
+import { publishCompoundWorkbookWords, saveCompoundWorkbookDetails } from "./compound-actions";
+import { FormatHint } from "../format-hint";
 import { isComparativeReviewSkill } from "@/lib/teaching-dictionary-manager/lesson-candidate";
 import { loadComparativeReview } from "@/lib/teaching-dictionary-manager/comparative-review";
 import { publishComparativeSets } from "./comparative-actions";
@@ -60,11 +64,14 @@ export default async function LessonUpdates({ searchParams }: {
   const prefixSkill = prefixWorkbookEnabled(selected) ? selected : null;
   const comparativeSkill = isComparativeReviewSkill(selected) ? selected : null;
   const comparative = comparativeSkill && view === "preview" ? await loadComparativeReview(db, comparativeSkill) : null;
-  const blankWorkbookSkill = prefixSkill ?? (suffixPilot || comparativeSkill ? selected : null);
+  const compoundSkill = isCompoundWorkbookSkill(selected) ? selected : null;
+  const compoundQueue = compoundSkill && view === "preview" ? await loadPendingCompoundWorkbookQueue(db, compoundSkill) : null;
+  const readyCompounds = compoundQueue?.filter(row => !row.blockers.length).slice(0, 30) ?? [];
+  const blankWorkbookSkill = prefixSkill ?? (suffixPilot || comparativeSkill || compoundSkill ? selected : null);
   const prefixQueue = prefixSkill && view === "preview" && specialist
     ? await loadPendingPrefixWorkbookQueue(db, prefixSkill) : null;
   const readyPrefixRows = prefixQueue?.filter(row => !row.blockers.length).slice(0, PREFIX_PUBLISH_BATCH_SIZE) ?? [];
-  const draftWordIds = new Set(prefixQueue?.map(row => row.wordId));
+  const draftWordIds = new Set([...(prefixQueue?.map(row => row.wordId) ?? []), ...(compoundQueue?.map(row => row.wordId) ?? [])]);
   const lessonName = skill ? STAGING_ING_LESSONS[skill] : "";
   const clusterLabels = new Map((clusterRows.data ?? []).map(row => [row.skill_cluster_key, row.display_name]));
   const skills = (skillRows.data ?? []).map(row => ({ key: row.micro_skill_key, label: row.display_name, cluster: row.skill_cluster_key }));
@@ -132,6 +139,24 @@ export default async function LessonUpdates({ searchParams }: {
       {specialist.rows.some(row => specialist.current.some(word => word.canonicalWordId === row.id)) &&
         <p className="text-sm text-slate-600">{specialist.rows.filter(row => specialist.current.some(word => word.canonicalWordId === row.id)).length} Active words are also in review for missing facts or unpublished updates. Their existing lesson version stays available.</p>}
       <Link className="font-semibold underline" href={`/admin/adle-lesson-readiness?route=${specialist.routeId}&skill=${selected}`}>Open lesson readiness</Link>
+      {compoundSkill && compoundQueue && <>
+        {params.published && <p role="status">{params.published} compound words published and available in ADLE.</p>}
+        {compoundQueue.map(row => <form action={saveCompoundWorkbookDetails} key={row.id} className="space-y-3 rounded-lg border p-3">
+          <input type="hidden" name="skill" value={compoundSkill} /><input type="hidden" name="word_id" value={row.wordId} /><input type="hidden" name="draft_id" value={row.id} />
+          <h3 className="font-semibold">{row.payload.displayWord} · {row.blockers.length ? "Needs facts" : "Ready to publish"}</h3>
+          <p>{row.payload.definition}</p><p className="text-sm">{row.payload.canonicalMorphology.wordSum}</p>
+          <ul className="list-disc pl-5 text-sm">{row.blockers.map(issue => <li key={issue}>{issue}</li>)}</ul>
+          <label className="grid gap-1 text-sm"><span>How the parts make the meaning<FormatHint label="compound explanation" format="One short sentence connecting the component meanings to the whole word." example="A bedroom is a room with a bed, used for sleeping." /></span>
+            <textarea name="componentToWholeRelationship" maxLength={1000} defaultValue={String(row.payload.routeContents[0]?.content.componentToWholeRelationship ?? "")} className="rounded border p-2" />
+          </label>
+          <div className="flex flex-wrap items-center gap-3"><ActionSubmitButton className={button} pendingLabel="Checking compound…">Save and recheck</ActionSubmitButton><Link className="text-sm underline" href={`/admin/teaching-dictionary/${row.wordId}?draft=${row.id}#td-canonical-parts`}>Open word details</Link></div>
+        </form>)}
+        {readyCompounds.length > 0 && <form action={publishCompoundWorkbookWords}>
+          <input type="hidden" name="skill" value={compoundSkill} />
+          {readyCompounds.map(row => <div key={row.id} hidden><input type="hidden" name="word_id" value={row.wordId} /><input type="hidden" name="draft_id" value={row.id} /></div>)}
+          <ActionSubmitButton className={button} pendingLabel="Publishing compound words…">Publish {readyCompounds.length} ready words</ActionSubmitButton>
+        </form>}
+      </>}
       {prefixSkill && prefixQueue && <>
         {params.published && <p role="status">{params.published} words published and available in ADLE.</p>}
         {prefixQueue.map(row => <form action={savePrefixWorkbookDetails} key={row.id} className="space-y-2 rounded-lg border p-3">

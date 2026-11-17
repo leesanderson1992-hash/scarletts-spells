@@ -1,3 +1,4 @@
+import { isCompoundWorkbookSkill, COMPOUND_WORKBOOK_ROUTE } from "./compound-workbook";
 import { COMPARATIVE_MICRO_SKILLS } from "@/lib/adle/inflection/contracts";
 import { prefixWorkbookEnabled, PREFIX_WORKBOOK_ROUTE } from "./prefix-workbook";
 import { ingReviewEnvironment } from "./ing-staging-scope";
@@ -25,6 +26,7 @@ const specialistRoutes: Readonly<Record<string, string>> = {
 };
 
 export function specialistWorkbookRoute(skill: unknown) {
+  if (ingReviewEnvironment() !== null && isCompoundWorkbookSkill(skill)) return COMPOUND_WORKBOOK_ROUTE;
   if (prefixWorkbookEnabled(skill)) return PREFIX_WORKBOOK_ROUTE;
   return ingReviewEnvironment() !== null && typeof skill === "string" && Object.hasOwn(specialistRoutes, skill)
     ? specialistRoutes[skill] : null;

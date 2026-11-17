@@ -1,4 +1,6 @@
 "use server";
+import { isCompoundWorkbookSkill, type CompoundWorkbookFacts } from "@/lib/teaching-dictionary-manager/compound-workbook";
+import { stageCompoundWorkbookDraft } from "@/lib/teaching-dictionary-manager/compound-workbook-draft";
 
 import { loadReviewedMeaningBundles } from "@/lib/teaching-dictionary-manager/multi-sense-export";
 import { semanticJson } from "@/lib/adle/inflection/semantic-json";
@@ -53,7 +55,7 @@ function importIssue(message: string) {
 }
 
 function workbookBasePartOfSpeech(skill: string) {
-  if (isSuffixWorkbookPilot(skill) || isComparativeReviewSkill(skill) || skill === SUB_INTER_SUPER_PREFIX_SKILL) return null;
+  if (isCompoundWorkbookSkill(skill) || isSuffixWorkbookPilot(skill) || isComparativeReviewSkill(skill) || skill === SUB_INTER_SUPER_PREFIX_SKILL) return null;
   return skill === NEGATIVE_PREFIX_SKILL ? "adjective" : "verb";
 }
 
@@ -70,6 +72,7 @@ export async function importReviewedMultiSenseCsv(
     return { error: workbook ? "Choose a workbook smaller than 4 MB." : "Choose a CSV smaller than 4 MB." };
   const db = createServiceRoleClient();
   let familyTasks: WorkbookFamilyTask[] | undefined;
+  let compoundFacts = new Map<number, CompoundWorkbookFacts>();
   let prefixMeanings = new Map<number, string>();
   let suffixFacts = new Map<number, SuffixWorkbookFacts>();
   let entries: ReturnType<typeof prepareReviewedCsv>;
@@ -85,12 +88,13 @@ export async function importReviewedMultiSenseCsv(
           (typeof item.familyKey === "string") === (typeof item.createSenseId === "string") ||
           (item.familyKey?.length ?? 0) > 200 || (item.createSenseId?.length ?? 0) > 200))
         throw new Error("Choose a valid family decision.");
-      const { csv, rowNumbers, pendingFamilies, suffixFacts: workbookSuffixFacts, prefixMeanings: workbookPrefixMeanings } = await readReviewWorkbook(await file.arrayBuffer(), skill, {
+      const { csv, rowNumbers, pendingFamilies, compoundFacts: workbookCompoundFacts, suffixFacts: workbookSuffixFacts, prefixMeanings: workbookPrefixMeanings } = await readReviewWorkbook(await file.arrayBuffer(), skill, {
         targetRow, decisions,
         resolve: (base, decision) => decision.createSenseId
           ? createWorkbookFamily(db, actor.id, base, decision.createSenseId, workbookBasePartOfSpeech(skill))
           : approvedWorkbookFamily(db, decision.familyKey ?? "", skill === ABLE_IBLE_SKILL),
       });
+      compoundFacts = workbookCompoundFacts;
       suffixFacts = workbookSuffixFacts;
       prefixMeanings = workbookPrefixMeanings;
       familyTasks = pendingFamilies;
@@ -121,10 +125,23 @@ export async function importReviewedMultiSenseCsv(
         continue;
       }
     }
+    if (workbook && isCompoundWorkbookSkill(skill) && bundle.wordId) {
+      const [current] = await loadReviewedMeaningBundles(db, [bundle.wordId]);
+      const links = await db.from("teaching_dictionary_current_sense_family_memberships")
+        .select("sense_id,component_part_id").eq("canonical_word_id", bundle.wordId);
+      if (links.error) { issues.push({ word, rows, reason: "Could not verify existing component family links." }); continue; }
+      const changedMultipleFamilies = bundle.analyses.some(analysis => {
+        if (links.data.filter(link => link.sense_id === analysis.senseId).length < 2) return false;
+        const prior = current?.analyses.find(row => row.senseId === analysis.senseId);
+        return !prior || semanticJson(prior.parts) !== semanticJson(analysis.parts) || semanticJson(prior.joins) !== semanticJson(analysis.joins)
+          || semanticJson(prior.transformations) !== semanticJson(analysis.transformations);
+      });
+      if (changedMultipleFamilies) { issues.push({ word, rows, reason: "This compound has several reviewed component families. Review changed parts on its word page first so those links are preserved." }); continue; }
+    }
     // Resume an unchanged prefix workbook after a rolled-back publish, or
     // comparative family creation after its one-part base was saved. Never
     // refresh a stale revision when any reviewed fact has actually changed.
-    if (workbook && bundle.wordId && (prefixWorkbookEnabled(skill)
+    if (workbook && bundle.wordId && (prefixWorkbookEnabled(skill) || isCompoundWorkbookSkill(skill)
       || isComparativeReviewSkill(skill) && familyTasks !== undefined
         && !bundle.sourceSenseReviewedAt && bundle.analyses.every(analysis => analysis.parts.length === 1))) {
       const [current] = await loadReviewedMeaningBundles(db, [bundle.wordId]);
@@ -172,6 +189,14 @@ export async function importReviewedMultiSenseCsv(
             report(error instanceof Error ? error.message : "Could not save the prefix lesson draft.");
             lesson.release = `${prefixWorkbookFieldLabel(skillKey)} needs review`;
           }
+          continue;
+        }
+        if (workbook && isCompoundWorkbookSkill(skillKey)) {
+          try {
+            lesson.draftId = await stageCompoundWorkbookDraft(db, actor.id, { ...bundle, wordId }, skillKey, analysis.senseId,
+              compoundFacts.get(rows[index]) ?? { componentToWholeRelationship: "" }, suffixFacts.get(rows[index]));
+            lesson.release = "Saved Dictionary facts. Check and publish the compound from Preview.";
+          } catch (error) { report(error instanceof Error ? error.message : "Could not save the compound lesson draft."); }
           continue;
         }
         if (workbook && isComparativeReviewSkill(skillKey)) {
