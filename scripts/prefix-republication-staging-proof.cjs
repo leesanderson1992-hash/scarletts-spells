@@ -18,11 +18,12 @@ const db=createServiceRoleClient(),skill='D4_MOR_PREFIXES_IN_IM_IL_IR',child='00
 const read=async q=>{const r=await q;assert.ifError(r.error);return r.data};
 (async()=>{
 const words=await read(db.from('canonical_teaching_dictionary_words').select('id,display_word').in('display_word',['imperfect','inaccurate']).eq('row_status','active'));assert.equal(words.length,2);
-const receipts=[];
+const receipts=[];let originalWorkbook;
 for(let attempt=1;attempt<=3;attempt++){
  const bundles=await loadReviewedMeaningBundles(db,words.map(w=>w.id));assert.equal(bundles.length,2);
  const facts=await prefillReviewWorkbookFacts(db,bundles,skill);
- const bytes=await buildReviewWorkbook({skill,title:'Prefix republishing staging regression',notes:new Map(),requestedSenses:new Map(bundles.map(b=>[b.wordId,b.senseSet.senses[0].id])),...facts});
+ let bytes=await buildReviewWorkbook({skill,title:'Prefix republishing staging regression',notes:new Map(),requestedSenses:new Map(bundles.map(b=>[b.wordId,b.senseSet.senses[0].id])),...facts});
+ if(attempt===1)originalWorkbook=bytes;else bytes=originalWorkbook;
  const form=new FormData();form.set('workbook_skill',skill);form.set('review_workbook',new File([bytes],'reviewed-prefix-republication.xlsx'));
  const imported=await importReviewedMultiSenseCsv({},form);console.log({attempt,imported});assert(!imported.error,JSON.stringify(imported));assert.equal(imported.issues?.length??0,0,JSON.stringify(imported));assert(!imported.familyTasks?.length,JSON.stringify(imported));
  const queue=await loadPendingPrefixWorkbookQueue(db,skill);const selected=queue.filter(r=>words.some(w=>w.id===r.wordId));assert.equal(selected.length,2,JSON.stringify(imported));assert(selected.every(r=>!r.blockers.length),JSON.stringify(selected.map(r=>r.blockers)));
@@ -41,6 +42,16 @@ for(let attempt=1;attempt<=3;attempt++){
  }
 
 }
+// A stale workbook with a changed fact must not overwrite a newer review.
+const Excel=require('exceljs'),stale=new Excel.Workbook();await stale.xlsx.load(originalWorkbook);
+const sheet=stale.getWorksheet('Words to review'),headers=sheet.getRow(3).values;
+for(let n=4;n<=sheet.rowCount;n++){
+ const row=sheet.getRow(n),word=row.getCell(headers.indexOf('Word')).text;if(!word)continue;
+ row.getCell(headers.indexOf('Use in lesson')).value=word==='imperfect'?'Yes':'No';
+ if(word==='imperfect')row.getCell(headers.indexOf('Meaning')).value='A stale changed definition that must not replace the current review.';
+}
+const staleForm=new FormData();staleForm.set('workbook_skill',skill);staleForm.set('review_workbook',new File([await stale.xlsx.writeBuffer()],'stale-prefix.xlsx'));
+const rejected=await importReviewedMultiSenseCsv({},staleForm);assert.equal(rejected.words??0,0,JSON.stringify(rejected));assert(rejected.issues?.length>0,JSON.stringify(rejected));
 const [authority,pool]=await Promise.all([loadTeachingDictionaryEvidenceAuthorityForSkill(db,'staging',skill),loadSpecialistBulkReview(db,skill,'dynamic_prefix_word_lab')]);
 const covered=new Set([...pool.current.map(w=>w.canonicalWordId),...pool.rows.map(w=>w.id)]);assert(authority.every(r=>covered.has(r.canonicalWordId)),'Every assignment must be Active or in review');
 const result={status:'passed',receipts,assigned:authority.length,active:pool.current.length,review:pool.rows.length};fs.writeFileSync('.tmp/prefix-republication-staging-proof.json',JSON.stringify(result,null,2));console.log(result);

@@ -121,10 +121,12 @@ export async function importReviewedMultiSenseCsv(
         continue;
       }
     }
-    // Creating a family resumes the same workbook after its one-part base
-    // was saved. Refresh that revision only when the reviewed facts match.
-    if (workbook && isComparativeReviewSkill(skill) && familyTasks !== undefined
-      && bundle.wordId && !bundle.sourceSenseReviewedAt && bundle.analyses.every(analysis => analysis.parts.length === 1)) {
+    // Resume an unchanged prefix workbook after a rolled-back publish, or
+    // comparative family creation after its one-part base was saved. Never
+    // refresh a stale revision when any reviewed fact has actually changed.
+    if (workbook && bundle.wordId && (prefixWorkbookEnabled(skill)
+      || isComparativeReviewSkill(skill) && familyTasks !== undefined
+        && !bundle.sourceSenseReviewedAt && bundle.analyses.every(analysis => analysis.parts.length === 1))) {
       const [current] = await loadReviewedMeaningBundles(db, [bundle.wordId]);
       if (current && semanticJson(current.senseSet) === semanticJson(bundle.senseSet)
         && current.analyses.length === bundle.analyses.length
