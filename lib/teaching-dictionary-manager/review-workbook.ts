@@ -85,7 +85,8 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     const entry = Object.fromEntries(headers.map((key, i) => [key, (values[i] ?? "").replace(/^'(?=[=+@\-\t\r])/u, "")]));
     const notes = [
       input.notes.get(entry.canonical_word_id),
-      prefixWorkbook && !entry.dictation_sentence ? "Add a dictation sentence for this meaning." : "",
+      entry.part_of_speech !== "root" && !entry.dictation_sentence ? "Add a dictation sentence for this meaning." : "",
+      !entry.part_1_kind ? "Review the word parts." : "",
       !entry.family_key ? "Choose the teaching family for this meaning." : "",
       !entry.ipa || !entry.spoken_syllable_count || !entry.stress_pattern
         ? "Check pronunciation, syllable count and stress." : "",

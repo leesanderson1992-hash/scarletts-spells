@@ -1,3 +1,4 @@
+import { includeActiveWorkbookReview } from "@/lib/teaching-dictionary-manager/active-workbook-review";
 import { loadLessonReviewRequests } from "@/lib/teaching-dictionary-manager/lesson-review-requests";
 import { loadSpecialistBulkReview } from "@/lib/teaching-dictionary-manager/specialist-bulk-review";
 import { FUL_LESS_SKILL, suffixReviewTitle } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
@@ -68,16 +69,17 @@ export default async function LessonUpdates({ searchParams }: {
   })).sort((a, b) => a.label.localeCompare(b.label));
   const { update } = result;
   const review = update && view === "export" ? ingReviewExportRows(update) : null;
-  const wordsToReview = specialist?.rows
+  const initialReview = specialist?.rows
     ?? base?.rows.map(row => ({ ...row, href: `/admin/teaching-dictionary/${row.id}` }))
     ?? suffix?.rows.map(row => ({ ...row, href: `/admin/teaching-dictionary/${row.id}` }))
     ?? review?.map(row => ({ id: row.wordId, word: row.displayWord, note: row.note,
       href: `/admin/teaching-dictionary/${row.wordId}` }))
     ?? [];
+  const activeWords = specialist?.current ?? base?.current ?? suffix?.current ?? update?.current ?? [];
+  const wordsToReview = view === "export" ? await includeActiveWorkbookReview(db, selected, activeWords, initialReview,
+    specialistRoute !== "weak_vowel_word_lab") : initialReview;
   const reviewIds = new Set(wordsToReview.map(row => row.id));
-  const resolvedWords = (specialist?.current ?? base?.current ?? suffix?.current
-    ?? update?.current.map(word => ({ canonicalWordId: word.canonicalWordId, word: word.word })) ?? [])
-    .filter(word => !reviewIds.has(word.canonicalWordId))
+  const resolvedWords = activeWords.filter(word => !reviewIds.has(word.canonicalWordId))
     .sort((a, b) => a.word.localeCompare(b.word, "en-GB"));
   const [children, prepared] = await Promise.all([
     update && view === "preview" && update.childIds.length ? db.from("children").select("id,first_name").in("id", update.childIds)

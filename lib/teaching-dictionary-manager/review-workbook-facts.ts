@@ -2,21 +2,25 @@ import "server-only";
 
 import type { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { targetOccurrences } from "./authoring";
-import { canonicalWordSum, type CanonicalPart } from "./canonical-morphology";
+import { auditCanonicalMorphology, canonicalWordSum, type CanonicalJoin, type CanonicalPart } from "./canonical-morphology";
+import { FLAT_IMPORT_PART_LIMIT } from "./csv";
+import { ABLE_IBLE_SKILL } from "./able-ible-workbook";
 import type { MultiSenseCsvBundle } from "./multi-sense-csv";
-import { prefixWorkbooks, type PrefixWorkbookSkill } from "./prefix-workbook";
+import { isPrefixWorkbookSkill, prefixWorkbooks, type PrefixWorkbookSkill } from "./prefix-workbook";
 
 type Db = ReturnType<typeof createServiceRoleClient>;
 
-export async function prefillPrefixReviewFacts(db: Db, bundles: MultiSenseCsvBundle[], skill: PrefixWorkbookSkill,
-  publishedBases: ReadonlyMap<string, string>) {
+export async function prefillReviewWorkbookFacts(db: Db, bundles: MultiSenseCsvBundle[], skill: string,
+  publishedBases: ReadonlyMap<string, string> = new Map()) {
   const singles = bundles.filter(bundle => bundle.senseSet.senses.length === 1);
   const ids = singles.filter(bundle => !bundle.sourceSenseReviewedAt || !bundle.senseSet.senses[0].dictationSentence?.trim())
     .map(bundle => bundle.wordId);
   const legacy = new Set(singles.filter(bundle => !bundle.sourceSenseReviewedAt).map(bundle => bundle.wordId));
   const sentences = new Map<string, { dictationSentence: string; dictationTargetTokenIndex: number }>();
   const pronunciations = new Map<string, { ipa: string; spokenSyllableCount: number | null; stressPattern: string }>();
-  const morphology = new Map<string, { parts: unknown; partOfSpeech: string | null }>();
+  const morphology = new Map<string, {
+    parts: unknown; joins: unknown; transformations: unknown; partOfSpeech: string | null;
+  }>();
   for (let offset = 0; offset < ids.length; offset += 75) {
     const batch = ids.slice(offset, offset + 75);
     const legacyBatch = batch.filter(id => legacy.has(id));
@@ -30,11 +34,11 @@ export async function prefillPrefixReviewFacts(db: Db, bundles: MultiSenseCsvBun
         .eq("row_status", "active").eq("review_status", "approved_for_first_exposure")
         .order("created_at", { ascending: false }).order("id", { ascending: false }) : null,
       legacyBatch.length ? db.from("canonical_teaching_dictionary_word_morphology")
-        .select("canonical_word_id,morphology_parts,raw_morpholex_pos").in("canonical_word_id", legacyBatch)
+        .select("canonical_word_id,morphology_parts,morphology_joins,morphology_transformations,raw_morpholex_pos").in("canonical_word_id", legacyBatch)
         .eq("row_status", "active").eq("review_status", "approved_for_first_exposure").eq("analysis_status", "approved")
         .order("created_at", { ascending: false }).order("id", { ascending: false }) : null,
     ]);
-    if (dictation.error || metadata?.error || parts?.error) throw new Error("Could not load existing Dictionary facts for the prefix workbook.");
+    if (dictation.error || metadata?.error || parts?.error) throw new Error("Could not load existing Dictionary facts for the review workbook.");
     for (const row of dictation.data ?? []) {
       if (!sentences.has(row.canonical_word_id)) sentences.set(row.canonical_word_id, {
         dictationSentence: row.dictation_sentence, dictationTargetTokenIndex: row.dictation_target_token_index,
@@ -49,23 +53,25 @@ export async function prefillPrefixReviewFacts(db: Db, bundles: MultiSenseCsvBun
     }
     for (const row of parts?.data ?? []) {
       if (!morphology.has(row.canonical_word_id)) morphology.set(row.canonical_word_id, {
-        parts: row.morphology_parts, partOfSpeech: row.raw_morpholex_pos,
+        parts: row.morphology_parts, joins: row.morphology_joins, transformations: row.morphology_transformations,
+        partOfSpeech: row.raw_morpholex_pos,
       });
     }
   }
   const hydrated = bundles.map((bundle): MultiSenseCsvBundle => {
     if (bundle.senseSet.senses.length !== 1) return bundle;
     const [sense] = bundle.senseSet.senses;
+    const oldMorphology = morphology.get(bundle.wordId);
+    const partOfSpeech = sense.partOfSpeech || oldMorphology?.partOfSpeech || "";
     const saved = sentences.get(bundle.wordId);
     const positions = saved ? targetOccurrences(saved.dictationSentence, bundle.displayWord) : [];
-    const dictationSentence = !sense.dictationSentence?.trim() && sense.partOfSpeech !== "root" && saved
+    const dictationSentence = !sense.dictationSentence?.trim() && partOfSpeech !== "root" && saved
       && (positions.includes(saved.dictationTargetTokenIndex) || positions.length === 1) ? {
         dictationSentence: saved.dictationSentence,
         dictationTargetTokenIndex: positions.includes(saved.dictationTargetTokenIndex)
           ? saved.dictationTargetTokenIndex : positions[0],
       } : null;
     const pronunciation = pronunciations.get(bundle.wordId);
-    const oldMorphology = morphology.get(bundle.wordId);
     const publishedBase = publishedBases.get(bundle.wordId);
     const publishedPrefix = publishedBase && bundle.displayWord.endsWith(publishedBase)
       ? bundle.displayWord.slice(0, -publishedBase.length) : "";
@@ -73,28 +79,48 @@ export async function prefillPrefixReviewFacts(db: Db, bundles: MultiSenseCsvBun
       { kind: "prefix", sourceText: publishedPrefix, surfaceText: publishedPrefix },
       { kind: "base", sourceText: publishedBase, surfaceText: publishedBase },
     ] : null;
-    const existingParts = prefixPartSuggestions(oldMorphology?.parts, bundle.displayWord, skill);
-    const parts = publishedBase && existingParts?.[1].sourceText !== publishedBase
-      ? prefixPartSuggestions(lessonParts, bundle.displayWord, skill) : existingParts;
+    const audit = oldMorphology && auditCanonicalMorphology({ ...oldMorphology, displayWord: bundle.displayWord,
+      linkedToFamily: false });
+    const canonical = audit?.status === "canonical" || audit?.status === "safe_range_conversion";
+    const existingPrefix = isPrefixWorkbookSkill(skill)
+      ? prefixPartSuggestions(oldMorphology?.parts, bundle.displayWord, skill) : null;
+    const suggestedPrefix = isPrefixWorkbookSkill(skill) && publishedBase && existingPrefix?.[1].sourceText !== publishedBase
+      ? prefixPartSuggestions(lessonParts, bundle.displayWord, skill) : existingPrefix;
+    const usesPublishedSplit = suggestedPrefix !== existingPrefix;
+    const parts = canonical && !usesPublishedSplit
+      ? audit?.convertedParts ?? oldMorphology!.parts as CanonicalPart[] : suggestedPrefix;
+    const joins: CanonicalJoin[] = canonical && !usesPublishedSplit ? oldMorphology!.joins as CanonicalJoin[]
+      : suggestedPrefix ? [{ afterPartId: suggestedPrefix[0].id, beforePartId: suggestedPrefix[1].id, joinType: "none" }] : [];
+    const transformations = canonical && !usesPublishedSplit && Array.isArray(oldMorphology?.transformations)
+      ? oldMorphology.transformations as MultiSenseCsvBundle["analyses"][number]["transformations"] : [];
+    const recoverable = new Set(transformations.map(change => change.sourcePartId)).size === transformations.length;
+    const baseParts = parts?.filter(part => part.kind === "base" || part.kind === "root") ?? [];
+    const component = baseParts.length === 1 ? baseParts[0] : baseParts.find(part => part.sourceText === publishedBase);
+    const oldPronunciation = bundle.senseSet.pronunciations.find(row => row.id === sense.pronunciationId);
+    const fallbackPronunciation = partOfSpeech !== "root" && pronunciation ? {
+      id: "legacy-pronunciation", ipa: oldPronunciation?.ipa || pronunciation.ipa,
+      spokenSyllableCount: oldPronunciation?.spokenSyllableCount || pronunciation.spokenSyllableCount,
+      stressPattern: oldPronunciation?.stressPattern || pronunciation.stressPattern,
+    } : null;
     return { ...bundle, senseSet: {
-      pronunciations: pronunciation ? [{ ...pronunciation, id: "legacy-pronunciation" }] : bundle.senseSet.pronunciations,
-      senses: [{ ...sense, ...dictationSentence, pronunciationId: pronunciation ? "legacy-pronunciation" : sense.pronunciationId,
-        partOfSpeech: sense.partOfSpeech || oldMorphology?.partOfSpeech || "" }],
-    }, analyses: bundle.analyses.length || !parts ? bundle.analyses : [{
-      senseId: sense.id, parts, joins: [{ afterPartId: parts[0].id, beforePartId: parts[1].id, joinType: "none" }],
-      transformations: [], wordSum: canonicalWordSum(parts, bundle.displayWord),
-      familyKey: "", componentPartId: parts[1].id, relationshipKind: "derived", requestedSkillKeys: [],
+      pronunciations: fallbackPronunciation ? [fallbackPronunciation] : bundle.senseSet.pronunciations,
+      senses: [{ ...sense, ...dictationSentence, pronunciationId: fallbackPronunciation?.id ?? sense.pronunciationId,
+        partOfSpeech }],
+    }, analyses: bundle.analyses.length || !parts || parts.length > FLAT_IMPORT_PART_LIMIT || !recoverable ? bundle.analyses : [{
+      senseId: sense.id, parts, joins, transformations, wordSum: canonicalWordSum(parts, bundle.displayWord),
+      familyKey: "", componentPartId: component?.id ?? "",
+      relationshipKind: isPrefixWorkbookSkill(skill) ? "derived" : "", requestedSkillKeys: [],
     }] };
   });
   const bases = [...new Set(hydrated.flatMap(bundle => bundle.analyses.flatMap(analysis =>
-    analysis.parts.filter(part => part.kind === "base").map(part => part.sourceText))))];
+    analysis.parts.filter(part => part.kind === "base" || part.kind === "root").map(part => part.sourceText))))];
   const families = new Map<string, string[]>();
   const seen = new Set<string>();
   for (let offset = 0; offset < bases.length; offset += 50) {
     const { data, error } = await db.from("teaching_dictionary_families_with_current_meaning")
-      .select("family_key,base_lemma,base_meaning,base_part_of_speech,review_status")
-      .in("base_lemma", bases.slice(offset, offset + 50)).eq("base_kind", "free_base").order("revision", { ascending: false });
-    if (error) throw new Error("Could not load family choices for the prefix workbook.");
+      .select("family_key,base_lemma,base_meaning,base_part_of_speech,review_status,base_kind")
+      .in("base_lemma", bases.slice(offset, offset + 50)).in("base_kind", skill === ABLE_IBLE_SKILL ? ["free_base", "bound_root"] : ["free_base"]).order("revision", { ascending: false });
+    if (error) throw new Error("Could not load family choices for the review workbook.");
     for (const row of data ?? []) {
       if (seen.has(row.family_key)) continue;
       seen.add(row.family_key);
