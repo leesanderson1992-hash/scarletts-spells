@@ -74,6 +74,11 @@ export default async function LessonUpdates({ searchParams }: {
     ?? review?.map(row => ({ id: row.wordId, word: row.displayWord, note: row.note,
       href: `/admin/teaching-dictionary/${row.wordId}` }))
     ?? [];
+  const reviewIds = new Set(wordsToReview.map(row => row.id));
+  const resolvedWords = (specialist?.current ?? base?.current ?? suffix?.current
+    ?? update?.current.map(word => ({ canonicalWordId: word.canonicalWordId, word: word.word })) ?? [])
+    .filter(word => !reviewIds.has(word.canonicalWordId))
+    .sort((a, b) => a.word.localeCompare(b.word, "en-GB"));
   const [children, prepared] = await Promise.all([
     update && view === "preview" && update.childIds.length ? db.from("children").select("id,first_name").in("id", update.childIds)
       .eq("parent_user_id", actor.id).eq("is_archived", false).order("first_name") : null,
@@ -97,13 +102,23 @@ export default async function LessonUpdates({ searchParams }: {
       fullPoolSize={specialist?.current.length ?? base?.current.length ?? suffix?.current.length ?? update?.current.length ?? null}
       allowsBlankWorkbook={suffixPilot && !blankWorkbookSkill}
       blankWorkbookHref={blankWorkbookSkill ? `/admin/teaching-dictionary/export/review-workbook?skill=${blankWorkbookSkill}&scope=blank` : undefined}
-      review={view === "export" && wordsToReview.length > 0 ? <section className={card}>
-        <h2 className="text-xl font-semibold">{wordsToReview.length} {wordsToReview.length === 1 ? "word to review or publish" : "words to review or publish"}</h2>
-        <ul className="divide-y divide-[var(--border)]">{wordsToReview.map(row => <li key={row.id} className="py-2">
-          <Link prefetch={false} className="font-semibold underline" href={row.href}>{row.word}</Link>
-          <p className="text-sm">{row.note}</p>
-        </li>)}</ul>
-      </section> : null}
+      review={view === "export" ? <>
+        {wordsToReview.length > 0 && <section className={card}>
+          <h2 className="text-xl font-semibold">{wordsToReview.length} {wordsToReview.length === 1 ? "word to review or publish" : "words to review or publish"}</h2>
+          <ul className="divide-y divide-[var(--border)]">{wordsToReview.map(row => <li key={row.id} className="py-2">
+            <Link prefetch={false} className="font-semibold underline" href={row.href}>{row.word}</Link>
+            <p className="text-sm">{row.note}</p>
+          </li>)}</ul>
+        </section>}
+        <details className={card}>
+          <summary className="cursor-pointer font-semibold">Resolved words ({resolvedWords.length})</summary>
+          {resolvedWords.length ? <ul className="flex flex-wrap gap-x-5 gap-y-2">
+            {resolvedWords.map(word => <li key={word.canonicalWordId}>
+              <Link prefetch={false} className="underline" href={`/admin/teaching-dictionary/${word.canonicalWordId}`}>{word.word}</Link>
+            </li>)}
+          </ul> : <p className="text-sm">No resolved words for this lesson yet.</p>}
+        </details>
+      </> : null}
       batches={specialist || base || suffix || review ? Math.ceil(wordsToReview.length / ING_REVIEW_BATCH_SIZE) : null}>
     {specialist && view === "preview" && <section className={card}>
       <h2 className="text-xl font-semibold">{specialist.title} publish status</h2>
