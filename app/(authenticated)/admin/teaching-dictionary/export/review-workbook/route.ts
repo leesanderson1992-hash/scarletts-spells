@@ -12,6 +12,7 @@ import { loadReviewedMeaningBundles, prefillReviewWorkbookMeanings } from "@/lib
 import { ING_REVIEW_BATCH_SIZE, ingReviewExportRows } from "@/lib/teaching-dictionary-manager/ing-review-export";
 import { isSuffixWorkbookPilot, isIdentifyBaseReview, specialistWorkbookRoute, supportsReviewWorkbook } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
 import { loadAbleIbleActivePool, loadAbleIbleReview, loadAbleIbleWorkbook } from "@/lib/teaching-dictionary-manager/able-ible-review";
+import { prefillPrefixReviewFacts } from "@/lib/teaching-dictionary-manager/prefix-review-workbook-facts";
 import { prefixWorkbookEnabled, prefixWorkbooks } from "@/lib/teaching-dictionary-manager/prefix-workbook";
 import { buildLessonPoolWorkbook, buildReviewWorkbook } from "@/lib/teaching-dictionary-manager/review-workbook";
 
@@ -79,8 +80,10 @@ export async function GET(request: Request) {
     }
     const notes = new Map(selected.map(row => [row.id, row.note]));
     const reviewed = await prefillReviewWorkbookMeanings(db, bundles.filter(bundle => notes.has(bundle.wordId)), notes);
-    return downloadWorkbook(await buildReviewWorkbook({ skill, title,
-      bundles: reviewed, notes, families: new Map(), requestedSenses }),
+    const facts = prefixWorkbookEnabled(skill) ? await prefillPrefixReviewFacts(db, reviewed, skill,
+      new Map(current.map(word => [word.canonicalWordId, word.base])))
+      : { bundles: reviewed, families: new Map<string, string[]>() };
+    return downloadWorkbook(await buildReviewWorkbook({ skill, title, ...facts, notes, requestedSenses }),
     `teaching-dictionary-review-${skill}-${batch}.xlsx`);
   }
   if (!isStagingIngSkill(skill)) return new Response("Workbook review is unavailable for this lesson.", { status: 404 });

@@ -1,4 +1,4 @@
-import { NEGATIVE_PREFIX_SKILL, prefixWorkbookEnabled, prefixWorkbooks } from "./prefix-workbook";
+import { prefixWorkbookEnabled, prefixWorkbooks } from "./prefix-workbook";
 import "server-only";
 
 import { loadLessonReviewRequests } from "./lesson-review-requests";
@@ -14,6 +14,7 @@ import type { WeakVowelMicroSkill } from "@/lib/adle/weak-vowel/lesson";
 import type { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { loadIdentifyBaseReview } from "./base-word-review";
 import { loadLessonReadiness } from "./lesson-preflight";
+import { targetOccurrences } from "./authoring";
 import { loadReviewedMeaningBundles } from "./multi-sense-export";
 import type { MultiSenseCsvBundle } from "./multi-sense-csv";
 
@@ -96,17 +97,17 @@ export async function loadSpecialistBulkReview(db: Db, skill: string, routeId: s
   const entries = new Map(lesson.words.map(word => [word.id, word]));
   const facts = new Map<string, MultiSenseCsvBundle>();
   const lessonSenses = new Map<string, string[]>();
-  const auditNegativePrefix = skill === NEGATIVE_PREFIX_SKILL;
-  const ids = [...words.keys()].filter(id => auditNegativePrefix || (includeBundles && !active.has(id)));
+  const auditPrefix = prefixWorkbookEnabled(skill);
+  const ids = [...words.keys()].filter(id => auditPrefix || (includeBundles && !active.has(id)));
   for (let at = 0; at < ids.length; at += 75) {
     const batch = ids.slice(at, at + 75);
     const [bundles, bindings] = await Promise.all([
       loadReviewedMeaningBundles(db, batch),
-      auditNegativePrefix ? db.from("teaching_dictionary_effective_lesson_sense_bindings")
+      auditPrefix ? db.from("teaching_dictionary_effective_lesson_sense_bindings")
         .select("canonical_word_id,sense_id").eq("environment_key", environment)
         .eq("micro_skill_key", skill).in("canonical_word_id", batch) : null,
     ]);
-    if (bindings?.error) throw new Error("Could not check the negative-prefix teaching meanings.");
+    if (bindings?.error) throw new Error("Could not check the prefix teaching meanings.");
     for (const bundle of bundles) facts.set(bundle.wordId, bundle);
     for (const binding of bindings?.data ?? []) lessonSenses.set(binding.canonical_word_id,
       [...(lessonSenses.get(binding.canonical_word_id) ?? []), binding.sense_id]);
@@ -114,7 +115,7 @@ export async function loadSpecialistBulkReview(db: Db, skill: string, routeId: s
   const rows = [...words].flatMap(([id, word]) => {
     const entry = entries.get(id);
     const inPool = active.get(id);
-    const issues = auditNegativePrefix ? negativePrefixReviewIssues(
+    const issues = auditPrefix ? prefixReviewIssues(
       facts.get(id), requests.get(id)?.sense_id, lessonSenses.get(id) ?? [], inPool?.base,
     ) : [];
     if (inPool && !issues.length) return [];
@@ -123,42 +124,14 @@ export async function loadSpecialistBulkReview(db: Db, skill: string, routeId: s
       note: [...new Set([...(inPool ? ["Active in the live lesson."] : []), ...issues,
         ...(entry?.blockers ?? []), ...(inPool ? [] : [blockedNote])])].join(" ") }];
   }).sort((a, b) => a.word.localeCompare(b.word, "en-GB"));
-  let bundles: MultiSenseCsvBundle[] = includeBundles ? rows.map(row => facts.get(row.id) ?? ({
+  const bundles: MultiSenseCsvBundle[] = includeBundles ? rows.map(row => facts.get(row.id) ?? ({
     wordId: row.id, displayWord: row.word, sourceSenseReviewedAt: "", analyses: [],
     senseSet: { pronunciations: [], senses: [{ id: "review", definition: "", partOfSpeech: "", pronunciationId: null }] },
   })) : [];
-  if (includeBundles && auditNegativePrefix) {
-    const legacyIds = bundles.filter(bundle => !bundle.sourceSenseReviewedAt).map(bundle => bundle.wordId);
-    const pronunciations = new Map<string, { ipa: string; spokenSyllableCount: number | null; stressPattern: string }>();
-    for (let at = 0; at < legacyIds.length; at += 75) {
-      const { data, error } = await db.from("canonical_teaching_dictionary_word_metadata")
-        .select("canonical_word_id,phoneme_hint,syllables,stress_pattern")
-        .eq("row_status", "active").eq("review_status", "approved_for_first_exposure")
-        .in("canonical_word_id", legacyIds.slice(at, at + 75))
-        .order("created_at", { ascending: false }).order("id", { ascending: false });
-      if (error) throw new Error("Could not load existing IPA for the negative-prefix workbook.");
-      for (const row of data ?? []) {
-        if (!row.phoneme_hint?.trim() || pronunciations.has(row.canonical_word_id)) continue;
-        const count = Number(row.syllables);
-        pronunciations.set(row.canonical_word_id, { ipa: row.phoneme_hint.trim(),
-          spokenSyllableCount: Number.isInteger(count) && count >= 1 && count <= 20 ? count : null,
-          stressPattern: row.stress_pattern ?? "" });
-      }
-    }
-    bundles = bundles.map(bundle => {
-      const pronunciation = pronunciations.get(bundle.wordId);
-      if (!pronunciation) return bundle;
-      const id = "legacy-pronunciation";
-      return { ...bundle, senseSet: {
-        pronunciations: [{ ...pronunciation, id }],
-        senses: bundle.senseSet.senses.map(sense => ({ ...sense, pronunciationId: id })),
-      } };
-    });
-  }
   return { current, rows, bundles, title: prefixWorkbookEnabled(skill) ? prefixWorkbooks[skill].title : lesson.title, routeId, skill };
 }
 
-export function negativePrefixReviewIssues(bundle: MultiSenseCsvBundle | undefined,
+export function prefixReviewIssues(bundle: MultiSenseCsvBundle | undefined,
   requestedSense: string | null | undefined, boundSenses: string[], teachingBase?: string) {
   const senses = bundle?.senseSet.senses ?? [];
   const senseId = requestedSense ?? (requestedSense === undefined && boundSenses.length === 1
@@ -168,6 +141,9 @@ export function negativePrefixReviewIssues(bundle: MultiSenseCsvBundle | undefin
   const issues: string[] = [];
   if (!sense || !bundle?.senseSet.pronunciations.some(row => row.id === sense.pronunciationId && row.ipa?.trim()))
     issues.push("Approve British IPA for the teaching meaning.");
+  const sentence = sense?.dictationSentence;
+  if (!sense || !bundle || !sentence?.trim() || !targetOccurrences(sentence, bundle.displayWord).includes(sense.dictationTargetTokenIndex ?? -1))
+    issues.push("Approve a dictation sentence for the teaching meaning.");
   const analysis = bundle?.analyses.find(row => row.senseId === sense?.id);
   const approvedBase = analysis?.parts.find(part => part.id === analysis.componentPartId && part.kind === "base");
   if (!analysis?.familyKey || analysis.relationshipKind !== "derived" || !approvedBase || (teachingBase && approvedBase.sourceText !== teachingBase))

@@ -85,6 +85,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     const entry = Object.fromEntries(headers.map((key, i) => [key, (values[i] ?? "").replace(/^'(?=[=+@\-\t\r])/u, "")]));
     const notes = [
       input.notes.get(entry.canonical_word_id),
+      prefixWorkbook && !entry.dictation_sentence ? "Add a dictation sentence for this meaning." : "",
       !entry.family_key ? "Choose the teaching family for this meaning." : "",
       !entry.ipa || !entry.spoken_syllable_count || !entry.stress_pattern
         ? "Check pronunciation, syllable count and stress." : "",
@@ -153,7 +154,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     ["Spelling change", `If the forms differ, record the change and explanation. ${spellingChangeExample}`],
     ["Family relationship", "Selecting a family for a single base links that base. For words with multiple bases, specify the component part ID."],
     ["Dictation", "Use the word once. Count from zero for the target position. In She is caring for a sick bird, caring is position 2."],
-    ["Existing facts", "Legacy lesson facts are suggestions for review. Keep the hidden IDs and source revision supplied in the workbook."],
+    ["Existing facts", "Confirm any facts copied from older Dictionary or lesson records. Keep the hidden IDs and source revision supplied in the workbook."],
   ]);
   if (input.skill === UN_PREFIX_SKILL) guide.addRow([
     "Prefix meaning group",
