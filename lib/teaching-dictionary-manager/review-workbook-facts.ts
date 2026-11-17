@@ -2,9 +2,9 @@ import "server-only";
 
 import type { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { targetOccurrences } from "./authoring";
-import { auditCanonicalMorphology, canonicalWordSum, type CanonicalJoin, type CanonicalPart } from "./canonical-morphology";
+import { auditCanonicalMorphology, canonicalWordSum, exactLegacyPartAliases, type CanonicalJoin, type CanonicalPart } from "./canonical-morphology";
 import { FLAT_IMPORT_PART_LIMIT } from "./csv";
-import { ABLE_IBLE_SKILL } from "./able-ible-workbook";
+import { ABLE_IBLE_SKILL, isSuffixReviewSkill } from "./able-ible-workbook";
 import type { MultiSenseCsvBundle } from "./multi-sense-csv";
 import { isPrefixWorkbookSkill, prefixWorkbooks, type PrefixWorkbookSkill } from "./prefix-workbook";
 
@@ -79,7 +79,8 @@ export async function prefillReviewWorkbookFacts(db: Db, bundles: MultiSenseCsvB
       { kind: "prefix", sourceText: publishedPrefix, surfaceText: publishedPrefix },
       { kind: "base", sourceText: publishedBase, surfaceText: publishedBase },
     ] : null;
-    const audit = oldMorphology && auditCanonicalMorphology({ ...oldMorphology, displayWord: bundle.displayWord,
+    const oldParts = isSuffixReviewSkill(skill) ? exactLegacyPartAliases(oldMorphology?.parts) ?? oldMorphology?.parts : oldMorphology?.parts;
+    const audit = oldMorphology && auditCanonicalMorphology({ ...oldMorphology, parts: oldParts, displayWord: bundle.displayWord,
       linkedToFamily: false });
     const canonical = audit?.status === "canonical" || audit?.status === "safe_range_conversion";
     const existingPrefix = isPrefixWorkbookSkill(skill)
@@ -88,7 +89,7 @@ export async function prefillReviewWorkbookFacts(db: Db, bundles: MultiSenseCsvB
       ? prefixPartSuggestions(lessonParts, bundle.displayWord, skill) : existingPrefix;
     const usesPublishedSplit = suggestedPrefix !== existingPrefix;
     const parts = canonical && !usesPublishedSplit
-      ? audit?.convertedParts ?? oldMorphology!.parts as CanonicalPart[] : suggestedPrefix;
+      ? audit?.convertedParts ?? oldParts as CanonicalPart[] : suggestedPrefix;
     const joins: CanonicalJoin[] = canonical && !usesPublishedSplit ? oldMorphology!.joins as CanonicalJoin[]
       : suggestedPrefix ? [{ afterPartId: suggestedPrefix[0].id, beforePartId: suggestedPrefix[1].id, joinType: "none" }] : [];
     const transformations = canonical && !usesPublishedSplit && Array.isArray(oldMorphology?.transformations)

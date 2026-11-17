@@ -94,6 +94,26 @@ export function auditCanonicalMorphology(input: {
   return { status: "safe_range_conversion", reason: "display_ranges_only", convertedParts: converted };
 }
 
+/** Compatibility read for approved records that duplicate the same facts. */
+export function exactLegacyPartAliases(value: unknown): CanonicalPart[] | null {
+  if (!Array.isArray(value) || !value.length) return null;
+  const canonical: CanonicalPart[] = [];
+  for (const raw of value) {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+    const {
+      text, type, role, partType, meaning, start, end, ...part
+    } = raw as Record<string, unknown>;
+    if (!isCanonicalPart(part)
+      || (text !== undefined && text !== part.surfaceText)
+      || [type, role, partType].some(alias => alias !== undefined && alias !== part.kind)
+      || (meaning !== undefined && meaning !== part.gloss)
+      || (start !== undefined && start !== part.displayRange.start)
+      || (end !== undefined && end !== part.displayRange.end)) return null;
+    canonical.push(part);
+  }
+  return canonical;
+}
+
 export function canonicalPartsStatus(value: unknown): "canonical" | "legacy_review" | "invalid" {
   if (!Array.isArray(value) || value.length === 0) return "invalid";
   if (value.every(isCanonicalPart)) return "canonical";

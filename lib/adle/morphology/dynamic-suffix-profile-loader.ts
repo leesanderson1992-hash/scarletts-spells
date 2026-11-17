@@ -4,7 +4,7 @@ import { ingReviewEnvironment } from "@/lib/teaching-dictionary-manager/ing-stag
 import { loadDictationPool } from "@/lib/teaching-dictionary-manager/dictation-pool";
 import type { WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
 import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
-import { auditCanonicalMorphology, canonicalWordSum } from "@/lib/teaching-dictionary-manager/canonical-morphology";
+import { auditCanonicalMorphology, canonicalWordSum, exactLegacyPartAliases } from "@/lib/teaching-dictionary-manager/canonical-morphology";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { LearningItemFact } from "../learning-items";
@@ -294,6 +294,8 @@ export async function loadDynamicSuffixProfiles(
   ]);
   if (profileError || itemError || skillError) throw new Error(`loadDynamicSuffixProfiles: ${profileError?.message ?? itemError?.message ?? skillError?.message}`);
   const profileRows = records<ProfileRow>(rawProfiles);
+  const candidateParts = new Map((options.candidateMembers ?? []).map(candidate =>
+    [`${candidate.microSkillKey}:${candidate.canonicalWordId}`, candidate.content]));
   for (const candidate of options.candidateMembers ?? []) {
     const profile = profileRows.find((row) => row.micro_skill_key === candidate.microSkillKey);
     if (!profile) continue;
@@ -463,9 +465,12 @@ export async function loadDynamicSuffixProfiles(
         ? metadataByWordId.get(canonicalWordId)?.find((entry) => entry.row_status === "active" && entry.review_status === "approved_for_first_exposure")
         : undefined;
       const displayWord = text(word?.display_word);
-      const teachingParts = parts(dictionary?.parts ?? member.teaching_split_parts);
+      const teachingParts = parts(member.teaching_split_parts);
       const canonical = canonicalWordId ? morphologyByWordId.get(canonicalWordId) : undefined;
-      const canonicalParts = dictionary?.parts ?? canonical?.morphology_parts;
+      const candidateContent = candidateParts.get(`${profileKey}:${canonicalWordId}`);
+      const legacyParts = canonical?.morphology_parts;
+      const compatibleParts = profileKey === "D4_MOR_SUFFIXES_TION" ? exactLegacyPartAliases(legacyParts) : null;
+      const canonicalParts = candidateContent?.trueMorphologyParts ?? dictionary?.parts ?? compatibleParts ?? legacyParts;
       // Older approved rows can have source/surface letters but no reviewed
       // glosses or ranges. Keep their reviewed suffix member as the teaching
       // authority until Overview is converted. A typed but conflicting
@@ -477,10 +482,10 @@ export async function loadDynamicSuffixProfiles(
         && canonicalParts.some((part) =>
           isRecord(part) && ("sourceText" in part || "surfaceText" in part));
       const canonicalAudit = canonicalIntent && displayWord ? auditCanonicalMorphology({
-        parts: canonicalParts, joins: dictionary?.joins ?? canonical?.morphology_joins,
+        parts: canonicalParts, joins: candidateContent?.trueMorphologyJoins ?? dictionary?.joins ?? canonical?.morphology_joins,
         displayWord, linkedToFamily: false,
       }) : null;
-      if (!dictionary && canonicalIntent && (canonical?.analysis_status !== "approved" ||
+      if (!candidateContent && !dictionary && canonicalIntent && (canonical?.analysis_status !== "approved" ||
         canonical?.review_status !== "approved_for_first_exposure" || canonicalAudit?.status !== "canonical" ||
         canonical?.word_sum !== canonicalWordSum(canonicalParts as Parameters<typeof canonicalWordSum>[0], displayWord!) ||
         !definitionByWordId.has(canonicalWordId!))) {
@@ -497,10 +502,10 @@ export async function loadDynamicSuffixProfiles(
         ? canonicalBase.kind : member.semantic_base_kind;
       const baseMeaning = canonicalBase && isRecord(canonicalBase)
         ? text(canonicalBase.gloss) : text(member.base_meaning);
-      const derivedMeaning = dictionary?.sense.meaning ?? (reviewedCanonical ? definitionByWordId.get(canonicalWordId!) : text(member.new_word_meaning));
+      const derivedMeaning = dictionary?.sense.meaning ?? (!candidateContent && reviewedCanonical ? definitionByWordId.get(canonicalWordId!) : text(member.new_word_meaning));
       const trueParts = parts(reviewedCanonical ? canonicalParts : member.true_morphology_parts);
-      const teachingJoins = joins(dictionary?.joins ?? member.teaching_split_joins);
-      const trueJoins = joins(dictionary?.joins ?? (reviewedCanonical ? canonical?.morphology_joins : member.true_morphology_joins));
+      const teachingJoins = joins(member.teaching_split_joins);
+      const trueJoins = joins(candidateContent?.trueMorphologyJoins ?? dictionary?.joins ?? (reviewedCanonical ? canonical?.morphology_joins : member.true_morphology_joins));
       const suffixPart = teachingParts?.find((part) => part.role === "suffix");
       const teachingBase = teachingParts?.filter((part) => part.role !== "suffix").map((part) => part.text).join("") ?? "";
       const split = teachingParts?.filter((part) => part.role === "suffix").map((part) => part.start) ?? [];
@@ -584,7 +589,8 @@ export async function loadDynamicSuffixProfiles(
         trueMorphology: {
           parts: trueParts,
           joins: trueJoins,
-          transformations: Array.isArray(dictionary?.transformations) ? dictionary.transformations : reviewedCanonical && Array.isArray(canonical?.morphology_transformations)
+          transformations: Array.isArray(candidateContent?.trueMorphologyTransformations) ? candidateContent.trueMorphologyTransformations
+            : Array.isArray(dictionary?.transformations) ? dictionary.transformations : reviewedCanonical && Array.isArray(canonical?.morphology_transformations)
             ? canonical.morphology_transformations : Array.isArray(member.true_morphology_transformations) ? member.true_morphology_transformations : [],
           notes: typeof member.transformation_notes === "string" ? member.transformation_notes : "",
           provenance,

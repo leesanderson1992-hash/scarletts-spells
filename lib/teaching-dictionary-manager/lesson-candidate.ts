@@ -106,6 +106,8 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
   }
   const suffix = acceptedPrefixes ? undefined : parts.at(-1);
   const suffixSource = String(suffix?.sourceText ?? "").toLocaleLowerCase("en-GB");
+  const reviewedSion = input.skillKey === "D4_MOR_SUFFIXES_SION" && suffixSource === "ion"
+    && suffix?.surfaceText === "ion" && parts.length === 2 && String(parts[0].surfaceText ?? "").endsWith("s");
   if (acceptedPrefixes) {
     const prefix = parts[0];
     const prefixSource = String(prefix?.sourceText ?? "").toLocaleLowerCase("en-GB");
@@ -126,7 +128,7 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
       } else if (visiblePrefix !== prefixSource) return done("not_match");
     }
   } else if (suffix?.kind !== "suffix" || (ingKeys.has(input.skillKey) ? suffixSource !== "ing"
-    : !acceptedSuffixes?.includes(suffixSource))) {
+    : !acceptedSuffixes?.includes(suffixSource) && !reviewedSion)) {
     const label = ingKeys.has(input.skillKey) ? "-ing" : acceptedSuffixes?.map(form => `-${form}`).join("/");
     add("SUFFIX_PART", `Review the ${label} suffix part.`, "td-canonical-parts");
   } else if (!String(suffix.gloss ?? "").trim()) {

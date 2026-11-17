@@ -305,6 +305,24 @@ export function routeWithSharedFacts(route: RouteContentDraft, payload: WordDraf
       .filter((part) => String(part.kind ?? part.role ?? part.type ?? part.partType ?? "") === "suffix");
     if (suffixes.length === 1 || approvedParts) content.suffixVariant = suffixes.length === 1
       ? String(suffixes[0].surfaceText ?? suffixes[0].text ?? "") : "";
+    // Some approved suffix lessons use a visible letter cut distinct from
+    // the word's underlying parts. Keep both representations.
+    const teachingEnding = route.microSkillKey === "D4_MOR_SUFFIXES_SION" ? "sion"
+      : route.microSkillKey === "D4_MOR_SUFFIXES_TION" && payload.displayWord.endsWith("tion") ? "tion" : null;
+    if (teachingEnding && content.suffixVariant === "ion" && parts.length === 2
+      && payload.displayWord.endsWith(teachingEnding) && (teachingEnding === "sion" || base?.text !== payload.displayWord.slice(0, -3))) {
+      const [first, last] = parts as { id: string; kind: string; sourceText: string; surfaceText: string; gloss: string }[];
+      const learnerBase = payload.displayWord.slice(0, -teachingEnding.length);
+      if (first.kind === "base" && last.kind === "suffix" && learnerBase) {
+        content.suffixVariant = teachingEnding;
+        content.teachingSplitParts = [
+          { ...first, surfaceText: learnerBase, displayRange: { start: 0, end: learnerBase.length } },
+          { ...last, sourceText: teachingEnding, surfaceText: teachingEnding,
+            displayRange: { start: learnerBase.length, end: payload.displayWord.length } },
+        ];
+        content.teachingSplitJoins = joins;
+      }
+    }
     if (base?.text || approvedParts) {
       content.semanticBaseText = base?.text ?? "";
       content.semanticBaseKind = base?.kind ?? "";

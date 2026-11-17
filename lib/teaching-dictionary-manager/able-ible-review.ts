@@ -52,7 +52,8 @@ export async function stageAbleIbleWord(db: Db, actor: string, bundle: MultiSens
   const suffixPart = analysis.parts.at(-1);
   const suffix = suffixPart?.sourceText.toLowerCase();
   const mapping = getSharedAffixProfileMapping(skill);
-  if (suffixPart?.kind !== "suffix" || !suffix || !mapping?.forms.includes(suffix))
+  const sionWithIon = skill === "D4_MOR_SUFFIXES_SION" && suffix === "ion" && bundle.displayWord.endsWith("sion");
+  if (suffixPart?.kind !== "suffix" || !suffix || (!mapping?.forms.includes(suffix) && !sionWithIon))
     throw new Error("Check that the final word part matches the suffix taught in this lesson.");
   const meaningBin = skill === FUL_LESS_SKILL
     ? bins.find(bin => bin.id === (suffix === "ful" ? "full_of" : suffix === "less" ? "without" : null))
@@ -82,7 +83,10 @@ export async function stageAbleIbleWord(db: Db, actor: string, bundle: MultiSens
   if (issues.length) throw new Error([...new Set(issues)].join(" "));
 
   const latest = existing.data?.content as RouteContentDraft | null;
-  const previous = existing.data?.draft_id && latest ? await db.from("teaching_dictionary_manager_drafts").select("id,payload")
+  const rolledBack = existing.data?.id ? await db.from("teaching_dictionary_route_content_rollbacks")
+    .select("content_version_id").eq("content_version_id", existing.data.id).maybeSingle() : null;
+  if (rolledBack?.error) throw new Error("Could not check whether the suffix draft was rolled back.");
+  const previous = existing.data?.draft_id && latest && !rolledBack?.data ? await db.from("teaching_dictionary_manager_drafts").select("id,payload")
     .eq("canonical_word_id", wordId).order("created_at", { ascending: false }).limit(1).maybeSingle() : null;
   if (previous?.error) throw new Error("Could not check the latest suffix draft.");
   const { semanticJson } = await import("@/lib/adle/inflection/semantic-json");
