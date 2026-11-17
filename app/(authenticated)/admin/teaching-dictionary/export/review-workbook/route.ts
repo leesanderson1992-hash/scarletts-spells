@@ -8,7 +8,7 @@ import { ING_RULE_FOR_SKILL, ingStem } from "@/lib/adle/ing/contracts";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { canUpdateIngLesson, isStagingIngSkill, loadStagingIngUpdate, STAGING_ING_LESSONS } from "@/lib/teaching-dictionary-manager/ing-staging-release";
 import type { MultiSenseCsvBundle } from "@/lib/teaching-dictionary-manager/multi-sense-csv";
-import { loadReviewedMeaningBundles } from "@/lib/teaching-dictionary-manager/multi-sense-export";
+import { loadReviewedMeaningBundles, prefillReviewWorkbookMeanings } from "@/lib/teaching-dictionary-manager/multi-sense-export";
 import { ING_REVIEW_BATCH_SIZE, ingReviewExportRows } from "@/lib/teaching-dictionary-manager/ing-review-export";
 import { isSuffixWorkbookPilot, isIdentifyBaseReview, specialistWorkbookRoute, supportsReviewWorkbook } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
 import { loadAbleIbleActivePool, loadAbleIbleReview, loadAbleIbleWorkbook } from "@/lib/teaching-dictionary-manager/able-ible-review";
@@ -49,8 +49,10 @@ export async function GET(request: Request) {
     const batchRows = rows.slice((batch - 1) * ING_REVIEW_BATCH_SIZE, batch * ING_REVIEW_BATCH_SIZE);
     if (!batchRows.length && batch !== 1) return new Response("No words need review in this batch.", { status: 404 });
     const data = await loadAbleIbleWorkbook(db, batchRows.map(row => row.id));
-    const bytes = await buildReviewWorkbook({ skill, title: suffixReviewTitle(skill), ...data,
-      notes: new Map(batchRows.map(row => [row.id, row.note])), families: new Map(), requestedSenses });
+    const notes = new Map(batchRows.map(row => [row.id, row.note]));
+    const bundles = await prefillReviewWorkbookMeanings(db, data.bundles, notes);
+    const bytes = await buildReviewWorkbook({ skill, title: suffixReviewTitle(skill), ...data, bundles,
+      notes, families: new Map(), requestedSenses });
     return downloadWorkbook(bytes, `teaching-dictionary-review-${skill}-${batch}.xlsx`);
   }
   if (isIdentifyBaseReview(skill)) {
@@ -59,9 +61,10 @@ export async function GET(request: Request) {
       `teaching-dictionary-active-pool-${skill}.xlsx`);
     const selected = rows.slice((batch - 1) * ING_REVIEW_BATCH_SIZE, batch * ING_REVIEW_BATCH_SIZE);
     if (!selected.length) return new Response("No words need review in this batch.", { status: 404 });
-    return downloadWorkbook(await buildReviewWorkbook({ skill, title: "Identify the Base",
-      bundles: selected.flatMap(row => row.bundle ? [row.bundle] : []),
-      notes: new Map(selected.map(row => [row.id, row.note])), families: new Map(), requestedSenses }),
+    const notes = new Map(selected.map(row => [row.id, row.note]));
+    const bundles = await prefillReviewWorkbookMeanings(db, selected.flatMap(row => row.bundle ? [row.bundle] : []), notes);
+    return downloadWorkbook(await buildReviewWorkbook({ skill, title: "Identify the Base", bundles,
+      notes, families: new Map(), requestedSenses }),
     `teaching-dictionary-review-${skill}-${batch}.xlsx`);
   }
   const specialistRoute = specialistWorkbookRoute(skill);
@@ -75,8 +78,9 @@ export async function GET(request: Request) {
       return new Response("No words need review in this batch.", { status: 404 });
     }
     const notes = new Map(selected.map(row => [row.id, row.note]));
+    const reviewed = await prefillReviewWorkbookMeanings(db, bundles.filter(bundle => notes.has(bundle.wordId)), notes);
     return downloadWorkbook(await buildReviewWorkbook({ skill, title,
-      bundles: bundles.filter(bundle => notes.has(bundle.wordId)), notes, families: new Map(), requestedSenses }),
+      bundles: reviewed, notes, families: new Map(), requestedSenses }),
     `teaching-dictionary-review-${skill}-${batch}.xlsx`);
   }
   if (!isStagingIngSkill(skill)) return new Response("Workbook review is unavailable for this lesson.", { status: 404 });
@@ -157,7 +161,9 @@ export async function GET(request: Request) {
       relationshipKind: "regular_inflection", requestedSkillKeys: [] }] : [],
     });
   }
-  return workbookResponse(skill, batch, { bundles, notes, families, requestedSenses });
+  return workbookResponse(skill, batch, {
+    bundles: await prefillReviewWorkbookMeanings(db, bundles, notes), notes, families, requestedSenses,
+  });
 }
 
 async function workbookResponse(skill: keyof typeof STAGING_ING_LESSONS, batch: number,

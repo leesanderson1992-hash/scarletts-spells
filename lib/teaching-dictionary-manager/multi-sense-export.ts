@@ -44,3 +44,38 @@ export async function loadReviewedMeaningBundles(db: ReturnType<typeof createSer
   });
   return bundles;
 }
+
+
+/** Older Overview definitions are useful to editors but do not confer sense approval. */
+export async function prefillReviewWorkbookMeanings(
+  db: ReturnType<typeof createServiceRoleClient>, bundles: MultiSenseCsvBundle[], notes: Map<string, string>,
+) {
+  const legacy = bundles.filter(bundle => !bundle.sourceSenseReviewedAt && bundle.senseSet.senses.length === 1);
+  if (!legacy.length) return bundles;
+  const ids = legacy.map(bundle => bundle.wordId);
+  const definitions = new Map<string, string>();
+  for (let offset = 0; ; offset += 500) {
+    const { data, error } = await db.from("teaching_dictionary_definition_versions")
+      .select("canonical_word_id,definition").in("canonical_word_id", ids).is("route_id", null)
+      .order("published_at", { ascending: false }).order("id", { ascending: false }).range(offset, offset + 499);
+    if (error) throw new Error("Could not load existing Teaching Dictionary meanings for this workbook.");
+    for (const row of data ?? []) {
+      if (!definitions.has(row.canonical_word_id)) definitions.set(row.canonical_word_id, row.definition);
+    }
+    if ((data?.length ?? 0) < 500 || definitions.size === ids.length) break;
+  }
+  const legacyIds = new Set(ids);
+  return bundles.map(bundle => {
+    if (!legacyIds.has(bundle.wordId)) return bundle;
+    const [sense] = bundle.senseSet.senses;
+    const definition = definitions.get(bundle.wordId)?.trim();
+    if (!definition) {
+      if (!sense.definition.trim()) notes.set(bundle.wordId,
+        [notes.get(bundle.wordId), "Enter a meaning for this word."].filter(Boolean).join(" "));
+      return bundle;
+    }
+    notes.set(bundle.wordId, [notes.get(bundle.wordId), "Confirm the meaning copied from the word page."]
+      .filter(Boolean).join(" "));
+    return { ...bundle, senseSet: { ...bundle.senseSet, senses: [{ ...sense, definition }] } };
+  });
+}

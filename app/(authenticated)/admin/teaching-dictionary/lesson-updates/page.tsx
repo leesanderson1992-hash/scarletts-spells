@@ -68,7 +68,12 @@ export default async function LessonUpdates({ searchParams }: {
   })).sort((a, b) => a.label.localeCompare(b.label));
   const { update } = result;
   const review = update && view === "export" ? ingReviewExportRows(update) : null;
-  const requestedIng = review?.filter(row => row.reviewRequested) ?? [];
+  const wordsToReview = specialist?.rows
+    ?? base?.rows.map(row => ({ ...row, href: `/admin/teaching-dictionary/${row.id}` }))
+    ?? suffix?.rows.map(row => ({ ...row, href: `/admin/teaching-dictionary/${row.id}` }))
+    ?? review?.map(row => ({ id: row.wordId, word: row.displayWord, note: row.note,
+      href: `/admin/teaching-dictionary/${row.wordId}` }))
+    ?? [];
   const [children, prepared] = await Promise.all([
     update && view === "preview" && update.childIds.length ? db.from("children").select("id,first_name").in("id", update.childIds)
       .eq("parent_user_id", actor.id).eq("is_archived", false).order("first_name") : null,
@@ -92,33 +97,14 @@ export default async function LessonUpdates({ searchParams }: {
       fullPoolSize={specialist?.current.length ?? base?.current.length ?? suffix?.current.length ?? update?.current.length ?? null}
       allowsBlankWorkbook={suffixPilot && !blankWorkbookSkill}
       blankWorkbookHref={blankWorkbookSkill ? `/admin/teaching-dictionary/export/review-workbook?skill=${blankWorkbookSkill}&scope=blank` : undefined}
-      review={specialist && view === "export" ? <section className={card}>
-        <h2 className="text-xl font-semibold">{specialist.rows.length} words waiting for review</h2>
-        <ul className="divide-y divide-[var(--border)]">{specialist.rows.map(row => <li key={row.id} className="py-2">
-          <Link className="font-semibold underline" href={row.href}>{row.word}</Link>
-          <p className="text-sm">{row.note}</p>
-        </li>)}</ul>
-      </section> : base && view === "export" ? <section className={card}>
-        <h2 className="text-xl font-semibold">{base.rows.length} words waiting for review</h2>
-        <ul className="divide-y divide-[var(--border)]">{base.rows.map(row => <li key={row.id} className="py-2">
-          <Link className="font-semibold underline" href={`/admin/teaching-dictionary/${row.id}`}>{row.word}</Link>
-          <p className="text-sm">{row.note}</p>
-        </li>)}</ul>
-      </section> : suffix && view === "export" && suffix.rows.length > 0 ? <section className={card}>
-        <h2 className="text-xl font-semibold">Lesson words to reconcile</h2>
-        <ul className="divide-y divide-[var(--border)]">{suffix.rows.map(word => <li key={word.id} className="space-y-1 py-3">
-          <p><Link className="font-semibold underline" href={`/admin/teaching-dictionary/${word.id}`}>{word.word}</Link>
-            {" · "}{word.status}</p>
-          <p className="text-sm">{word.note}</p>
-        </li>)}</ul>
-      </section> : requestedIng.length ? <section className={card}>
-        <h2 className="text-xl font-semibold">Saved lesson requests</h2>
-        <ul className="divide-y divide-[var(--border)]">{requestedIng.map(row => <li key={row.wordId} className="py-2">
-          <Link className="font-semibold underline" href={`/admin/teaching-dictionary/${row.wordId}`}>{row.displayWord}</Link>
+      review={view === "export" && wordsToReview.length > 0 ? <section className={card}>
+        <h2 className="text-xl font-semibold">{wordsToReview.length} {wordsToReview.length === 1 ? "word to review or publish" : "words to review or publish"}</h2>
+        <ul className="divide-y divide-[var(--border)]">{wordsToReview.map(row => <li key={row.id} className="py-2">
+          <Link prefetch={false} className="font-semibold underline" href={row.href}>{row.word}</Link>
           <p className="text-sm">{row.note}</p>
         </li>)}</ul>
       </section> : null}
-      batches={specialist ? Math.ceil(specialist.rows.length / ING_REVIEW_BATCH_SIZE) : base ? Math.ceil(base.rows.length / ING_REVIEW_BATCH_SIZE) : suffix ? Math.ceil(suffix.rows.length / ING_REVIEW_BATCH_SIZE) : review ? Math.ceil(review.length / ING_REVIEW_BATCH_SIZE) : null}>
+      batches={specialist || base || suffix || review ? Math.ceil(wordsToReview.length / ING_REVIEW_BATCH_SIZE) : null}>
     {specialist && view === "preview" && <section className={card}>
       <h2 className="text-xl font-semibold">{specialist.title} publish status</h2>
       <p>{specialist.current.length} active words · {specialist.rows.length} waiting for review</p>

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import ExcelJS from "exceljs";
 import type { IngDictionaryWordV1 } from "@/lib/adle/ing/contracts";
+import { prefillReviewWorkbookMeanings } from "@/lib/teaching-dictionary-manager/multi-sense-export";
 import { ingReviewExportRows } from "@/lib/teaching-dictionary-manager/ing-review-export";
 import { buildLessonPoolWorkbook, buildReviewWorkbook, readReviewWorkbook } from "@/lib/teaching-dictionary-manager/review-workbook";
 
@@ -58,6 +59,36 @@ async function main() {
   const reviewSheet = reviewBook.getWorksheet("Words to review")!;
   const choiceColumn = (reviewSheet.getRow(3).values as string[]).indexOf("Use in lesson");
   assert.deepEqual([4, 5].map(row => reviewSheet.getCell(row, choiceColumn).text), ["Yes", "Review"]);
+
+  const meaningOptions = {
+    select: () => meaningOptions, in: () => meaningOptions, is: () => meaningOptions, order: () => meaningOptions,
+    range: async () => ({ error: null, data: [
+      { canonical_word_id: "asking", definition: "Requesting information or help." },
+      { canonical_word_id: "asking", definition: "Older definition." },
+    ] }),
+  };
+  const notes = new Map<string, string>();
+  const fallback = await prefillReviewWorkbookMeanings({
+    from: () => meaningOptions,
+  } as unknown as Parameters<typeof prefillReviewWorkbookMeanings>[0], [
+    { wordId: "asking", displayWord: "asking", sourceSenseReviewedAt: "", analyses: [],
+      senseSet: { pronunciations: [], senses: [
+        { id: "review", definition: "", partOfSpeech: "", pronunciationId: null },
+      ] } },
+    { wordId: "brushing", displayWord: "brushing", sourceSenseReviewedAt: "2026-11-17T00:00:00Z", analyses: [],
+      senseSet: { pronunciations: [], senses: [
+        { id: "reviewed", definition: "Cleaning with a brush.", partOfSpeech: "verb", pronunciationId: null },
+      ] } },
+  ], notes);
+  const fallbackBook = new ExcelJS.Workbook();
+  const fallbackBytes = await buildReviewWorkbook({ skill, title: "Regular -ing", bundles: fallback, notes, families: new Map() });
+  await fallbackBook.xlsx.load(Uint8Array.from(fallbackBytes).buffer);
+  const fallbackSheet = fallbackBook.getWorksheet("Words to review")!;
+  const columns = fallbackSheet.getRow(3).values as string[];
+  assert.equal(fallbackSheet.getCell(4, columns.indexOf("Meaning")).text, "Requesting information or help.");
+  assert.equal(fallbackSheet.getCell(4, columns.indexOf("Use in lesson")).text, "Review");
+  assert.match(fallbackSheet.getCell(4, columns.indexOf("Needs review")).text, /copied from the word page/);
+  assert.equal(fallbackSheet.getCell(5, columns.indexOf("Meaning")).text, "Cleaning with a brush.");
 
   const bytes = await buildLessonPoolWorkbook("Regular -ing", current);
   const buffer = Uint8Array.from(bytes).buffer;
