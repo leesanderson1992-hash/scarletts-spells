@@ -254,9 +254,33 @@ type ReadinessScope = {
   microSkillKey?: string;
   approvedSkillKeys?: readonly string[];
   requestedWordSkill?: string;
+  sharePackageHashes?: boolean;
   purpose?: "ing_review_export";
   liveSuffixPool?: { skill: string; result: ReturnType<typeof loadDynamicSuffixProfiles> };
 };
+
+type EditorialSnapshot = {
+  content: Row[];
+  reviews: Row[];
+  publications: Row[];
+  rollbacks: Row[];
+  overview_reviews: Row[];
+  manager_publications: Row[];
+};
+
+type WordFactsSnapshot = { words: Row[]; metadata: Row[]; dictation: Row[] };
+
+async function readReadinessSnapshot<T>(
+  db: SupabaseClient,
+  name: "teaching_dictionary_readiness_editorial_snapshot" | "teaching_dictionary_readiness_word_facts",
+  parameters: Record<string, unknown>,
+): Promise<T> {
+  const started = performance.now();
+  const { data, error } = await db.rpc(name, parameters);
+  if (error || !data) throw new Error(`ADLE_READINESS_SNAPSHOT_${name}: ${error?.message ?? "Empty response"}`);
+  recordAdleReadPage(name, [data], performance.now() - started);
+  return data as T;
+}
 
 export async function loadLessonReadiness(scope: ReadinessScope = {}): Promise<LessonReadinessRow[]> {
   return withAdleReadMetrics("lesson_preflight", async () => {
@@ -292,11 +316,17 @@ export async function loadLessonReadiness(scope: ReadinessScope = {}): Promise<L
 async function loadLessonReadinessUnmeasured(scope: ReadinessScope = {}): Promise<LessonReadinessRow[]> {
   const db = createServiceRoleClient();
   const environment = resolveAdleRouteActivationEnvironment();
+  const batchBaseWordReads = Boolean(scope.wordId && scope.routeId === "base_word_lab" && scope.microSkillKey);
+  const editorialRead = batchBaseWordReads
+    ? readReadinessSnapshot<EditorialSnapshot>(db, "teaching_dictionary_readiness_editorial_snapshot",
+        { p_route_id: scope.routeId, p_micro_skill_key: scope.microSkillKey })
+    : null;
   const scoped = (query: any, column: string, value?: string) => value ? query.eq(column, value) : query;
   const [
     prefixRows,
     suffixRows,
     contentRows,
+    editorial,
     activationHeads,
     releaseRows,
     weakPublicationRows,
@@ -313,12 +343,13 @@ async function loadLessonReadinessUnmeasured(scope: ReadinessScope = {}): Promis
       "id,micro_skill_key,production_enabled,row_status,review_status,source_row_hash,source_metadata,reviewed_by,reviewed_at",
       (q) => scoped(q.eq("row_status", "active"), "micro_skill_key", scope.microSkillKey),
     ),
-    selectRows(
+    editorialRead ? editorialRead.then(snapshot => snapshot.content) : selectRows(
       db,
       "teaching_dictionary_route_content_versions",
       "id,draft_id,canonical_word_id,route_id,route_version,micro_skill_key,published_at,content",
       (q) => scoped(scoped(q, "route_id", scope.routeId), "micro_skill_key", scope.microSkillKey),
     ),
+    editorialRead,
     environment
       ? selectRows(
           db,
@@ -359,12 +390,12 @@ async function loadLessonReadinessUnmeasured(scope: ReadinessScope = {}): Promis
     selectForIds("canonical_teaching_dictionary_suffix_members",
       "id,suffix_profile_id,canonical_word_id,member_role,assignment_eligible,row_status,review_status,suffix_variant,semantic_base_text,semantic_base_kind,base_meaning,new_word_meaning,meaning_bin_key,teaching_split_parts,teaching_split_joins,true_morphology_parts,true_morphology_joins,true_morphology_transformations,transformation_notes,true_morphology_provenance",
       "suffix_profile_id", suffixRows.map((row) => String(row.id))),
-    selectForIds("teaching_dictionary_route_content_reviews", "content_version_id,dictionary_fingerprint,reviewed_by", "content_version_id", contentIds),
-    selectForIds("teaching_dictionary_route_content_publications", "content_version_id,route_profile_id", "content_version_id", contentIds),
-    selectForIds("teaching_dictionary_route_content_rollbacks", "content_version_id", "content_version_id", contentIds),
+    editorial?.reviews ?? selectForIds("teaching_dictionary_route_content_reviews", "content_version_id,dictionary_fingerprint,reviewed_by", "content_version_id", contentIds),
+    editorial?.publications ?? selectForIds("teaching_dictionary_route_content_publications", "content_version_id,route_profile_id", "content_version_id", contentIds),
+    editorial?.rollbacks ?? selectForIds("teaching_dictionary_route_content_rollbacks", "content_version_id", "content_version_id", contentIds),
     selectForIds("adle_route_activation_revisions", "id,activation_status,readiness_report,release_manifest_id,release_manifest_sha256,dependency_fingerprint", "id", activationHeads.map((row) => String(row.current_revision_id))),
-    selectForIds("teaching_dictionary_overview_reviews", "draft_id,content_fingerprint,base_dictionary_fingerprint", "draft_id", draftIds),
-    selectForIds("teaching_dictionary_manager_publications", "draft_id,published_at", "draft_id", draftIds),
+    editorial?.overview_reviews ?? selectForIds("teaching_dictionary_overview_reviews", "draft_id,content_fingerprint,base_dictionary_fingerprint", "draft_id", draftIds),
+    editorial?.manager_publications ?? selectForIds("teaching_dictionary_manager_publications", "draft_id,published_at", "draft_id", draftIds),
     selectForIds("adle_curriculum_release_dependencies", "release_manifest_id,micro_skill_key,authority_id,authority_type",
       "release_manifest_id", [...new Set(releaseRows.map(row => String(row.id)))]),
   ]);
@@ -558,11 +589,16 @@ async function loadLessonReadinessUnmeasured(scope: ReadinessScope = {}): Promis
   };
   // Each read below depends only on the discovered scope and content history.
   // Wait for the group together instead of serialising its database rounds.
-  const [wordRows, metadataRows, dictationRows, affixDraftBatches, draftRows, morphologyRows,
+  const wordFacts = batchBaseWordReads
+    ? readReadinessSnapshot<WordFactsSnapshot>(db, "teaching_dictionary_readiness_word_facts", { p_words: wordIds })
+    : Promise.all([
+        readWordFacts("canonical_teaching_dictionary_words", "id,display_word,row_status,review_status,dialect_code", "id"),
+        readWordFacts("canonical_teaching_dictionary_word_metadata", "canonical_word_id,syllables,phoneme_hint,stress_pattern,has_schwa,morphemes,morphology_notes,row_status,review_status", "canonical_word_id", true),
+        readWordFacts("canonical_teaching_dictionary_dictation_sentences", "canonical_word_id,dictation_sentence,audio_text,dictation_target_token_index,row_status,review_status", "canonical_word_id", true),
+      ]).then(([words, metadata, dictation]) => ({ words, metadata, dictation }));
+  const [{ words: wordRows, metadata: metadataRows, dictation: dictationRows }, affixDraftBatches, draftRows, morphologyRows,
     currentFingerprints, currentRevisionIds] = await Promise.all([
-    readWordFacts("canonical_teaching_dictionary_words", "id,display_word,row_status,review_status,dialect_code", "id"),
-    readWordFacts("canonical_teaching_dictionary_word_metadata", "canonical_word_id,syllables,phoneme_hint,stress_pattern,has_schwa,morphemes,morphology_notes,row_status,review_status", "canonical_word_id", true),
-    readWordFacts("canonical_teaching_dictionary_dictation_sentences", "canonical_word_id,dictation_sentence,audio_text,dictation_target_token_index,row_status,review_status", "canonical_word_id", true),
+    wordFacts,
     Promise.all(draftBatches.map(ids => selectRows(db, "teaching_dictionary_manager_drafts",
       "id,canonical_word_id,created_at", query => query.in("canonical_word_id", ids).order("created_at", { ascending: false })))),
     readPreflightRowsById("teaching_dictionary_manager_drafts", draftIds, Boolean(scope.wordId),
@@ -1401,7 +1437,8 @@ async function loadLessonReadinessUnmeasured(scope: ReadinessScope = {}): Promis
             : buildGovernedPackage(packageInput);
           releasePackage = packageResult.package
             ? await bindNativePackageFingerprints(db, packageResult.package,
-                route.routeId === "base_word_lab" && scope.wordId ? process.env.NEXT_PUBLIC_SUPABASE_URL : undefined)
+                route.routeId === "base_word_lab" && scope.wordId ? process.env.NEXT_PUBLIC_SUPABASE_URL : undefined,
+                scope.sharePackageHashes)
             : undefined;
           blockers.push(...packageResult.blockers);
           const boundAuthorities = releasePackage
