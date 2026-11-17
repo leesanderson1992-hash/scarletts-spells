@@ -573,7 +573,6 @@ async function loadLessonReadinessUnmeasured(scope: ReadinessScope = {}): Promis
     const key = `${row.route_id}:${row.micro_skill_key}:${row.canonical_word_id}`;
     if (!latestContent.has(key)) latestContent.set(key, row);
   }
-  const currentFingerprints = new Map<string, string>();
   const reviewedWords = [
     ...new Set(
       [...latestContent.values()]
@@ -581,19 +580,17 @@ async function loadLessonReadinessUnmeasured(scope: ReadinessScope = {}): Promis
         .map((row) => String(row.canonical_word_id)),
     ),
   ];
-  await Promise.all(
-    reviewedWords.map(async (wordId) => {
-      const result = await db.rpc(
-        "teaching_dictionary_route_dictionary_fingerprint",
-        { p_word: wordId },
-      );
-      if (result.error)
-        throw new Error(
-          `ADLE_LESSON_REVIEW_FINGERPRINT: ${result.error.message}`,
-        );
-      currentFingerprints.set(wordId, String(result.data ?? ""));
-    }),
-  );
+  const currentFingerprints = new Map<string, string>();
+  for (let offset = 0; offset < reviewedWords.length; offset += 100) {
+    const { data, error } = await db.rpc(
+      "teaching_dictionary_route_dictionary_fingerprints",
+      { p_words: reviewedWords.slice(offset, offset + 100) },
+    );
+    if (error) throw new Error(`ADLE_LESSON_REVIEW_FINGERPRINT: ${error.message}`);
+    for (const row of data as Array<{ word_id: string; fingerprint: string | null }>) {
+      currentFingerprints.set(row.word_id, row.fingerprint ?? "");
+    }
+  }
   const reviews = new Set(
     [...latestContent.values()]
       .filter((row) =>

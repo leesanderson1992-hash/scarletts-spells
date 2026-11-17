@@ -102,6 +102,9 @@ export type GovernedPreflight = {
   preview: unknown;
   witnesses: Record<string, string[]>;
 };
+
+type BaseWordSelections = Map<string, ReturnType<typeof selectBaseWordFamilyLesson>>;
+
 async function preflightGovernedReleaseCore(input: {
   db: SupabaseClient;
   routeId: string;
@@ -118,7 +121,7 @@ async function preflightGovernedReleaseCore(input: {
   environment: "local" | "staging" | "production" | null;
   currentContextualContent?: ContextualChoiceContent | null;
   currentContextualBlocker?: string;
-}): Promise<GovernedPreflight> {
+}, baseWordSelections?: BaseWordSelections): Promise<GovernedPreflight> {
   const { db, routeId, skill, authorities } = input;
   const projection = (kind: string) =>
     authorities.find((a) => a.authority_type === kind)?.semantic_projection;
@@ -498,31 +501,27 @@ async function preflightGovernedReleaseCore(input: {
       );
       const witnesses: Record<string, string[]> = {};
       let preview: unknown = null;
-      for (const target of members.filter(
+      const selectableMembers = members.filter(
         (m) => m.authenticSelectionEligible && m.assignmentEligible &&
           (selectionPolicyVersion !== "base_word_regularity_v1" ||
             m.lessonRegularity?.status === "regular"),
-      ))
-        for (const partner of members.filter(
-          (m) =>
-            m.baseFamilyKey !== target.baseFamilyKey &&
-            m.authenticSelectionEligible &&
-            m.assignmentEligible &&
-            (selectionPolicyVersion !== "base_word_regularity_v1" ||
-              m.lessonRegularity?.status === "regular"),
-        )) {
-          const items = preflightItems(skill, [
-            target.canonicalWordId,
-            partner.canonicalWordId,
-          ]);
-          const selected = selectBaseWordFamilyLesson(PREFLIGHT_CHILD, skill, {
-            familyAuthoritySchemaVersion: authority.family.schemaVersion,
-            selectionPolicyVersion,
-            learningItems: items,
-            families,
-            members,
-            eligibleFamilyPairs: familyPairs,
-          });
+      );
+      for (const target of selectableMembers)
+        for (const partner of selectableMembers) {
+          if (partner.baseFamilyKey === target.baseFamilyKey) continue;
+          const pair = `${target.canonicalWordId}\u0000${partner.canonicalWordId}`;
+          let selected = baseWordSelections?.get(pair);
+          if (!selected) {
+            selected = selectBaseWordFamilyLesson(PREFLIGHT_CHILD, skill, {
+              familyAuthoritySchemaVersion: authority.family.schemaVersion,
+              selectionPolicyVersion,
+              learningItems: preflightItems(skill, [target.canonicalWordId, partner.canonicalWordId]),
+              families,
+              members,
+              eligibleFamilyPairs: familyPairs,
+            });
+            baseWordSelections?.set(pair, selected);
+          }
           if (selected.skipReasons.length) continue;
           const authenticTargets = selected.slots
             .filter((s) => s.assignmentRole === "primary_authentic_target")
@@ -713,7 +712,11 @@ async function structuralBaseProjection(
 export async function preflightGovernedRelease(
   input: Parameters<typeof preflightGovernedReleaseCore>[0],
 ): Promise<GovernedPreflight> {
-  const first = await preflightGovernedReleaseCore(input);
+  // Dictation variants change the compiler inputs but leave the ordered
+  // target and partner selection facts unchanged within this preflight.
+  const baseWordSelections: BaseWordSelections | undefined =
+    input.routeId === "base_word_lab" ? new Map() : undefined;
+  const first = await preflightGovernedReleaseCore(input, baseWordSelections);
   if (!first.ready) return first;
   const checks: {
     kind: string;
@@ -788,7 +791,7 @@ export async function preflightGovernedRelease(
             word.displayWord.split(/\s+/u).length,
         });
     }
-    const next = await preflightGovernedReleaseCore({ ...input, authorities });
+    const next = await preflightGovernedReleaseCore({ ...input, authorities }, baseWordSelections);
     if (!next.ready)
       return {
         ...first,
