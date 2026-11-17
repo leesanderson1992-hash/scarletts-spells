@@ -50,7 +50,7 @@ function importIssue(message: string) {
 }
 
 function workbookBasePartOfSpeech(skill: string) {
-  if (skill === SUB_INTER_SUPER_PREFIX_SKILL) return null;
+  if (isSuffixWorkbookPilot(skill) || skill === SUB_INTER_SUPER_PREFIX_SKILL) return null;
   return skill === NEGATIVE_PREFIX_SKILL ? "adjective" : "verb";
 }
 

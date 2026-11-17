@@ -2,14 +2,14 @@ import { COMPARATIVE_MICRO_SKILLS } from "@/lib/adle/inflection/contracts";
 import { prefixWorkbookEnabled, PREFIX_WORKBOOK_ROUTE } from "./prefix-workbook";
 import { ingReviewEnvironment } from "./ing-staging-scope";
 import { isStagingIngSkill } from "./ing-staging-release";
-import { isSuffixReviewSkill, ABLE_IBLE_SKILL, FUL_LESS_SKILL } from "./able-ible-workbook";
+import { isSuffixReviewSkill, type SuffixReviewSkill } from "./able-ible-workbook";
 
 import { IDENTIFY_BASE_SKILL } from "./lesson-candidate";
 export { IDENTIFY_BASE_SKILL };
 export const isIdentifyBaseReview = (skill: unknown): skill is typeof IDENTIFY_BASE_SKILL =>
   skill === IDENTIFY_BASE_SKILL && ingReviewEnvironment() !== null;
 
-export function isSuffixWorkbookPilot(skill: unknown): skill is typeof ABLE_IBLE_SKILL | typeof FUL_LESS_SKILL {
+export function isSuffixWorkbookPilot(skill: unknown): skill is SuffixReviewSkill {
   return isSuffixReviewSkill(skill) && ingReviewEnvironment() !== null;
 }
 

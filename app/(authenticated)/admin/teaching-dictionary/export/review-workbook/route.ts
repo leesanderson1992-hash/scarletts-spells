@@ -1,6 +1,6 @@
 import { loadSpecialistBulkReview } from "@/lib/teaching-dictionary-manager/specialist-bulk-review";
 import { loadLessonReviewRequests } from "@/lib/teaching-dictionary-manager/lesson-review-requests";
-import { FUL_LESS_SKILL, suffixReviewTitle } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
+import { suffixReviewTitle } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
 import { loadIdentifyBaseReview } from "@/lib/teaching-dictionary-manager/base-word-review";
 import { NextResponse } from "next/server";
 import { requireAdminUser } from "@/lib/admin/access";
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
   if (!canUpdateIngLesson() || !supportsReviewWorkbook(skill))
     return new Response("Workbook review is unavailable for this lesson.", { status: 404 });
   if (scope === "blank" && prefixWorkbookEnabled(skill)) return blankPrefixWorkbook(skill);
-  if (scope === "blank" && skill === FUL_LESS_SKILL) {
+  if (scope === "blank" && isSuffixWorkbookPilot(skill)) {
     const bytes = await buildReviewWorkbook({ skill, title: suffixReviewTitle(skill), bundles: [], notes: new Map(), families: new Map() });
     return downloadWorkbook(bytes, `teaching-dictionary-blank-${skill}.xlsx`);
   }

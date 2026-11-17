@@ -1,5 +1,6 @@
 import "server-only";
 
+import { getSharedAffixProfileMapping } from "@/lib/adle/morphology/shared-affix-profile-registry";
 import type { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { ABLE_IBLE_ROUTE, ABLE_IBLE_SKILL, FUL_LESS_SKILL, suffixDictionaryOnly, type SuffixWorkbookFacts } from "./able-ible-workbook";
 import { isSuffixWorkbookPilot } from "./bulk-review-scope";
@@ -25,7 +26,7 @@ export function suffixWorkbookIssues(facts: SuffixWorkbookFacts | undefined) {
 }
 
 export async function stageAbleIbleWord(db: Db, actor: string, bundle: MultiSenseCsvBundle, senseId: string, facts: SuffixWorkbookFacts, skill: string = ABLE_IBLE_SKILL) {
-  if (!isSuffixWorkbookPilot(ABLE_IBLE_SKILL) || ![ABLE_IBLE_SKILL, FUL_LESS_SKILL].includes(skill)) throw new Error("The suffix workbook pilot is available in staging.");
+  if (!isSuffixWorkbookPilot(skill)) throw new Error("Suffix Bulk review is unavailable.");
   const wordId = bundle.wordId;
   const sense = bundle.senseSet.senses.find(item => item.id === senseId);
   const pronunciation = bundle.senseSet.pronunciations.find(item => item.id === sense?.pronunciationId);
@@ -48,7 +49,11 @@ export async function stageAbleIbleWord(db: Db, actor: string, bundle: MultiSens
   if (profile.error || memberships.error || existing.error || word.error || metadata.error) throw new Error("Could not load the current suffix profile and dictionary facts.");
   if (memberships.data.length !== 1) throw new Error("Review the teaching family for this meaning.");
   const bins = profile.data.meaning_bins as { id: string }[];
-  const suffix = analysis.parts.find(part => part.kind === "suffix")?.sourceText;
+  const suffixPart = analysis.parts.at(-1);
+  const suffix = suffixPart?.sourceText.toLowerCase();
+  const mapping = getSharedAffixProfileMapping(skill);
+  if (suffixPart?.kind !== "suffix" || !suffix || !mapping?.forms.includes(suffix))
+    throw new Error("Check that the final word part matches the suffix taught in this lesson.");
   const meaningBin = skill === FUL_LESS_SKILL
     ? bins.find(bin => bin.id === (suffix === "ful" ? "full_of" : suffix === "less" ? "without" : null))
     : bins.length === 1 ? bins[0] : undefined;
@@ -158,6 +163,7 @@ export async function loadAbleIbleReview(db: Db, skill: string = ABLE_IBLE_SKILL
 }
 
 export async function loadAbleIbleWorkbook(db: Db, ids: string[]) {
+  if (!ids.length) return { bundles: [], suffixFacts: new Map<string, SuffixWorkbookFacts>() };
   const [reviewed, words, metadata] = await Promise.all([
     loadReviewedMeaningBundles(db, ids),
     db.from("canonical_teaching_dictionary_words").select("id,display_word,age_band,frequency_band,complexity_band").in("id", ids),
@@ -169,7 +175,7 @@ export async function loadAbleIbleWorkbook(db: Db, ids: string[]) {
     if (bundle) return [bundle];
     const word = words.data.find(row => row.id === id);
     return word ? [{ wordId: id, displayWord: word.display_word, sourceSenseReviewedAt: "",
-      senseSet: { senses: [{ id: "review", definition: "", partOfSpeech: "adjective", pronunciationId: "standard" }],
+      senseSet: { senses: [{ id: "review", definition: "", partOfSpeech: "", pronunciationId: "standard" }],
         pronunciations: [{ id: "standard", ipa: "", stressPattern: "", spokenSyllableCount: null }] }, analyses: [] }] : [];
   });
   const suffixFacts = new Map(words.data.map(word => {

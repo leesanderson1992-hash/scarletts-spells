@@ -1,5 +1,5 @@
 import { loadPublishedAffixFacts } from "@/lib/teaching-dictionary-manager/able-ible-published-facts";
-import { ABLE_IBLE_SKILL, FUL_LESS_SKILL, suffixDictionaryOnly } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
+import { ABLE_IBLE_SKILL, isSuffixReviewSkill, suffixDictionaryOnly } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
 import { ingReviewEnvironment } from "@/lib/teaching-dictionary-manager/ing-staging-scope";
 import { loadDictationPool } from "@/lib/teaching-dictionary-manager/dictation-pool";
 import type { WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
@@ -337,9 +337,8 @@ export async function loadDynamicSuffixProfiles(
       .filter((id): id is string => id !== null),
   ))];
   const dictionaryEnvironment = ingReviewEnvironment();
-  const readsPublishedDictionary = (skill: unknown) =>
-    (dictionaryEnvironment === "staging" && (skill === ABLE_IBLE_SKILL || skill === FUL_LESS_SKILL))
-    || (dictionaryEnvironment === "production" && skill === FUL_LESS_SKILL);
+  const readsPublishedDictionary = (skill: unknown) => isSuffixReviewSkill(skill)
+    && (dictionaryEnvironment === "staging" || (dictionaryEnvironment === "production" && skill !== ABLE_IBLE_SKILL));
   const loadPublishedDictionary = async () => {
     const wordResult = wordIds.length ? await client.from("canonical_teaching_dictionary_words").select("id,source_row_hash,display_word,frequency_band,age_band,complexity_band,row_status,review_status").in("id", wordIds) : null;
     if (wordResult?.error) throw new Error(`loadDynamicSuffixProfiles dictionary: ${wordResult.error.message}`);

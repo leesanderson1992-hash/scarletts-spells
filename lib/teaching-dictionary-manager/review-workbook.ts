@@ -129,7 +129,9 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   }
   sheet.autoFilter = { from: { row: headerRow, column: 1 }, to: { row: headerRow, column: keys.length } };
   const rule = ING_RULE_FOR_SKILL[input.skill as IngMicroSkill];
-  const wordPartsExample = input.skill === ABLE_IBLE_SKILL ? "For washable, enter wash as the base and able as the suffix." : input.skill === FUL_LESS_SKILL ? "For helpful, enter help as the base and ful as the suffix." : rule === "ie_to_y" ? "For tying, enter tie as the underlying form and ty as the visible letters."
+  const wordPartsExample = input.skill === ABLE_IBLE_SKILL ? "For washable, enter wash as the base and able as the suffix." : input.skill === FUL_LESS_SKILL ? "For helpful, enter help as the base and ful as the suffix."
+    : suffixWorkbook ? "Use the full base spelling and the final suffix taught in this lesson."
+      : rule === "ie_to_y" ? "For tying, enter tie as the underlying form and ty as the visible letters."
     : rule === "double_final_consonant" ? "For hopping, enter hop as the underlying form and hopp as the visible letters."
       : rule === "regular" ? "For walking, enter walk as both forms."
         : rule === "drop_e" ? "For caring, enter care as the underlying form and car as the visible letters."
@@ -234,7 +236,7 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
     if (!["", "Review", "Yes", "No"].includes(entry.use_in_lesson))
       throw new Error(`Workbook row ${index}: choose Review, Yes or No under Use in lesson.`);
     entry.workbook_row = String(index);
-    if ((hasPrefixChoice || skill === FUL_LESS_SKILL) && entry.display_word && !entry.canonical_word_id && !entry.source_sense_reviewed_at) {
+    if ((hasPrefixChoice || isSuffixReviewSkill(skill)) && entry.display_word && !entry.canonical_word_id && !entry.source_sense_reviewed_at) {
       entry.sense_id ||= `meaning-${index}`;
       if (entry.part_of_speech !== "root") entry.pronunciation_id ||= `pronunciation-${index}`;
     }

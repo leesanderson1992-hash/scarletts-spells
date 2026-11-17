@@ -1,3 +1,4 @@
+import { DYNAMIC_SUFFIX_PROFILE_KEYS } from "@/lib/adle/morphology/dynamic-suffix-profile-keys";
 import { ingReviewEnvironment } from "./ing-staging-scope";
 
 export const ABLE_IBLE_SKILL = "D4_MOR_SUFFIXES_ABLE_IBLE";
@@ -12,10 +13,17 @@ export type SuffixWorkbookFacts = {
 
 export const FUL_LESS_SKILL = "D4_MOR_SUFFIXES_FUL_LESS";
 
-export const isSuffixReviewSkill = (skill: unknown): skill is typeof ABLE_IBLE_SKILL | typeof FUL_LESS_SKILL =>
-  skill === ABLE_IBLE_SKILL || skill === FUL_LESS_SKILL;
+export type SuffixReviewSkill = (typeof DYNAMIC_SUFFIX_PROFILE_KEYS)[number];
 
-export const suffixReviewTitle = (skill: string) => skill === FUL_LESS_SKILL ? "-ful/-less" : "-able/-ible";
+export const isSuffixReviewSkill = (skill: unknown): skill is SuffixReviewSkill =>
+  DYNAMIC_SUFFIX_PROFILE_KEYS.some(key => key === skill);
+
+export function suffixReviewTitle(skill: string) {
+  if (!isSuffixReviewSkill(skill)) return "";
+  if (skill === ABLE_IBLE_SKILL) return "-able/-ible";
+  if (skill === FUL_LESS_SKILL) return "-ful/-less";
+  return `-${skill.slice("D4_MOR_SUFFIXES_".length).toLowerCase()}`;
+}
 
 export function suffixDictionaryOnly(skill: string) {
   if (skill === FUL_LESS_SKILL && ingReviewEnvironment() === "production") return true;
