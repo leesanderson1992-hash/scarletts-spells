@@ -9,7 +9,7 @@ import { approvedWorkbookFamily, createWorkbookFamily, loadWorkbookFamilyChoices
 import { readReviewWorkbook, type WorkbookFamilyTask, type WorkbookFamilyDecision } from "@/lib/teaching-dictionary-manager/review-workbook";
 import { prepareReviewedCsv } from "@/lib/teaching-dictionary-manager/multi-sense-csv";
 import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
-import { hasCandidateRule } from "@/lib/teaching-dictionary-manager/lesson-candidate";
+import { hasCandidateRule, isComparativeReviewSkill } from "@/lib/teaching-dictionary-manager/lesson-candidate";
 import { routeForSkill } from "@/lib/teaching-dictionary-manager/contracts";
 import { loadLessonReadiness } from "@/lib/teaching-dictionary-manager/lesson-preflight";
 import { canUpdateIngLesson, isStagingIngSkill, loadStagingIngWordReleaseStatuses } from "@/lib/teaching-dictionary-manager/ing-staging-release";
@@ -50,7 +50,7 @@ function importIssue(message: string) {
 }
 
 function workbookBasePartOfSpeech(skill: string) {
-  if (isSuffixWorkbookPilot(skill) || skill === SUB_INTER_SUPER_PREFIX_SKILL) return null;
+  if (isSuffixWorkbookPilot(skill) || isComparativeReviewSkill(skill) || skill === SUB_INTER_SUPER_PREFIX_SKILL) return null;
   return skill === NEGATIVE_PREFIX_SKILL ? "adjective" : "verb";
 }
 
@@ -154,6 +154,10 @@ export async function importReviewedMultiSenseCsv(
             report(error instanceof Error ? error.message : "Could not save the prefix lesson draft.");
             lesson.release = `${prefixWorkbookFieldLabel(skillKey)} needs review`;
           }
+          continue;
+        }
+        if (workbook && isComparativeReviewSkill(skillKey)) {
+          lesson.release = "Saved Dictionary facts. Publish the complete adjective set from Preview.";
           continue;
         }
         if (workbook && specialistWorkbookRoute(skillKey) && !hasCandidateRule(skillKey)) {

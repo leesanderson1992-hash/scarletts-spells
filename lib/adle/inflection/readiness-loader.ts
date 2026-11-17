@@ -42,8 +42,12 @@ export async function loadComparativeSelectionPool(input: {
   if (closure.capability !== "paired_degree_word_audio" || semanticJson(closure.words) !== semanticJson(families.flatMap(f => f.words)) || semanticJson(closure.pairedSentences) !== semanticJson(families.map(f => f.content.pairedSentence))) return blocked("comparative_audio_closure_incomplete");
   const wordRows: any[] = await read(input.client.from("canonical_teaching_dictionary_words").select("id,display_word,row_status,review_status,dialect_code").in("id", families.flatMap(f => f.words.map(w => w.canonicalWordId))));
   if (families.flatMap(f => f.words).some(w => !wordRows.some(r => r.id === w.canonicalWordId && r.display_word === w.word && r.row_status === "active" && r.review_status === "approved_for_first_exposure" && r.dialect_code === "en-GB"))) return blocked("comparative_canonical_word_not_ready");
-  const selectableFamilies = input.environmentKey === "staging" && process.env.ADLE_COMPARATIVE_DICTIONARY_ONLY === "enabled"
-    ? await publishedDictionaryDegreeFamilies({ client: input.client, skill: input.microSkillKey, families }) : families;
+  const dictionaryFamilies = input.environmentKey === "staging" || input.environmentKey === "production"
+    ? await publishedDictionaryDegreeFamilies({client: input.client, skill: input.microSkillKey, families, environmentKey: input.environmentKey})
+    : [];
+  const selectableFamilies = process.env.ADLE_COMPARATIVE_DICTIONARY_ONLY === "enabled"
+    ? dictionaryFamilies
+    : families.map(family => dictionaryFamilies.find(reviewed => reviewed.familyKey === family.familyKey) ?? family);
   if (!teachingAuthority.semantic_projection.sharedPage || !teachingAuthority.semantic_projection.rulePage ||
     !teachingAuthority.semantic_projection.reflectionPrompt) return blocked("comparative_teaching_missing");
   return { status: "ready" as const, families, selectableFamilies, revision, release, teachingAuthority, exact, kinds };

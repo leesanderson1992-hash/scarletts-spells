@@ -1,3 +1,4 @@
+import { loadComparativeReview } from "./comparative-review";
 import { prefixWorkbookEnabled, prefixWorkbooks } from "./prefix-workbook";
 import "server-only";
 
@@ -42,6 +43,7 @@ export async function loadSpecialistBulkReview(db: Db, skill: string, routeId: s
   const current: PoolWord[] = [];
   const words = new Map(lesson.words.map(word => [word.id, word.word]));
   for (const row of requests.values()) words.set(row.word_id, row.word);
+  const comparativeNotes = new Map<string, string>();
   let blockedNote = "Review the word and publish the lesson content from its Micro-skills section.";
   if (routeId === "dynamic_prefix_word_lab") {
     const child = "00000000-0000-4000-8000-000000000001";
@@ -77,6 +79,12 @@ export async function loadSpecialistBulkReview(db: Db, skill: string, routeId: s
         meaning: family.meaning, dictationSentence: "",
       });
     }
+    const review = await loadComparativeReview(db, skill as ComparativeMicroSkill);
+    for (const row of review.families) {
+      if (row.active && !row.blockers.length) continue;
+      for (const word of row.family.words) comparativeNotes.set(word.canonicalWordId,
+        row.blockers.length ? row.blockers.join(" ") : "Publish the complete reviewed adjective set.");
+    }
     blockedNote = "Confirm the reviewed base, comparative and superlative forms and publish approvals for all three forms.";
   } else {
     const publications = await db.from("adle_weak_vowel_content_publications").select("canonical_word_id,canonical_teaching_dictionary_words(display_word)")
@@ -98,7 +106,7 @@ export async function loadSpecialistBulkReview(db: Db, skill: string, routeId: s
   const facts = new Map<string, MultiSenseCsvBundle>();
   const lessonSenses = new Map<string, string[]>();
   const auditPrefix = prefixWorkbookEnabled(skill);
-  const ids = [...words.keys()].filter(id => auditPrefix || (includeBundles && !active.has(id)));
+  const ids = auditPrefix || includeBundles ? [...words.keys()] : [];
   for (let at = 0; at < ids.length; at += 75) {
     const batch = ids.slice(at, at + 75);
     const [bundles, bindings] = await Promise.all([
@@ -115,7 +123,7 @@ export async function loadSpecialistBulkReview(db: Db, skill: string, routeId: s
   const rows = [...words].flatMap(([id, word]) => {
     const entry = entries.get(id);
     const inPool = active.get(id);
-    const issues = auditPrefix ? prefixReviewIssues(
+    const issues = comparativeNotes.has(id) ? [comparativeNotes.get(id)!] : auditPrefix ? prefixReviewIssues(
       facts.get(id), requests.get(id)?.sense_id, lessonSenses.get(id) ?? [], inPool?.base,
     ) : [];
     if (inPool && !issues.length) return [];

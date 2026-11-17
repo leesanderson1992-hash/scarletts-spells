@@ -1,3 +1,5 @@
+import { prefillComparativeWorkbook } from "@/lib/teaching-dictionary-manager/comparative-review";
+import { isComparativeReviewSkill } from "@/lib/teaching-dictionary-manager/lesson-candidate";
 import { loadSpecialistBulkReview } from "@/lib/teaching-dictionary-manager/specialist-bulk-review";
 import { loadLessonReviewRequests } from "@/lib/teaching-dictionary-manager/lesson-review-requests";
 import { suffixReviewTitle } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
@@ -27,6 +29,10 @@ export async function GET(request: Request) {
   const batch = Number(params.get("batch") ?? "1");
   if (!canUpdateIngLesson() || !supportsReviewWorkbook(skill))
     return new Response("Workbook review is unavailable for this lesson.", { status: 404 });
+  if (scope === "blank" && isComparativeReviewSkill(skill)) {
+    return downloadWorkbook(await buildReviewWorkbook({skill, title: "Comparative and superlative", bundles: [], notes: new Map(), families: new Map()}),
+      `teaching-dictionary-blank-${skill}.xlsx`);
+  }
   if (scope === "blank" && prefixWorkbookEnabled(skill)) return blankPrefixWorkbook(skill);
   if (scope === "blank" && isSuffixWorkbookPilot(skill)) {
     const bytes = await buildReviewWorkbook({ skill, title: suffixReviewTitle(skill), bundles: [], notes: new Map(), families: new Map() });
@@ -86,7 +92,8 @@ export async function GET(request: Request) {
     }
     const notes = new Map(selected.map(row => [row.id, row.note]));
     const reviewed = await prefillReviewWorkbookMeanings(db, await reviewBundles(db, selected, bundles), notes);
-    const facts = await prefillReviewWorkbookFacts(db, reviewed, skill,
+    const prepared = isComparativeReviewSkill(skill) ? await prefillComparativeWorkbook(db, skill, reviewed) : reviewed;
+    const facts = await prefillReviewWorkbookFacts(db, prepared, skill,
       new Map(current.map(word => [word.canonicalWordId, word.base])));
     return downloadWorkbook(await buildReviewWorkbook({ skill, title, ...facts, notes, requestedSenses }),
     `teaching-dictionary-review-${skill}-${batch}.xlsx`);

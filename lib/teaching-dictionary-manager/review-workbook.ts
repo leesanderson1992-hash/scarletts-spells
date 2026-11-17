@@ -1,3 +1,4 @@
+import { isComparativeReviewSkill } from "./lesson-candidate";
 import { ING_RULE_FOR_SKILL, type IngMicroSkill, type IngDictionaryWordV1 } from "@/lib/adle/ing/contracts";
 import { ABLE_IBLE_SKILL, FUL_LESS_SKILL, isSuffixReviewSkill, type SuffixWorkbookFacts } from "./able-ible-workbook";
 import { DICTIONARY_BANDS } from "./contracts";
@@ -119,7 +120,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
       row.getCell(key).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFDEDF7" } };
     }
   }
-  if (suffixWorkbook || blankPrefixWorkbook) {
+  if (suffixWorkbook || blankPrefixWorkbook || isComparativeReviewSkill(input.skill)) {
     const firstBlankRow = headerRow + rows.length + 1;
     for (let number = firstBlankRow; number < firstBlankRow + 100; number++) {
       const row = sheet.getRow(number);
@@ -175,6 +176,11 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     ["New words", "Start on the first blank row. Enter the spelling, meaning, part of speech, IPA, spoken syllable count, stress and dictation. The upload fills the hidden IDs."],
     ["Prefix and base", `For part 1 choose prefix and enter ${[...new Set(prefixWorkbook?.choices.map(choice => choice.prefix))].join(" or ")} for both forms. For part 2 choose base and enter the base spelling and its meaning. Set the join to none and the relationship to derived.`],
     ["Before publishing", "Resolve the base family in Bulk review if needed. Open the saved lesson draft to complete any remaining lesson checks."],
+  ]);
+  if (isComparativeReviewSkill(input.skill)) guide.addRows([
+    ["Complete adjective sets", "Review the base, comparative and superlative together. All three must use the same adjective meaning and base family."],
+    ["Word parts", "Use one base part for the base word. For the other two forms, add er or est. Record the visible base letters and any spelling change."],
+    ["Publish", "Upload saves reviewed Dictionary facts. Preview checks the complete three-word set before Publish makes it available in ADLE."],
   ]);
   if (suffixWorkbook) guide.addRows([
     ["New words", "Use the first 100 empty rows for new entries. Choose Needs family review to find or create a family in Bulk review."],
@@ -236,7 +242,7 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
     if (!["", "Review", "Yes", "No"].includes(entry.use_in_lesson))
       throw new Error(`Workbook row ${index}: choose Review, Yes or No under Use in lesson.`);
     entry.workbook_row = String(index);
-    if ((hasPrefixChoice || isSuffixReviewSkill(skill)) && entry.display_word && !entry.canonical_word_id && !entry.source_sense_reviewed_at) {
+    if ((hasPrefixChoice || isSuffixReviewSkill(skill) || isComparativeReviewSkill(skill)) && entry.display_word && !entry.canonical_word_id && !entry.source_sense_reviewed_at) {
       entry.sense_id ||= `meaning-${index}`;
       if (entry.part_of_speech !== "root") entry.pronunciation_id ||= `pronunciation-${index}`;
     }
@@ -301,12 +307,19 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
       }
       row.component_part_id = row[`part_${part}_id`] || `part_${part}`;
       if (!row.relationship_kind && ING_RULE_FOR_SKILL[skill as IngMicroSkill]) row.relationship_kind = "regular_inflection";
+      if (!row.relationship_kind && isComparativeReviewSkill(skill))
+        row.relationship_kind = row.part_2_kind ? "regular_inflection" : "free_base";
       if (!row.relationship_kind && isSuffixReviewSkill(skill)) row.relationship_kind = "derived";
       if (!row.relationship_kind)
         throw new Error(`Row ${rowNumber}: choose the relationship to the teaching family.`);
     }
-    if (tasks.length) pendingFamilies.push(...tasks);
-    else records.push(...group);
+    if (tasks.length) {
+      pendingFamilies.push(...tasks);
+      // A reviewed base must exist before the family chooser can create
+      // its family. Save that one-part base while retaining the family task.
+      if (isComparativeReviewSkill(skill) && group.every(row => row.part_1_kind === "base" && !row.part_2_kind))
+        records.push(...group);
+    } else records.push(...group);
   }
   const csv = [MULTI_SENSE_CSV_COLUMNS, ...records.map(row => {
     if (!row.family_key) {

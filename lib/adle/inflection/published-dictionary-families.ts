@@ -9,8 +9,9 @@ export async function publishedDictionaryDegreeFamilies(input: {
   client: SupabaseClient;
   skill: ComparativeMicroSkill;
   families: AdjectiveFamilyV1[];
+  environmentKey?: "local" | "staging" | "production";
 }) {
-  const { client, skill, families } = input;
+  const { client, skill, families, environmentKey = "staging" } = input;
   const ids = [...new Set(families.flatMap(family => family.words.map(word => word.canonicalWordId)))];
   const [senses, analyses, links, vetoes, associations] = await Promise.all([
     loadCurrentLessonSenses(client, ids, [skill]),
@@ -18,9 +19,9 @@ export async function publishedDictionaryDegreeFamilies(input: {
       .in("canonical_word_id", ids),
     client.from("teaching_dictionary_current_sense_family_memberships").select("canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind")
       .in("canonical_word_id", ids),
-    loadCurrentPairDeassignments({ client, environmentKey: "staging",
+    loadCurrentPairDeassignments({ client, environmentKey,
       pairs: ids.map(canonicalWordId => ({ canonicalWordId, microSkillKey: skill })) }),
-    loadPublishedWritingAssociations(client, "staging", ids),
+    loadPublishedWritingAssociations(client, environmentKey, ids),
   ]);
   if (analyses.error || links.error) throw new Error("Could not load the published comparative dictionary families.");
   const published = new Set(associations.filter(row => row.microSkillKey === skill &&

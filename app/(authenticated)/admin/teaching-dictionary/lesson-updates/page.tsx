@@ -1,3 +1,6 @@
+import { isComparativeReviewSkill } from "@/lib/teaching-dictionary-manager/lesson-candidate";
+import { loadComparativeReview } from "@/lib/teaching-dictionary-manager/comparative-review";
+import { publishComparativeSets } from "./comparative-actions";
 import { includeActiveWorkbookReview } from "@/lib/teaching-dictionary-manager/active-workbook-review";
 import { loadLessonReviewRequests } from "@/lib/teaching-dictionary-manager/lesson-review-requests";
 import { loadSpecialistBulkReview } from "@/lib/teaching-dictionary-manager/specialist-bulk-review";
@@ -55,7 +58,9 @@ export default async function LessonUpdates({ searchParams }: {
   const suffixTitle = suffixReviewTitle(params.skill ?? "");
   const selected = params.skill ?? "";
   const prefixSkill = prefixWorkbookEnabled(selected) ? selected : null;
-  const blankWorkbookSkill = prefixSkill ?? (suffixPilot ? selected : null);
+  const comparativeSkill = isComparativeReviewSkill(selected) ? selected : null;
+  const comparative = comparativeSkill && view === "preview" ? await loadComparativeReview(db, comparativeSkill) : null;
+  const blankWorkbookSkill = prefixSkill ?? (suffixPilot || comparativeSkill ? selected : null);
   const prefixQueue = prefixSkill && view === "preview" && specialist
     ? await loadPendingPrefixWorkbookQueue(db, prefixSkill) : null;
   const readyPrefixRows = prefixQueue?.filter(row => !row.blockers.length).slice(0, PREFIX_PUBLISH_BATCH_SIZE) ?? [];
@@ -168,6 +173,26 @@ export default async function LessonUpdates({ searchParams }: {
           <ActionSubmitButton className={button} pendingLabel="Publishing words…">Publish {readyPrefixRows.length} ready {readyPrefixRows.length === 1 ? "word" : "words"}</ActionSubmitButton>
         </form>}
       </>}
+      {comparative && <section className="space-y-3">
+        <h3 className="text-lg font-semibold">Review complete adjective sets</h3>
+        {params.published && <p role="status">{params.published} adjective sets are Active.</p>}
+        {comparative.families.map(row => <div key={row.family.familyKey} className="rounded-lg border p-3">
+          <p className="font-semibold">{row.family.words.map(word => word.word).join(" → ")}</p>
+          {row.blockers.length ? <ul className="list-disc pl-5">
+            {row.blockers.map(issue => <li key={issue}>{issue}</li>)}
+          </ul> : <p>{row.active ? "Active" : "Ready to publish"}</p>}
+          <div className="flex flex-wrap gap-3">{row.family.words.map(word =>
+            <Link prefetch={false} className="text-sm underline" key={word.canonicalWordId}
+              href={`/admin/teaching-dictionary/${word.canonicalWordId}`}>Edit {word.word}</Link>)}</div>
+        </div>)}
+        {comparative.families.some(row => !row.blockers.length && !row.active) && <form action={publishComparativeSets}>
+          <input type="hidden" name="skill" value={selected} />
+          <input type="hidden" name="fingerprint" value={comparative.fingerprint} />
+          {comparative.families.filter(row => !row.blockers.length && !row.active).map(row =>
+            <input key={row.family.familyKey} type="hidden" name="family_key" value={row.family.familyKey} />)}
+          <ActionSubmitButton className={button} pendingLabel="Publishing adjective sets…">Publish ready adjective sets</ActionSubmitButton>
+        </form>}
+      </section>}
       <ul className="divide-y divide-[var(--border)]">{specialist.rows.filter(row => !draftWordIds.has(row.id)).map(row => <li key={row.id} className="py-2">
         <Link className="font-semibold underline" href={row.href}>{row.word}</Link>
         <p className="text-sm">{row.note}</p>

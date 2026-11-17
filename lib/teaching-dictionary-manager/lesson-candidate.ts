@@ -1,3 +1,4 @@
+import { COMPARATIVE_MICRO_SKILLS, degreeRuleForSkill, type ComparativeMicroSkill } from "@/lib/adle/inflection/contracts";
 import { ABLE_IBLE_SKILL } from "./able-ible-workbook";
 import { ING_RULE_FOR_SKILL, ingStem, type IngDoublingPattern, type IngMicroSkill } from "@/lib/adle/ing/contracts";
 import { SHARED_AFFIX_PROFILE_REGISTRY } from "@/lib/adle/morphology/shared-affix-profile-registry";
@@ -49,7 +50,9 @@ function expectedInForm(base: string): "in" | "im" | "il" | "ir" {
   return "in";
 }
 export const IDENTIFY_BASE_SKILL = "D4_MOR_BASE_WORDS_IDENTIFY_BASE";
-export const hasCandidateRule = (skillKey: string) => ingKeys.has(skillKey)
+export const isComparativeReviewSkill = (skill: unknown): skill is ComparativeMicroSkill =>
+  COMPARATIVE_MICRO_SKILLS.some(key => key === skill);
+export const hasCandidateRule = (skillKey: string) => isComparativeReviewSkill(skillKey) || ingKeys.has(skillKey)
   || Object.hasOwn(suffixForms, skillKey) || Object.hasOwn(prefixForms, skillKey);
 
 /** Rules are evaluated from approved facts. A skill choice is never evidence by itself. */
@@ -95,6 +98,27 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
         `Choose the reviewed meaning of this ${acceptedPrefixes ? "prefix" : "suffix"}.`, "td-canonical-parts");
     else add("REVIEWED_PARTS", "Approve typed parts and joins that spell this word.", "td-canonical-parts");
     return done("needs_facts");
+  }
+  if (isComparativeReviewSkill(input.skillKey)) {
+    if (selectedSense?.partOfSpeech !== "adjective") return done("not_match");
+    if (!selectedSense.dictationSentence) add("DICTATION", "Approve a dictation sentence for this adjective meaning.", "td-dictation");
+    const [base, ending] = parts;
+    if (base?.kind !== "base" || parts.length > 2) return done("not_match");
+    const baseText = String(base.sourceText);
+    const rule = degreeRuleForSkill(input.skillKey);
+    const stem = rule === "drop_e" ? baseText.slice(0, -1)
+      : rule === "y_to_i" ? baseText.slice(0, -1) + "i"
+        : rule === "double_final_consonant" ? baseText + baseText.slice(-1) : baseText;
+    if (parts.length === 1 ? base.surfaceText !== baseText
+      : ending?.kind !== "suffix" || !["er", "est"].includes(String(ending.sourceText))
+        || ending.surfaceText !== ending.sourceText || base.surfaceText !== stem
+        || spelling !== stem + String(ending.sourceText)) return done("not_match");
+    const relationship = parts.length === 1 ? "free_base" : "regular_inflection";
+    if (!input.familyLinks.some(link => link.sense_id === input.senseId
+      && link.component_part_id === base.id && link.relationship_kind === relationship))
+      add("FAMILY_LINK", "Link this adjective meaning to the reviewed base family.", "td-base-family");
+    evidence.push(`Reviewed adjective form of ${baseText}`);
+    return done(issues.length ? "needs_facts" : "ready");
   }
   if (identifyBase) {
     if (!selectedSense?.dictationSentence) add("DICTATION", "Approve a dictation sentence for this meaning.", "td-dictation");
