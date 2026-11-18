@@ -71,7 +71,19 @@ async function upload(bytes, selectedSkill) {
   assert.equal(words.length, 3, 'Import both fixture workbooks first');
   const dependencies = () => read(db.from('teaching_dictionary_family_dependencies').select('*').in('canonical_word_id', words.map(w => w.id)));
   if (process.argv.includes('--safety')) {
-    const row = (await dependencies()).find(r => r.base_form === 'stack'); assert(row?.family_resolved);
+    const originalRow = (await dependencies()).find(r => r.base_form === 'stack'); assert(originalRow?.family_resolved);
+    const [currentReview] = await loadReviewedMeaningBundles(db, [originalRow.canonical_word_id]);
+    const currentParts = await read(db.from('teaching_dictionary_current_sense_morphology').select('id').eq('canonical_word_id', originalRow.canonical_word_id).eq('sense_id', originalRow.sense_id).single());
+    const row = { ...originalRow, expected_reviewed_at: currentReview.sourceSenseReviewedAt, expected_morphology_id: currentParts.id };
+    try {
+    await read(db.from('teaching_dictionary_family_dependencies').update({ expected_reviewed_at: row.expected_reviewed_at, expected_morphology_id: row.expected_morphology_id }).eq('id', row.id));
+    const firstClaim = await read(db.rpc('claim_dictionary_family_dependencies', { p_environment: 'staging', p_limit: 1, p_base: 'stack' }));
+    assert.equal(firstClaim[0].id, row.id);
+    const concurrent = await read(db.rpc('claim_dictionary_family_dependencies', { p_environment: 'staging', p_limit: 20 }));
+    assert(!concurrent.some(r => r.id === row.id), 'A live lease must prevent concurrent work');
+    await read(db.from('teaching_dictionary_family_dependencies').update({ lease_until: new Date(Date.now() - 60000).toISOString() }).eq('id', row.id));
+    const recovered = await read(db.rpc('claim_dictionary_family_dependencies', { p_environment: 'staging', p_limit: 20 }));
+    assert(recovered.some(r => r.id === row.id), 'An interrupted claim must retry even without a later family edit');
     const linksBefore = await read(db.from('teaching_dictionary_current_sense_family_memberships').select('id,family_key').eq('canonical_word_id', row.canonical_word_id));
     await read(db.from('teaching_dictionary_family_dependencies').update({ expected_meaning: 'An unconfirmed different meaning', status: 'waiting', family_resolved: false, checked_at: null, lease_until: null }).eq('id', row.id));
     await recheckWaitingFamilyWords(db, 'staging', 'stack');
@@ -91,7 +103,10 @@ async function upload(bytes, selectedSkill) {
     const root = await read(db.from('canonical_teaching_dictionary_words').select('id').eq('normalised_word', 'aud').single());
     const { loadTeachingDictionaryEvidenceAuthorityForWord } = require('../lib/teaching-dictionary-manager/evidence-authority');
     assert.equal((await loadTeachingDictionaryEvidenceAuthorityForWord(db, 'staging', root.id)).relationships.length, 0, 'Root support entry must not gain ordinary spelling approvals');
-    console.log({ status: 'safety-passed', ambiguousMeaningHeld: true, staleFactsHeld: true, atomicRollback: true, rootIsSupportOnly: true }); return;
+    console.log({ status: 'safety-passed', expiredLeaseRetried: true, concurrentWorkBlocked: true, ambiguousMeaningHeld: true, staleFactsHeld: true, atomicRollback: true, rootIsSupportOnly: true }); return;
+    } finally {
+      await read(db.from('teaching_dictionary_family_dependencies').update({ expected_reviewed_at: originalRow.expected_reviewed_at, expected_morphology_id: originalRow.expected_morphology_id, expected_meaning: originalRow.expected_meaning, status: originalRow.status, family_resolved: originalRow.family_resolved, detail: originalRow.detail, lease_until: null }).eq('id', originalRow.id));
+    }
   }
   if (process.argv.includes('--verify-saved')) {
     const rows = await dependencies(); assert.equal(rows.length, 3); assert(rows.every(r => r.status === 'waiting'));
