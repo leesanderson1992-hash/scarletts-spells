@@ -6,6 +6,7 @@ import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
+import { generatedWordSum } from "@/lib/teaching-dictionary-manager/authoring";
 
 export async function findSenseFamilies(forms: string[]) {
   await requireAdminUser();
@@ -81,18 +82,30 @@ export async function findReviewedFamilyBase(form: string) {
     .eq("normalised_word", form.trim().toLocaleLowerCase("en-GB")).eq("dialect_code", "en-GB")
     .eq("row_status", "active").eq("review_status", "approved_for_first_exposure").maybeSingle();
   if (word.error || !word.data) return null;
-  const reviewed = await db.from("teaching_dictionary_reviewed_sense_sets").select("sense_set")
-    .eq("canonical_word_id", word.data.id).maybeSingle();
-  if (reviewed.error) throw new Error("Could not load the base word’s meanings.");
+  const [reviewed, analyses] = await Promise.all([
+    db.from("teaching_dictionary_reviewed_sense_sets").select("sense_set").eq("canonical_word_id", word.data.id).maybeSingle(),
+    db.from("teaching_dictionary_current_sense_morphology").select("sense_id,morphology_parts")
+      .eq("canonical_word_id", word.data.id),
+  ]);
+  if (reviewed.error || analyses.error) throw new Error("Could not load the base word’s meanings.");
+  const baseWord = word.data;
   const set = reviewed.data?.sense_set as import("@/lib/teaching-dictionary-manager/senses").DictionarySenseSet | undefined;
   return { id: word.data.id, word: word.data.display_word, senses: (set?.senses ?? [])
     .filter(sense => sense.definition.trim() && sense.partOfSpeech && sense.partOfSpeech !== "root")
-    .map(({ id, definition, partOfSpeech }) => ({ id, definition, partOfSpeech })) };
+    .map(({ id, definition, partOfSpeech }) => {
+      const analysis = analyses.data.find(row => row.sense_id === id);
+      const parts = analysis?.morphology_parts as { kind: string; sourceText: string; surfaceText: string }[] | undefined;
+      return { id, definition, partOfSpeech, partsStatus: !analysis ? "missing" as const
+        : parts?.length === 1 && parts[0].kind === "base"
+          && parts[0].sourceText === form.trim().toLocaleLowerCase("en-GB")
+          && parts[0].surfaceText === baseWord.display_word ? "whole_base" as const : "other" as const };
+    }) };
 }
 
 /** A reviewed whole-word free base can anchor a family for this exact meaning. */
 export async function createSenseFreeBaseFamily(input: { wordId: string; senseId: string;
-  componentPartId: string; baseWordId?: string; baseSenseId?: string; relationshipKind?: string }): Promise<{ ok: boolean; error?: string }> {
+  componentPartId: string; baseWordId?: string; baseSenseId?: string; relationshipKind?: string;
+  approveBaseParts?: boolean }): Promise<{ ok: boolean; error?: string }> {
   const actor = await requireAdminUser();
   if (!isUuid(input.wordId) || !input.senseId || input.senseId.length > 200
     || !input.componentPartId || input.componentPartId.length > 200)
@@ -105,8 +118,40 @@ export async function createSenseFreeBaseFamily(input: { wordId: string; senseId
   if (baseWordId !== input.wordId) {
     const current = await db.from("teaching_dictionary_current_sense_morphology").select("id")
       .eq("canonical_word_id", baseWordId).eq("sense_id", baseSenseId).maybeSingle();
-    if (current.error || !current.data)
+    if (current.error) return { ok: false, error: "Could not check the base word’s parts. Try again." };
+    if (!current.data && !input.approveBaseParts)
       return { ok: false, error: "Open the base entry and approve its whole-word parts before creating the family." };
+    if (!current.data) {
+      const [base, reviewed] = await Promise.all([
+        db.from("canonical_teaching_dictionary_words").select("display_word,normalised_word")
+          .eq("id", baseWordId).eq("row_status", "active").eq("review_status", "approved_for_first_exposure").single(),
+        db.from("teaching_dictionary_reviewed_sense_sets").select("sense_set").eq("canonical_word_id", baseWordId).single(),
+      ]);
+      const set = reviewed.data?.sense_set as import("@/lib/teaching-dictionary-manager/senses").DictionarySenseSet | undefined;
+      const sense = set?.senses.find(sense => sense.id === baseSenseId && sense.partOfSpeech !== "root");
+      if (base.error || reviewed.error || !sense?.definition.trim())
+        return { ok: false, error: "Approve the base word’s meaning first, then reload its meanings here." };
+      const parts = [{ id: "base", kind: "base", sourceText: base.data.normalised_word, surfaceText: base.data.display_word,
+        gloss: sense.definition, displayRange: { start: 0, end: base.data.display_word.length } }];
+      const approved = await db.rpc("approve_teaching_dictionary_word_parts", {
+        p_request_id: randomUUID(), p_word_id: baseWordId, p_sense_id: baseSenseId,
+        p_parts: parts, p_joins: [], p_transformations: [], p_word_sum: generatedWordSum(parts, base.data.display_word), p_actor: actor.id,
+      });
+      if (approved.error) return { ok: false, error: "The base word’s parts could not be approved. Open its Word parts tab to review them." };
+    }
+  }
+  // Repeated clicks and retries should link the same reviewed family.
+  const existing = await db.from("teaching_dictionary_families_with_current_meaning")
+    .select("family_key,review_status").eq("canonical_base_word_id", baseWordId).eq("canonical_base_sense_id", baseSenseId)
+    .order("revision", { ascending: false }).limit(1).maybeSingle();
+  if (existing.error) return { ok: false, error: "Could not check existing families. Try again." };
+  if (existing.data?.review_status === "approved") {
+    const current = await db.from("teaching_dictionary_current_sense_morphology").select("id")
+      .eq("canonical_word_id", input.wordId).eq("sense_id", input.senseId).single();
+    if (current.error) return { ok: false, error: "Approve this meaning’s Word parts before linking the family." };
+    return reviewSenseFamilyMembership({ wordId: input.wordId, senseId: input.senseId, morphologyId: current.data.id,
+      familyKey: existing.data.family_key, componentPartId: input.componentPartId,
+      relationshipKind: baseWordId === input.wordId ? "free_base" : input.relationshipKind ?? "derived", action: "approve" });
   }
   const result = await db.rpc("create_reviewed_free_base_family_from_sense", {
     p_request_id: randomUUID(), p_base_word_id: baseWordId, p_base_sense_id: baseSenseId,
@@ -119,6 +164,8 @@ export async function createSenseFreeBaseFamily(input: { wordId: string; senseId
     ?.replaceAll("_", " ").toLowerCase() ?? "The family could not be created." };
   updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   revalidatePath(`/admin/teaching-dictionary/${input.wordId}`);
+  if (baseWordId !== input.wordId) revalidatePath(`/admin/teaching-dictionary/${baseWordId}`);
+  revalidatePath("/admin/teaching-dictionary/lesson-updates");
   return { ok: true };
 }
 

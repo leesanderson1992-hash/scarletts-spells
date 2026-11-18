@@ -119,7 +119,9 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
     const sourceText = part.sourceText;
     start(async () => {
       try {
-        setBaseEntry(await findReviewedFamilyBase(sourceText));
+        const entry = await findReviewedFamilyBase(sourceText);
+        setBaseEntry(entry);
+        if (entry?.senses.length === 1) setBaseSenseId(entry.senses[0].id);
       } catch {
         setError("Could not load the base word’s meanings.");
       }
@@ -132,15 +134,18 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
     setSaved(false);
     setError("");
     start(async () => {
-      const result = await createSenseFreeBaseFamily({ wordId: props.wordId, senseId: props.senseId,
-        componentPartId, baseWordId: baseEntry?.id, baseSenseId: baseSense?.id, relationshipKind: relationship });
-      if (!result.ok) {
-        setError(result.error ?? "Family creation failed.");
-        return;
+      try {
+        const result = await createSenseFreeBaseFamily({ wordId: props.wordId, senseId: props.senseId,
+          componentPartId, baseWordId: wholeWordBase ? undefined : baseEntry?.id,
+          baseSenseId: wholeWordBase ? undefined : baseSense?.id, relationshipKind: relationship,
+          approveBaseParts: !wholeWordBase && baseSense?.partsStatus === "missing" });
+        if (!result.ok) { setError(result.error ?? "Family creation failed."); return; }
+        setFamilyMode(null);
+        setSaved(true);
+        router.refresh();
+      } catch {
+        setError("The family could not be saved. Your word parts are safe; try again.");
       }
-      setFamilyMode(null);
-      setSaved(true);
-      router.refresh();
     });
   }
   const familyButton = "rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-semibold disabled:opacity-50";
@@ -240,12 +245,16 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
           {baseParts.map(part => <option key={part.id} value={part.id}>{part.sourceText}</option>)}
         </select>
       </label>}
-      {baseEntry && <label className="text-sm">Reviewed meaning of {baseEntry.word}
+      {baseEntry && baseEntry.senses.length > 0 && <label className="text-sm">Reviewed meaning of {baseEntry.word}
         <select className={field} value={baseSenseId} onChange={event => setBaseSenseId(event.target.value)}>
           <option value="">Choose a meaning</option>
           {baseEntry.senses.map(sense => <option key={sense.id} value={sense.id}>{sense.partOfSpeech} · {sense.definition}</option>)}
         </select>
       </label>}
+      {baseEntry && !baseEntry.senses.length && <p className="text-sm text-amber-900">
+        {baseEntry.word} is in the Dictionary but has no approved meaning yet. Open its entry, approve the base meaning,
+        then return here and reload reviewed meanings.
+      </p>}
       {baseEntry && <Link target="_blank" rel="noopener" href={`/admin/teaching-dictionary/${baseEntry.id}`} className="w-fit text-sm underline">
         Open base entry to add or review a meaning (new tab)
       </Link>}
@@ -258,11 +267,20 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
         </select>
       </label>}
       {!wholeWordBase && !baseEntry && <p className="text-sm">
-        {pending ? "Loading reviewed base meanings…" : "Choose a reviewed base. If this word is the base, use the selected meaning to start its family."}
+        {pending ? "Loading reviewed base meanings…" : basePart
+          ? <>Add and approve <Link className="underline" target="_blank" rel="noopener" href="/admin/teaching-dictionary/new">{basePart.sourceText} in the Dictionary</Link>, then reload its reviewed meanings here.
+            <button type="button" className="ml-2 underline" onClick={() => basePart.id && loadBase(basePart.id)}>Reload reviewed base</button></>
+          : "Choose the base part first. Bound roots use the dedicated root review process."}
       </p>}
       {wholeWordBase && <p className="text-sm">{props.senseDefinition}</p>}
       {baseSense && <p className="text-sm">This word will inherit “{baseSense.definition}” from the family.</p>}
-      <button type="button" className={familyButton} disabled={pending || (!wholeWordBase && !baseSense)}
+      {baseSense?.partsStatus === "missing" && <p className="text-sm">
+        Creating this family will also approve {baseEntry?.word} as one whole base, using the reviewed meaning above.
+      </p>}
+      {baseSense?.partsStatus === "other" && <p className="text-sm text-amber-900">
+        This base has a different approved word-parts analysis. Review its Word parts tab before using it as a whole-base family.
+      </p>}
+      <button type="button" className={familyButton} disabled={pending || (!wholeWordBase && (!baseSense || baseSense.partsStatus === "other"))}
         onClick={createFamily}>Create and link family</button>
     </div>}
     {familyMode === "find" && <div className="grid gap-2 border-t border-[var(--border)] pt-3">
