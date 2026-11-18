@@ -70,6 +70,29 @@ async function upload(bytes, selectedSkill) {
   const words = await read(db.from('canonical_teaching_dictionary_words').select('id,normalised_word').in('normalised_word', ['unstack', 'uncoil', 'audible']));
   assert.equal(words.length, 3, 'Import both fixture workbooks first');
   const dependencies = () => read(db.from('teaching_dictionary_family_dependencies').select('*').in('canonical_word_id', words.map(w => w.id)));
+  if (process.argv.includes('--safety')) {
+    const row = (await dependencies()).find(r => r.base_form === 'stack'); assert(row?.family_resolved);
+    const linksBefore = await read(db.from('teaching_dictionary_current_sense_family_memberships').select('id,family_key').eq('canonical_word_id', row.canonical_word_id));
+    await read(db.from('teaching_dictionary_family_dependencies').update({ expected_meaning: 'An unconfirmed different meaning', status: 'waiting', family_resolved: false, checked_at: null, lease_until: null }).eq('id', row.id));
+    await recheckWaitingFamilyWords(db, 'staging', 'stack');
+    assert.equal((await dependencies()).find(r => r.id === row.id).status, 'needs_choice');
+    await read(db.from('teaching_dictionary_family_dependencies').update({ expected_meaning: row.expected_meaning, expected_morphology_id: randomUUID(), status: 'waiting', lease_until: null }).eq('id', row.id));
+    await recheckWaitingFamilyWords(db, 'staging', 'stack');
+    assert.equal((await dependencies()).find(r => r.id === row.id).status, 'needs_review');
+    assert.deepEqual(await read(db.from('teaching_dictionary_current_sense_family_memberships').select('id,family_key').eq('canonical_word_id', row.canonical_word_id)), linksBefore, 'Ambiguous or stale reviews never replace an existing family');
+    const [saved] = await loadReviewedMeaningBundles(db, [row.canonical_word_id]);
+    const invalid = await db.rpc('import_teaching_dictionary_partial_review', { p_request_id: randomUUID(), p_word_id: saved.wordId,
+      p_display_word: saved.displayWord, p_expected_reviewed_at: saved.sourceSenseReviewedAt, p_sense_set: saved.senseSet,
+      p_analyses: saved.analyses.map(a => ({ ...a, requestedSkillKeys: [skill] })), p_actor: actor,
+      p_source_reference: 'Disposable atomic rollback staging proof', p_environment: 'staging', p_skill: skill,
+      p_dependencies: [{ senseId: row.sense_id, componentPartId: 'does-not-exist' }] });
+    assert(invalid.error); assert.equal((await loadReviewedMeaningBundles(db, [saved.wordId]))[0].sourceSenseReviewedAt, saved.sourceSenseReviewedAt, 'Invalid dependency must roll back the fact import too');
+    await read(db.from('teaching_dictionary_family_dependencies').update({ expected_morphology_id: row.expected_morphology_id, expected_meaning: row.expected_meaning, status: row.status, family_resolved: row.family_resolved, detail: row.detail, lease_until: null }).eq('id', row.id));
+    const root = await read(db.from('canonical_teaching_dictionary_words').select('id').eq('normalised_word', 'aud').single());
+    const { loadTeachingDictionaryEvidenceAuthorityForWord } = require('../lib/teaching-dictionary-manager/evidence-authority');
+    assert.equal((await loadTeachingDictionaryEvidenceAuthorityForWord(db, 'staging', root.id)).relationships.length, 0, 'Root support entry must not gain ordinary spelling approvals');
+    console.log({ status: 'safety-passed', ambiguousMeaningHeld: true, staleFactsHeld: true, atomicRollback: true, rootIsSupportOnly: true }); return;
+  }
   if (process.argv.includes('--verify-saved')) {
     const rows = await dependencies(); assert.equal(rows.length, 3); assert(rows.every(r => r.status === 'waiting'));
     const recommendations = await read(db.from('teaching_dictionary_family_recommendations').select('*').in('base_form', ['stack', 'coil', 'aud']));
