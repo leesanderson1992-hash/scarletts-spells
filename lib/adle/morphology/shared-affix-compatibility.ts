@@ -22,6 +22,7 @@ import {
 import { compileSharedAffixLesson } from "./shared-affix-compiler";
 import {
   SHARED_AFFIX_PROFILE_VERSION,
+  SHARED_AFFIX_SUPPORTED_TRANSFORMATION_TYPES,
   type AffixLessonCompilationInputV1,
   type CompiledAffixLessonV1,
   type SharedAffixBlocker,
@@ -264,7 +265,7 @@ function normaliseTransformations(
       continue;
     }
     const transformation = raw as { type: string; [key: string]: unknown };
-    if (!["change_final_y_to_i", "drop_final_e", "remove_letter", "replace_final", "base_spelling_change"].includes(transformation.type)) {
+    if (!(SHARED_AFFIX_SUPPORTED_TRANSFORMATION_TYPES as readonly string[]).includes(transformation.type) || transformation.type === "legacy_prefix_projection") {
       blockers.push({ code: "unsupported_transformation", detail: `${word.canonicalWordId}:${transformation.type}` });
       continue;
     }

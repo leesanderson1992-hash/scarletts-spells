@@ -2,6 +2,7 @@ import { emptyMetadata, normaliseWord, publicationBlockers, type WordDraftPayloa
 import { createHash } from "node:crypto";
 import { canonicalWordSum, type CanonicalPart, type CanonicalJoin } from "./canonical-morphology";
 import type { ReviewedTransformation } from "./authoring";
+import { AUTO_TRANSFORMATION, reviewedTransformation } from "./transformations";
 import { normaliseWrittenSyllableBreakdown } from "./authoring";
 
 export const FLAT_IMPORT_PART_LIMIT = 6;
@@ -26,7 +27,7 @@ export function flatMorphology(raw: Record<string, string>, headers: readonly st
     const explanation = raw[`${prefix}spelling_change_explanation`] ?? "";
     const transformationType = raw[`${prefix}spelling_change_type`] ?? "";
     const join = number > 1 ? raw[`${prefix}join_before`] ?? "" : "";
-    if (![kind, sourceText, surfaceText, gloss, explanation, transformationType, join].some(Boolean)) continue;
+    if (![kind, sourceText, surfaceText, gloss, explanation, transformationType === AUTO_TRANSFORMATION ? "" : transformationType, join].some(Boolean)) continue;
     if (parts.length !== number - 1) throw new Error(`Part ${number} follows an empty part.`);
     if (!kind || !sourceText || !surfaceText || !gloss)
       throw new Error(`Part ${number} needs its role, underlying form, visible letters and meaning.`);
@@ -44,11 +45,9 @@ export function flatMorphology(raw: Record<string, string>, headers: readonly st
     parts.push({ id, kind: kind as CanonicalPart["kind"], sourceText, surfaceText, gloss,
       displayRange: { start, end: surface.length } });
     if (sourceText !== surfaceText) {
-      if (!explanation) throw new Error(`Part ${number} needs a spelling-change explanation.`);
-      transformations.push({ type: transformationType || (["base", "root"].includes(kind)
-        ? "base_spelling_change" : "affix_spelling_change"),
-        sourcePartId: id, sourceText, surfaceText, explanation });
-    } else if (explanation || transformationType)
+      try { transformations.push(reviewedTransformation({ type: transformationType, sourcePartId: id, sourceText, surfaceText, explanation })); }
+      catch (error) { throw new Error(`Part ${number}: ${error instanceof Error ? error.message : "Check the spelling change."}`); }
+    } else if (explanation || transformationType && transformationType !== AUTO_TRANSFORMATION)
       throw new Error(`Part ${number} has a spelling change but its forms match.`);
   }
   if (!parts.length) throw new Error("Add at least one word part.");

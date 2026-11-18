@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { generatedWordSum } from "@/lib/teaching-dictionary-manager/authoring";
 import { PartSequenceEditor, asParts } from "./part-sequence-editor";
-import { FormatHint } from "./format-hint";
+import { TransformationEditor } from "./transformation-editor";
 import type { AffixCatalog } from "./affix-picker";
 import { createSenseFreeBaseFamily, findReviewedFamilyBase, findSenseFamilies, reviewSenseFamilyMembership, reviewSenseMorphology } from "./sense-morphology-actions";
 
@@ -177,36 +177,7 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
     <PartSequenceEditor label="Parts for this meaning" word={props.displayWord}
       parts={parts} joins={joins} affixCatalog={props.affixCatalog} inheritedMeanings={inheritedMeanings}
       onChange={(nextParts, nextJoins) => { setParts(nextParts); setJoins(nextJoins); setSaved(false); }} />
-    <div className="grid gap-2">
-      <h4 className="font-semibold">Spelling changes <FormatHint label="spelling changes"
-        format="Record each change from an underlying part to the letters shown in the word. Leave empty when no spelling changes occur."
-        example="make → mak before -ing; drop final e" /></h4>
-      {transformations.map((item, index) => <div key={index} className="grid gap-2 rounded bg-[var(--paper)] p-2 sm:grid-cols-2">
-        <label className="text-sm">Part <select className={field} value={item.sourcePartId}
-          onChange={event => setTransformations(current => current.map((row, at) => at === index
-            ? { ...row, sourcePartId: event.target.value } : row))}>
-          <option value="">Choose part</option>{typedParts.map(part =>
-            <option key={part.id} value={part.id}>{part.sourceText} → {part.surfaceText}</option>)}
-        </select></label>
-        <label className="text-sm">Change <select className={field} value={item.type}
-          onChange={event => setTransformations(current => current.map((row, at) => at === index
-            ? { ...row, type: event.target.value } : row))}>
-          {(["drop_final_e", "change_final_y_to_i", "remove_letter", "replace_final", "base_spelling_change"])
-            .map(type => <option key={type} value={type}>{type.replaceAll("_", " ")}</option>)}
-        </select></label>
-        {(["sourceText", "surfaceText", "explanation"] as const).map(key => <label key={key} className="text-sm">
-          {key === "sourceText" ? "Before" : key === "surfaceText" ? "After" : "Explanation"}
-          <input className={field} value={item[key] ?? ""}
-            onChange={event => setTransformations(current => current.map((row, at) => at === index
-              ? { ...row, [key]: event.target.value } : row))} />
-        </label>)}
-        <button type="button" className="self-end text-sm underline" onClick={() =>
-          setTransformations(current => current.filter((_, at) => at !== index))}>Remove change</button>
-      </div>)}
-      <button type="button" className="w-fit text-sm underline" onClick={() => setTransformations(current =>
-        [...current, { type: "drop_final_e", sourcePartId: "", sourceText: "",
-          surfaceText: "", explanation: "" }])}>Add spelling change</button>
-    </div>
+    <TransformationEditor parts={parts} value={transformations} onChange={setTransformations} />
     <button type="button" className="w-fit rounded bg-[var(--scarlett)] px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
       disabled={pending || !typedParts.length || (Boolean(props.current) && !changed)} onClick={submitAnalysis}>
       {pending ? "Saving…" : props.current ? "Approve revised parts for this meaning" : "Approve parts for this meaning"}

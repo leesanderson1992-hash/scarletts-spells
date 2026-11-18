@@ -7,6 +7,7 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { generatedWordSum } from "@/lib/teaching-dictionary-manager/authoring";
+import { standardiseTransformations, type Transformation } from "@/lib/teaching-dictionary-manager/transformations";
 
 export async function findSenseFamilies(forms: string[]) {
   await requireAdminUser();
@@ -34,9 +35,14 @@ export async function reviewSenseMorphology(input: { wordId: string; senseId: st
     || !Array.isArray(input.transformations) || typeof input.wordSum !== "string")
     return { ok: false, error: "Choose a reviewed meaning and complete its word parts." };
   const db = createServiceRoleClient();
+  let transformations = input.transformations;
+  if (input.action === "approve") {
+    try { transformations = standardiseTransformations(input.parts, input.transformations as Transformation[]); }
+    catch (error) { return { ok: false, error: error instanceof Error ? error.message : "Check the spelling changes." }; }
+  }
   const facts = {
     p_request_id: randomUUID(), p_word_id: input.wordId, p_sense_id: input.senseId,
-    p_parts: input.parts, p_joins: input.joins, p_transformations: input.transformations,
+    p_parts: input.parts, p_joins: input.joins, p_transformations: transformations,
     p_word_sum: input.wordSum, p_actor: actor.id,
   };
   const result = input.action === "approve"

@@ -7,6 +7,7 @@ import { UN_PREFIX_SKILL } from "./prefix-content";
 import { isPrefixWorkbookSkill, NEGATIVE_PREFIX_SKILL, negativePrefixForBase, prefixWorkbookFieldLabel,
   prefixWorkbooks, SUB_INTER_SUPER_PREFIX_SKILL } from "./prefix-workbook";
 import ExcelJS from "exceljs";
+import { AUTO_TRANSFORMATION, TRANSFORMATION_OPTIONS, resolveTransformationType, transformationExplanation } from "./transformations";
 import { unzipSync } from "fflate";
 import { csvRecords, FLAT_IMPORT_PART_LIMIT } from "./csv";
 import type { WorkbookFamily } from "./workbook-family-resolution";
@@ -78,6 +79,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   commonDropdowns.relationship_kind = list(["derived", "free_base", "regular_inflection", "irregular_inflection", "contraction", "historical_relative"]);
   for (let index = 1; index <= FLAT_IMPORT_PART_LIMIT; index++) {
     commonDropdowns[`part_${index}_kind`] = list(isCompoundWorkbookSkill(input.skill) ? ["base"] : ["prefix", "base", "root", "suffix", "connector"]);
+    commonDropdowns[`part_${index}_spelling_change_type`] = list([AUTO_TRANSFORMATION, ...TRANSFORMATION_OPTIONS.map(option => option.label)]);
     if (index > 1) commonDropdowns[`part_${index}_join_before`] = list(["none", "space", "hyphen"]);
   }
   const addDropdowns = (row: ExcelJS.Row) => {
@@ -86,6 +88,14 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   const [headers, ...rows] = csvRecords(renderMultiSenseCsvBundles(input.bundles));
   for (const values of rows) {
     const entry = Object.fromEntries(headers.map((key, i) => [key, (values[i] ?? "").replace(/^'(?=[=+@\-\t\r])/u, "")]));
+    for (const index of partIndexes) {
+      const prefix = `part_${index}_`;
+      const source = entry[`${prefix}underlying_form`], surface = entry[`${prefix}visible_letters`];
+      if (!source || !surface || source === surface) continue;
+      const type = resolveTransformationType(entry[`${prefix}spelling_change_type`], source, surface);
+      entry[`${prefix}spelling_change_type`] = TRANSFORMATION_OPTIONS.find(option => option.type === type)?.label ?? "Other reviewed change";
+      entry[`${prefix}spelling_change_explanation`] ||= type ? transformationExplanation(type, source, surface) : "";
+    }
     const notes = [
       input.notes.get(entry.canonical_word_id),
       entry.part_of_speech !== "root" && !entry.dictation_sentence ? "Add a dictation sentence for this meaning." : "",
@@ -122,7 +132,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
       row.getCell(key).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFDEDF7" } };
     }
   }
-  if (suffixWorkbook || blankPrefixWorkbook || isComparativeReviewSkill(input.skill) || isCompoundWorkbookSkill(input.skill)) {
+  {
     const firstBlankRow = headerRow + rows.length + 1;
     for (let number = firstBlankRow; number < firstBlankRow + 100; number++) {
       const row = sheet.getRow(number);
@@ -157,7 +167,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     ["Word family", "Choose the approved family that matches the meaning. Leave the family blank or choose Needs family review to resolve it after uploading."],
     ["Meaning and pronunciation", "Confirm the definition, part of speech, IPA, syllable count and stress. Use the same pronunciation ID for identical pronunciations."],
     ["Word parts", `Keep the full base and its visible letters in separate fields. ${wordPartsExample} Use none for a join with no space.`],
-    ["Spelling change", `If the forms differ, record the change and explanation. ${spellingChangeExample}`],
+    ["Spelling change", `Choose a standard rule from the dropdown, or leave blank / choose ${AUTO_TRANSFORMATION} to infer a clear change on upload. Standard explanations are filled automatically. Other reviewed change requires your explanation. ${spellingChangeExample} Keep the suffix separate: force → forc uses Drop final e; ible is a separate suffix part.`],
     ["Family relationship", "Selecting a family for a single base links that base. For words with multiple bases, specify the component part ID."],
     ["Dictation", "Use the word once. Count from zero for the target position. In She is caring for a sick bird, caring is position 2."],
     ["Existing facts", "Confirm any facts copied from older Dictionary or lesson records. Keep the hidden IDs and source revision supplied in the workbook."],

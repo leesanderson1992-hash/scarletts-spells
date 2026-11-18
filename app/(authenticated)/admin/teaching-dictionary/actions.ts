@@ -1,4 +1,5 @@
 "use server";
+import { standardiseTransformations } from "@/lib/teaching-dictionary-manager/transformations";
 
 import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
@@ -420,6 +421,10 @@ async function performWorkspaceSave(form: FormData) {
     if (wordId && !isUuid(wordId)) throw new Error("TEACHING_WORD_ID_INVALID");
     const normalisedWord = normaliseWord(value(form, "normalised_word"));
     const payload = payloadFromForm(form);
+    const reviewSection = value(form, "review_section");
+    if (!["meaning", "draft", "skills"].includes(reviewSection) && payload.canonicalMorphology.parts.length)
+      payload.canonicalMorphology.transformations = standardiseTransformations(payload.canonicalMorphology.parts,
+        payload.canonicalMorphology.transformations ?? []);
     if (payload.senseSet) {
       payload.senseSet = { ...payload.senseSet, senses: payload.senseSet.senses.map(sense => {
         const targets = targetOccurrences(sense.dictationSentence ?? "", payload.displayWord);
@@ -455,7 +460,6 @@ async function performWorkspaceSave(form: FormData) {
     // A reviewed lexical family is the dictionary source for Base Word Lab.
     // Rebase a newly approved lesson draft to that exact revision rather than
     // creating a second, conflicting manager family for the same base.
-    const reviewSection = value(form, "review_section");
     let reviewedFacts = payload;
     if (wordId && (reviewSection === "overview" || reviewSection.startsWith("lesson:"))) {
       const key = reviewSection.startsWith("lesson:") ? reviewSection.slice(7) : null;

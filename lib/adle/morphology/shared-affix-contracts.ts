@@ -3,6 +3,7 @@ import type {
   VersionedLessonRouteReference,
 } from "../composable-lesson/contracts";
 import type { MorphologyEffect, MorphologyWordSnapshot } from "./payload";
+import { TRANSFORMATION_OPTIONS } from "../../teaching-dictionary-manager/transformations";
 
 export const SHARED_AFFIX_COMPILER_VERSION = 1 as const;
 export const SHARED_AFFIX_PROFILE_VERSION = 1 as const;
@@ -18,6 +19,7 @@ export const SHARED_AFFIX_SUPPORTED_TRANSFORMATION_TYPES = [
   "remove_letter",
   "replace_final",
   "base_spelling_change",
+  ...TRANSFORMATION_OPTIONS.map(option => option.type),
 ] as const;
 
 export const SHARED_AFFIX_POLICY_VARIANTS = {

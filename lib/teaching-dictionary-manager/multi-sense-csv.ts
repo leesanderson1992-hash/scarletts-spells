@@ -2,6 +2,7 @@ import { csvRecords, flatMorphology, FLAT_IMPORT_PART_LIMIT, MAX_DICTIONARY_CSV_
 import { normaliseWord } from "./contracts";
 import { targetOccurrences } from "./authoring";
 import { senseSetErrors, type DictionarySenseSet } from "./senses";
+import { resolveTransformationType, suggestTransformation } from "./transformations";
 
 /** One complete reviewed bundle per spelling. Every sense has its own parts and family choice. */
 export type MultiSenseCsvBundle = {
@@ -192,9 +193,12 @@ export function renderMultiSenseCsvBundles(bundles: readonly MultiSenseCsvBundle
       row[`${prefix}visible_letters`] = part.surfaceText;
       row[`${prefix}meaning`] = part.gloss;
       if (index) row[`${prefix}join_before`] = analysis?.joins.find(join => join.beforePartId === part.id)?.joinType ?? "";
-      const change = analysis?.transformations.find(item => item.sourcePartId === part.id);
-      row[`${prefix}spelling_change_type`] = change?.type ?? "";
-      row[`${prefix}spelling_change_explanation`] = change?.explanation ?? "";
+      const changes = analysis?.transformations.filter(item => item.sourcePartId === part.id) ?? [];
+      const change = changes[0];
+      row[`${prefix}spelling_change_type`] = changes.length > 1
+        ? suggestTransformation(part.sourceText, part.surfaceText) ?? "other_reviewed_change"
+        : change ? resolveTransformationType(change.type, part.sourceText, part.surfaceText) ?? "other_reviewed_change" : "";
+      row[`${prefix}spelling_change_explanation`] = changes.map(change => change.explanation).join(" ");
     }
     return MULTI_SENSE_CSV_COLUMNS.map(name => cell(row[name])).join(",");
   }));

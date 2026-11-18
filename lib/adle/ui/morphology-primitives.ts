@@ -1,8 +1,10 @@
+import { TRANSFORMATION_OPTIONS, type TransformationType } from "../../teaching-dictionary-manager/transformations";
 export type MorphologyPartKind = "prefix" | "base" | "root" | "suffix" | "connector";
 
 export type MorphologyJoinType = "none" | "space" | "hyphen";
 
 export type MorphologyTransformationType =
+  | TransformationType
   | "drop_final_e"
   | "preserve_base"
   | "insert_connector"
@@ -176,6 +178,7 @@ const JOIN_LABELS: Record<MorphologyJoinType, string> = {
 };
 
 const TRANSFORMATION_TYPES = new Set<string>([
+  ...TRANSFORMATION_OPTIONS.map(option => option.type),
   "drop_final_e",
   "preserve_base",
   "insert_connector",
