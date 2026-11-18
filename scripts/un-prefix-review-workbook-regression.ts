@@ -116,7 +116,7 @@ async function main() {
     "Dictation sentence": "Please unlock the door.", "Dictation target token index": 1,
     "Part 1 kind": "prefix", "Part 1 underlying form": "un", "Part 1 visible letters": "un",
     "Part 2 kind": "base", "Part 2 underlying form": "lock", "Part 2 visible letters": "lock",
-    "Part 2 join before": "none", "Relationship kind": "derived",
+    "Part 2 join before": "none", "Relationship kind": "",
   };
   for (const [key, value] of Object.entries(values)) {
     assert(header.indexOf(key) > 0, key);
@@ -137,6 +137,7 @@ async function main() {
   assert.equal(newWord.wordId, "");
   assert.equal(newWord.senseSet.senses[0].id, "meaning-4");
   assert.equal(newWord.senseSet.senses[0].pronunciationId, "pronunciation-4");
+  assert.equal(newWord.analyses[0].relationshipKind, "derived", "Resuming a saved prefix review must not require re-entering the relationship");
   assert.deepEqual(newWord.analyses[0].parts.map(part => part.gloss), ["reverse", "Fasten with a lock."]);
   const mixed = new ExcelJS.Workbook();
   await loadReviewFixture(mixed, { skill: DIS_MIS_PREFIX_SKILL, title: "Prefixes dis- and mis-",

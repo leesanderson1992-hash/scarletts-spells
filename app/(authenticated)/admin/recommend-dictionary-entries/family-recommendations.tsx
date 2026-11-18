@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { createRecommendedRootEntry } from "../teaching-dictionary/root-family-actions";
+import { ActionSubmitButton } from "../teaching-dictionary/action-submit-button";
 export async function FamilyRecommendations({ search }: { search: string }) {
   const environment = resolveAdleRouteActivationEnvironment();
   if (!environment) return null;
@@ -31,7 +32,7 @@ export async function FamilyRecommendations({ search }: { search: string }) {
           <select name="origin" className="rounded border p-2" required><option value="">Choose origin</option><option>Latin</option><option>Greek</option></select>
         </label>
         <p className="text-sm sm:col-span-2">Creates a bound-root support entry and its reviewed family. Root pronunciation is Not applicable; no ordinary spelling or dictation approval is created.</p>
-        <button className="w-fit rounded border px-3 py-2 text-sm sm:col-span-2">Approve root entry and family; recheck waiting words</button>
+        <ActionSubmitButton pendingLabel="Approving root and rechecking…" className="w-fit rounded border px-3 py-2 text-sm sm:col-span-2">Approve root entry and family; recheck waiting words</ActionSubmitButton>
       </form>}
     </li>)}</ul>}
     {rows.data.length === 100 && <p>Showing the first 100 recommendations. Search by base/root to narrow the list.</p>}

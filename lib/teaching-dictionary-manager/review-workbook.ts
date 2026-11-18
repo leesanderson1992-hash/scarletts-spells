@@ -333,6 +333,7 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
         row.relationship_kind = row.part_2_kind ? "regular_inflection" : "free_base";
       if (!row.relationship_kind && isCompoundWorkbookSkill(skill)) row.relationship_kind = "derived";
       if (!row.relationship_kind && isSuffixReviewSkill(skill)) row.relationship_kind = "derived";
+      if (!row.relationship_kind && isPrefixWorkbookSkill(skill)) row.relationship_kind = "derived";
       if (!row.relationship_kind)
         throw new Error(`Row ${rowNumber}: choose the relationship to the teaching family.`);
     }

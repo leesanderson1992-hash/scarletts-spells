@@ -69,6 +69,7 @@ function FamilyDecision({ task, skill, saving, onResolve }: {
       <label className="grid gap-1">Base meaning
         <input className={control} readOnly value={mode === "assign" ? family?.meaning ?? "" : base?.meaning ?? ""} />
       </label>
+      {mode === "create" && base && task.baseKind !== "bound_root" && <p className="text-sm">This approves the selected meaning as one whole base, creates its family and links this word. Waiting words with this reviewed meaning are rechecked automatically.</p>}
       <button type="button" className={primary} disabled={saving || (mode === "assign" ? !family : !base || task.baseKind === "bound_root")}
         onClick={() => onResolve(mode === "assign" ? { row: task.row, familyKey } : { row: task.row, createSenseId: baseSense })}>
         {saving ? "Rechecking…" : mode === "assign" ? "Assign and recheck" : "Create, assign and recheck"}
