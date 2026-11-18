@@ -42,16 +42,28 @@ for(let attempt=1;attempt<=3;attempt++){
  }
 
 }
-// A stale workbook with a changed fact must not overwrite a newer review.
+// The reviewed workbook is authoritative even when exported before another review.
 const Excel=require('exceljs'),stale=new Excel.Workbook();await stale.xlsx.load(originalWorkbook);
 const sheet=stale.getWorksheet('Words to review'),headers=sheet.getRow(3).values;
 for(let n=4;n<=sheet.rowCount;n++){
  const row=sheet.getRow(n),word=row.getCell(headers.indexOf('Word')).text;if(!word)continue;
  row.getCell(headers.indexOf('Use in lesson')).value=word==='imperfect'?'Yes':'No';
- if(word==='imperfect')row.getCell(headers.indexOf('Meaning')).value='A stale changed definition that must not replace the current review.';
+ if(word==='imperfect')row.getCell(headers.indexOf('Meaning')).value='Not perfect; having faults or flaws.';
 }
 const staleForm=new FormData();staleForm.set('workbook_skill',skill);staleForm.set('review_workbook',new File([await stale.xlsx.writeBuffer()],'stale-prefix.xlsx'));
-const rejected=await importReviewedMultiSenseCsv({},staleForm);assert.equal(rejected.words??0,0,JSON.stringify(rejected));assert(rejected.issues?.length>0,JSON.stringify(rejected));
+const accepted=await importReviewedMultiSenseCsv({},staleForm);assert.equal(accepted.words,1,JSON.stringify(accepted));assert.equal(accepted.issues?.length??0,0,JSON.stringify(accepted));assert(accepted.conflicts?.some(row=>row.word==='imperfect'),JSON.stringify(accepted));
+const [updated]=await loadReviewedMeaningBundles(db,[words.find(w=>w.display_word==='imperfect').id]);assert.equal(updated.senseSet.senses[0].definition,'Not perfect; having faults or flaws.');
+// A later review invalidates the draft immediately in Preview, before Publish.
+await read(db.rpc('import_reviewed_teaching_dictionary_word',{p_request_id:require('node:crypto').randomUUID(),p_word_id:updated.wordId,p_display_word:updated.displayWord,p_expected_reviewed_at:updated.sourceSenseReviewedAt,p_sense_set:updated.senseSet,p_analyses:updated.analyses,p_actor:actor,p_source_reference:'Disposable staging review version refresh'}));
+assert((await loadPendingPrefixWorkbookQueue(db,skill)).find(r=>r.wordId===updated.wordId).blockers.some(b=>b.includes('review version')));
+// The same original workbook repairs both the conflicting facts and stale draft.
+const retryForm=new FormData();retryForm.set('workbook_skill',skill);retryForm.set('review_workbook',new File([originalWorkbook],'authoritative-prefix-retry.xlsx'));
+const retried=await importReviewedMultiSenseCsv({},retryForm);assert.equal(retried.words,2,JSON.stringify(retried));assert.equal(retried.issues?.length??0,0,JSON.stringify(retried));
+const finalQueue=(await loadPendingPrefixWorkbookQueue(db,skill)).filter(r=>words.some(w=>w.id===r.wordId));assert.equal(finalQueue.length,2);assert(finalQueue.every(r=>!r.blockers.length),JSON.stringify(finalQueue.map(r=>r.blockers)));
+const finalPublish=new FormData();finalPublish.set('skill',skill);for(const r of finalQueue){finalPublish.append('word_id',r.wordId);finalPublish.append('draft_id',r.id)}
+try{await publishPrefixWorkbookWords(finalPublish);assert.fail('Expected redirect')}catch(e){assert.match(e.redirectTo??e.message,/published=2$/,e.redirectTo??e.message)}
+const finalRuntime=await loadDynamicPrefixProfiles(db,child,{microSkillKeys:[skill],allowStagingProfiles:true});
+for(const w of words)assert(finalRuntime.profiles.find(p=>p.microSkillKey===skill).wordsByCanonicalId.has(w.id));
 const [authority,pool]=await Promise.all([loadTeachingDictionaryEvidenceAuthorityForSkill(db,'staging',skill),loadSpecialistBulkReview(db,skill,'dynamic_prefix_word_lab')]);
 const covered=new Set([...pool.current.map(w=>w.canonicalWordId),...pool.rows.map(w=>w.id)]);assert(authority.every(r=>covered.has(r.canonicalWordId)),'Every assignment must be Active or in review');
 const result={status:'passed',receipts,assigned:authority.length,active:pool.current.length,review:pool.rows.length};fs.writeFileSync('.tmp/prefix-republication-staging-proof.json',JSON.stringify(result,null,2));console.log(result);

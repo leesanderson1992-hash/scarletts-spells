@@ -19,9 +19,20 @@ export async function loadPrefixWorkbookQueue(db: Db, skill: PrefixWorkbookSkill
   if (error) throw new Error("Could not load the prefix workbook drafts.");
   const latest = new Map<string, typeof data[number]>();
   for (const row of data) if (row.canonical_word_id && !latest.has(row.canonical_word_id)) latest.set(row.canonical_word_id, row);
-  return [...latest.values()].filter(row => row.source_reference === prefixWorkbooks[skill].source).map(row => {
+  const selected = [...latest.values()].filter(row => row.source_reference === prefixWorkbooks[skill].source);
+  if (!selected.length) return [];
+  const revisions = await db.from("teaching_dictionary_reviewed_sense_sets").select("canonical_word_id,reviewed_at")
+    .in("canonical_word_id", selected.map(row => row.canonical_word_id!));
+  if (revisions.error) throw new Error("Could not check the current word review versions.");
+  const revisionByWord = new Map(revisions.data.map(row => [row.canonical_word_id, row.reviewed_at]));
+  return selected.map(row => {
     const payload = row.payload as WordDraftPayload;
-    return { id: row.id, wordId: row.canonical_word_id!, payload, blockers: prefixWorkbookBlockers(payload, skill) };
+    const revision = revisionByWord.get(row.canonical_word_id!);
+    const route = payload.routeContents.find(route => route.microSkillKey === skill);
+    const blockers = prefixWorkbookBlockers(payload, skill);
+    if (!revision || route?.content.workbookSenseRevision !== revision)
+      blockers.push("Upload your reviewed workbook again to refresh this word's saved review version.");
+    return { id: row.id, wordId: row.canonical_word_id!, payload, blockers };
   });
 }
 

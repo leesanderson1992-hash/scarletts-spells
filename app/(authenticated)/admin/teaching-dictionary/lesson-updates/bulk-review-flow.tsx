@@ -69,7 +69,8 @@ export function BulkReviewFlow({ clusters, skills, selected, initialCluster, sup
     return { words: (previous.words ?? 0) + (response.words ?? 0),
       approved: (previous.approved ?? 0) + (response.approved ?? 0),
       alreadyApproved: (previous.alreadyApproved ?? 0) + (response.alreadyApproved ?? 0),
-      lessons: [...(previous.lessons ?? []), ...(response.lessons ?? [])], familyTasks, issues };
+      lessons: [...(previous.lessons ?? []), ...(response.lessons ?? [])], familyTasks, issues,
+      conflicts: [...(previous.conflicts ?? []).filter(item => item.word !== task.word), ...(response.conflicts ?? [])] };
   }, {});
   function openStep(index: number) {
     const nextView = index === 0 ? "export" : index === 3 ? "preview" : "workbook";
@@ -81,6 +82,12 @@ export function BulkReviewFlow({ clusters, skills, selected, initialCluster, sup
   }
   const results = result.words !== undefined && <div role="status" className="space-y-2">
     <p>{result.words} saved · {result.approved} newly approved · {result.alreadyApproved} already approved</p>
+    {Boolean(result.conflicts?.length) && <details className="rounded-lg border border-amber-300 bg-amber-50 p-3" open>
+      <summary className="font-semibold">Conflicts resolved using your workbook</summary>
+      <ul className="mt-2 list-disc space-y-1 pl-5">{result.conflicts?.map(item => <li key={item.wordId}>
+        <strong>{item.word}</strong> · Rows {item.rows.join(", ")} · {item.reason}
+      </li>)}</ul>
+    </details>}
     {result.lessons?.map(row => <p key={`${row.wordId}:${row.meaning}`}>
       <strong>{row.word}</strong> · {row.meaning} · {row.approval} · {row.release}
       {row.draftId && <> · <Link className="font-semibold underline"

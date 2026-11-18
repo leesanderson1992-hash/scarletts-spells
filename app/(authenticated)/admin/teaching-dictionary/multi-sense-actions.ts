@@ -4,6 +4,7 @@ import { stageCompoundWorkbookDraft } from "@/lib/teaching-dictionary-manager/co
 
 import { loadReviewedMeaningBundles } from "@/lib/teaching-dictionary-manager/multi-sense-export";
 import { semanticJson } from "@/lib/adle/inflection/semantic-json";
+import { reviewedWorkbookAuthority } from "@/lib/teaching-dictionary-manager/workbook-authority";
 
 import { randomUUID } from "node:crypto";
 import { revalidatePath, updateTag } from "next/cache";
@@ -33,12 +34,13 @@ type LessonResult = { word: string; wordId: string; meaning: string; skillKey: s
 export type MultiSenseImportState = {
   lessons?: LessonResult[];
   familyTasks?: WorkbookFamilyTask[];
+  conflicts?: ImportIssue[];
   words?: number; approved?: number; alreadyApproved?: number; issues?: ImportIssue[]; error?: string;
 };
 
 function importIssue(message: string) {
   if (message.includes("MULTI_SENSE_CSV_SOURCE_CHANGED"))
-    return "The reviewed meanings changed. Download a fresh sheet and reapply your edits.";
+    return "The dictionary changed during this upload. Upload the workbook again to apply your reviewed facts.";
   if (message.includes("REVIEWED_CSV_WORD_EXISTS") || message.includes("23505"))
     return "This spelling already exists. Use its dictionary word ID and current export to update it.";
   if (message.includes("REVIEWED_CSV_IDENTITY_MISMATCH"))
@@ -108,11 +110,14 @@ export async function importReviewedMultiSenseCsv(
   }
   catch (error) { return { error: error instanceof Error ? error.message : "The sheet format is invalid." }; }
   const issues: ImportIssue[] = [];
+  const conflicts: ImportIssue[] = [];
   const lessons: LessonResult[] = [];
   let words = 0;
   let approved = 0;
   let alreadyApproved = 0;
-  for (const { word, rows, bundle, error } of entries) {
+  for (const entry of entries) {
+    const { word, rows, error } = entry;
+    let bundle = entry.bundle;
     if (!bundle) {
       issues.push({ word, rows, reason: error ?? "Check the word facts." });
       continue;
@@ -138,26 +143,21 @@ export async function importReviewedMultiSenseCsv(
       });
       if (changedMultipleFamilies) { issues.push({ word, rows, reason: "This compound has several reviewed component families. Review changed parts on its word page first so those links are preserved." }); continue; }
     }
-    // Resume an unchanged prefix workbook after a rolled-back publish, or
-    // comparative family creation after its one-part base was saved. Never
-    // refresh a stale revision when any reviewed fact has actually changed.
-    if (workbook && bundle.wordId && (prefixWorkbookEnabled(skill) || isCompoundWorkbookSkill(skill)
-      || isComparativeReviewSkill(skill) && familyTasks !== undefined
-        && !bundle.sourceSenseReviewedAt && bundle.analyses.every(analysis => analysis.parts.length === 1))) {
+    // The admin-reviewed workbook is the new authority. Rebase onto the current
+    // revision, then let the transaction validate facts and catch concurrent edits.
+    let replacedFields: string[] = [];
+    if (workbook && bundle.wordId) {
       const [current] = await loadReviewedMeaningBundles(db, [bundle.wordId]);
-      if (current && semanticJson(current.senseSet) === semanticJson(bundle.senseSet)
-        && current.analyses.length === bundle.analyses.length
-        && bundle.analyses.every(analysis => current.analyses.some(previous =>
-          previous.senseId === analysis.senseId && semanticJson(previous.parts) === semanticJson(analysis.parts)
-          && semanticJson(previous.joins) === semanticJson(analysis.joins)
-          && semanticJson(previous.transformations) === semanticJson(analysis.transformations))))
-        bundle.sourceSenseReviewedAt = current.sourceSenseReviewedAt;
+      const authority = reviewedWorkbookAuthority(bundle, current);
+      bundle = authority.bundle;
+      replacedFields = authority.replacedFields;
     }
     const applied = await db.rpc("import_reviewed_teaching_dictionary_word", {
       p_request_id: randomUUID(), p_word_id: bundle.wordId || null, p_display_word: bundle.displayWord,
       p_expected_reviewed_at: bundle.sourceSenseReviewedAt, p_sense_set: bundle.senseSet,
       p_analyses: bundle.analyses, p_actor: actor.id,
-      p_source_reference: `Admin reviewed ${workbook ? "workbook" : "CSV"}: ${file.name.slice(0, 120)}`,
+      p_source_reference: `Admin reviewed ${workbook ? "workbook" : "CSV"}: ${file.name.slice(0, 120)}${replacedFields.length
+        ? `; workbook superseded ${replacedFields.join(", ")}` : ""}`,
     });
     if (applied.error || typeof applied.data !== "string") {
       issues.push({ word, rows, reason: importIssue(applied.error?.code === "23505" ? "23505" : applied.error?.message ?? "") });
@@ -165,6 +165,8 @@ export async function importReviewedMultiSenseCsv(
     }
     words += 1;
     const wordId = applied.data;
+    if (replacedFields.length) conflicts.push({ word, rows, wordId,
+      reason: `Workbook accepted as the new authority for ${replacedFields.join(", ")}.` });
     for (const [index, analysis] of bundle.analyses.entries()) {
       for (const skillKey of analysis.requestedSkillKeys) {
         const lesson: LessonResult = { word, wordId, skillKey, meaning: bundle.senseSet.senses[index].definition,
@@ -257,7 +259,7 @@ export async function importReviewedMultiSenseCsv(
       for (const row of results) row.release = "Check current lesson readiness";
     }
   }));
-  return { words, approved, alreadyApproved, issues, lessons, familyTasks };
+  return { words, approved, alreadyApproved, issues, lessons, familyTasks, conflicts };
 }
 
 
