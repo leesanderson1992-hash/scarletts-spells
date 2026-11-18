@@ -1,4 +1,5 @@
 "use server";
+import { scheduleFamilyDependencyRecheck } from "@/lib/teaching-dictionary-manager/family-dependency-scheduling";
 
 import { randomUUID } from "node:crypto";
 import { revalidatePath, updateTag } from "next/cache";
@@ -33,6 +34,7 @@ export async function reviewSenseFamilyLink(form: FormData) {
     if (result.error) throw new Error(result.error.message.match(/SENSE_FAMILY_[A-Z_]+/)?.[0]
       ?? "SENSE_FAMILY_REVIEW_FAILED");
     updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
+    scheduleFamilyDependencyRecheck();
     revalidatePath(`/admin/teaching-dictionary/${wordId}`);
   } catch (error) {
     failure = error instanceof Error && /^SENSE_FAMILY_[A-Z_]+$/.test(error.message)
@@ -80,6 +82,7 @@ export async function reviewLexicalFamilyMember(form: FormData) {
     if (result.error) throw new Error(result.error.message.match(/(?:LEXICAL_FAMILY|SENSE_FAMILY)_[A-Z_]+/)?.[0]
       ?? "LEXICAL_FAMILY_REVIEW_FAILED");
     updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
+    scheduleFamilyDependencyRecheck();
     revalidatePath(`/admin/teaching-dictionary/${wordId}`);
   } catch (error) {
     failure = error instanceof Error && /^(?:LEXICAL_FAMILY|SENSE_FAMILY)_[A-Z_]+$/.test(error.message)
@@ -120,6 +123,7 @@ export async function createLexicalFreeBaseFamily(form: FormData) {
     });
     if (result.error) throw new Error(result.error.message.match(/(?:LEXICAL_FAMILY|SENSE_FAMILY)_[A-Z_]+/)?.[0] ?? "LEXICAL_FAMILY_CREATE_FAILED");
     updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
+    scheduleFamilyDependencyRecheck();
     revalidatePath(`/admin/teaching-dictionary/${wordId}`);
   } catch (error) {
     failure = error instanceof Error && /^(?:LEXICAL_FAMILY|SENSE_FAMILY)_[A-Z_]+$/.test(error.message)

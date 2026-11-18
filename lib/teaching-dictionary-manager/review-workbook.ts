@@ -13,7 +13,8 @@ import { csvRecords, FLAT_IMPORT_PART_LIMIT } from "./csv";
 import type { WorkbookFamily } from "./workbook-family-resolution";
 import { MULTI_SENSE_CSV_COLUMNS, renderMultiSenseCsvBundles, type MultiSenseCsvBundle } from "./multi-sense-csv";
 
-export type WorkbookFamilyTask = { row: number; word: string; meaning: string; base: string; sentence: string };
+export type WorkbookFamilyTask = { row: number; word: string; meaning: string; base: string; sentence: string;
+  senseId?: string; componentPartId?: string; baseKind?: "free_base" | "bound_root"; baseMeaning?: string };
 export type WorkbookFamilyDecision = { row: number; familyKey?: string; createSenseId?: string };
 
 const sheetName = "Words to review";
@@ -259,7 +260,7 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
     if (!["", "Review", "Yes", "No"].includes(entry.use_in_lesson))
       throw new Error(`Workbook row ${index}: choose Review, Yes or No under Use in lesson.`);
     entry.workbook_row = String(index);
-    if ((hasPrefixChoice || isSuffixReviewSkill(skill) || isComparativeReviewSkill(skill)) && entry.display_word && !entry.canonical_word_id && !entry.source_sense_reviewed_at) {
+    if (entry.display_word && !entry.canonical_word_id && !entry.source_sense_reviewed_at) {
       entry.sense_id ||= `meaning-${index}`;
       if (entry.part_of_speech !== "root") entry.pronunciation_id ||= `pronunciation-${index}`;
     }
@@ -307,14 +308,16 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
       if (row.family_key === "Needs family review") row.family_key = "";
       if (row.use_in_lesson !== "Yes") continue;
       const bases = Array.from({ length: FLAT_IMPORT_PART_LIMIT }, (_, index) => index + 1)
-        .filter(index => row[`part_${index}_kind`] === "base" ||
-          (skill === ABLE_IBLE_SKILL && row[`part_${index}_kind`] === "root"));
+        .filter(index => ["base", "root"].includes(row[`part_${index}_kind`]));
       const part = bases.length === 1 || isCompoundWorkbookSkill(skill) && !row.component_part_id ? bases[0] : bases.find(index =>
         (row[`part_${index}_id`] || `part_${index}`) === row.component_part_id);
       const base = part ? row[`part_${part}_underlying_form`].toLocaleLowerCase("en-GB") : "";
       const decision = decisions.get(rowNumber) ?? (row.family_key ? { row: rowNumber, familyKey: row.family_key } : null);
       if (!decision || !base || !part) {
-        tasks.push({ row: rowNumber, word: row.display_word, meaning: row.definition, base, sentence: row.dictation_sentence });
+        tasks.push({ row: rowNumber, word: row.display_word, meaning: row.definition, base, sentence: row.dictation_sentence,
+          senseId: row.sense_id, componentPartId: part ? row[`part_${part}_id`] || `part_${part}` : "",
+          baseKind: part && row[`part_${part}_kind`] === "root" ? "bound_root" : "free_base",
+          baseMeaning: part ? row[`part_${part}_meaning`] : "" });
         continue;
       }
       const family = options ? await options.resolve(base, decision) : null;
@@ -335,11 +338,8 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
     }
     if (tasks.length) {
       pendingFamilies.push(...tasks);
-      // A reviewed base must exist before the family chooser can create
-      // its family. Save that one-part base while retaining the family task.
-      if (isComparativeReviewSkill(skill) && group.every(row => row.part_1_kind === "base" && !row.part_2_kind))
-        records.push(...group);
-    } else records.push(...group);
+    }
+    records.push(...group);
   }
   const csv = [MULTI_SENSE_CSV_COLUMNS, ...records.map(row => {
     if (!row.family_key) {

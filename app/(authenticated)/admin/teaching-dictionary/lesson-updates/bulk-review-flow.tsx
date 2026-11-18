@@ -32,10 +32,10 @@ function SearchMenu({ label, value, options, disabled, onChange }: {
   </fieldset>;
 }
 
-export function BulkReviewFlow({ clusters, skills, selected, initialCluster, supported, batches, fullPoolSize, blankWorkbookHref, view, review, children }: {
+export function BulkReviewFlow({ clusters, skills, selected, initialCluster, supported, batches, fullPoolSize, blankWorkbookHref, view, review, savedReviews, children }: {
   clusters: Option[]; skills: Skill[]; selected: string; initialCluster: string; supported: boolean; batches: number | null;
   fullPoolSize: number | null; blankWorkbookHref?: string;
-  view: "export" | "workbook" | "preview"; review?: ReactNode; children: ReactNode;
+  view: "export" | "workbook" | "preview"; review?: ReactNode; savedReviews?: ReactNode; children: ReactNode;
 }) {
   const router = useRouter();
   const [cluster, setCluster] = useState(skills.find(skill => skill.key === selected)?.cluster ?? initialCluster);
@@ -142,6 +142,7 @@ export function BulkReviewFlow({ clusters, skills, selected, initialCluster, sup
         </button>)}
       </nav>
       {navigating && <p role="status">Loading lesson review…</p>}
+      {savedReviews}
       {step === 0 && <section className="space-y-3 rounded-2xl border border-[var(--border)] bg-white p-5">
         <h2 className="text-xl font-semibold">Export words needing review</h2>
         <p>The workbook shows existing facts and what needs checking. Choose the lesson meaning in the workbook. You can resolve missing families after uploading.</p>

@@ -124,7 +124,7 @@ async function main() {
   }
   const blankUpload = await workbookUpload(blank);
   const awaitingFamily = await readReviewWorkbook(blankUpload, UN_PREFIX_SKILL);
-  assert.deepEqual(awaitingFamily.rowNumbers, []);
+  assert.deepEqual(awaitingFamily.rowNumbers, [4]);
   assert.deepEqual(awaitingFamily.pendingFamilies.map(task => [task.row, task.base]), [[4, "lock"]]);
   const parsedBlank = await readReviewWorkbook(blankUpload, UN_PREFIX_SKILL, {
     targetRow: 4, decisions: [{ row: 4, familyKey: "lock" }],

@@ -1,4 +1,5 @@
 "use server";
+import { scheduleFamilyDependencyRecheck } from "@/lib/teaching-dictionary-manager/family-dependency-scheduling";
 
 import { randomUUID } from "node:crypto";
 import { revalidatePath, updateTag } from "next/cache";
@@ -14,7 +15,7 @@ export async function findSenseFamilies(forms: string[]) {
   const bases = [...new Set(forms.map(form => form.trim().toLocaleLowerCase("en-GB")).filter(Boolean))];
   if (!bases.length || bases.length > 12 || bases.some(base => base.length > 120)) return [];
   const result = await createServiceRoleClient().from("teaching_dictionary_families_with_current_meaning")
-    .select("family_key,revision,base_lemma,base_kind,base_meaning,canonical_base_word_id,review_status")
+    .select("family_key,revision,base_lemma,base_kind,base_meaning,canonical_base_word_id,canonical_base_sense_id,review_status")
     .in("base_lemma", bases).order("revision", { ascending: false });
   if (result.error) throw new Error("Could not load matching families.");
   const seen = new Set<string>();
@@ -78,6 +79,7 @@ export async function reviewSenseFamilyMembership(input: { wordId: string; sense
     ?.replaceAll("_", " ").toLowerCase() ?? "The family link could not be approved." };
   updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   revalidatePath(`/admin/teaching-dictionary/${input.wordId}`);
+  scheduleFamilyDependencyRecheck();
   return { ok: true };
 }
 
@@ -172,6 +174,7 @@ export async function createSenseFreeBaseFamily(input: { wordId: string; senseId
   revalidatePath(`/admin/teaching-dictionary/${input.wordId}`);
   if (baseWordId !== input.wordId) revalidatePath(`/admin/teaching-dictionary/${baseWordId}`);
   revalidatePath("/admin/teaching-dictionary/lesson-updates");
+  scheduleFamilyDependencyRecheck(baseWordId);
   return { ok: true };
 }
 

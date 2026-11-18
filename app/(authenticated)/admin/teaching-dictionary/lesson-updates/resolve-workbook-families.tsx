@@ -29,7 +29,7 @@ function FamilyDecision({ task, skill, saving, onResolve }: {
   const family = choices?.families.find(row => row.key === familyKey);
   const base = choices?.bases.find(row => row.senseId === baseSense);
   const matches = choices?.families.filter(row =>
-    `${row.base} ${row.meaning}`.toLowerCase().includes(search.trim().toLowerCase())) ?? [];
+    row.kind === (task.baseKind ?? "free_base") && `${row.base} ${row.meaning}`.toLowerCase().includes(search.trim().toLowerCase())) ?? [];
 
   return <section className="space-y-3 rounded-xl border border-[var(--border)] p-4">
     <h3 className="text-lg font-semibold">{task.word}</h3>
@@ -44,6 +44,7 @@ function FamilyDecision({ task, skill, saving, onResolve }: {
         <button type="button" className={control} aria-pressed={mode === "assign"} onClick={() => setMode("assign")}>Assign to existing family</button>
         <button type="button" className={control} aria-pressed={mode === "create"} onClick={() => setMode("create")}>Create family</button>
       </div>
+      {task.baseKind === "bound_root" && <p className="text-sm">This is a bound root. New root families need dedicated root-entry review, including origin language. <Link className="underline" href={`/admin/recommend-dictionary-entries?q=${encodeURIComponent(task.base)}`}>Open root recommendation</Link></p>}
       {mode === "assign" ? <div className="grid gap-2">
         <label className="grid gap-1">Search by base or meaning
           <input type="search" className={control} value={search} onChange={event => setSearch(event.target.value)} />
@@ -68,7 +69,7 @@ function FamilyDecision({ task, skill, saving, onResolve }: {
       <label className="grid gap-1">Base meaning
         <input className={control} readOnly value={mode === "assign" ? family?.meaning ?? "" : base?.meaning ?? ""} />
       </label>
-      <button type="button" className={primary} disabled={saving || (mode === "assign" ? !family : !base)}
+      <button type="button" className={primary} disabled={saving || (mode === "assign" ? !family : !base || task.baseKind === "bound_root")}
         onClick={() => onResolve(mode === "assign" ? { row: task.row, familyKey } : { row: task.row, createSenseId: baseSense })}>
         {saving ? "Rechecking…" : mode === "assign" ? "Assign and recheck" : "Create, assign and recheck"}
       </button>

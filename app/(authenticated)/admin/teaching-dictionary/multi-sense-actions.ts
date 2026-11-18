@@ -7,6 +7,8 @@ import { semanticJson } from "@/lib/adle/inflection/semantic-json";
 import { reviewedWorkbookAuthority } from "@/lib/teaching-dictionary-manager/workbook-authority";
 
 import { randomUUID } from "node:crypto";
+import { scheduleFamilyDependencyRecheck } from "@/lib/teaching-dictionary-manager/family-dependency-scheduling";
+import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { revalidatePath, updateTag } from "next/cache";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -94,7 +96,7 @@ export async function importReviewedMultiSenseCsv(
         targetRow, decisions,
         resolve: (base, decision) => decision.createSenseId
           ? createWorkbookFamily(db, actor.id, base, decision.createSenseId, workbookBasePartOfSpeech(skill))
-          : approvedWorkbookFamily(db, decision.familyKey ?? "", skill === ABLE_IBLE_SKILL),
+          : approvedWorkbookFamily(db, decision.familyKey ?? "", true),
       });
       compoundFacts = workbookCompoundFacts;
       suffixFacts = workbookSuffixFacts;
@@ -152,13 +154,19 @@ export async function importReviewedMultiSenseCsv(
       bundle = authority.bundle;
       replacedFields = authority.replacedFields;
     }
-    const applied = await db.rpc("import_reviewed_teaching_dictionary_word", {
+    const waiting = (familyTasks ?? []).filter(task => rows.includes(task.row));
+    const importFacts = {
       p_request_id: randomUUID(), p_word_id: bundle.wordId || null, p_display_word: bundle.displayWord,
       p_expected_reviewed_at: bundle.sourceSenseReviewedAt, p_sense_set: bundle.senseSet,
       p_analyses: bundle.analyses, p_actor: actor.id,
       p_source_reference: `Admin reviewed ${workbook ? "workbook" : "CSV"}: ${file.name.slice(0, 120)}${replacedFields.length
         ? `; workbook superseded ${replacedFields.join(", ")}` : ""}`,
-    });
+    };
+    const applied = workbook ? await db.rpc("import_teaching_dictionary_partial_review", {
+      ...importFacts, p_environment: resolveAdleRouteActivationEnvironment(), p_skill: skill,
+      p_dependencies: waiting.map(task => ({ senseId: task.senseId, componentPartId: task.componentPartId,
+        context: { prefixMeaning: prefixMeanings.get(task.row), suffixFacts: suffixFacts.get(task.row), compoundFacts: compoundFacts.get(task.row) } })),
+    }) : await db.rpc("import_reviewed_teaching_dictionary_word", importFacts);
     if (applied.error || typeof applied.data !== "string") {
       issues.push({ word, rows, reason: importIssue(applied.error?.code === "23505" ? "23505" : applied.error?.message ?? "") });
       continue;
@@ -172,6 +180,10 @@ export async function importReviewedMultiSenseCsv(
         const lesson: LessonResult = { word, wordId, skillKey, meaning: bundle.senseSet.senses[index].definition,
           approval: "Needs review", routeId: routeForSkill(skillKey)?.routeId };
         lessons.push(lesson);
+        if (waiting.some(task => task.senseId === analysis.senseId)) {
+          lesson.release = "Reviewed facts saved. Waiting for the family; this review can be resumed after leaving the page.";
+          continue;
+        }
         const prefix = `${skillKey} · ${bundle.senseSet.senses[index].definition}`;
         const report = (reason: string) => issues.push({
           word, wordId, rows: [rows[index]], reason: `${prefix}: ${reason}`,
@@ -234,6 +246,7 @@ export async function importReviewedMultiSenseCsv(
     revalidatePath(`/admin/teaching-dictionary/${wordId}`);
   }
   if (words) {
+    if (workbook) scheduleFamilyDependencyRecheck();
     updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
     revalidatePath("/admin/teaching-dictionary");
     revalidatePath("/admin/teaching-dictionary/import");
@@ -267,6 +280,6 @@ export async function getWorkbookFamilyChoices(skill: string, base: string) {
   await requireAdminUser();
   if (!supportsReviewWorkbook(skill) || !/^[a-z][a-z'-]{0,119}$/u.test(base))
     throw new Error("Choose a workbook row with a base spelling.");
-  return loadWorkbookFamilyChoices(createServiceRoleClient(), base, skill === ABLE_IBLE_SKILL,
+  return loadWorkbookFamilyChoices(createServiceRoleClient(), base, true,
     workbookBasePartOfSpeech(skill));
 }

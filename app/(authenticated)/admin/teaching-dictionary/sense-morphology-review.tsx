@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { generatedWordSum } from "@/lib/teaching-dictionary-manager/authoring";
 import { PartSequenceEditor, asParts } from "./part-sequence-editor";
+import { RootFamilyReview } from "./root-family-review";
 import { TransformationEditor } from "./transformation-editor";
 import type { AffixCatalog } from "./affix-picker";
 import { createSenseFreeBaseFamily, findReviewedFamilyBase, findSenseFamilies, reviewSenseFamilyMembership, reviewSenseMorphology } from "./sense-morphology-actions";
@@ -13,7 +14,7 @@ type Suggestion = { label: string; parts: unknown[]; joins: unknown[]; transform
 type Analysis = { id: string; sense_id: string; morphology_parts: unknown[];
   morphology_joins: unknown[]; morphology_transformations: unknown[]; word_sum: string };
 type Family = { family_key: string; base_lemma: string; base_kind: string; base_meaning: string;
-  canonical_base_word_id: string | null };
+  canonical_base_word_id: string | null; canonical_base_sense_id?: string | null };
 type Link = { id: string; sense_id: string; sense_morphology_id: string;
   family_key: string; component_part_id: string; relationship_kind: string; base_meaning?: string };
 type Transformation = { type: string; sourcePartId: string; sourceText: string;
@@ -162,11 +163,11 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
     </div>
     {!props.current && <div className="flex flex-wrap gap-3">
       <button type="button" className={familyButton} onClick={() => {
-        setParts([{ id: "base", kind: "base", sourceText: props.displayWord, surfaceText: props.displayWord,
+        setParts([{ id: "base", kind: props.canCreateFreeBase ? "base" : "root", sourceText: props.displayWord, surfaceText: props.displayWord,
           gloss: props.senseDefinition, displayRange: { start: 0, end: props.displayWord.length } }]);
         setJoins([]);
         setTransformations([]);
-      }}>Use {props.displayWord} as the whole base</button>
+      }}>Use {props.displayWord} as the whole {props.canCreateFreeBase ? "base" : "root"}</button>
       {props.suggestions.map((suggestion, index) => <button type="button" className={familyButton} key={index}
         onClick={() => {
           setParts(suggestion.parts);
@@ -190,6 +191,10 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
     <p className="text-sm">Approve the Word parts for this meaning before linking a family.</p>
     <a className="w-fit text-sm underline" href="#td-canonical-parts">Go to Word parts</a>
   </div>;
+
+  if (!props.canCreateFreeBase) return <RootFamilyReview wordId={props.wordId} senseId={props.senseId}
+    definition={props.senseDefinition} approved={props.families.some(family => family.base_kind === "bound_root"
+      && family.canonical_base_word_id === props.wordId && family.canonical_base_sense_id === props.senseId)} />;
 
   return <div className="grid gap-4">
     <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-[var(--paper)] p-3">

@@ -26,5 +26,11 @@
         "dub1"
       ]
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/internal/dictionary-family-reviews/reconcile",
+      "schedule": "*/5 * * * *"
+    }
+  ]
 }

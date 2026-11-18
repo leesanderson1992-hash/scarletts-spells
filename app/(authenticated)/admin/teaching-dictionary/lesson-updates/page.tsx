@@ -1,3 +1,5 @@
+import { SavedFamilyReviews } from "./saved-family-reviews";
+import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { isCompoundWorkbookSkill } from "@/lib/teaching-dictionary-manager/compound-workbook";
 import { loadPendingCompoundWorkbookQueue } from "@/lib/teaching-dictionary-manager/compound-workbook-draft";
 import { publishCompoundWorkbookWords, saveCompoundWorkbookDetails } from "./compound-actions";
@@ -112,6 +114,7 @@ export default async function LessonUpdates({ searchParams }: {
         <li key={row.word_id}><Link className="underline" href={`/admin/teaching-dictionary/${row.word_id}`}>{row.word}</Link></li>)}</ul>
     </section>}
     <BulkReviewFlow key={selected} clusters={clusters} skills={skills} selected={selected}
+      savedReviews={params.skill && resolveAdleRouteActivationEnvironment() ? <SavedFamilyReviews db={db} environment={resolveAdleRouteActivationEnvironment()!} skill={params.skill} /> : null}
       initialCluster={params.cluster ?? ""} supported={supported} view={view}
       fullPoolSize={specialist?.current.length ?? base?.current.length ?? suffix?.current.length ?? update?.current.length ?? null}
       blankWorkbookHref={blankWorkbookSkill ? `/admin/teaching-dictionary/export/review-workbook?skill=${blankWorkbookSkill}&scope=blank` : undefined}

@@ -1,4 +1,5 @@
 "use server";
+import { scheduleFamilyDependencyRecheck } from "@/lib/teaching-dictionary-manager/family-dependency-scheduling";
 import { standardiseTransformations } from "@/lib/teaching-dictionary-manager/transformations";
 
 import { revalidatePath, updateTag } from "next/cache";
@@ -701,6 +702,7 @@ export async function saveWordWorkspace(form: FormData) {
     // The next word read must see confirmed editorial and relationship writes.
     // Cache expiry does not force the whole editor to rerender.
     updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
+    scheduleFamilyDependencyRecheck();
   }
   return result;
 }

@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import type { CanonicalPart } from "./canonical-morphology";
 import type { DictionarySenseSet } from "./senses";
+import { generatedWordSum } from "./authoring";
 
 type Db = ReturnType<typeof createServiceRoleClient>;
 export type WorkbookFamily = { key: string; base: string; meaning: string; partOfSpeech: string; kind: "free_base" | "bound_root" };
@@ -39,8 +40,8 @@ async function loadWorkbookBases(db: Db, base: string, partOfSpeech: WorkbookBas
       const parts = analyses.data.find(row => row.sense_id === sense.id)?.morphology_parts as CanonicalPart[] | undefined;
       const part = parts?.find(item => item.kind === "base" && item.sourceText === base
         && item.surfaceText === word.data?.display_word);
-      if (part && (partOfSpeech === null || sense.partOfSpeech === partOfSpeech))
-        bases.push({ wordId, senseId: sense.id, partId: part.id, meaning: sense.definition, partOfSpeech: sense.partOfSpeech });
+      if ((!parts || parts.length === 1 && part) && sense.partOfSpeech !== "root" && (partOfSpeech === null || sense.partOfSpeech === partOfSpeech))
+        bases.push({ wordId, senseId: sense.id, partId: part?.id ?? "base", meaning: sense.definition, partOfSpeech: sense.partOfSpeech });
     }
   }
   return { bases, baseWordId: word.data?.id ?? null };
@@ -71,6 +72,16 @@ export async function createWorkbookFamily(db: Db, actor: string, base: string, 
   const { bases } = await loadWorkbookBases(db, base, basePartOfSpeech);
   const choice = bases.find(item => item.senseId === senseId);
   if (!choice) throw new Error(`Choose a reviewed ${basePartOfSpeech ? basePartOfSpeech + " " : ""}meaning for the base.`);
+  const currentParts = await db.from("teaching_dictionary_current_sense_morphology").select("id")
+    .eq("canonical_word_id", choice.wordId).eq("sense_id", choice.senseId).maybeSingle();
+  if (currentParts.error) throw new Error("Could not check the base parts.");
+  if (!currentParts.data) {
+    const parts = [{ id: choice.partId, kind: "base", sourceText: base, surfaceText: base, gloss: choice.meaning,
+      displayRange: { start: 0, end: base.length } }];
+    const approved = await db.rpc("approve_teaching_dictionary_word_parts", { p_request_id: randomUUID(), p_word_id: choice.wordId,
+      p_sense_id: choice.senseId, p_parts: parts, p_joins: [], p_transformations: [], p_word_sum: generatedWordSum(parts, base), p_actor: actor });
+    if (approved.error) throw new Error("The reviewed whole-base parts could not be approved.");
+  }
   const existing = async () => {
     const result = await db.from("teaching_dictionary_families_with_current_meaning").select("family_key")
       .eq("canonical_base_word_id", choice.wordId).eq("canonical_base_sense_id", choice.senseId)

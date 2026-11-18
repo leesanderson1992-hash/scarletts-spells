@@ -305,7 +305,7 @@ export function WordWorkspace(props: {
   senseFamilyMemberships: { id: string; sense_id: string; sense_morphology_id: string;
     family_key: string; component_part_id: string; relationship_kind: string; base_meaning: string }[];
   senseFamilyOptions: { family_key: string; base_lemma: string; base_kind: string;
-    base_meaning: string; canonical_base_word_id: string | null }[];
+    base_meaning: string; canonical_base_word_id: string | null; canonical_base_sense_id?: string | null }[];
   staleLessonSenseKeys: string[];
   approvedLessonSenseKeys: string[];
   approvedSkillSenseIds: Record<string, string>;
@@ -1070,7 +1070,9 @@ export function WordWorkspace(props: {
             </div>
             {payload.senseSet.senses.map(sense => {
               const approved = props.approvedSenseSet?.senses.find(row => row.id === sense.id);
-              const familyLinked = Boolean(props.approvedCandidateSenseFacts[sense.id]?.familyLinks.length);
+              const familyLinked = Boolean(props.approvedCandidateSenseFacts[sense.id]?.familyLinks.length) ||
+                (sense.partOfSpeech === "root" && props.senseFamilyOptions.some(family => family.base_kind === "bound_root"
+                  && family.canonical_base_word_id === props.wordId && family.canonical_base_sense_id === sense.id));
               return <button key={sense.id} type="button" aria-pressed={sense.id === activeSenseId}
                 onClick={() => { setActiveSenseId(sense.id); setMeaningChangeKind(""); }}
                 className="break-words rounded-lg border border-[var(--border)] p-2 text-left text-sm aria-pressed:border-[var(--scarlett)] aria-pressed:bg-[var(--mist)]">
