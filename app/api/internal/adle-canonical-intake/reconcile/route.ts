@@ -5,6 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { runCanonicalIntakeReconciliationSweep } from "@/lib/adle/loaders/canonical-intake-live";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { scheduleFamilyDependencyRecheck } from "@/lib/teaching-dictionary-manager/family-dependency-scheduling";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -39,6 +40,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
+  // Reuse the existing authenticated five-minute database safety sweep. The
+  // response lifetime runs a bounded family batch without delaying intake.
+  scheduleFamilyDependencyRecheck();
   const summary = await runCanonicalIntakeReconciliationSweep({
     serviceClient: createServiceRoleClient(),
     leaseOwner: `canonical-intake-safety-sweep:${randomUUID()}`,

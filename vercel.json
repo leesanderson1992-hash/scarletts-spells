@@ -7,9 +7,7 @@
   },
   "functions": {
     "app/api/admin/teaching-dictionary/*/lesson-readiness/route.ts": {
-      "regions": [
-        "dub1"
-      ]
+      "regions": ["dub1"]
     }
   },
   "crons": [
@@ -28,10 +26,6 @@
     {
       "path": "/api/internal/parent-insights/snapshot",
       "schedule": "10 7 * * *"
-    },
-    {
-      "path": "/api/internal/dictionary-family-reviews/reconcile",
-      "schedule": "*/5 * * * *"
     }
   ]
 }
