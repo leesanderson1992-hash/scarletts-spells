@@ -1,3 +1,4 @@
+import { includeActiveWorkbookReview } from "../lib/teaching-dictionary-manager/active-workbook-review";
 import assert from "node:assert/strict";
 import ExcelJS from "exceljs";
 import { HOMOPHONE_REVIEW_SKILLS, homophoneReviewRoute, homophoneReviewWords } from "../lib/teaching-dictionary-manager/homophone-review-contract";
@@ -29,6 +30,9 @@ async function main() {
       assert.equal(homophoneReviewCandidate(reviewed(word),skill,"meaning").status,"ready",`${skill}: ${word}`);pairs++;
     }
   }
+  const auditedRows=[{id:"review-word",word:"accept",href:"/word",note:"Review the prefilled canonical facts in the workbook."}];
+  assert.strictEqual(await includeActiveWorkbookReview({} as Parameters<typeof includeActiveWorkbookReview>[0],HOMOPHONE_REVIEW_SKILLS[0],
+    [{canonicalWordId:"review-word",word:"accept"}],auditedRows),auditedRows,"The shared wrapper must preserve the homophone audit without new family checks or duplicate database reads");
   const skill=HOMOPHONE_REVIEW_SKILLS[0],word=homophoneReviewWords(skill)[0],bundle=reviewed(word);
   assert.equal(homophoneReviewCandidate(reviewed("notinthisset"),skill,"meaning").status,"not_match");
   const missing=structuredClone(bundle);missing.senseSet.pronunciations[0].ipa="";

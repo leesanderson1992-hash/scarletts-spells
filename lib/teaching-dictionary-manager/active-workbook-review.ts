@@ -1,3 +1,4 @@
+import { isHomophoneReviewSkill } from "./homophone-review-contract";
 import "server-only";
 
 import type { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -14,7 +15,7 @@ type ActiveWord = { canonicalWordId: string; word: string; base?: string; senseI
 export async function includeActiveWorkbookReview(db: Db, skill: string, current: readonly ActiveWord[],
   rows: ReviewRow[], requiresFamily = true): Promise<ReviewRow[]> {
   const environment = ingReviewEnvironment();
-  if (!environment || !current.length || isPrefixWorkbookSkill(skill)) return rows;
+  if (!environment || !current.length || isPrefixWorkbookSkill(skill) || isHomophoneReviewSkill(skill)) return rows;
   const byId = new Map(rows.map(row => [row.id, row]));
   const active = [...new Map(current.map(word => [word.canonicalWordId, word])).values()];
   for (let offset = 0; offset < active.length; offset += 75) {
