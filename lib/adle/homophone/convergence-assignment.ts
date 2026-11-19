@@ -1,3 +1,4 @@
+import { applyCanonicalGuidedFacts } from "./canonical-guided-facts";
 import { fingerprintSnapshotValue } from "../composable-lesson/canonical-fingerprint";
 import { buildConvergenceLessonForSets } from "./convergence-preview";
 import { validateConvergencePreview } from "./convergence-preview-validation";
@@ -33,7 +34,7 @@ export function compileConvergenceAssignment(input: {
   const contextCheck = compileContextualChoiceSnapshot(input);
   if (!contextCheck) return null;
   const selectedSetKeys = contextCheck.selectedSets.map(set => set.setKey);
-  const guidedLesson = buildConvergenceLessonForSets(input.content.microSkillKey, selectedSetKeys).snapshot;
+  const guidedLesson = applyCanonicalGuidedFacts(buildConvergenceLessonForSets(input.content.microSkillKey, selectedSetKeys).snapshot, input.content);
   const guidedSets = guidedLesson.lesson.contrastSets ?? [];
   if (guidedSets.length !== contextCheck.selectedSets.length || guidedSets.some((set, index) =>
     set.setKey !== contextCheck.selectedSets[index].setKey

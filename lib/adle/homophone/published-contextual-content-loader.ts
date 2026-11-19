@@ -1,4 +1,5 @@
 import "server-only";
+import { loadActiveCanonicalHomophoneContent } from "@/lib/teaching-dictionary-manager/homophone-canonical-release";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { buildApprovedContextualContent, type PublishedContrastAuthority } from "./approved-contextual-content";
@@ -31,6 +32,7 @@ async function readPages<T>(makeQuery: (offset: number) => PromiseLike<{
 export async function loadApprovedContextualContentForSkills(
   client: SupabaseClient,
   microSkillKeys: readonly string[],
+  authoredOnly = false,
 ): Promise<Map<string, CurrentContent>> {
   const skills = [...new Set(microSkillKeys)];
   const results = new Map<string, CurrentContent>();
@@ -85,6 +87,14 @@ export async function loadApprovedContextualContentForSkills(
       results.set(skill, { content: buildApprovedContextualContent(skill, authorities), blocker: null });
     } catch (error) {
       results.set(skill, { content: null, blocker: error instanceof Error ? error.message : "homophone_contextual_content_invalid" });
+    }
+  }
+  if (!authoredOnly) for (const skill of skills) {
+    try {
+      const canonical = await loadActiveCanonicalHomophoneContent(client, skill);
+      if (canonical) results.set(skill, {content: canonical, blocker: null});
+    } catch (error) {
+      results.set(skill, {content: null, blocker: error instanceof Error ? error.message : "Dictionary lesson unavailable."});
     }
   }
   return results;

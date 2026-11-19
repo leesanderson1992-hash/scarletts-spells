@@ -32,6 +32,10 @@ export type ContextualChoiceContent = {
   questions: readonly ContextualChoiceQuestion[];
   reviewStatus: "approved";
   approvalReference: string;
+  dictionaryFacts?: readonly {wordId: string; senseId: string; sense: import("@/lib/teaching-dictionary-manager/senses").DictionarySense;
+    pronunciation: import("@/lib/teaching-dictionary-manager/senses").DictionaryPronunciation | null;
+    parts: unknown[]; joins: unknown; transformations: unknown; wordSum: string;
+    dictationAuthorityId: string; dictationSourceHash: string | null}[];
 };
 
 export type FrozenContextualChoiceSnapshot = {

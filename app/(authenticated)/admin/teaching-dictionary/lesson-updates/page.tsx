@@ -1,3 +1,5 @@
+import { homophoneCanonicalPilotEnabled, loadCanonicalHomophonePreview } from "@/lib/teaching-dictionary-manager/homophone-canonical-release";
+import { publishHomophoneDictionaryLesson, generateHomophoneDictionaryLesson } from "./homophone-actions";
 import { isHomophoneReviewSkill } from "@/lib/teaching-dictionary-manager/homophone-review-contract";
 import { SavedFamilyReviews } from "./saved-family-reviews";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
@@ -75,6 +77,10 @@ export default async function LessonUpdates({ searchParams }: {
     ? await loadPendingPrefixWorkbookQueue(db, prefixSkill) : null;
   const readyPrefixRows = prefixQueue?.filter(row => !row.blockers.length).slice(0, PREFIX_PUBLISH_BATCH_SIZE) ?? [];
   const draftWordIds = new Set([...(prefixQueue?.map(row => row.wordId) ?? []), ...(compoundQueue?.map(row => row.wordId) ?? [])]);
+  const homophonePilot = homophoneCanonicalPilotEnabled(selected) && view === "preview"
+    ? await loadCanonicalHomophonePreview(db, selected) : null;
+  const homophoneLearners = homophonePilot?.content ? await db.from("children").select("id,first_name")
+    .eq("parent_user_id", actor.id).eq("is_archived", false).order("first_name") : null;
   const lessonName = skill ? STAGING_ING_LESSONS[skill] : "";
   const clusterLabels = new Map((clusterRows.data ?? []).map(row => [row.skill_cluster_key, row.display_name]));
   const skills = (skillRows.data ?? []).map(row => ({ key: row.micro_skill_key, label: row.display_name, cluster: row.skill_cluster_key }));
@@ -139,7 +145,27 @@ export default async function LessonUpdates({ searchParams }: {
       batches={specialist || base || suffix || review ? Math.ceil(wordsToReview.length / ING_REVIEW_BATCH_SIZE) : null}>
     {specialist && view === "preview" && <section className={card}>
       <h2 className="text-xl font-semibold">{specialist.title} publish status</h2>
-      {isHomophoneReviewSkill(selected) && <p>The reviewed lesson already uses these contrast-set words. Use this queue to standardise their Dictionary facts. Family assignment is not required for this lesson.</p>}
+      {isHomophoneReviewSkill(selected) && <p>Review and approve the Dictionary facts for every word in the contrast set. Family assignment is not required for this lesson.</p>}
+      {homophonePilot && <div className="space-y-3 rounded-lg border p-4">
+        {params.published && <p role="status">Accept and except are Active with the approved Dictionary facts.</p>}
+        {homophonePilot.blockers.length ? <ul className="list-disc pl-5">{homophonePilot.blockers.map(issue => <li key={issue}>{issue}</li>)}</ul> : <>
+          <h3 className="font-semibold">Approved Dictionary facts ready to publish</h3>
+          {homophonePilot.content?.sets.flatMap(set => set.members).map(member => <div key={member.canonicalWordId}>
+            <strong>{member.word}</strong><p>{member.intendedSense}</p><p className="text-sm">{member.teachingSentence}</p>
+          </div>)}
+          <form action={publishHomophoneDictionaryLesson}>
+            <input type="hidden" name="skill" value={selected} /><input type="hidden" name="fingerprint" value={homophonePilot.fingerprint} />
+            <ActionSubmitButton className={button} pendingLabel="Publishing Dictionary facts…">Publish accept / except update</ActionSubmitButton>
+          </form>
+          {specialist.current.length > 0 && <form action={generateHomophoneDictionaryLesson} className="space-y-2">
+            <input type="hidden" name="skill" value={selected} />
+            <label className="grid gap-1">Staging test learner<select name="child_id" className="rounded border p-2" required>
+              <option value="">Choose a test learner</option>{homophoneLearners?.data?.map(child => <option key={child.id} value={child.id}>{child.first_name}</option>)}
+            </select></label>
+            <ActionSubmitButton className={button} pendingLabel="Generating lesson…">Generate accept / except lesson</ActionSubmitButton>
+          </form>}
+        </>}
+      </div>}
       <p>{new Set([...specialist.current.map(word => word.canonicalWordId), ...specialist.rows.map(word => word.id)]).size} words in this flow · {specialist.current.length} Active in ADLE · {specialist.rows.length} need review</p>
       {specialist.rows.some(row => specialist.current.some(word => word.canonicalWordId === row.id)) &&
         <p className="text-sm text-slate-600">{specialist.rows.filter(row => specialist.current.some(word => word.canonicalWordId === row.id)).length} Active words are also in review for missing facts or unpublished updates. Their existing lesson version stays available.</p>}

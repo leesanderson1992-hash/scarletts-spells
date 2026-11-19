@@ -1,4 +1,5 @@
 import "server-only";
+import { loadActiveCanonicalHomophoneContent } from "./homophone-canonical-release";
 import type { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { homophoneCanonicalPartOfSpeech, homophoneReviewRoute, homophoneReviewSpec, homophoneReviewWords } from "./homophone-review-contract";
 import { loadReviewedMeaningBundles } from "./multi-sense-export";
@@ -88,9 +89,12 @@ export async function loadHomophoneBulkReview(db: Db, skill: string, includeBund
       .select("canonical_word_id,sense_id").eq("environment_key", environment).eq("micro_skill_key", skill).in("canonical_word_id", ids),
   ]);
   if (bindings.error) throw new Error("Could not read the lesson’s reviewed meaning choices.");
+  let publishedCanonical: Awaited<ReturnType<typeof loadActiveCanonicalHomophoneContent>> = null;
+  try { publishedCanonical = await loadActiveCanonicalHomophoneContent(db, skill); } catch { /* Changed facts stay in review. */ }
+  const publishedMembers = publishedCanonical?.sets.flatMap(set => set.members);
   const current = lesson.activationEnabled && lesson.compilerReady ? roster.words.map(word => {
     const member = roster.members.find(member => member.canonical_word_id === word.id)!;
-    return {canonicalWordId: word.id, word: word.display_word, base: "", meaning: member.intended_sense, dictationSentence: member.target_sentence};
+    return {canonicalWordId: word.id, word: word.display_word, base: "", meaning: publishedMembers?.find(row => row.canonicalWordId === word.id)?.intendedSense ?? member.intended_sense, dictationSentence: publishedMembers?.find(row => row.canonicalWordId === word.id)?.teachingSentence ?? member.target_sentence};
   }) : [];
   const active = new Set(current.map(word => word.canonicalWordId));
   const rows = allWords.flatMap(word => {
@@ -100,9 +104,11 @@ export async function loadHomophoneBulkReview(db: Db, skill: string, includeBund
     const senseId = requested ?? (bound.length === 1 ? bound[0].sense_id : bundle?.senseSet.senses.length === 1 ? bundle.senseSet.senses[0].id : undefined);
     const verdict = homophoneReviewCandidate(bundle, skill, senseId, {wordId: word.id, displayWord: word.display_word});
     const sense = bundle?.senseSet.senses.find(sense => sense.id === senseId);
-    const contentMatches = sense && roster.members.some(member => member.canonical_word_id === word.id
+    const contentMatches = sense && (publishedMembers ? publishedMembers.some(member => member.canonicalWordId === word.id
+      && member.intendedSense === sense.definition && member.teachingSentence === sense.dictationSentence
+      && member.grammaticalRole === sense.partOfSpeech) : roster.members.some(member => member.canonical_word_id === word.id
       && normal(member.intended_sense) === normal(sense.definition) && member.target_sentence === sense.dictationSentence
-      && homophoneCanonicalPartOfSpeech(member.grammatical_role) === sense.partOfSpeech);
+      && homophoneCanonicalPartOfSpeech(member.grammatical_role) === sense.partOfSpeech));
     const isBound = bound.some(binding => binding.sense_id === senseId);
     if (active.has(word.id) && verdict.status === "ready" && isBound && contentMatches) return [];
     const notes = bundle ? verdict.issues.map(issue => issue.message)
