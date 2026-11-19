@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { SearchableAssignmentMenu } from "./searchable-assignment-menu";
 import { registerReviewedAffixMeaning } from "./sense-morphology-actions";
+import { IN_PREFIX_FORMS, IN_PREFIX_MEANINGS } from "@/lib/teaching-dictionary-manager/prefix-workbook";
 
 export type AffixCatalog = Record<"prefix" | "suffix", Record<string, string[]>>;
 
@@ -24,7 +25,8 @@ export function AffixPicker({ kind, form, meaning, catalog, formTitle, meaningTi
   const [error, setError] = useState("");
   const [pending, start] = useTransition();
   const forms = [...new Set([...Object.keys(catalog), ...Object.keys(created), ...(form ? [form] : [])])].sort();
-  const glosses = [...new Set([...(catalog[form] ?? []), ...(created[form] ?? []), ...(meaning ? [meaning] : [])])];
+  const standardIn = kind === "prefix" && IN_PREFIX_FORMS.some(prefix => prefix === form);
+  const glosses = [...new Set([...(standardIn ? IN_PREFIX_MEANINGS.map(choice => choice.gloss) : catalog[form] ?? []), ...(created[form] ?? []), ...(meaning ? [meaning] : [])])];
   const display = (text: string) => kind === "prefix" ? `${text}-` : `-${text}`;
 
   function create(nextMode: "form" | "meaning") {

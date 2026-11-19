@@ -13,7 +13,7 @@ import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-mana
 import { loadLessonReadiness } from "@/lib/teaching-dictionary-manager/lesson-preflight";
 import { loadReviewedMeaningBundles } from "@/lib/teaching-dictionary-manager/multi-sense-export";
 import { stagePrefixWorkbookDraft } from "@/lib/teaching-dictionary-manager/prefix-workbook-draft";
-import { prefixWorkbookChoice, prefixWorkbookEnabled, PREFIX_PUBLISH_BATCH_SIZE, PREFIX_WORKBOOK_ROUTE, type PrefixWorkbookSkill } from "@/lib/teaching-dictionary-manager/prefix-workbook";
+import { NEGATIVE_PREFIX_SKILL, prefixMeaningFromParts, prefixWorkbookChoice, prefixWorkbookEnabled, PREFIX_PUBLISH_BATCH_SIZE, PREFIX_WORKBOOK_ROUTE, type PrefixWorkbookSkill } from "@/lib/teaching-dictionary-manager/prefix-workbook";
 import { ingReviewEnvironment } from "@/lib/teaching-dictionary-manager/ing-staging-scope";
 import { loadPrefixWorkbookQueue } from "@/lib/teaching-dictionary-manager/prefix-bulk-review";
 import { saveBulkSkillApprovals } from "../bulk-assign/actions";
@@ -26,7 +26,9 @@ async function currentBundle(db: Db, skill: PrefixWorkbookSkill, row: QueueRow) 
   const [bundle] = await loadReviewedMeaningBundles(db, [row.wordId]);
   const route = row.payload.routeContents.find(route => route.microSkillKey === skill);
   const senseId = row.payload.skillSenseIds?.[skill];
-  const meaning = route?.content.meaningBinKey;
+  const meaning = skill === NEGATIVE_PREFIX_SKILL
+    ? prefixMeaningFromParts(bundle?.analyses.find(analysis => analysis.senseId === senseId)?.parts ?? [])?.id
+    : route?.content.meaningBinKey;
   if (!bundle || !senseId || !route || typeof meaning !== "string" || !prefixWorkbookChoice(skill, meaning)
     || route.content.workbookSenseRevision !== bundle.sourceSenseReviewedAt)
     throw new Error("The reviewed word changed. Download a fresh workbook for this meaning.");

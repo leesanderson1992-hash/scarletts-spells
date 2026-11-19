@@ -7,6 +7,12 @@ export const NEGATIVE_PREFIX_SKILL = "D4_MOR_PREFIXES_IN_IM_IL_IR";
 export const SUB_INTER_SUPER_PREFIX_SKILL = "D4_MOR_PREFIXES_SUB_INTER_SUPER";
 export const PREFIX_WORKBOOK_ROUTE = "dynamic_prefix_word_lab";
 export const PREFIX_PUBLISH_BATCH_SIZE = 30;
+export const IN_PREFIX_FORMS = ["in", "im", "il", "ir"] as const;
+export const IN_PREFIX_MEANINGS = [
+  { id: "not", label: "not", gloss: "not" },
+  { id: "in_or_upon", label: "in or upon", gloss: "in or upon" },
+  { id: "make", label: "make", gloss: "make" },
+] as const;
 
 type PrefixWorkbookChoice = { id: string; label: string; prefix: string; gloss: string };
 
@@ -36,13 +42,10 @@ export const prefixWorkbooks = {
     ],
   },
   [NEGATIVE_PREFIX_SKILL]: {
-    title: "Negative prefixes in-, im-, il- and ir-",
+    title: "Prefixes in-, im-, il- and ir-",
     source: "Reviewed in-, im-, il- and ir- Bulk review",
     choices: [
-      { id: "in", label: "in-", prefix: "in", gloss: "not" },
-      { id: "im", label: "im-", prefix: "im", gloss: "not" },
-      { id: "il", label: "il-", prefix: "il", gloss: "not" },
-      { id: "ir", label: "ir-", prefix: "ir", gloss: "not" },
+      ...IN_PREFIX_MEANINGS.map(meaning => ({ ...meaning, prefix: "in" })),
     ],
   },
   [SUB_INTER_SUPER_PREFIX_SKILL]: {
@@ -67,7 +70,23 @@ export function prefixWorkbookEnabled(skill: unknown): skill is PrefixWorkbookSk
 }
 
 export function prefixWorkbookFieldLabel(skill: string) {
-  return skill === NEGATIVE_PREFIX_SKILL ? "Prefix form" : "Prefix meaning group";
+  return isPrefixWorkbookSkill(skill) ? "Prefix meaning group" : "Meaning group";
+}
+
+export function prefixWorkbookForms(skill: PrefixWorkbookSkill): readonly string[] {
+  return skill === NEGATIVE_PREFIX_SKILL ? IN_PREFIX_FORMS : [...new Set(prefixWorkbooks[skill].choices.map(choice => choice.prefix))];
+}
+
+/** Spelling is independent of meaning. Historical form-only sheets may infer
+ * only a reviewed gloss; an empty/unknown gloss needs an editorial choice. */
+export function inPrefixMeaning(value: unknown) {
+  const text = typeof value === "string" ? value.trim().toLowerCase() : "";
+  return IN_PREFIX_MEANINGS.find(choice => choice.id === text || choice.label === text);
+}
+
+export function prefixMeaningFromParts(parts: readonly unknown[]) {
+  const prefix = parts.find(part => part && typeof part === "object" && "kind" in part && part.kind === "prefix");
+  return prefix && typeof prefix === "object" && "gloss" in prefix ? inPrefixMeaning(prefix.gloss) : undefined;
 }
 
 export function negativePrefixForBase(base: string) {

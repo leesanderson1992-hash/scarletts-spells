@@ -7,7 +7,7 @@ import { emptyMetadata, emptyMorphology, routeForSkill, routeWithSharedFacts,
 import { normaliseWrittenSyllableBreakdown, writtenSyllableBlockers } from "./authoring";
 import { inheritFamilyPartMeanings } from "./family-part-meanings";
 import type { MultiSenseCsvBundle } from "./multi-sense-csv";
-import { NEGATIVE_PREFIX_SKILL, negativePrefixForBase, prefixWorkbookChoice, prefixWorkbookEnabled,
+import { NEGATIVE_PREFIX_SKILL, IN_PREFIX_FORMS, negativePrefixForBase, prefixWorkbookChoice, prefixWorkbookEnabled,
   prefixWorkbooks, type PrefixWorkbookSkill } from "./prefix-workbook";
 
 type Db = ReturnType<typeof createServiceRoleClient>;
@@ -41,14 +41,20 @@ export async function stagePrefixWorkbookDraft(db: Db, actorId: string, bundle: 
   ]);
   if (revision?.error || profile.error || word.error || metadata.error || memberships.error || previous.error)
     throw new Error("Could not load the current prefix lesson and dictionary facts.");
-  if (!(profile.data.meaning_bins as { id: string }[]).some(bin => bin.id === meaning))
-    throw new Error("This meaning group is unavailable in the current prefix lesson.");
   const pronunciation = bundle.senseSet.pronunciations.find(item => item.id === sense.pronunciationId);
   const parts = inheritFamilyPartMeanings(analysis.parts, memberships.data);
   const prefix = parts[0];
-  if (prefix?.kind !== "prefix" || prefix.sourceText !== choice.prefix || prefix.surfaceText !== choice.prefix)
+  const prefixText = skill === NEGATIVE_PREFIX_SKILL ? prefix?.sourceText : choice.prefix;
+  if (prefix?.kind !== "prefix" || prefix.sourceText !== prefixText || prefix.surfaceText !== prefixText
+    || (skill === NEGATIVE_PREFIX_SKILL && !IN_PREFIX_FORMS.some(form => form === prefixText))
+    || prefix.gloss !== choice.gloss)
     throw new Error("The reviewed prefix part must match the selected meaning group.");
-  if (skill === NEGATIVE_PREFIX_SKILL && prefix.surfaceText !== negativePrefixForBase(bundle.displayWord.slice(prefix.surfaceText.length)))
+  // This lesson's existing form-sort activity keeps form IDs. The semantic
+  // choice is canonical in the prefix part's gloss, never in a spelling bin.
+  const meaningBinKey = skill === NEGATIVE_PREFIX_SKILL ? prefixText : meaning;
+  if (!(profile.data.meaning_bins as { id: string }[]).some(bin => bin.id === meaningBinKey))
+    throw new Error("This meaning group is unavailable in the current prefix lesson.");
+  if (skill === NEGATIVE_PREFIX_SKILL && meaning === "not" && prefix.surfaceText !== negativePrefixForBase(bundle.displayWord.slice(prefix.surfaceText.length)))
     throw new Error("Use the negative prefix form that matches the first letter of the base.");
   const facts = word.data;
   const priorPayload = previous.data?.payload as WordDraftPayload | undefined;
@@ -70,7 +76,7 @@ export async function stagePrefixWorkbookDraft(db: Db, actorId: string, bundle: 
       phoneme_hint: pronunciation?.ipa ?? "", stress_pattern: pronunciation?.stressPattern ?? "",
       morphemes: analysis.wordSum, has_schwa: metadata.data?.has_schwa ?? details?.hasSchwa ?? priorDetails?.metadata.has_schwa ?? null,
       grapheme_notes: metadata.data?.grapheme_notes ?? "", morphology_notes: metadata.data?.morphology_notes?.trim()
-        || (pilot ? `The prefix ${choice.prefix}- means ${choice.gloss} in this word.` : ""),
+        || (pilot ? `The prefix ${prefixText}- means ${choice.gloss} in this word.` : ""),
       irregularity_notes: metadata.data?.irregularity_notes ?? "" },
     canonicalMorphology: { ...emptyMorphology(), analysisStatus: "approved", parts, joins: analysis.joins,
       transformations: analysis.transformations, wordSum: analysis.wordSum, rawPartOfSpeech: sense.partOfSpeech },
@@ -82,14 +88,14 @@ export async function stagePrefixWorkbookDraft(db: Db, actorId: string, bundle: 
   const intro = profile.data.intro_content as { validChoiceAudit?: { word: string }[] } | null;
   const priorAudit = prior && prior.content.expectedProfileId === profile.data.id ? prior.content.choiceAudit : undefined;
   const choices = (profile.data.prefix_choices as { text: string }[] | null) ?? [];
-  const canDeriveChoice = pilot && choices.filter(option => option.text === choice.prefix).length === 1
+  const canDeriveChoice = pilot && choices.filter(option => option.text === prefixText).length === 1
     && new Set(choices.map(choice => choice.text)).size === choices.length;
   const derivedAudit = canDeriveChoice ? { word: bundle.displayWord,
     choiceVerdicts: Object.fromEntries(choices.map(choice => [choice.text, choice.text === prefix.surfaceText])) } : undefined;
   const choiceAudit = derivedAudit ?? priorAudit ?? intro?.validChoiceAudit?.find(item => item.word === bundle.displayWord);
   const content: RouteContentDraft = {
     routeId: route.routeId, routeVersion: route.routeVersion, microSkillKey: skill, wordMeaning: "", wordSum: "",
-    content: { prefixVariant: choice.prefix, meaningBinKey: meaning, expectedProfileId: profile.data.id,
+    content: { prefixVariant: prefixText, meaningBinKey, expectedProfileId: profile.data.id,
       expectedSourceRowHash: profile.data.source_row_hash, ...(pilot ? { workbookSenseRevision: revision!.data!.reviewed_at } : {}), ...(choiceAudit ? { choiceAudit } : {}) },
   };
   payload.routeContents = [routeWithSharedFacts(content, payload)];

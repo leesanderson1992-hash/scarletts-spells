@@ -931,7 +931,7 @@ export function WordWorkspace(props: {
         label: bin.label,
       })),
     };
-    if (kind === "meaning_sort") return profile ? [meaning] : [];
+    if (kind === "meaning_sort") return key === "D4_MOR_PREFIXES_IN_IM_IL_IR" ? [] : profile ? [meaning] : [];
     if (kind === "discovery" || kind === "meaning_match")
       return [
         { key: "baseMeaning", label: "Base meaning" },
@@ -2236,6 +2236,9 @@ export function WordWorkspace(props: {
               </label>}
               <RouteFactsEditor name={name(route.microSkillKey)} content={routeWithSharedFacts(route, meaningPayload(route.microSkillKey)).content}
                 sharedKeys={[...sharedRouteContentKeys(route.routeId, meaningPayload(route.microSkillKey)),
+                  ...(route.microSkillKey === "D4_MOR_PREFIXES_IN_IM_IL_IR"
+                    && meaningPayload(route.microSkillKey).canonicalMorphology.analysisStatus === "approved"
+                    ? ["prefixVariant", "meaningBinKey", "teachingSplitParts", "teachingSplitJoins"] : []),
                   ...(route.routeId === "base_word_lab" ? ["familyKey"] : [])]}
                 choices={{ prefixVariant: profile?.choices ?? [], suffixVariant: profile?.choices ?? [],
                   meaningBinKey: profile?.meaningBins.map((bin) => bin.id) ?? [],

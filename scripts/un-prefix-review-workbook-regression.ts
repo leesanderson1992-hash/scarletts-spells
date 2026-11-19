@@ -186,15 +186,15 @@ async function main() {
   await loadReviewFixture(negatives, { skill: NEGATIVE_PREFIX_SKILL, title: "Negative prefixes",
     bundles: [], notes: new Map(), families: new Map() });
   const negativeSheet = negatives.getWorksheet("Words to review")!;
-  assert.equal(negativeSheet.getCell("E3").text, "Prefix form");
+  assert.equal(negativeSheet.getCell("E3").text, "Prefix meaning group");
   for (const row of [4, 103])
-    assert.deepEqual(negativeSheet.getCell(`E${row}`).dataValidation.formulae, ['"in-,im-,il-,ir-"']);
+    assert.deepEqual(negativeSheet.getCell(`E${row}`).dataValidation.formulae, ['"not,in or upon,make"']);
   const negativeHeaders = negativeSheet.getRow(3).values as string[];
   const forms = [["in", "accurate"], ["im", "perfect"], ["il", "logical"], ["ir", "rational"]] as const;
   for (const [index, [prefix, base]] of forms.entries()) {
     const word = prefix + base;
     for (const [key, value] of Object.entries({
-      ...values, Word: word, "Prefix meaning group": undefined, "Prefix form": index ? prefix + "-" : "",
+      ...values, Word: word, "Prefix meaning group": index ? "not" : "", "Part 1 meaning": "not",
       "Word family": base, "Dictation sentence": `That is ${word}.`, "Dictation target token index": 2,
       "Part 1 underlying form": prefix, "Part 1 visible letters": prefix,
       "Part 2 underlying form": base, "Part 2 visible letters": base, "Part 2 meaning": "Reviewed base meaning",
@@ -202,14 +202,30 @@ async function main() {
   }
   const negativeUpload = () => workbookUpload(negatives);
   const parsedNegatives = await readReviewWorkbook(await negativeUpload(), NEGATIVE_PREFIX_SKILL);
-  assert.deepEqual([...parsedNegatives.prefixMeanings.values()], ["in", "im", "il", "ir"]);
+  assert.deepEqual([...parsedNegatives.prefixMeanings.values()], ["not", "not", "not", "not"]);
   assert.deepEqual(parseMultiSenseCsv(parsedNegatives.csv).map(word => word.analyses[0].parts[0].gloss),
     ["not", "not", "not", "not"]);
   negativeSheet.getCell("E5").value = "il-";
-  await assert.rejects(readReviewWorkbook(await negativeUpload(), NEGATIVE_PREFIX_SKILL), /row 5: choose im- under Prefix form/);
-  negativeSheet.getCell("E5").value = "im-";
+  await assert.rejects(readReviewWorkbook(await negativeUpload(), NEGATIVE_PREFIX_SKILL), /row 5: choose not or in or upon or make/);
+  negativeSheet.getCell("E5").value = "not";
   negativeSheet.getCell("A5").value = "imlogical";
   await assert.rejects(readReviewWorkbook(await negativeUpload(), NEGATIVE_PREFIX_SKILL), /row 5: use il- before l/);
+  negativeSheet.getCell("A5").value = "imperfect";
+  negativeSheet.getCell("E5").value = "in or upon";
+  negativeSheet.getCell("E6").value = "make";
+  const semanticNegatives = await readReviewWorkbook(await negativeUpload(), NEGATIVE_PREFIX_SKILL);
+  assert.deepEqual([...semanticNegatives.prefixMeanings.values()], ["not", "in_or_upon", "make", "not"]);
+  assert.deepEqual(parseMultiSenseCsv(semanticNegatives.csv).map(word => word.analyses[0].parts[0].gloss), ["not", "in or upon", "make", "not"]);
+  // Old form-only sheets retain their reviewed gloss instead of resetting it to not.
+  negativeSheet.getCell("E3").value = "Prefix form";
+  for (const [index, [prefix]] of forms.entries()) negativeSheet.getCell(`E${index + 4}`).value = `${prefix}-`;
+  const meaningColumn = negativeHeaders.indexOf("Part 1 meaning");
+  negativeSheet.getCell(5, meaningColumn).value = "in or upon";
+  negativeSheet.getCell(6, meaningColumn).value = "make";
+  const legacyNegatives = await readReviewWorkbook(await negativeUpload(), NEGATIVE_PREFIX_SKILL);
+  assert.deepEqual([...legacyNegatives.prefixMeanings.values()], ["not", "in_or_upon", "make", "not"]);
+  negativeSheet.getCell(5, meaningColumn).value = "";
+  await assert.rejects(readReviewWorkbook(await negativeUpload(), NEGATIVE_PREFIX_SKILL), /row 5: choose not or in or upon or make/);
   const groupedPrefixes = new ExcelJS.Workbook();
   await loadReviewFixture(groupedPrefixes, { skill: SUB_INTER_SUPER_PREFIX_SKILL,
     title: "Prefixes sub-, inter- and super-", bundles: [], notes: new Map(), families: new Map() });

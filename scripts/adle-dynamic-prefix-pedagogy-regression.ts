@@ -10,6 +10,7 @@ import {
   type PrefixTeachingCardV1,
 } from "../lib/adle/morphology/dynamic-prefix-contracts";
 import { dynamicPrefixRuntime } from "../lib/adle/morphology/dynamic-prefix-runtime";
+import { resolveMorphologyTeachingPages } from "../lib/adle/morphology/morphology-teaching-pages";
 import { morphologyMeaningSortItems } from "../lib/adle/morphology/meaning-sort-items";
 import { selectedPrefixFeedbackText } from "../lib/adle/morphology/prefix-teaching-feedback";
 import { loadReviewedPrefixPackageFixtures, selectReviewedPrefixFixture } from "./lib/adle-reviewed-prefix-package-fixture";
@@ -87,6 +88,22 @@ for (const profileManifest of manifest.profiles) {
   assert.equal(guided.meaningCheckKind, profileManifest.meaningCheckKind);
   assert.equal(guided.meaningResultsPresentation, "none");
   if (profileManifest.meaningCheckKind === "prefix_form") {
+    const runtime = dynamicPrefixRuntime(decision.payload)!;
+    assert.equal(resolveMorphologyTeachingPages(runtime).pages[1].prefixShapeShifters, true);
+    // A form may have more than one reviewed meaning. The target choice must
+    // use the selected word's canonical gloss rather than the profile's not.
+    for (const meaning of ["not", "in or upon", "make"]) {
+      const changedWords = new Map([...profile.wordsByCanonicalId].map(([id, word]) => [id, {
+        ...word, prefixMeaning: meaning,
+        parts: word.parts.map(part => part.role === "prefix" ? { ...part, gloss: meaning } : part),
+      }]));
+      const changed = selectReviewedPrefixFixture({ ...profile, wordsByCanonicalId: changedWords }, changedWords.get(fixture.words[0].canonicalWordId)!);
+      const result = compileDynamicPrefixWordLabDecision(changed, { mode: "shared_authoritative", sourceKind: "reviewed_fixture" });
+      assert(result.ok, JSON.stringify(result));
+      assert.equal(result.payload.prefix.meaning, meaning);
+      for (const build of result.payload.activities.guided!.builds)
+        assert.equal(build.choices.find(choice => choice.status === "target")?.meaning, meaning);
+    }
     assert.equal(guided.splitCanonicalWordIds.length, 2);
     assert.equal(guided.builds.length, 4);
     assert.deepEqual(decision.payload.activities.meaningBins.map((bin) => bin.id), ["in", "im", "il", "ir"]);

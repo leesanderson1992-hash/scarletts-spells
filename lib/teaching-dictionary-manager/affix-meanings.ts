@@ -1,4 +1,5 @@
 import { getSharedAffixProfileMapping } from "@/lib/adle/morphology/shared-affix-profile-registry";
+import { IN_PREFIX_FORMS, IN_PREFIX_MEANINGS } from "./prefix-workbook";
 
 type PrefixProfile = { prefix_choices: unknown };
 type SuffixProfile = { micro_skill_key: string; meaning_bins: unknown };
@@ -36,6 +37,9 @@ export function reviewedAffixMeanings(
         const meaning = typeof bin?.description === "string" && bin.description ? bin.description : bin?.label;
         if (typeof meaning === "string" && typeof bin?.label === "string" && !dictionaryForms.has(form)) add(form, meaning);
       }
+  if (kind !== "suffix") for (const form of IN_PREFIX_FORMS)
+    meanings[form] = [...IN_PREFIX_MEANINGS.map(choice => choice.gloss), ...(meanings[form] ?? [])]
+      .filter((gloss, index, all) => all.indexOf(gloss) === index);
   return meanings;
 }
 

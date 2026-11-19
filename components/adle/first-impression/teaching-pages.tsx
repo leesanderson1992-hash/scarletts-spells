@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { PrefixShapeShifters } from "@/components/adle/morphology/prefix-shape-shifters";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { HomophoneCheatPage, HomophoneConceptPage, HomophoneMeetWordsPage, HomophonePairPage, HomophoneStandardIntroPage,
   type HomophoneConcept, type HomophoneTeachingGroup } from "@/components/adle/homophone/homophone-teaching-pages";
@@ -29,6 +30,7 @@ export interface WeakVowelSecretTip {
 }
 
 export interface TeachingPageConfig {
+  prefixShapeShifters?: boolean;
   id: string;
   type: "teaching";
   eyebrow?: string;
@@ -172,6 +174,7 @@ export function TeachingPages(props: {
 
 function TeachingPage(props: { page: TeachingPageConfig; pageNumber: number; pageCount: number }) {
   const { page } = props;
+  if (page.prefixShapeShifters) return <PrefixShapeShifters pageNumber={props.pageNumber} pageCount={props.pageCount} />;
   if (page.homophoneStandardIntro) return <HomophoneStandardIntroPage title={page.title} paragraphs={page.paragraphs}
     focus={page.homophoneFocus ?? ""} focusWords={page.highlightFocusWords ?? []} category={page.callout ?? ""}
     pageNumber={props.pageNumber} pageCount={props.pageCount} />;

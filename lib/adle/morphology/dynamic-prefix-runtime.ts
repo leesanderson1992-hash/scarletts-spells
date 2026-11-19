@@ -41,7 +41,16 @@ function compileDynamicPrefixRuntime(payload: unknown): MorphologyLessonPayloadV
     { id: "reflection", activityId: "reflection", state: "reflect", goal: "explain what you noticed", waitFor: "reflect", onComplete: "done" },
   ];
   const pedagogy = snapshot.presentationPolicyVersion === "dynamic_prefix_pedagogy_v1";
-  const teachingCards = snapshot.activities.introduction.teachingCards;
+  const teachingCards = snapshot.activities.introduction.teachingCards?.map(card => {
+    if (snapshot.microSkillId !== "D4_MOR_PREFIXES_IN_IM_IL_IR") return card;
+    const matching = words.filter(word => word.prefixText === card.text);
+    const glosses = [...new Set(matching.map(word => word.parts.find(part => part.role === "prefix")?.gloss).filter(Boolean))];
+    if (!glosses.length || glosses.every(gloss => gloss === card.meaning)) return card;
+    const word = matching[0];
+    return { ...card, meaning: glosses.join("; "), example: {
+      prefix: card.text, base: word.baseWord, word: word.displayWord, meaning: word.derivedMeaning,
+    } };
+  });
   const introScreens = pedagogy && teachingCards ? [
     { id: "prefix", title: snapshot.activities.introduction.title, paragraphs: snapshot.activities.introduction.paragraphs, model: { prefix: first.prefixText ?? snapshot.prefix.text, base: first.baseWord, result: first.displayWord }, ctaLabel: "Study the prefixes" },
     { id: "teaching-cards", title: teachingCards.length === 1 ? "Meet this prefix" : "Meet these prefixes", paragraphs: ["Read the meaning and rule for each prefix."], teachingCards, ctaLabel: "Explore the words" },

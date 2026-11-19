@@ -364,7 +364,8 @@ function targetChoices(
 ): SharedAffixChoiceV1[] | null {
   const targeted = choices.map((choice) =>
     choice.text === word.affixForm
-      ? { ...choice, status: "target" as const }
+      ? { ...choice, status: "target" as const,
+        ...(input.taxonomy.microSkillKey === "D4_MOR_PREFIXES_IN_IM_IL_IR" ? { meaning: word.affixMeaning } : {}) }
       : input.profile.profileKey === "D4_MOR_SUFFIXES_TION" && ["tion", "ion"].includes(choice.text)
         ? { ...choice, status: "unsupported" as const }
       : choice.status === "target"

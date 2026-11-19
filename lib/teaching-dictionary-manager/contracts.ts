@@ -294,6 +294,15 @@ export function routeWithSharedFacts(route: RouteContentDraft, payload: WordDraf
     if (!Array.isArray(content.teachingSplitJoins)) content.teachingSplitJoins = joins;
     if (base?.text || approvedParts) content.baseWord = base?.text ?? "";
     if (base?.meaning || approvedParts) content.baseMeaning = base?.meaning ?? "";
+    if (approvedParts && route.microSkillKey === "D4_MOR_PREFIXES_IN_IM_IL_IR") {
+      // Meaning belongs to the approved part; the form-sort uses its spelling.
+      content.teachingSplitParts = parts;
+      content.teachingSplitJoins = joins;
+      const prefix = parts.find((part): part is Record<string, unknown> => part !== null && typeof part === "object"
+        && "kind" in part && part.kind === "prefix");
+      content.prefixVariant = prefix?.surfaceText ?? "";
+      content.meaningBinKey = prefix?.surfaceText ?? "";
+    }
   }
   if (route.routeId === "dynamic_affix_word_lab") {
     if (!Array.isArray(content.teachingSplitParts) || content.teachingSplitParts.length === 0) content.teachingSplitParts = parts;

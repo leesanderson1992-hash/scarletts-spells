@@ -10,6 +10,7 @@ export type ResolvedMorphologyTeachingPages = {
     callout?: string;
     model?: { first: string; second: string; result: string };
     examples: Array<{ text: string; explanation: string }>;
+    prefixShapeShifters?: boolean;
   }>;
   meetWords: {
     words: Array<{ id: string; word: string; wordParts: string[]; detail: string }>;
@@ -28,6 +29,8 @@ export function resolveMorphologyTeachingPages(
       type: "teaching" as const,
       eyebrow: "Learn" as const,
       title: screen.title,
+      ...(payload.microSkillId === "D4_MOR_PREFIXES_IN_IM_IL_IR" && ["teaching-cards", "profile"].includes(screen.id)
+        ? { prefixShapeShifters: true, title: "The prefix shape-shifters" } : {}),
       paragraphs: screen.paragraphs,
       ...(screen.meaningCallout ? { callout: screen.meaningCallout } : {}),
       ...(screen.model ? { model: { first: screen.model.prefix, second: screen.model.base, result: screen.model.result } } : {}),
