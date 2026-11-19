@@ -1,3 +1,4 @@
+import {guidedSnapshotIssues} from "../lib/adle/homophone/guided-snapshot-validation";
 import assert from "node:assert/strict";
 import {buildApprovedContextualContent} from "../lib/adle/homophone/approved-contextual-content";
 import {compileConvergenceAssignment, validateFrozenConvergenceAssignment} from "../lib/adle/homophone/convergence-assignment";
@@ -22,6 +23,10 @@ content.dictionaryFacts=content.sets.flatMap(set=>set.members).map((m,i)=>({word
   parts:[],joins:[],transformations:[],wordSum:m.word,dictationAuthorityId:ids[i],dictationSourceHash:"a".repeat(64)}));
 const next=compileConvergenceAssignment({content,queuedItems:[{canonicalWordId:ids[0],status:"pending",intakeOn:"2026-11-19"}],masteredWordIds:new Set(),rotationIndex:0})!;
 assert(validateFrozenConvergenceAssignment(next));
+assert.deepEqual(guidedSnapshotIssues(next.guidedLesson,true),[]);
+assert(guidedSnapshotIssues(next.guidedLesson).includes("content_version_mismatch"),"Retained lessons keep their strict original authority");
+const wrongActivities=structuredClone(next.guidedLesson);wrongActivities.activities=[];
+assert(guidedSnapshotIssues(wrongActivities,true).includes("activity_contract_mismatch"));
 for(const member of content.sets.flatMap(set=>set.members)){
   assert.equal(next.guidedLesson.lesson.teachingGroups?.flatMap(g=>g.words).find(w=>w.word===member.word)?.definition,member.intendedSense);
   assert.equal(next.guidedLesson.lesson.words.find(w=>w.word===member.word)?.memoryCue,member.intendedSense);

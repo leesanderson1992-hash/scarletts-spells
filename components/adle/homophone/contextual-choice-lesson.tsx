@@ -35,7 +35,7 @@ export function ContextualChoiceLesson(props: { assignmentId: string; childId: s
   }
   if (error) return <div className="brand-card rounded-3xl p-8" role="alert">{error}</div>;
   if (progress.stage === "guided") return <HomophoneGuidedLesson
-    snapshot={props.snapshot.guidedLesson} assignmentId={props.assignmentId} childId={props.childId}
+    contextualRelease snapshot={props.snapshot.guidedLesson} assignmentId={props.assignmentId} childId={props.childId}
     initialProgress={progress.guided}
     onProgress={guided => {
       if (guided.completed) return;

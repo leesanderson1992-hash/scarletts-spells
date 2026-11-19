@@ -1,5 +1,5 @@
 import type { ContextualChoiceContent } from "./contextual-choice-contract";
-import type { HomophoneLessonSnapshotV1, HomophonePassage } from "./lesson";
+import { homophoneActivities, type HomophoneLessonSnapshotV1, type HomophonePassage } from "./lesson";
 import { fingerprintSnapshotValue } from "../composable-lesson/canonical-fingerprint";
 
 /** Shared word facts come only from the frozen Dictionary release. Authored
@@ -28,7 +28,7 @@ export function applyCanonicalGuidedFacts(snapshot: HomophoneLessonSnapshotV1, c
         segments: [a[0], `${a[1]} ${b[0]}`, b[1]] as [string,string,string]};
     });
   });
-  return {...snapshot, contentVersion: `${snapshot.contentVersion}:dictionary-v1`,
+  const result = {...snapshot, contentVersion: `${snapshot.contentVersion}:dictionary-v1`,
     contentSha256: fingerprintSnapshotValue(content),
     lesson: {...snapshot.lesson,
       words: snapshot.lesson.words.map(word => ({...word, memoryCue: meaning(word.word), feedbackReason: meaning(word.word)})),
@@ -36,4 +36,5 @@ export function applyCanonicalGuidedFacts(snapshot: HomophoneLessonSnapshotV1, c
         words: group.words.map(word => ({...word, definition: meaning(word.word)}))})),
       dictationPassages: passages,
     }};
+  return {...result, activities: homophoneActivities(result.lesson)};
 }

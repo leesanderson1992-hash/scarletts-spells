@@ -26,10 +26,10 @@ begin
   -- replace a newer release with another content revision.
   content_hash:=adle_homophone_contextual_json_sha256_v1(p_content);
   key:='homophone-dictionary-staging:'||skill||':'||content_hash;
-  if previous_id is distinct from p_expected_head then
-    if exists(select 1 from adle_route_activation_revisions r join adle_curriculum_release_manifests m
+  if exists(select 1 from adle_route_activation_revisions r join adle_curriculum_release_manifests m
       on m.id=r.release_manifest_id where r.id=previous_id and m.release_key=key and r.activation_status='enabled')
     then return previous_id; end if;
+  if previous_id is distinct from p_expected_head then
     raise exception 'The lesson changed. Refresh the publish preview.';
   end if;
   for fact in select value from jsonb_array_elements(p_content->'dictionaryFacts') loop

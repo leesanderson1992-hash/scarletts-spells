@@ -1,7 +1,7 @@
 import { applyCanonicalGuidedFacts } from "./canonical-guided-facts";
 import { fingerprintSnapshotValue } from "../composable-lesson/canonical-fingerprint";
 import { buildConvergenceLessonForSets } from "./convergence-preview";
-import { validateConvergencePreview } from "./convergence-preview-validation";
+import { guidedSnapshotIssues } from "./guided-snapshot-validation";
 import { compileContextualChoiceSnapshot, evaluateContextualChoice, validateContextualChoiceContent,
   type ContextualChoiceContent, type ContextualChoiceResponse, type FrozenContextualChoiceSnapshot } from "./contextual-choice-contract";
 import type { QueuedContrastItem } from "./contrast-set-selection";
@@ -78,7 +78,7 @@ export function validateFrozenConvergenceAssignment(value: unknown): value is Fr
         || set.semanticFingerprint !== candidate.contextCheck.selectedSets[index].semanticFingerprint)
       || candidate.provenance?.sourceFingerprint !== candidate.sourceFingerprint) return false;
     const guided = candidate.guidedLesson;
-    if (validateConvergencePreview(guided).length) return false;
+    if (guidedSnapshotIssues(guided, true).length) return false;
     const selected = candidate.contextCheck.selectedSets;
     const guidedSets = guided.lesson.contrastSets ?? [];
     if (guidedSets.length !== selected.length || guidedSets.some((set, index) => set.setKey !== selected[index].setKey
