@@ -28,10 +28,10 @@ const rules = [
 export function PrefixShapeShifters({ pageNumber, pageCount }: { pageNumber: number; pageCount: number }) {
   return <article className="grid gap-3 text-left" aria-labelledby="prefix-shape-shifters-title">
     <header>
-      <p className="text-xs font-black uppercase tracking-widest text-pink-200">Learn · Page {pageNumber} of {pageCount}</p>
+      <p className="text-xs font-black uppercase tracking-widest text-[color:var(--scarlett)]">Learn · Page {pageNumber} of {pageCount}</p>
       <h1 id="prefix-shape-shifters-title" className="mt-1 text-2xl font-black text-white">The prefix shape-shifters</h1>
       <p className="mt-1 text-sm text-cyan-50">These prefixes change shape to make words easier to say.</p>
-      <p className="mt-1 font-black text-pink-200">in- · im- · il- · ir-</p>
+      <p className="mt-1 font-black text-[color:var(--scarlett)]">in- · im- · il- · ir-</p>
     </header>
     <div className="grid gap-3 lg:grid-cols-3" aria-label="Three prefix meanings">
       {meanings.map((meaning, index) => <section key={meaning.title} className="min-w-0 rounded-2xl border border-pink-100 bg-white p-3 text-slate-950">
