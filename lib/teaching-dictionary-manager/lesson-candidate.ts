@@ -8,6 +8,7 @@ import { bulkSenseChoiceError } from "./bulk-sense-approval";
 import { auditCanonicalMorphology } from "./canonical-morphology";
 import type { DictionaryPronunciation, DictionarySenseSet } from "./senses";
 
+// Root-prefix support widens eligibility without invalidating existing approvals.
 export const LESSON_CANDIDATE_RULE_REVISION = "reviewed_overview_candidate_v4";
 export type CandidateIssue = { code: string; message: string; href: string };
 export type CandidateDecision = {
@@ -159,10 +160,15 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
       if (!acceptedPrefixes.includes(visiblePrefix) || !spelling.startsWith(visiblePrefix))
         return done("not_match");
       if (input.skillKey === assimilatedInKey) {
-        const baseSource = String(parts.find(part => part.kind === "base")?.sourceText ?? "")
+        const baseSource = String(parts.find(part => part.kind === "base" || part.kind === "root")?.sourceText ?? "")
           .toLocaleLowerCase("en-GB");
-        if (!baseSource || visiblePrefix !== expectedInForm(baseSource)
-          || (prefixSource !== "in" && prefixSource !== visiblePrefix)) return done("not_match");
+        if (!baseSource) add("PREFIX_BASE", "Review the base or bound root after this prefix.", "td-canonical-parts");
+        const negativeMeaning = /^not(?:\s|$)/u.test(String(prefix.gloss).trim().toLowerCase());
+        if (baseSource && negativeMeaning && visiblePrefix !== expectedInForm(baseSource)) {
+          add("PREFIX_FORM", `Use ${expectedInForm(baseSource)}- before ${baseSource[0]} for the not meaning.`, "td-canonical-parts");
+          return done("not_match");
+        }
+        if (prefixSource !== "in" && prefixSource !== visiblePrefix) return done("not_match");
       } else if (visiblePrefix !== prefixSource) return done("not_match");
     }
   } else if (suffix?.kind !== "suffix" || (ingKeys.has(input.skillKey) ? suffixSource !== "ing"
@@ -172,7 +178,7 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
   } else if (!String(suffix.gloss ?? "").trim()) {
     add("SUFFIX_MEANING", "Choose the reviewed meaning of this suffix.", "td-canonical-parts");
   } else evidence.push(`${suffixSource}: ${String(suffix.gloss)}`);
-  const allowsRoot = input.skillKey === ABLE_IBLE_SKILL;
+  const allowsRoot = input.skillKey === ABLE_IBLE_SKILL || Boolean(acceptedPrefixes);
   const bases = parts.filter(part => part.kind === "base" || (allowsRoot && part.kind === "root"));
   const links = input.familyLinks.filter(row => row.sense_id === input.senseId);
   const expectedRelationship = ingKeys.has(input.skillKey) ? "regular_inflection" : "derived";

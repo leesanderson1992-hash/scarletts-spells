@@ -173,7 +173,7 @@ export function normaliseDynamicPrefixSelection(
       displayWord: word.displayWord,
       audioText: word.audioText,
       semanticBaseText: word.baseWord,
-      semanticBaseKind: "base",
+      semanticBaseKind: word.parts.some(part => part.role === "root" && part.sourceText === word.baseWord) ? "root" : "base",
       teachingSurfaceText: affix.teachingSurfaceText,
       baseMeaning: word.baseMeaning,
       derivedMeaning: word.derivedMeaning,
