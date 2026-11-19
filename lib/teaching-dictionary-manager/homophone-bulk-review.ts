@@ -105,7 +105,8 @@ export async function loadHomophoneBulkReview(db: Db, skill: string, includeBund
       && homophoneCanonicalPartOfSpeech(member.grammatical_role) === sense.partOfSpeech);
     const isBound = bound.some(binding => binding.sense_id === senseId);
     if (active.has(word.id) && verdict.status === "ready" && isBound && contentMatches) return [];
-    const notes = verdict.issues.map(issue => issue.message);
+    const notes = bundle ? verdict.issues.map(issue => issue.message)
+      : ["Review the prefilled meaning, pronunciation, dictation and word parts in the workbook, then choose Yes under Use in lesson."];
     if (verdict.status === "ready") notes.push(!isBound ? "Approve this reviewed meaning for the lesson by uploading the workbook with Use in lesson = Yes."
       : !contentMatches ? "Canonical facts are approved. The contrast-set meaning or sentence needs a lesson content update." : "The lesson release is not Active yet.");
     return [{id: word.id, word: word.display_word, href: `/admin/teaching-dictionary/${word.id}#td-overview`,
