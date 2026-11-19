@@ -113,7 +113,7 @@ export function HomophoneGuidedLesson(props: {
     finally { setPending(false); }
   }
   useEffect(() => { if (!props.childId) return; let active = true; getHomophoneBalloonBest(props.childId, props.assignmentId, lesson.microSkillKey).then(score => { if (active) setBest(score); }).catch(() => undefined); return () => { active = false; }; }, [props.childId, props.assignmentId, lesson.microSkillKey]);
-  const teaching = useMemo(() => props.developmentPreview ? convergenceTeachingConfig(lesson) : teachingConfig(props.snapshot), [props.developmentPreview, lesson, props.snapshot]);
+  const teaching = useMemo(() => (props.contextualRelease || props.developmentPreview) ? convergenceTeachingConfig(lesson) : teachingConfig(props.snapshot), [props.contextualRelease, props.developmentPreview, lesson, props.snapshot]);
   const binItems = useMemo(() => shuffledIndices(lesson.binSort.length).map(index => ({ id: String(index), text: lesson.binSort[index].sentence, destination: lesson.binSort[index].answer, choiceIds: choicesBySet?.get(lesson.binSort[index].setKey ?? "") })), [lesson, choicesBySet]);
   const binChoices = useMemo(() => {
     const reviewedDefinitions = new Map(lesson.teachingGroups?.flatMap(group => group.words.map(entry => [entry.word, entry.definition] as const)));
