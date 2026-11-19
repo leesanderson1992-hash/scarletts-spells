@@ -1,3 +1,4 @@
+import { isHomophoneReviewSkill } from "@/lib/teaching-dictionary-manager/homophone-review-contract";
 import { SavedFamilyReviews } from "./saved-family-reviews";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { isCompoundWorkbookSkill } from "@/lib/teaching-dictionary-manager/compound-workbook";
@@ -69,7 +70,7 @@ export default async function LessonUpdates({ searchParams }: {
   const compoundSkill = isCompoundWorkbookSkill(selected) ? selected : null;
   const compoundQueue = compoundSkill && view === "preview" ? await loadPendingCompoundWorkbookQueue(db, compoundSkill) : null;
   const readyCompounds = compoundQueue?.filter(row => !row.blockers.length).slice(0, 30) ?? [];
-  const blankWorkbookSkill = prefixSkill ?? (suffixPilot || comparativeSkill || compoundSkill ? selected : null);
+  const blankWorkbookSkill = prefixSkill ?? (suffixPilot || comparativeSkill || compoundSkill || isHomophoneReviewSkill(selected) ? selected : null);
   const prefixQueue = prefixSkill && view === "preview" && specialist
     ? await loadPendingPrefixWorkbookQueue(db, prefixSkill) : null;
   const readyPrefixRows = prefixQueue?.filter(row => !row.blockers.length).slice(0, PREFIX_PUBLISH_BATCH_SIZE) ?? [];
@@ -115,7 +116,7 @@ export default async function LessonUpdates({ searchParams }: {
     </section>}
     <BulkReviewFlow key={selected} clusters={clusters} skills={skills} selected={selected}
       savedReviews={params.skill && resolveAdleRouteActivationEnvironment() ? <SavedFamilyReviews db={db} environment={resolveAdleRouteActivationEnvironment()!} skill={params.skill} /> : null}
-      initialCluster={params.cluster ?? ""} supported={supported} view={view}
+      familyRequired={!isHomophoneReviewSkill(selected)} initialCluster={params.cluster ?? ""} supported={supported} view={view}
       fullPoolSize={specialist?.current.length ?? base?.current.length ?? suffix?.current.length ?? update?.current.length ?? null}
       blankWorkbookHref={blankWorkbookSkill ? `/admin/teaching-dictionary/export/review-workbook?skill=${blankWorkbookSkill}&scope=blank` : undefined}
       review={view === "export" ? <>
@@ -138,6 +139,7 @@ export default async function LessonUpdates({ searchParams }: {
       batches={specialist || base || suffix || review ? Math.ceil(wordsToReview.length / ING_REVIEW_BATCH_SIZE) : null}>
     {specialist && view === "preview" && <section className={card}>
       <h2 className="text-xl font-semibold">{specialist.title} publish status</h2>
+      {isHomophoneReviewSkill(selected) && <p>The reviewed lesson already uses these contrast-set words. Use this queue to standardise their Dictionary facts. Family assignment is not required for this lesson.</p>}
       <p>{new Set([...specialist.current.map(word => word.canonicalWordId), ...specialist.rows.map(word => word.id)]).size} words in this flow · {specialist.current.length} Active in ADLE · {specialist.rows.length} need review</p>
       {specialist.rows.some(row => specialist.current.some(word => word.canonicalWordId === row.id)) &&
         <p className="text-sm text-slate-600">{specialist.rows.filter(row => specialist.current.some(word => word.canonicalWordId === row.id)).length} Active words are also in review for missing facts or unpublished updates. Their existing lesson version stays available.</p>}

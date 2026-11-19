@@ -1,3 +1,4 @@
+import { isHomophoneReviewSkill } from "./homophone-review-contract";
 import { isCompoundWorkbookSkill, type CompoundWorkbookFacts } from "./compound-workbook";
 import { isComparativeReviewSkill } from "./lesson-candidate";
 import { ING_RULE_FOR_SKILL, type IngMicroSkill, type IngDictionaryWordV1 } from "@/lib/adle/ing/contracts";
@@ -45,7 +46,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet(sheetName, { views: [{ state: "frozen", xSplit: 1, ySplit: headerRow }] });
   sheet.columns = keys.map(key => ({ key, width: key === "definition" || key === "needs_review" ? 43
-    : key === "family_key" || key === "dictation_sentence" ? 36 : 23, hidden: hidden.has(key) }));
+    : key === "family_key" || key === "dictation_sentence" ? 36 : 23, hidden: hidden.has(key) || isHomophoneReviewSkill(input.skill) && ["family_key", "component_part_id", "relationship_kind"].includes(key) }));
   sheet.getCell("A1").value = input.title;
   sheet.getCell("A1").font = { bold: true, size: 15, color: { argb: "FF0F172A" } };
   sheet.getCell("A2").value = input.skill;
@@ -66,7 +67,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   });
   const commonDropdowns: Record<string, ExcelJS.DataValidation> = {
     use_in_lesson: list(["Review", "Yes", "No"], false),
-    part_of_speech: list(["verb", "noun", "adjective", "adverb", "pronoun", "preposition", "conjunction", "determiner", "interjection", "root"]),
+    part_of_speech: list(["verb", "noun", "adjective", "adverb", "pronoun", "preposition", "conjunction", "determiner", "interjection", "numeral", "contraction", "root"]),
   };
   if (suffixWorkbook || isCompoundWorkbookSkill(input.skill)) {
     Object.assign(commonDropdowns, {
@@ -101,7 +102,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
       input.notes.get(entry.canonical_word_id),
       entry.part_of_speech !== "root" && !entry.dictation_sentence ? "Add a dictation sentence for this meaning." : "",
       !entry.part_1_kind ? "Review the word parts." : "",
-      !entry.family_key ? "Choose the teaching family for this meaning." : "",
+      !isHomophoneReviewSkill(input.skill) && !entry.family_key ? "Choose the teaching family for this meaning." : "",
       !entry.ipa || !entry.spoken_syllable_count || !entry.stress_pattern
         ? "Check pronunciation, syllable count and stress." : "",
     ].filter(Boolean).join(" ");
@@ -165,7 +166,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   guide.addRows([
     ["Field", "How to fill it in"],
     ["Use in lesson", "Choose Yes on the intended meaning. Keep all existing meaning rows. Words with no Yes stay out of this upload."],
-    ["Word family", "Choose the approved family that matches the meaning. Leave the family blank or choose Needs family review to resolve it after uploading."],
+    ["Word family", isHomophoneReviewSkill(input.skill) ? "Not required for this homophone lesson. Existing family links are retained; no new family approval is requested." : "Choose the approved family that matches the meaning. Leave the family blank or choose Needs family review to resolve it after uploading."],
     ["Meaning and pronunciation", "Confirm the definition, part of speech, IPA, syllable count and stress. Use the same pronunciation ID for identical pronunciations."],
     ["Word parts", `Keep the full base and its visible letters in separate fields. ${wordPartsExample} Use none for a join with no space.`],
     ["Spelling change", `Choose a standard rule from the dropdown, or leave blank / choose ${AUTO_TRANSFORMATION} to infer a clear change on upload. Standard explanations are filled automatically. Other reviewed change requires your explanation. ${spellingChangeExample} Keep the suffix separate: force → forc uses Drop final e; ible is a separate suffix part.`],
@@ -193,7 +194,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   if (blankPrefixWorkbook) guide.addRows([
     ["New words", "Start on the first blank row. Enter the spelling, meaning, part of speech, IPA, spoken syllable count, stress and dictation. The upload fills the hidden IDs."],
     ["Prefix and base", `For part 1 choose prefix and enter ${isPrefixWorkbookSkill(input.skill) ? prefixWorkbookForms(input.skill).join(" or ") : ""} for both forms. For part 2 choose base and enter the base spelling and its meaning. Set the join to none and the relationship to derived.`],
-    ["Before publishing", "Resolve the base family in Bulk review if needed. Open the saved lesson draft to complete any remaining lesson checks."],
+    ["Before publishing", isHomophoneReviewSkill(input.skill) ? "Choose the meaning taught by the contrast set. A reviewed workbook approves Dictionary facts; changed contrast-set teaching content still needs its own lesson release." : "Resolve the base family in Bulk review if needed. Open the saved lesson draft to complete any remaining lesson checks."],
   ]);
   if (isComparativeReviewSkill(input.skill)) guide.addRows([
     ["Complete adjective sets", "Review the base, comparative and superlative together. All three must use the same adjective meaning and base family."],
@@ -314,6 +315,10 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
       row.family_key = row.family_key.split(" | ").at(-1) ?? "";
       if (row.family_key === "Needs family review") row.family_key = "";
       if (row.use_in_lesson !== "Yes") continue;
+      if (isHomophoneReviewSkill(skill)) {
+        if (!row.family_key) { row.component_part_id = ""; row.relationship_kind = ""; }
+        continue;
+      }
       const bases = Array.from({ length: FLAT_IMPORT_PART_LIMIT }, (_, index) => index + 1)
         .filter(index => ["base", "root"].includes(row[`part_${index}_kind`]));
       const part = bases.length === 1 || isCompoundWorkbookSkill(skill) && !row.component_part_id ? bases[0] : bases.find(index =>

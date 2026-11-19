@@ -1,3 +1,4 @@
+import { isHomophoneReviewSkill } from "@/lib/teaching-dictionary-manager/homophone-review-contract";
 "use server";
 import { isCompoundWorkbookSkill, type CompoundWorkbookFacts } from "@/lib/teaching-dictionary-manager/compound-workbook";
 import { stageCompoundWorkbookDraft } from "@/lib/teaching-dictionary-manager/compound-workbook-draft";
@@ -235,6 +236,7 @@ export async function importReviewedMultiSenseCsv(
               await stageAbleIbleWord(db, actor.id, { ...bundle, wordId }, analysis.senseId, suffixFacts.get(rows[index])!, skillKey);
               lesson.release = "Ready for publish preview";
             }
+            if (isHomophoneReviewSkill(skillKey)) lesson.release = "Dictionary facts approved. Check contrast-set alignment in Bulk review.";
             lesson.approval = result.approvedCount ? "Approved" : "Already approved";
             approved += result.approvedCount;
             alreadyApproved += result.alreadyAssignedCount;

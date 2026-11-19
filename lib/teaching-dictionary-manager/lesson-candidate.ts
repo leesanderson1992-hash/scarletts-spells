@@ -1,3 +1,4 @@
+import { isHomophoneReviewSkill, homophoneReviewWords } from "./homophone-review-contract";
 import { isCompoundWorkbookSkill } from "./compound-workbook";
 import { COMPARATIVE_MICRO_SKILLS, degreeRuleForSkill, type ComparativeMicroSkill } from "@/lib/adle/inflection/contracts";
 import { ABLE_IBLE_SKILL } from "./able-ible-workbook";
@@ -54,7 +55,7 @@ function expectedInForm(base: string): "in" | "im" | "il" | "ir" {
 export const IDENTIFY_BASE_SKILL = "D4_MOR_BASE_WORDS_IDENTIFY_BASE";
 export const isComparativeReviewSkill = (skill: unknown): skill is ComparativeMicroSkill =>
   COMPARATIVE_MICRO_SKILLS.some(key => key === skill);
-export const hasCandidateRule = (skillKey: string) => isCompoundWorkbookSkill(skillKey) || isComparativeReviewSkill(skillKey) || ingKeys.has(skillKey)
+export const hasCandidateRule = (skillKey: string) => isHomophoneReviewSkill(skillKey) || isCompoundWorkbookSkill(skillKey) || isComparativeReviewSkill(skillKey) || ingKeys.has(skillKey)
   || Object.hasOwn(suffixForms, skillKey) || Object.hasOwn(prefixForms, skillKey);
 
 /** Rules are evaluated from approved facts. A skill choice is never evidence by itself. */
@@ -72,9 +73,14 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
     status, ruleRevision: LESSON_CANDIDATE_RULE_REVISION, evidence, issues,
     ...(doublingPattern ? { doublingPattern } : {}),
   });
+  const homophone = isHomophoneReviewSkill(input.skillKey);
   const identifyBase = input.skillKey === IDENTIFY_BASE_SKILL;
   if (!identifyBase && !hasCandidateRule(input.skillKey)) return done("legacy_review");
-  const spelling = input.displayWord.toLocaleLowerCase("en-GB");
+  const spelling = input.displayWord.toLocaleLowerCase("en-GB").replaceAll("’", "'");
+  if (homophone && !homophoneReviewWords(input.skillKey).includes(spelling)) {
+    add("HOMOPHONE_SET", "Add this spelling to a reviewed contrast set for this lesson first.", "td-micro-skills");
+    return done("not_match");
+  }
   if (ingKeys.has(input.skillKey) && !spelling.endsWith("ing")) return done("not_match");
   const acceptedSuffixes = suffixForms[input.skillKey];
   const acceptedPrefixes = prefixForms[input.skillKey];
@@ -100,6 +106,12 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
         `Choose the reviewed meaning of this ${acceptedPrefixes ? "prefix" : "suffix"}.`, "td-canonical-parts");
     else add("REVIEWED_PARTS", "Approve typed parts and joins that spell this word.", "td-canonical-parts");
     return done("needs_facts");
+  }
+  if (homophone) {
+    if (!selectedSense?.dictationSentence) add("DICTATION", "Approve a dictation sentence for this teaching meaning.", "td-dictation");
+    if (selectedSense?.partOfSpeech === "root") add("WORD_SENSE", "Choose a word meaning; bound-root support entries are not homophone targets.", "td-definition");
+    evidence.push("Reviewed canonical facts for a member of this lesson’s contrast sets.");
+    return done(issues.length ? "needs_facts" : "ready");
   }
   if (isCompoundWorkbookSkill(input.skillKey)) {
     if (parts.length < 2 || parts.some(part => part.kind !== "base"

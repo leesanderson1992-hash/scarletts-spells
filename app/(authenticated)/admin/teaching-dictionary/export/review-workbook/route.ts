@@ -1,3 +1,4 @@
+import { isHomophoneReviewSkill } from "@/lib/teaching-dictionary-manager/homophone-review-contract";
 import { isCompoundWorkbookSkill, compoundWorkbookTitle } from "@/lib/teaching-dictionary-manager/compound-workbook";
 import { prefillCompoundWorkbook } from "@/lib/teaching-dictionary-manager/compound-review";
 import { prefillComparativeWorkbook } from "@/lib/teaching-dictionary-manager/comparative-review";
@@ -31,6 +32,7 @@ export async function GET(request: Request) {
   const batch = Number(params.get("batch") ?? "1");
   if (!canUpdateIngLesson() || !supportsReviewWorkbook(skill))
     return new Response("Workbook review is unavailable for this lesson.", { status: 404 });
+  if (scope === "blank" && isHomophoneReviewSkill(skill)) return downloadWorkbook(await buildReviewWorkbook({skill, title: "Homophones and confusable words", bundles: [], notes: new Map(), families: new Map()}), `teaching-dictionary-blank-${skill}.xlsx`);
   if (scope === "blank" && isCompoundWorkbookSkill(skill)) return downloadWorkbook(await buildReviewWorkbook({ skill, title: compoundWorkbookTitle(skill), bundles: [], notes: new Map(), families: new Map() }), `teaching-dictionary-blank-${skill}.xlsx`);
   if (scope === "blank" && isComparativeReviewSkill(skill)) {
     return downloadWorkbook(await buildReviewWorkbook({skill, title: "Comparative and superlative", bundles: [], notes: new Map(), families: new Map()}),
@@ -81,6 +83,14 @@ export async function GET(request: Request) {
     return downloadWorkbook(await buildReviewWorkbook({ skill, title: "Identify the Base", ...facts,
       notes, requestedSenses }),
     `teaching-dictionary-review-${skill}-${batch}.xlsx`);
+  }
+  if (isHomophoneReviewSkill(skill)) {
+    const {rows,current,bundles,title} = await loadSpecialistBulkReview(db,skill,specialistWorkbookRoute(skill)!,scope === "review");
+    if (scope === "pool") return downloadWorkbook(await buildLessonPoolWorkbook(title,current),`teaching-dictionary-active-pool-${skill}.xlsx`);
+    const selected=rows.slice((batch-1)*ING_REVIEW_BATCH_SIZE,batch*ING_REVIEW_BATCH_SIZE);
+    if (!selected.length && batch !== 1) return new Response("No words need review in this batch.",{status:404});
+    const facts=await prefillReviewWorkbookFacts(db,bundles.filter(bundle=>selected.some(row=>row.id===bundle.wordId)),skill);
+    return downloadWorkbook(await buildReviewWorkbook({skill,title,...facts,notes:new Map(selected.map(row=>[row.id,row.note])),requestedSenses}),`teaching-dictionary-review-${skill}-${batch}.xlsx`);
   }
   const specialistRoute = specialistWorkbookRoute(skill);
   if (specialistRoute) {

@@ -1,3 +1,5 @@
+import { isHomophoneReviewSkill } from "./homophone-review-contract";
+import { loadHomophoneBulkReview } from "./homophone-bulk-review";
 import { isCompoundWorkbookSkill } from "./compound-workbook";
 import { loadCompoundBulkReview } from "./compound-review";
 import { loadPendingPrefixWorkbookQueue } from "./prefix-bulk-review";
@@ -26,6 +28,7 @@ import type { MultiSenseCsvBundle } from "./multi-sense-csv";
 type Db = ReturnType<typeof createServiceRoleClient>;
 type PoolWord = { canonicalWordId: string; word: string; base: string; meaning: string; dictationSentence: string };
 export async function loadSpecialistBulkReview(db: Db, skill: string, routeId: string, includeBundles = false) {
+  if (isHomophoneReviewSkill(skill)) return loadHomophoneBulkReview(db, skill, includeBundles);
   if (isCompoundWorkbookSkill(skill)) return loadCompoundBulkReview(db, skill, includeBundles);
   const environment = ingReviewEnvironment();
   if (!environment) throw new Error("Bulk review is unavailable.");

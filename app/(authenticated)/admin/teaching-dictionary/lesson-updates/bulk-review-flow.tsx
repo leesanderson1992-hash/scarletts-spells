@@ -32,9 +32,9 @@ function SearchMenu({ label, value, options, disabled, onChange }: {
   </fieldset>;
 }
 
-export function BulkReviewFlow({ clusters, skills, selected, initialCluster, supported, batches, fullPoolSize, blankWorkbookHref, view, review, savedReviews, children }: {
+export function BulkReviewFlow({ clusters, skills, selected, initialCluster, supported, batches, fullPoolSize, blankWorkbookHref, view, review, savedReviews, familyRequired = true, children }: {
   clusters: Option[]; skills: Skill[]; selected: string; initialCluster: string; supported: boolean; batches: number | null;
-  fullPoolSize: number | null; blankWorkbookHref?: string;
+  fullPoolSize: number | null; blankWorkbookHref?: string; familyRequired?: boolean;
   view: "export" | "workbook" | "preview"; review?: ReactNode; savedReviews?: ReactNode; children: ReactNode;
 }) {
   const router = useRouter();
@@ -133,19 +133,19 @@ export function BulkReviewFlow({ clusters, skills, selected, initialCluster, sup
     </p> : !selected ? <p className="rounded-xl bg-[color:var(--mist)] p-4">Choose a cluster and micro-skill to start reviewing words.</p>
       : !supported ? <p className="rounded-xl bg-[color:var(--mist)] p-4">
         Workbook review is unavailable for this micro-skill.</p> : <>
-      <nav aria-label="Bulk review steps" className="grid gap-2 sm:grid-cols-4">
-        {steps.map((label, index) => <button key={label} type="button" aria-current={step === index ? "step" : undefined}
+      <nav aria-label="Bulk review steps" className={`grid gap-2 ${familyRequired ? "sm:grid-cols-4" : "sm:grid-cols-3"}`}>
+        {steps.map((label, index) => ({label: !familyRequired && index === 3 ? "Lesson readiness" : label, index})).filter(item => familyRequired || item.index !== 2).map(({label, index}, position) => <button key={label} type="button" aria-current={step === index ? "step" : undefined}
           disabled={pending || navigating} onClick={() => openStep(index)}
           className={`rounded-xl border p-3 text-left font-semibold ${step === index
             ? "border-[var(--scarlett)] bg-[color:var(--mist)]" : "border-[var(--border)] bg-white"}`}>
-          {index + 1} · {label}
+          {position + 1} · {label}
         </button>)}
       </nav>
       {navigating && <p role="status">Loading lesson review…</p>}
       {savedReviews}
       {step === 0 && <section className="space-y-3 rounded-2xl border border-[var(--border)] bg-white p-5">
         <h2 className="text-xl font-semibold">Export words needing review</h2>
-        <p>The workbook shows existing facts and what needs checking. Choose the lesson meaning in the workbook. You can resolve missing families after uploading.</p>
+        <p>The workbook shows existing facts and what needs checking. Choose the lesson meaning in the workbook. {familyRequired ? "You can resolve missing families after uploading." : "This lesson uses contrast sets; no family assignment is required."}</p>
         {batches ? <div className="flex flex-wrap gap-2">{Array.from({ length: batches }, (_, index) =>
           <a key={index} className={actionClass} download
             href={`/admin/teaching-dictionary/export/review-workbook?skill=${selected}&batch=${index + 1}`}>
@@ -165,7 +165,7 @@ export function BulkReviewFlow({ clusters, skills, selected, initialCluster, sup
       {step === 0 && review}
       {step === 1 && <section className="space-y-3 rounded-2xl border border-[var(--border)] bg-white p-5">
         <h2 className="text-xl font-semibold">Edit and upload the workbook</h2>
-        <p>Choose Yes on the meaning you want to teach and fix the flagged fields. Leave any family you need to look up blank.</p>
+        <p>Choose Yes on the meaning you want to teach and fix the flagged fields. {familyRequired ? "Leave any family you need to look up blank." : "Existing meanings and approved lesson examples are prefilled for review."}</p>
         <form action={upload} className="flex flex-wrap items-end gap-3">
           <input type="hidden" name="workbook_skill" value={selected} />
           <label className="grid gap-1 font-medium">Corrected workbook
