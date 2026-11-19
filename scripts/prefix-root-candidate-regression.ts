@@ -55,3 +55,20 @@ const projection = normaliseDynamicPrefixSelection(selection);
 assert(projection.ok);
 assert.equal(projection.input.words.find(word => word.canonicalWordId === rootWord.canonicalWordId)?.semanticBaseKind, "root");
 console.log("Shared prefix compiler projection retains bound-root classification.");
+
+import { prefixReviewIssues } from "../lib/teaching-dictionary-manager/specialist-bulk-review";
+import type { MultiSenseCsvBundle } from "../lib/teaching-dictionary-manager/multi-sense-csv";
+const rootCandidate = candidate("in", "vis", "root", "ible");
+const reviewBundle: MultiSenseCsvBundle = {
+  wordId: rootCandidate.wordId, displayWord: rootCandidate.displayWord, sourceSenseReviewedAt: "",
+  senseSet: rootCandidate.senseSet!, analyses: [{senseId: "review",
+    parts: rootCandidate.morphology!.parts as CanonicalPart[],
+    joins: [{afterPartId: "prefix", beforePartId: "stem", joinType: "none"},
+      {afterPartId: "stem", beforePartId: "suffix", joinType: "none"}],
+    transformations: [], wordSum: rootCandidate.morphology!.wordSum!, familyKey: "vis",
+    componentPartId: "stem", relationshipKind: "derived", requestedSkillKeys: [rootCandidate.skillKey]}],
+};
+assert.deepEqual(prefixReviewIssues(reviewBundle, "review", ["review"], "vis"), []);
+reviewBundle.analyses[0].familyKey = "";
+assert(prefixReviewIssues(reviewBundle, "review", ["review"], "vis").some(issue => issue.includes("family")));
+console.log("Published root words stay resolved in Bulk review; missing family links remain flagged.");

@@ -175,7 +175,8 @@ export function prefixReviewIssues(bundle: MultiSenseCsvBundle | undefined,
   if (!sense || !bundle || !sentence?.trim() || !targetOccurrences(sentence, bundle.displayWord).includes(sense.dictationTargetTokenIndex ?? -1))
     issues.push("Approve a dictation sentence for the teaching meaning.");
   const analysis = bundle?.analyses.find(row => row.senseId === sense?.id);
-  const approvedBase = analysis?.parts.find(part => part.id === analysis.componentPartId && part.kind === "base");
+  const approvedBase = analysis?.parts.find(part => part.id === analysis.componentPartId
+    && (part.kind === "base" || part.kind === "root"));
   if (!analysis?.familyKey || analysis.relationshipKind !== "derived" || !approvedBase || (teachingBase && approvedBase.sourceText !== teachingBase))
     issues.push(teachingBase ? `Confirm the approved ${teachingBase} family for the teaching meaning.`
       : "Confirm the approved base family for the teaching meaning.");
