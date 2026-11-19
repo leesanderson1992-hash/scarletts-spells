@@ -1,5 +1,6 @@
 "use server";
 
+import { validateFrozenConvergenceAssignment } from "@/lib/adle/homophone/convergence-assignment";
 import { createClient } from "@/lib/supabase/server";
 import { isHomophoneSnapshotV3, validateHomophoneSnapshotV3 } from "@/lib/adle/homophone/snapshot";
 
@@ -10,7 +11,9 @@ async function assignedHomophone(childId: string, assignmentId: string, microSki
   const assignment = await client.from("daily_assignments").select("compiled_lesson_snapshot")
     .eq("id", assignmentId).eq("child_id", childId).eq("parent_user_id", user.id).maybeSingle();
   if (assignment.error || !assignment.data) throw new Error("homophone_best_assignment_not_owned");
-  const validation = validateHomophoneSnapshotV3(assignment.data.compiled_lesson_snapshot);
+  const contextual = assignment.data.compiled_lesson_snapshot;
+  if (validateFrozenConvergenceAssignment(contextual) && contextual.microSkillKey === microSkillKey) return client;
+  const validation = validateHomophoneSnapshotV3(contextual);
   if (!validation.ok || !isHomophoneSnapshotV3(validation.snapshot)
     || validation.snapshot.taxonomy.microSkillKey !== microSkillKey) throw new Error("homophone_best_lesson_mismatch");
   return client;

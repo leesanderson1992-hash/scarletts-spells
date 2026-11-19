@@ -7,6 +7,7 @@ import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { buildScopedPath } from "@/lib/children-shared";
 import { getLondonPracticeDate } from "@/lib/practice-date";
+import { validateFrozenConvergenceAssignment } from "@/lib/adle/homophone/convergence-assignment";
 import { prepareContextualHomophoneAssignment, persistContextualHomophoneAssignment } from "@/lib/adle/homophone/convergence-readiness-loader";
 import type { LearningItemFact } from "@/lib/adle/learning-items";
 import { homophoneCanonicalPilotEnabled, loadCanonicalHomophonePreview, loadActiveCanonicalHomophoneContent } from "@/lib/teaching-dictionary-manager/homophone-canonical-release";
@@ -35,6 +36,15 @@ export async function publishHomophoneDictionaryLesson(form: FormData) {
   redirect(error ? `${path}&error=${encodeURIComponent(error)}` : `${path}&published=2`);
 }
 
+async function ensureStagingSession(db: ReturnType<typeof createServiceRoleClient>, assignmentId: string, childId: string, actor: string, date: string) {
+  const result = await db.from("adle_today_session_orchestrations").upsert({
+    daily_assignment_id: assignmentId, child_id: childId, parent_user_id: actor, assignment_date: date,
+    major_stage: "specialist_lesson", review_generation_status: "not_required", specialist_generation_status: "ready",
+    specialist_started_at: new Date().toISOString(),
+  }, {onConflict: "daily_assignment_id", ignoreDuplicates: true});
+  if (result.error) throw new Error("Could not prepare lesson progress saving. Retry Generate to resume.");
+}
+
 export async function generateHomophoneDictionaryLesson(form: FormData) {
   const actor = await requireAdminUser();
   const skill = String(form.get("skill") ?? "");
@@ -51,9 +61,18 @@ export async function generateHomophoneDictionaryLesson(form: FormData) {
     const preview = await loadCanonicalHomophonePreview(db, skill);
     if (!preview.content) throw new Error(preview.blockers.join(" "));
     const date = getLondonPracticeDate();
-    const existing = await db.from("daily_assignments").select("id").eq("child_id", childId)
+    const existing = await db.from("daily_assignments").select("id,compiled_lesson_snapshot").eq("child_id", childId)
       .eq("assignment_date", date).eq("title", "ADLE Daily Plan").limit(1);
-    if (existing.error || existing.data.length) throw new Error("This learner already has a lesson today. Choose another staging test learner.");
+    if (existing.error) throw new Error("Could not check the learner’s current lesson.");
+    if (existing.data.length) {
+      const snapshot = existing.data[0].compiled_lesson_snapshot;
+      if (!validateFrozenConvergenceAssignment(snapshot) || snapshot.microSkillKey !== skill
+        || snapshot.contextCheck.selectedSets.flatMap(set => set.members).some(member => !preview.content!.sets
+          .flatMap(set => set.members).some(current => current.canonicalWordId === member.canonicalWordId
+            && current.intendedSense === member.intendedSense && current.teachingSentence === member.teachingSentence)))
+        throw new Error("This learner already has another lesson today. Choose a fresh staging test learner.");
+      await ensureStagingSession(db, existing.data[0].id, childId, actor.id, date);
+    } else {
     const members = preview.content.sets.flatMap(set => set.members);
     const prior = await db.from("adle_learning_items").select("id,canonical_word_id,item_status,intake_on")
       .eq("child_id", childId).eq("micro_skill_key", skill).eq("row_status", "active")
@@ -74,7 +93,9 @@ export async function generateHomophoneDictionaryLesson(form: FormData) {
       source_kind: item.sourceKind, source_ref: item.sourceRef, intake_on: date, item_status: "pending", row_status: "active",
     }))) : {error: null};
     if (saved.error) throw new Error("Could not save the staging lesson targets.");
-    await persistContextualHomophoneAssignment({client: db, parentUserId: actor.id, childId, date, prepared});
+    const assignmentId = await persistContextualHomophoneAssignment({client: db, parentUserId: actor.id, childId, date, prepared});
+    await ensureStagingSession(db, assignmentId, childId, actor.id, date);
+    }
   } catch (cause) { error = cause instanceof Error ? cause.message : "Could not generate the lesson."; }
   if (error) redirect(`${path}&error=${encodeURIComponent(error)}`);
   revalidatePath("/dashboard");
