@@ -63,6 +63,11 @@ export async function generateHomophoneDictionaryLesson(form: FormData) {
     const preview = await loadCanonicalHomophonePreview(db, skill);
     if (!preview.content) throw new Error(preview.blockers.join(" "));
     const date = getLondonPracticeDate();
+    const unfinished = await db.from("adle_today_session_orchestrations").select("daily_assignment_id")
+      .eq("child_id", childId).eq("parent_user_id", actor.id).neq("major_stage", "session_complete")
+      .neq("assignment_date", date).limit(1);
+    if (unfinished.error) throw new Error("Could not check the learner’s unfinished lessons.");
+    if (unfinished.data.length) throw new Error("This learner has an unfinished earlier lesson. Finish it or choose a fresh staging test learner.");
     const existing = await db.from("daily_assignments").select("id,compiled_lesson_snapshot").eq("child_id", childId)
       .eq("assignment_date", date).eq("title", "ADLE Daily Plan").limit(1);
     if (existing.error) throw new Error("Could not check the learner’s current lesson.");
