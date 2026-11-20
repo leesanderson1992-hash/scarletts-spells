@@ -1,4 +1,3 @@
-import { isCanonicalPart } from "./canonical-morphology";
 import type { WordDraftPayload } from "./contracts";
 import type { DictionarySense } from "./senses";
 
@@ -14,12 +13,21 @@ export function singleMeaningSelection(senses: readonly DictionarySense[], selec
 export function wholeBaseMeaning(payload: Pick<WordDraftPayload, "displayWord" | "canonicalMorphology">): string {
   const morphology = payload.canonicalMorphology;
   if (morphology.parts.length !== 1 || morphology.joins.length || morphology.transformations?.length) return "";
-  const part = morphology.parts[0];
-  if (!isCanonicalPart(part) || part.kind !== "base") return "";
+  const value = morphology.parts[0];
+  if (!value || typeof value !== "object" || Array.isArray(value)) return "";
+  const part = value as Record<string, unknown>;
+  if (part.kind !== "base" || typeof part.sourceText !== "string" ||
+    typeof part.surfaceText !== "string" || typeof part.gloss !== "string") return "";
+  // Older records may omit display offsets or repeat the same fact under an
+  // alias. Reading their unambiguous gloss does not approve their parts format.
+  if (["type", "role", "partType"].some(key => part[key] !== undefined && part[key] !== "base") ||
+    part.meaning !== undefined && part.meaning !== part.gloss ||
+    part.text !== undefined && part.text !== part.surfaceText) return "";
+  const range = part.displayRange as { start?: unknown; end?: unknown } | undefined;
   const word = payload.displayWord.trim().toLocaleLowerCase("en-GB");
   if (!word || part.sourceText.trim().toLocaleLowerCase("en-GB") !== word ||
     part.surfaceText.trim().toLocaleLowerCase("en-GB") !== word ||
-    part.displayRange.start !== 0 || part.displayRange.end !== payload.displayWord.trim().length) return "";
+    range !== undefined && (range?.start !== 0 || range?.end !== payload.displayWord.trim().length)) return "";
   return part.gloss.trim();
 }
 
