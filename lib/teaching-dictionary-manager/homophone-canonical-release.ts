@@ -11,13 +11,13 @@ import { loadCurrentLessonSenses } from "./lesson-sense-projection";
 import { ingReviewEnvironment } from "./ing-staging-scope";
 
 export function homophoneCanonicalPublishingEnabled(skill: string) {
-  return ingReviewEnvironment() === "staging" && CONFUSABLE_DICTIONARY_SKILLS.includes(skill);
+  return ingReviewEnvironment() !== null && CONFUSABLE_DICTIONARY_SKILLS.includes(skill);
 }
 
 /** Build an immutable, sense-specific Dictionary projection. Contrast questions,
  * pictures and memory cues remain reviewed lesson content, not dictionary facts. */
 export async function loadCanonicalHomophonePreview(db: SupabaseClient, skill: string, selectedSetKeys?: readonly string[]) {
-  if (!homophoneCanonicalPublishingEnabled(skill)) throw new Error("Dictionary publishing for confusable lessons is staging-only.");
+  if (!homophoneCanonicalPublishingEnabled(skill)) throw new Error("Dictionary publishing is unavailable for this lesson or environment.");
   const roster = await loadHomophoneReviewRoster(db, skill);
   const includedMembers = selectedSetKeys ? roster.members.filter(member => selectedSetKeys.includes(member.set_key)) : roster.members;
   const ids = [...new Set(includedMembers.map(member => member.canonical_word_id))];
@@ -45,7 +45,7 @@ export async function loadCanonicalHomophonePreview(db: SupabaseClient, skill: s
       dictationAuthorityId: current.dictationAuthorityId, dictationSourceHash: current.dictationSourceHash}];
   });
   const head = await db.from("adle_route_activation_heads").select("current_revision_id")
-    .eq("environment_key", "staging").eq("route_id", "homophone_contextual_choice")
+    .eq("environment_key", ingReviewEnvironment()!).eq("route_id", "homophone_contextual_choice")
     .eq("route_version", "v1").eq("micro_skill_key", skill).maybeSingle();
   if (head.error) throw new Error("Could not read the current lesson release.");
   const content = buildDictionaryContextualContent(template, dictionaryFacts, selectedSetKeys);
@@ -58,10 +58,10 @@ export async function loadCanonicalHomophonePreview(db: SupabaseClient, skill: s
 export async function loadActiveCanonicalHomophoneContent(db: SupabaseClient, skill: string) {
   if (!homophoneCanonicalPublishingEnabled(skill)) return null;
   const head = await db.from("adle_route_activation_heads").select("current_revision_id")
-    .eq("environment_key", "staging").eq("route_id", "homophone_contextual_choice")
+    .eq("environment_key", ingReviewEnvironment()!).eq("route_id", "homophone_contextual_choice")
     .eq("route_version", "v1").eq("micro_skill_key", skill).maybeSingle();
   if (head.error) throw new Error("Could not read the Dictionary lesson release.");
-  if (!head.data) return null;
+  if (!head.data) throw new Error("Review and publish this lesson’s approved Dictionary facts in Bulk review before generating a new lesson.");
   const revision = await db.from("adle_route_activation_revisions").select("release_manifest_id,activation_status")
     .eq("id", head.data.current_revision_id).single();
   if (revision.error) throw new Error("Could not read the Dictionary lesson activation.");

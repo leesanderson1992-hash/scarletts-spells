@@ -160,10 +160,10 @@ export default async function LessonUpdates({ searchParams }: {
           </form>
           {specialist.current.length > 0 && <form action={generateHomophoneDictionaryLesson} className="space-y-2">
             <input type="hidden" name="skill" value={selected} />
-            <label className="grid gap-1">Staging test learner<select name="child_id" className="rounded border p-2" required>
+            <label className="grid gap-1">Test learner<select name="child_id" className="rounded border p-2" required>
               <option value="">Choose a test learner</option>{homophoneLearners?.data?.map(child => <option key={child.id} value={child.id}>{child.first_name}</option>)}
             </select></label>
-            <ActionSubmitButton className={button} pendingLabel="Generating lesson…">Generate staging lesson</ActionSubmitButton>
+            <ActionSubmitButton className={button} pendingLabel="Generating lesson…">Generate test lesson</ActionSubmitButton>
           </form>}
         </>}
       </div>}

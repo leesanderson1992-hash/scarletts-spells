@@ -49,9 +49,25 @@ try {
   const content=buildDictionaryContextualContent(template,facts)!;assert(content);
   const head=(await db.query("select current_revision_id from adle_route_activation_heads where environment_key='staging' and route_id='homophone_contextual_choice' and micro_skill_key=$1",[skill])).rows[0]?.current_revision_id??null;
   await db.query('savepoint bad');const stale=structuredClone(content);stale.dictionaryFacts![0].sense.definition='Unapproved replacement';
-  await assert.rejects(()=>db.query('select publish_homophone_dictionary_staging_v2($1,$2,$3)',[stale,head,actor]),/Approved Dictionary facts changed/);await db.query('rollback to savepoint bad');
-  const revision=(await db.query('select publish_homophone_dictionary_staging_v2($1,$2,$3) id',[content,head,actor])).rows[0].id;
-  assert.equal((await db.query('select publish_homophone_dictionary_staging_v2($1,$2,$3) id',[content,head,actor])).rows[0].id,revision);
+  await assert.rejects(()=>db.query('select publish_homophone_dictionary_v3($1,$2,$3,$4)',['staging',stale,head,actor]),/Approved Dictionary facts changed/);await db.query('rollback to savepoint bad');
+  const revision=(await db.query('select publish_homophone_dictionary_v3($1,$2,$3,$4) id',['staging',content,head,actor])).rows[0].id;
+  assert.equal((await db.query('select publish_homophone_dictionary_v3($1,$2,$3,$4) id',['staging',content,head,actor])).rows[0].id,revision);
+  if (index === 0) {
+   const productionHead = (await db.query("select current_revision_id from adle_route_activation_heads where environment_key='production' and route_id='homophone_contextual_choice' and micro_skill_key=$1",[skill])).rows[0]?.current_revision_id ?? null;
+   for (const fact of facts) {
+    await db.query("update teaching_dictionary_lesson_sense_bindings set withdrawn_at=now(),withdrawn_by=$3 where environment_key='production' and canonical_word_id=$1 and micro_skill_key=$2",[fact.wordId,skill,actor]);
+    await db.query(`insert into teaching_dictionary_lesson_sense_bindings(environment_key,canonical_word_id,micro_skill_key,sense_id,sense_snapshot,pronunciation_snapshot,reviewed_by)
+      values('production',$1,$2,$3,$4,$5,$6)`,[fact.wordId,skill,fact.senseId,fact.sense,fact.pronunciation,actor]);
+   }
+   const productionRevision = (await db.query('select publish_homophone_dictionary_v3($1,$2,$3,$4) id',['production',content,productionHead,actor])).rows[0].id;
+   assert.notEqual(productionRevision, revision);
+   assert.equal((await db.query("select current_revision_id from adle_route_activation_heads where environment_key='staging' and route_id='homophone_contextual_choice' and micro_skill_key=$1",[skill])).rows[0].current_revision_id, revision);
+   await db.query('savepoint invalid_environment');
+   await assert.rejects(()=>db.query('select publish_homophone_dictionary_v3($1,$2,$3,$4)',['local',content,null,actor]),/environment invalid/);
+   await db.query('rollback to savepoint invalid_environment');
+   const privileges=(await db.query("select has_function_privilege('authenticated','publish_homophone_dictionary_v3(text,jsonb,uuid,uuid)','execute') allowed")).rows[0];
+   assert.equal(privileges.allowed,false);
+  }
   for(const set of content.sets){
    const snapshot=compileConvergenceAssignment({content,queuedItems:[{canonicalWordId:set.memberWordIds[0],status:'pending',intakeOn:'2026-11-20'}],masteredWordIds:new Set(),rotationIndex:0})!;
    assert(validateFrozenConvergenceAssignment(snapshot));assert.deepEqual(guidedSnapshotIssues(snapshot.guidedLesson,true),[]);
@@ -77,5 +93,5 @@ try {
  await db.query('rollback');
  fs.mkdirSync('outputs/confusable-workflow-20261120',{recursive:true});
  fs.writeFileSync('outputs/confusable-workflow-20261120/all-skills-regression.json',JSON.stringify({stagingOnly:true,allMutationsRolledBack:true,skills:rows},null,2));
- console.log({skills:rows.length,words:46,sets:23,allMutationsRolledBack:true,passed:true});
+ console.log({skills:rows.length,words:46,sets:23,allMutationsRolledBack:true,environmentIsolationVerified:true,browserExecutionBlocked:true,passed:true});
 } catch(error){await db.query('rollback');throw error;}finally{await db.end();}
