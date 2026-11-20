@@ -72,6 +72,7 @@ import { SenseEditor } from "./sense-editor";
 import { DictationListen } from "./dictation-listen";
 import { SenseMorphologyReview } from "./sense-morphology-review";
 import { MultiSenseCsvPanel } from "./multi-sense-csv-panel";
+import { prefillDictionaryMeanings } from "@/lib/teaching-dictionary-manager/meaning-prefill";
 import { legacySenseSet } from "@/lib/teaching-dictionary-manager/senses";
 import type { DictionarySenseSet } from "@/lib/teaching-dictionary-manager/senses";
 import { evaluateLessonCandidate, hasCandidateRule,
@@ -349,7 +350,7 @@ export function WordWorkspace(props: {
   overviewReviewed: boolean;
 }) {
   const router = useRouter();
-  const [payload, setPayload] = useState<WordDraftPayload>(() => prefillWeakVowelDrafts({
+  const [payload, setPayload] = useState<WordDraftPayload>(() => prefillDictionaryMeanings(prefillWeakVowelDrafts({
     payload: {
       ...props.initial,
       dictationVariants: dictationVariants(props.initial),
@@ -372,7 +373,7 @@ export function WordWorkspace(props: {
     writtenFacts: props.approvedWrittenFacts,
     family: props.weakFamilyPrefill,
     sourceReference: props.approvedSourceReference,
-  }));
+  })));
   const [activeSenseId, setActiveSenseId] = useState(() =>
     payload.senseSet?.senses.find(sense => sense.id === props.initialSenseId)?.id ?? payload.senseSet?.senses[0]?.id ?? "");
   const [meaningChangeKind, setMeaningChangeKind] = useState("");
@@ -647,7 +648,7 @@ export function WordWorkspace(props: {
             } : row) };
         }
       }
-      return withDerivedMorphologyMetadata(prefillWeakVowelDrafts({
+      return prefillDictionaryMeanings(withDerivedMorphologyMetadata(prefillWeakVowelDrafts({
       payload: next,
       dictionaryFingerprint: props.dictionaryFingerprint,
       approvedWord: props.approvedWord,
@@ -659,7 +660,7 @@ export function WordWorkspace(props: {
       writtenFacts: props.approvedWrittenFacts,
       family: props.weakFamilyPrefill,
       sourceReference: props.approvedSourceReference,
-    }));
+    })));
     });
     setDirty(true);
   }
@@ -1599,6 +1600,8 @@ export function WordWorkspace(props: {
                           <option value="">Choose meaning</option>
                           {payload.senseSet?.senses.map(sense => <option key={sense.id} value={sense.id}>{sense.definition || "Meaning needs review"} · {sense.partOfSpeech || "part of speech needed"}</option>)}
                         </select>
+                        {payload.senseSet?.senses.length === 1 && payload.skillSenseIds?.[key] &&
+                          <span className="mt-1 block text-xs text-[color:var(--mid)]">Only meaning — selected automatically. Lesson checks still apply.</span>}
                       </label>
                       {route?.newAssignmentCapable && <a href={`#td-route-${key}`} className="text-[color:var(--scarlett)] underline"
                         onClick={() => { const panel = document.getElementById(`td-route-${key}`); if (panel instanceof HTMLDetailsElement) panel.open = true; }}>Open pre-populated lesson fields</a>}

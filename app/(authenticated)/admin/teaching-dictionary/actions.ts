@@ -1,4 +1,6 @@
 "use server";
+
+import { prefillDictionaryMeanings, singleMeaningSelection } from "@/lib/teaching-dictionary-manager/meaning-prefill";
 import { scheduleFamilyDependencyRecheck } from "@/lib/teaching-dictionary-manager/family-dependency-scheduling";
 import { standardiseTransformations } from "@/lib/teaching-dictionary-manager/transformations";
 
@@ -362,8 +364,9 @@ function payloadFromForm(form: FormData): WordDraftPayload {
       || !Array.isArray(parsed.routeContents)) throw new Error("TEACHING_DRAFT_INVALID");
     if (parsed.writtenSyllableBreakdown !== undefined)
       parsed.writtenSyllableBreakdown = normaliseWrittenSyllableBreakdown(parsed.writtenSyllableBreakdown);
-    parsed.routeContents = routeContentsForSelectedSkills(parsed);
-    return withDerivedMorphologyMetadata(parsed);
+    const prefilled = prefillDictionaryMeanings(parsed);
+    prefilled.routeContents = routeContentsForSelectedSkills(prefilled);
+    return withDerivedMorphologyMetadata(prefilled);
   }
   const metadata = emptyMetadata();
   for (const key of WORD_METADATA_FIELDS) metadata[key] = value(form, key).slice(0, 2000);
@@ -1143,6 +1146,7 @@ async function applyTeachingDictionarySkillApprovals(form: FormData, actorId: st
     if (senseSet.error) throw new Error("TEACHING_LESSON_SENSE_READ_FAILED");
     const reviewedSenses = (senseSet.data?.sense_set as WordDraftPayload["senseSet"] | undefined)?.senses ?? [];
     for (const key of keys) {
+      skillSenses[key] = singleMeaningSelection(reviewedSenses, skillSenses[key]);
       const sense = reviewedSenses.find(item => item.id === skillSenses[key]);
       if (!sense) throw new Error("TEACHING_LESSON_REVIEWED_SENSE_REQUIRED");
       if (reviewedSenses.length > 1 && !sense.dictationSentence?.trim())

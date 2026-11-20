@@ -1,0 +1,36 @@
+import { isCanonicalPart } from "./canonical-morphology";
+import type { WordDraftPayload } from "./contracts";
+import type { DictionarySense } from "./senses";
+
+/** A selection is not an approval. Never guess between meanings or replace an
+ * explicit selection (including an invalid historical one that needs review). */
+export function singleMeaningSelection(senses: readonly DictionarySense[], selected?: string): string {
+  if (selected) return selected;
+  return senses.length === 1 && senses[0].definition.trim() ? senses[0].id : "";
+}
+
+/** A component gloss defines the whole word only when it is exactly one free
+ * base with no spelling change. Roots and derived words need their own meaning. */
+export function wholeBaseMeaning(payload: Pick<WordDraftPayload, "displayWord" | "canonicalMorphology">): string {
+  const morphology = payload.canonicalMorphology;
+  if (morphology.parts.length !== 1 || morphology.joins.length || morphology.transformations?.length) return "";
+  const part = morphology.parts[0];
+  if (!isCanonicalPart(part) || part.kind !== "base") return "";
+  const word = payload.displayWord.trim().toLocaleLowerCase("en-GB");
+  if (!word || part.sourceText.trim().toLocaleLowerCase("en-GB") !== word ||
+    part.surfaceText.trim().toLocaleLowerCase("en-GB") !== word ||
+    part.displayRange.start !== 0 || part.displayRange.end !== payload.displayWord.trim().length) return "";
+  return part.gloss.trim();
+}
+
+export function prefillDictionaryMeanings(payload: WordDraftPayload): WordDraftPayload {
+  const senses = payload.senseSet?.senses ?? [];
+  // Existing meanings always win. Do not infer which sense an unscoped part belongs to.
+  const gloss = senses.length <= 1 && !payload.definition.trim() && !senses[0]?.definition.trim()
+    ? wholeBaseMeaning(payload) : "";
+  const senseSet = gloss && payload.senseSet && senses.length === 1
+    ? { ...payload.senseSet, senses: [{ ...senses[0], definition: gloss }] } : payload.senseSet;
+  return { ...payload, definition: gloss || payload.definition, senseSet,
+    skillSenseIds: { ...payload.skillSenseIds, ...Object.fromEntries(payload.skillKeys.map(key =>
+      [key, singleMeaningSelection(senseSet?.senses ?? [], payload.skillSenseIds?.[key])])) } };
+}
