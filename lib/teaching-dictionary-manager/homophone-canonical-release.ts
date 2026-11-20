@@ -71,7 +71,8 @@ export async function loadActiveCanonicalHomophoneContent(db: SupabaseClient, sk
     .eq("authority_type", "homophone_contextual_content").single();
   if (dependency.error) throw new Error("Could not read the Dictionary lesson authority.");
   const authority = dependency.data.adle_curriculum_dependency_authorities as unknown as {semantic_projection: {dictionarySource?: string; content: ContextualChoiceContent}};
-  if (authority.semantic_projection.dictionarySource !== "teaching_dictionary_v1") return null;
+  if (authority.semantic_projection.dictionarySource !== "teaching_dictionary_v1")
+    throw new Error("Review and publish this lesson’s approved Dictionary facts in Bulk review before generating a new lesson.");
   if (revision.data.activation_status !== "enabled") throw new Error("The Dictionary lesson is paused.");
   const preview = await loadCanonicalHomophonePreview(db, skill, authority.semantic_projection.content.sets.map(set => set.setKey));
   if (!preview.content || fingerprintSnapshotValue(authority.semantic_projection.content) !== preview.fingerprint)
