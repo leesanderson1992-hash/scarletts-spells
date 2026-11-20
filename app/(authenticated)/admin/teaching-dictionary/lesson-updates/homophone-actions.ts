@@ -10,30 +10,32 @@ import { getLondonPracticeDate } from "@/lib/practice-date";
 import { validateFrozenConvergenceAssignment } from "@/lib/adle/homophone/convergence-assignment";
 import { prepareContextualHomophoneAssignment, persistContextualHomophoneAssignment } from "@/lib/adle/homophone/convergence-readiness-loader";
 import type { LearningItemFact } from "@/lib/adle/learning-items";
-import { homophoneCanonicalPilotEnabled, loadCanonicalHomophonePreview, loadActiveCanonicalHomophoneContent } from "@/lib/teaching-dictionary-manager/homophone-canonical-release";
+import { homophoneCanonicalPublishingEnabled, loadCanonicalHomophonePreview, loadActiveCanonicalHomophoneContent } from "@/lib/teaching-dictionary-manager/homophone-canonical-release";
 
 const base = "/admin/teaching-dictionary/lesson-updates";
 export async function publishHomophoneDictionaryLesson(form: FormData) {
   const actor = await requireAdminUser();
   const skill = String(form.get("skill") ?? "");
-  if (!homophoneCanonicalPilotEnabled(skill)) redirect(base);
+  if (!homophoneCanonicalPublishingEnabled(skill)) redirect(base);
   const path = `${base}?skill=${skill}&view=preview`;
   let error = "";
+  let publishedWords = 0;
   try {
     const db = createServiceRoleClient();
     const preview = await loadCanonicalHomophonePreview(db, skill);
     if (!preview.content || preview.fingerprint !== form.get("fingerprint"))
       throw new Error(preview.blockers.join(" ") || "The Dictionary facts changed. Refresh the preview.");
-    const published = await db.rpc("publish_homophone_dictionary_staging_v1", {
+    const published = await db.rpc("publish_homophone_dictionary_staging_v2", {
       p_content: preview.content, p_expected_head: preview.currentRevisionId, p_actor: actor.id,
     });
     if (published.error || !published.data) throw new Error(published.error?.message ?? "Could not publish the Dictionary lesson.");
+    publishedWords = preview.content.dictionaryFacts!.length;
     const active = await loadActiveCanonicalHomophoneContent(db, skill);
     if (!active) throw new Error("Could not verify the published Dictionary facts. Refresh and retry.");
   } catch (cause) { error = cause instanceof Error ? cause.message : "Could not publish the lesson."; }
   revalidatePath(base);
   revalidatePath("/admin/adle-lesson-readiness");
-  redirect(error ? `${path}&error=${encodeURIComponent(error)}` : `${path}&published=2`);
+  redirect(error ? `${path}&error=${encodeURIComponent(error)}` : `${path}&published=${publishedWords}`);
 }
 
 async function ensureStagingSession(db: ReturnType<typeof createServiceRoleClient>, assignmentId: string, childId: string, actor: string, date: string) {
@@ -48,7 +50,7 @@ async function ensureStagingSession(db: ReturnType<typeof createServiceRoleClien
 export async function generateHomophoneDictionaryLesson(form: FormData) {
   const actor = await requireAdminUser();
   const skill = String(form.get("skill") ?? "");
-  if (!homophoneCanonicalPilotEnabled(skill)) redirect(base);
+  if (!homophoneCanonicalPublishingEnabled(skill)) redirect(base);
   const path = `${base}?skill=${skill}&view=preview`;
   let childId = "";
   let error = "";

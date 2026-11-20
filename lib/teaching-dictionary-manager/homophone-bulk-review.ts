@@ -28,7 +28,7 @@ export async function loadHomophoneReviewRoster(db: Db, skill: string) {
   const approved = [...latest.values()].filter(set => set.review_status === "approved");
   const members = approved.length ? await db.from("homophone_contrast_set_members")
     .select("set_key,revision,canonical_word_id,intended_sense,grammatical_role,target_sentence")
-    .in("set_key", approved.map(set => set.set_key)).order("member_ordinal") : {data: [], error: null};
+    .in("set_key", approved.map(set => set.set_key)).order("set_key").order("member_ordinal") : {data: [], error: null};
   if (members.error) throw new Error("Could not read the contrast-set words.");
   const selected = (members.data ?? []).filter(member => latest.get(member.set_key)?.revision === member.revision) as Member[];
   const words = selected.length ? await db.from("canonical_teaching_dictionary_words")
@@ -92,7 +92,7 @@ export async function loadHomophoneBulkReview(db: Db, skill: string, includeBund
   let publishedCanonical: Awaited<ReturnType<typeof loadActiveCanonicalHomophoneContent>> = null;
   try { publishedCanonical = await loadActiveCanonicalHomophoneContent(db, skill); } catch { /* Changed facts stay in review. */ }
   const publishedMembers = publishedCanonical?.sets.flatMap(set => set.members);
-  const current = lesson.activationEnabled && lesson.compilerReady ? roster.words.map(word => {
+  const current = lesson.activationEnabled && lesson.compilerReady ? roster.words.filter(word => !publishedMembers || publishedMembers.some(member => member.canonicalWordId === word.id)).map(word => {
     const member = roster.members.find(member => member.canonical_word_id === word.id)!;
     return {canonicalWordId: word.id, word: word.display_word, base: "", meaning: publishedMembers?.find(row => row.canonicalWordId === word.id)?.intendedSense ?? member.intended_sense, dictationSentence: publishedMembers?.find(row => row.canonicalWordId === word.id)?.teachingSentence ?? member.target_sentence};
   }) : [];

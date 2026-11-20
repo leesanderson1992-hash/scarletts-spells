@@ -1,4 +1,4 @@
-import { homophoneCanonicalPilotEnabled, loadCanonicalHomophonePreview } from "@/lib/teaching-dictionary-manager/homophone-canonical-release";
+import { homophoneCanonicalPublishingEnabled, loadCanonicalHomophonePreview } from "@/lib/teaching-dictionary-manager/homophone-canonical-release";
 import { publishHomophoneDictionaryLesson, generateHomophoneDictionaryLesson } from "./homophone-actions";
 import { isHomophoneReviewSkill } from "@/lib/teaching-dictionary-manager/homophone-review-contract";
 import { SavedFamilyReviews } from "./saved-family-reviews";
@@ -77,9 +77,9 @@ export default async function LessonUpdates({ searchParams }: {
     ? await loadPendingPrefixWorkbookQueue(db, prefixSkill) : null;
   const readyPrefixRows = prefixQueue?.filter(row => !row.blockers.length).slice(0, PREFIX_PUBLISH_BATCH_SIZE) ?? [];
   const draftWordIds = new Set([...(prefixQueue?.map(row => row.wordId) ?? []), ...(compoundQueue?.map(row => row.wordId) ?? [])]);
-  const homophonePilot = homophoneCanonicalPilotEnabled(selected) && view === "preview"
+  const homophoneRelease = homophoneCanonicalPublishingEnabled(selected) && view === "preview"
     ? await loadCanonicalHomophonePreview(db, selected) : null;
-  const homophoneLearners = homophonePilot?.content ? await db.from("children").select("id,first_name")
+  const homophoneLearners = homophoneRelease?.content ? await db.from("children").select("id,first_name")
     .eq("parent_user_id", actor.id).eq("is_archived", false).order("first_name") : null;
   const lessonName = skill ? STAGING_ING_LESSONS[skill] : "";
   const clusterLabels = new Map((clusterRows.data ?? []).map(row => [row.skill_cluster_key, row.display_name]));
@@ -146,23 +146,24 @@ export default async function LessonUpdates({ searchParams }: {
     {specialist && view === "preview" && <section className={card}>
       <h2 className="text-xl font-semibold">{specialist.title} publish status</h2>
       {isHomophoneReviewSkill(selected) && <p>Review and approve the Dictionary facts for every word in the contrast set. Family assignment is not required for this lesson.</p>}
-      {homophonePilot && <div className="space-y-3 rounded-lg border p-4">
-        {params.published && <p role="status">Accept and except are Active with the approved Dictionary facts.</p>}
-        {homophonePilot.blockers.length ? <ul className="list-disc pl-5">{homophonePilot.blockers.map(issue => <li key={issue}>{issue}</li>)}</ul> : <>
+      {homophoneRelease && <div className="space-y-3 rounded-lg border p-4">
+        {params.published && <p role="status">{params.published} words are Active with the approved Dictionary facts.</p>}
+        {homophoneRelease.blockers.length > 0 && <div><p>These words stay in review. Complete pairs can still be published.</p><ul className="list-disc pl-5">{homophoneRelease.blockers.map(issue => <li key={issue}>{issue}</li>)}</ul></div>}
+        {homophoneRelease.content && <>
           <h3 className="font-semibold">Approved Dictionary facts ready to publish</h3>
-          {homophonePilot.content?.sets.flatMap(set => set.members).map(member => <div key={member.canonicalWordId}>
+          {homophoneRelease.content?.sets.flatMap(set => set.members).map(member => <div key={member.canonicalWordId}>
             <strong>{member.word}</strong><p>{member.intendedSense}</p><p className="text-sm">{member.teachingSentence}</p>
           </div>)}
           <form action={publishHomophoneDictionaryLesson}>
-            <input type="hidden" name="skill" value={selected} /><input type="hidden" name="fingerprint" value={homophonePilot.fingerprint} />
-            <ActionSubmitButton className={button} pendingLabel="Publishing Dictionary facts…">Publish accept / except update</ActionSubmitButton>
+            <input type="hidden" name="skill" value={selected} /><input type="hidden" name="fingerprint" value={homophoneRelease.fingerprint} />
+            <ActionSubmitButton className={button} pendingLabel="Publishing Dictionary facts…">Publish lesson update</ActionSubmitButton>
           </form>
           {specialist.current.length > 0 && <form action={generateHomophoneDictionaryLesson} className="space-y-2">
             <input type="hidden" name="skill" value={selected} />
             <label className="grid gap-1">Staging test learner<select name="child_id" className="rounded border p-2" required>
               <option value="">Choose a test learner</option>{homophoneLearners?.data?.map(child => <option key={child.id} value={child.id}>{child.first_name}</option>)}
             </select></label>
-            <ActionSubmitButton className={button} pendingLabel="Generating lesson…">Generate accept / except lesson</ActionSubmitButton>
+            <ActionSubmitButton className={button} pendingLabel="Generating lesson…">Generate staging lesson</ActionSubmitButton>
           </form>}
         </>}
       </div>}
