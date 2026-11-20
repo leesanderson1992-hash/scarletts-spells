@@ -6,8 +6,8 @@ import { createCanonicalActivityBinding } from "@/components/adle/activities/can
 import { FirstImpressionLesson } from "@/components/adle/first-impression/first-impression-lesson";
 import type { TeachingPagesConfig } from "@/components/adle/first-impression/teaching-pages";
 import { readMorphologyResume, writeMorphologyResume } from "@/lib/adle/morphology/resume";
-import { fullHomophonePassage, validateHomophoneLessonSnapshot, type HomophoneLesson, type HomophoneLessonSnapshotV1 } from "@/lib/adle/homophone/lesson";
-import { validateConvergencePreview } from "@/lib/adle/homophone/convergence-preview-validation";
+import { fullHomophonePassage, type HomophoneLesson, type HomophoneLessonSnapshotV1 } from "@/lib/adle/homophone/lesson";
+import { guidedSnapshotIssues } from "@/lib/adle/homophone/guided-snapshot-validation";
 import { convergenceTeachingConfig } from "@/lib/adle/homophone/convergence-teaching";
 import { shuffledIndices } from "@/lib/adle/homophone/random-order";
 import { retainedBinDefinitions } from "@/lib/adle/homophone/retained-bin-definitions";
@@ -65,11 +65,12 @@ export function HomophoneGuidedLesson(props: {
   onFinish?: (progress: HomophoneProgressV1) => Promise<void>;
   onComplete?: (progress: HomophoneProgressV1) => void;
   developmentPreview?: boolean;
+  contextualRelease?: boolean;
 }) {
   const lesson = props.snapshot.lesson;
   const pairScopedChoices = ["D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS", "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY", "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T"].includes(lesson.microSkillKey);
   const choicesBySet = useMemo(() => pairScopedChoices ? new Map(lesson.contrastSets?.map(set => [set.setKey, set.members])) : null, [lesson, pairScopedChoices]);
-  const issues = props.developmentPreview ? validateConvergencePreview(props.snapshot) : validateHomophoneLessonSnapshot(props.snapshot);
+  const issues = guidedSnapshotIssues(props.snapshot, props.contextualRelease, props.developmentPreview);
   const [state, setState] = useState<HomophoneProgressV1>(() => props.initialProgress && homophoneProgressValid(props.initialProgress, lesson) ? props.initialProgress : initialHomophoneProgress());
   const current = useRef(state);
   const [ready, setReady] = useState(false);
@@ -112,7 +113,7 @@ export function HomophoneGuidedLesson(props: {
     finally { setPending(false); }
   }
   useEffect(() => { if (!props.childId) return; let active = true; getHomophoneBalloonBest(props.childId, props.assignmentId, lesson.microSkillKey).then(score => { if (active) setBest(score); }).catch(() => undefined); return () => { active = false; }; }, [props.childId, props.assignmentId, lesson.microSkillKey]);
-  const teaching = useMemo(() => props.developmentPreview ? convergenceTeachingConfig(lesson) : teachingConfig(props.snapshot), [props.developmentPreview, lesson, props.snapshot]);
+  const teaching = useMemo(() => (props.contextualRelease || props.developmentPreview) ? convergenceTeachingConfig(lesson) : teachingConfig(props.snapshot), [props.contextualRelease, props.developmentPreview, lesson, props.snapshot]);
   const binItems = useMemo(() => shuffledIndices(lesson.binSort.length).map(index => ({ id: String(index), text: lesson.binSort[index].sentence, destination: lesson.binSort[index].answer, choiceIds: choicesBySet?.get(lesson.binSort[index].setKey ?? "") })), [lesson, choicesBySet]);
   const binChoices = useMemo(() => {
     const reviewedDefinitions = new Map(lesson.teachingGroups?.flatMap(group => group.words.map(entry => [entry.word, entry.definition] as const)));

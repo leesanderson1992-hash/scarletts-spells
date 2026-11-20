@@ -1,4 +1,6 @@
 import "server-only";
+import { loadActiveCanonicalHomophoneContent, homophoneCanonicalPublishingEnabled } from "./homophone-canonical-release";
+import { homophoneBindingIsCurrent, homophoneReadyNote } from "./homophone-review-status";
 import type { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { homophoneCanonicalPartOfSpeech, homophoneReviewRoute, homophoneReviewSpec, homophoneReviewWords } from "./homophone-review-contract";
 import { loadReviewedMeaningBundles } from "./multi-sense-export";
@@ -27,7 +29,7 @@ export async function loadHomophoneReviewRoster(db: Db, skill: string) {
   const approved = [...latest.values()].filter(set => set.review_status === "approved");
   const members = approved.length ? await db.from("homophone_contrast_set_members")
     .select("set_key,revision,canonical_word_id,intended_sense,grammatical_role,target_sentence")
-    .in("set_key", approved.map(set => set.set_key)).order("member_ordinal") : {data: [], error: null};
+    .in("set_key", approved.map(set => set.set_key)).order("set_key").order("member_ordinal") : {data: [], error: null};
   if (members.error) throw new Error("Could not read the contrast-set words.");
   const selected = (members.data ?? []).filter(member => latest.get(member.set_key)?.revision === member.revision) as Member[];
   const words = selected.length ? await db.from("canonical_teaching_dictionary_words")
@@ -85,30 +87,48 @@ export async function loadHomophoneBulkReview(db: Db, skill: string, includeBund
   const ids = allWords.map(word => word.id);
   const [reviewed, bindings] = await Promise.all([
     loadReviewedMeaningBundles(db, ids), db.from("teaching_dictionary_effective_lesson_sense_bindings")
-      .select("canonical_word_id,sense_id").eq("environment_key", environment).eq("micro_skill_key", skill).in("canonical_word_id", ids),
+      .select("canonical_word_id,sense_id,sense_snapshot,pronunciation_snapshot").eq("environment_key", environment).eq("micro_skill_key", skill).in("canonical_word_id", ids),
   ]);
   if (bindings.error) throw new Error("Could not read the lesson’s reviewed meaning choices.");
-  const current = lesson.activationEnabled && lesson.compilerReady ? roster.words.map(word => {
+  let publishedCanonical: Awaited<ReturnType<typeof loadActiveCanonicalHomophoneContent>> = null;
+  try { publishedCanonical = await loadActiveCanonicalHomophoneContent(db, skill); } catch { /* Changed facts stay in review. */ }
+  const publishedMembers = publishedCanonical?.sets.flatMap(set => set.members);
+  const current = lesson.activationEnabled && lesson.compilerReady ? roster.words.filter(word => !publishedMembers || publishedMembers.some(member => member.canonicalWordId === word.id)).map(word => {
     const member = roster.members.find(member => member.canonical_word_id === word.id)!;
-    return {canonicalWordId: word.id, word: word.display_word, base: "", meaning: member.intended_sense, dictationSentence: member.target_sentence};
+    return {canonicalWordId: word.id, word: word.display_word, base: "", meaning: publishedMembers?.find(row => row.canonicalWordId === word.id)?.intendedSense ?? member.intended_sense, dictationSentence: publishedMembers?.find(row => row.canonicalWordId === word.id)?.teachingSentence ?? member.target_sentence};
   }) : [];
   const active = new Set(current.map(word => word.canonicalWordId));
-  const rows = allWords.flatMap(word => {
+  const facts = new Map(allWords.map(word => {
     const bundle = reviewed.find(bundle => bundle.wordId === word.id);
     const bound = bindings.data.filter(binding => binding.canonical_word_id === word.id);
     const requested = requests.get(word.id)?.sense_id;
     const senseId = requested ?? (bound.length === 1 ? bound[0].sense_id : bundle?.senseSet.senses.length === 1 ? bundle.senseSet.senses[0].id : undefined);
     const verdict = homophoneReviewCandidate(bundle, skill, senseId, {wordId: word.id, displayWord: word.display_word});
     const sense = bundle?.senseSet.senses.find(sense => sense.id === senseId);
-    const contentMatches = sense && roster.members.some(member => member.canonical_word_id === word.id
+    const pronunciation = bundle?.senseSet.pronunciations.find(item => item.id === sense?.pronunciationId) ?? null;
+    const isBound = bound.some(binding => homophoneBindingIsCurrent(sense, pronunciation, binding));
+    return [word.id, {bundle, verdict, sense, isBound}] as const;
+  }));
+  const rows = allWords.flatMap(word => {
+    const {bundle, verdict, sense, isBound} = facts.get(word.id)!;
+    const contentMatches = sense && (publishedMembers ? publishedMembers.some(member => member.canonicalWordId === word.id
+      && member.intendedSense === sense.definition && member.teachingSentence === sense.dictationSentence
+      && member.grammaticalRole === sense.partOfSpeech) : roster.members.some(member => member.canonical_word_id === word.id
       && normal(member.intended_sense) === normal(sense.definition) && member.target_sentence === sense.dictationSentence
-      && homophoneCanonicalPartOfSpeech(member.grammatical_role) === sense.partOfSpeech);
-    const isBound = bound.some(binding => binding.sense_id === senseId);
+      && homophoneCanonicalPartOfSpeech(member.grammatical_role) === sense.partOfSpeech));
     if (active.has(word.id) && verdict.status === "ready" && isBound && contentMatches) return [];
     const notes = bundle ? verdict.issues.map(issue => issue.message)
-      : ["Review the prefilled meaning, pronunciation, dictation and word parts in the workbook, then choose Yes under Use in lesson."];
-    if (verdict.status === "ready") notes.push(!isBound ? "Approve this reviewed meaning for the lesson by uploading the workbook with Use in lesson = Yes."
-      : !contentMatches ? "Canonical facts are approved. The contrast-set meaning or sentence needs a lesson content update." : "The lesson release is not Active yet.");
+      : ["Review and approve the meaning, pronunciation, dictation and word parts on the word page or in the workbook."];
+    if (verdict.status === "ready") {
+      if (!isBound) notes.push("The Dictionary facts are approved. Approve this meaning for the lesson in the word page’s Micro-skills section, or use Yes under Use in lesson in the workbook.");
+      else if (homophoneCanonicalPublishingEnabled(skill)) {
+        const setKeys = new Set(roster.members.filter(member => member.canonical_word_id === word.id).map(member => member.set_key));
+        const partners = roster.members.filter(member => setKeys.has(member.set_key) && member.canonical_word_id !== word.id)
+          .filter(member => {const fact = facts.get(member.canonical_word_id); return fact?.verdict.status !== "ready" || !fact.isBound;})
+          .map(member => roster.words.find(row => row.id === member.canonical_word_id)!.display_word);
+        notes.push(homophoneReadyNote([...new Set(partners)]));
+      } else notes.push(!contentMatches ? "Canonical facts are approved. The contrast-set meaning or sentence needs a lesson content update." : "The lesson release is not Active yet.");
+    }
     return [{id: word.id, word: word.display_word, href: `/admin/teaching-dictionary/${word.id}#td-overview`,
       note: [active.has(word.id) ? "In the live lesson pool; canonical review is separate." : "", ...notes].filter(Boolean).join(" ")}];
   }).sort((a,b) => a.word.localeCompare(b.word,"en-GB"));

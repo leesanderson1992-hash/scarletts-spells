@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {homophoneBindingIsCurrent,homophoneReadyNote} from '../lib/teaching-dictionary-manager/homophone-review-status';
+const sense={id:'berry-meaning',definition:'a small round fruit',partOfSpeech:'noun',pronunciationId:'uk',dictationSentence:'A red berry grew on the bush.',dictationTargetTokenIndex:2};
+const pronunciation={id:'uk',ipa:'/ˈberi/',spokenSyllableCount:2,stressPattern:'primary-unstressed'};
+const binding={sense_id:sense.id,sense_snapshot:sense,pronunciation_snapshot:pronunciation};
+assert(homophoneBindingIsCurrent(sense,pronunciation,binding));
+assert(!homophoneBindingIsCurrent({...sense,definition:'a different approved meaning'},pronunciation,binding));
+assert(!homophoneBindingIsCurrent(sense,{...pronunciation,ipa:'/different/'},binding));
+assert(!homophoneBindingIsCurrent(undefined,pronunciation,binding));
+assert.match(homophoneReadyNote(['bury']),/^Ready — waiting for bury/);
+assert.match(homophoneReadyNote([]),/^Ready to publish/);
+assert(!/upload|content update|needs fixing/.test(homophoneReadyNote(['bury'])));
+console.log({wordPageFactsRecognised:true,waitingPartnerExplained:true,readyToPublishExplained:true,changedApprovalDetected:true});
