@@ -3,6 +3,10 @@ import { NextResponse, type NextRequest } from "next/server";
 import { shouldPreAuthNotFoundDynamicPrefixQa } from "@/lib/adle/morphology/dynamic-prefix-qa-policy";
 import { readSupabaseEnv } from "@/lib/supabase/env";
 
+import { authCheckOutcome, authFetch, reportAuthUnavailable } from "@/lib/supabase/auth-check";
+import { authCheckProofFetch } from "@/lib/supabase/auth-check-proof";
+import { authRetryResponse } from "@/lib/supabase/auth-retry-response";
+
 const protectedRoutes = [
   "/admin",
   "/dashboard",
@@ -12,24 +16,6 @@ const protectedRoutes = [
   "/insights",
   "/settings",
 ];
-
-async function withAuthTimeout<T>(
-  promise: Promise<T>,
-  timeoutMs: number,
-): Promise<T | null> {
-  let timeoutId: ReturnType<typeof setTimeout> | null = null;
-  const timeout = new Promise<null>((resolve) => {
-    timeoutId = setTimeout(() => resolve(null), timeoutMs);
-  });
-
-  try {
-    return await Promise.race([promise, timeout]);
-  } finally {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-  }
-}
 
 function isProtectedPath(pathname: string) {
   return protectedRoutes.some(
@@ -42,9 +28,12 @@ function copyResponseState(from: NextResponse, to: NextResponse) {
     to.cookies.set(cookie);
   });
 
-  from.headers.forEach((value, key) => {
-    to.headers.set(key, value);
-  });
+  // NextResponse.next() carries internal request-override headers. They must
+  // never be copied onto a redirect or a retry response.
+  for (const name of ["cache-control", "pragma", "expires"]) {
+    const value = from.headers.get(name);
+    if (value) to.headers.set(name, value);
+  }
 }
 
 function requestHeadersWithPath(request: NextRequest, pathname: string) {
@@ -90,12 +79,15 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
+  const cookieChanges = new Map<string, { name: string; value: string; options?: import("@supabase/ssr").CookieOptions }>();
   const supabase = createServerClient(url, anonKey, {
+    global: { fetch: authFetch(authCheckProofFetch(request.nextUrl, process.env)) },
     cookies: {
       getAll() {
         return request.cookies.getAll();
       },
       setAll(cookiesToSet, headers) {
+        for (const cookie of cookiesToSet) cookieChanges.set(cookie.name, cookie);
         cookiesToSet.forEach(({ name, value }) => {
           request.cookies.set(name, value);
         });
@@ -104,7 +96,7 @@ export async function proxy(request: NextRequest) {
           request: { headers: requestHeadersWithPath(request, pathname) },
         });
 
-        cookiesToSet.forEach(({ name, value, options }) => {
+        cookieChanges.forEach(({ name, value, options }) => {
           response.cookies.set(name, value, options);
         });
 
@@ -115,8 +107,25 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  const authResult = await withAuthTimeout(supabase.auth.getUser(), 2500);
-  const user = authResult?.data.user ?? null;
+  let outcome: ReturnType<typeof authCheckOutcome>;
+  try { outcome = authCheckOutcome(await supabase.auth.getUser()); }
+  catch { outcome = "unavailable"; }
+  if (outcome === "unavailable") {
+    reportAuthUnavailable("proxy");
+    const retryTarget = request.nextUrl.clone();
+    retryTarget.searchParams.delete("__auth_check_proof");
+    const retry = authRetryResponse(retryTarget);
+    const refreshed = [...cookieChanges.values()].some(cookie =>
+      /-auth-token(?:\.\d+)?$/.test(cookie.name) && cookie.value);
+    for (const cookie of cookieChanges.values()) {
+      // A transient failure must not clear the original session. Successful
+      // rotation (including chunk cleanup) still reaches the browser.
+      if (!refreshed && /-auth-token(?:\.\d+)?$/.test(cookie.name) && !cookie.value) continue;
+      retry.cookies.set(cookie.name, cookie.value, cookie.options);
+    }
+    return retry;
+  }
+  const user = outcome === "authenticated";
 
   if (!user && isProtectedPath(pathname)) {
     const loginUrl = request.nextUrl.clone();
@@ -130,5 +139,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/dashboard/:path*", "/children/:path*", "/analyse/:path*", "/review/:path*", "/insights/:path*", "/settings/:path*"],
+  matcher: ["/admin/:path*", "/dashboard/:path*", "/children/:path*", "/analyse/:path*", "/review/:path*", "/insights/:path*", "/settings/:path*", "/learn/:path*", "/courses/:path*", "/practice/:path*", "/assignments/:path*"],
 };
