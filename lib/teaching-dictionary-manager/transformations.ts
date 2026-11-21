@@ -6,11 +6,18 @@ export const TRANSFORMATION_OPTIONS = [
   { type: "change_final_ie_to_y", label: "Change final ie to y" },
   { type: "change_final_f_to_v", label: "Change final f to v" },
   { type: "change_final_fe_to_v", label: "Change final fe to v" },
+  { type: "contraction", label: "Contraction" },
   { type: "other_reviewed_change", label: "Other reviewed change" },
 ] as const;
 export const AUTO_TRANSFORMATION = "Auto (from spelling)";
 export type TransformationType = typeof TRANSFORMATION_OPTIONS[number]["type"];
 export type Transformation = { type: string; sourcePartId: string; sourceText: string; surfaceText: string; explanation: string };
+
+const contractedForms: Record<string, string> = {
+  will: "'ll", shall: "'ll", would: "'d", had: "'d", is: "'s", has: "'s", us: "'s",
+  are: "'re", have: "'ve", am: "'m", not: "n't",
+};
+const straightApostrophe = (value: string) => value.replaceAll("’", "'");
 
 function result(type: string, source: string) {
   switch (type) {
@@ -20,12 +27,14 @@ function result(type: string, source: string) {
     case "change_final_ie_to_y": return source.endsWith("ie") ? source.slice(0, -2) + "y" : null;
     case "change_final_f_to_v": return source.endsWith("f") ? source.slice(0, -1) + "v" : null;
     case "change_final_fe_to_v": return source.endsWith("fe") ? source.slice(0, -2) + "v" : null;
+    case "contraction": return contractedForms[source.toLowerCase()] ?? null;
     default: return null;
   }
 }
 export function suggestTransformation(source: string, surface: string): TransformationType | null {
   if (!source || !surface || source === surface) return null;
-  return TRANSFORMATION_OPTIONS.find(option => result(option.type, source) === surface)?.type ?? null;
+  return TRANSFORMATION_OPTIONS.find(option => result(option.type, source) ===
+    (option.type === "contraction" ? straightApostrophe(surface) : surface))?.type ?? null;
 }
 const key = (value: string) => value.trim().toLowerCase().replace(/[\s-]+/g, "_");
 const generic = new Set(["base_spelling_change", "affix_spelling_change", "remove_letter", "replace_final"]);
@@ -50,7 +59,8 @@ export function reviewedTransformation(input: Transformation): Transformation {
     throw new Error("A spelling change needs different underlying and visible forms.");
   const type = resolveTransformationType(input.type, input.sourceText, input.surfaceText);
   if (!type) throw new Error("Choose a listed spelling change, or Other reviewed change with an explanation.");
-  if (type !== "other_reviewed_change" && result(type, input.sourceText) !== input.surfaceText)
+  if (type !== "other_reviewed_change" && result(type, input.sourceText) !==
+    (type === "contraction" ? straightApostrophe(input.surfaceText) : input.surfaceText))
     throw new Error(`${TRANSFORMATION_OPTIONS.find(option => option.type === type)!.label} does not change “${input.sourceText}” to “${input.surfaceText}”.`);
   const explanation = input.explanation.trim() || transformationExplanation(type, input.sourceText, input.surfaceText);
   if (!explanation) throw new Error("Explain the Other reviewed change before approving it.");

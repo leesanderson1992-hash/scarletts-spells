@@ -11,12 +11,17 @@ for (const [sourceText, surfaceText, type] of [
   ["force", "forc", "drop_final_e"], ["hop", "hopp", "double_final_consonant"],
   ["happy", "happi", "change_final_y_to_i"], ["tie", "ty", "change_final_ie_to_y"],
   ["leaf", "leav", "change_final_f_to_v"], ["life", "liv", "change_final_fe_to_v"],
+  ["will", "'ll", "contraction"], ["had", "'d", "contraction"],
+  ["are", "'re", "contraction"], ["us", "'s", "contraction"],
 ] as const) {
   assert.equal(suggestTransformation(sourceText, surfaceText), type);
   const suggestion = reviewedTransformation({ type: AUTO_TRANSFORMATION, sourcePartId: "base", sourceText, surfaceText, explanation: "" });
   assert.equal(suggestion.type, type); assert(suggestion.explanation);
   assert.equal(reviewedTransformation({ ...suggestion, type: "base_spelling_change" }).type, type);
 }
+assert.equal(suggestTransformation("is", "’s"), "contraction");
+assert.equal(suggestTransformation("will", "ll"), null);
+assert.throws(() => reviewedTransformation({ type: "Contraction", sourcePartId: "part_2", sourceText: "will", surfaceText: "ll", explanation: "" }), /does not change/);
 assert.equal(reviewedTransformation({ type: "drop final e > ible", sourcePartId: "base", sourceText: "force", surfaceText: "forc", explanation: "" }).type, "drop_final_e");
 assert.throws(() => reviewedTransformation({ type: "Drop final e", sourcePartId: "base", sourceText: "force", surfaceText: "forcc", explanation: "Reviewed" }), /does not change/);
 assert.throws(() => reviewedTransformation({ type: "Other reviewed change", sourcePartId: "base", sourceText: "go", surfaceText: "went", explanation: "" }), /Explain/);
@@ -29,6 +34,7 @@ assert.equal(flatMorphology(raw, ["part_1_kind"], "forcible")!.transformations[0
 assert.throws(() => flatMorphology({ ...raw, part_1_spelling_change_type: "Double final consonant" }, ["part_1_kind"], "forcible"), /does not change/);
 assert.throws(() => flatMorphology(raw, ["part_1_kind"], "forcibble"), /not “forcibble”/);
 const skills = new Set([...Object.keys(prefixWorkbooks), "D4_MOR_PREFIXES_UN", ...Object.keys(ING_RULE_FOR_SKILL), ...DYNAMIC_SUFFIX_PROFILE_KEYS,
+  "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS",
   "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS", "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
   "D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR", "D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E", "D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLING", "D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I"]);
 async function checkWorkbooks() {

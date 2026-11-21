@@ -86,6 +86,9 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   }
   const addDropdowns = (row: ExcelJS.Row) => {
     for (const [key, validation] of Object.entries(commonDropdowns)) row.getCell(key).dataValidation = validation;
+    // Preserve literal apostrophes and prevent Excel coercing editable word forms.
+    for (const index of partIndexes) for (const field of ["underlying_form", "visible_letters"])
+      row.getCell(`part_${index}_${field}`).numFmt = "@";
   };
   const [headers, ...rows] = csvRecords(renderMultiSenseCsvBundles(input.bundles));
   for (const values of rows) {
@@ -170,6 +173,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     ["Meaning and pronunciation", "Confirm the definition, part of speech, IPA, syllable count and stress. Use the same pronunciation ID for identical pronunciations."],
     ["Word parts", `Keep the full base and its visible letters in separate fields. ${wordPartsExample} Use none for a join with no space.`],
     ["Spelling change", `Choose a standard rule from the dropdown, or leave blank / choose ${AUTO_TRANSFORMATION} to infer a clear change on upload. Standard explanations are filled automatically. Other reviewed change requires your explanation. ${spellingChangeExample} Keep the suffix separate: force → forc uses Drop final e; ible is a separate suffix part.`],
+    ["Contractions and apostrophes", "Choose Contraction for will → 'll, had → 'd, is → 's, are → 're, and similar shortened forms. Enter the full underlying word and include the apostrophe in Visible letters. The explanation is filled automatically. In Excel, type two apostrophes (''ll) to store and display one ('ll), or put a space before 'll; surrounding spaces are removed on upload. Set Join before to none."],
     ["Family relationship", "Selecting a family for a single base links that base. For words with multiple bases, specify the component part ID."],
     ["Dictation", "Use the word once. Count from zero for the target position. In She is caring for a sick bird, caring is position 2."],
     ["Existing facts", "Confirm any facts copied from older Dictionary or lesson records. Keep the hidden IDs and source revision supplied in the workbook."],
