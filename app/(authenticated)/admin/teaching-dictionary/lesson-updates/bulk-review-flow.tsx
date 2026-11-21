@@ -9,36 +9,41 @@ import { ResolveWorkbookFamilies } from "./resolve-workbook-families";
 import type { WorkbookFamilyDecision } from "@/lib/teaching-dictionary-manager/review-workbook";
 
 type Option = { key: string; label: string };
-type Skill = Option & { cluster: string };
+type Cluster = Option & { family: string };
+type Skill = Option & { cluster: string; family: string };
 const steps = ["Export workbook", "Edit and upload", "Resolve word families", "Preview and publish"];
 const actionClass = "inline-flex rounded-lg bg-[color:var(--scarlett)] px-4 py-2 font-semibold text-[color:var(--ink)] disabled:opacity-50";
 
-function SearchMenu({ label, value, options, disabled, onChange }: {
-  label: string; value: string; options: Option[]; disabled: boolean; onChange: (key: string) => void;
+function SearchMenu({ label, value, options, disabled, emptyLabel, onChange }: {
+  label: string; value: string; options: Option[]; disabled: boolean; emptyLabel?: string; onChange: (key: string) => void;
 }) {
   const [search, setSearch] = useState("");
+  const plural = label === "Micro-skill family" ? "micro-skill families" : `${label.toLowerCase()}s`;
   const matches = options.filter(option => option.label.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()));
   return <fieldset disabled={disabled} className="min-w-0 space-y-2">
     <legend className="font-semibold">{label}</legend>
-    <input type="search" aria-label={`Search ${label.toLowerCase()}s`} placeholder={`Search ${label.toLowerCase()}s`}
+    <input type="search" aria-label={`Search ${plural}`} placeholder={`Search ${plural}`}
       value={search} onChange={event => setSearch(event.target.value)}
       className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2" />
     <select aria-label={label} value={matches.some(item => item.key === value) ? value : ""}
       onChange={event => { setSearch(""); onChange(event.target.value); }}
       className="w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2">
-      <option value="">{matches.length ? `Choose a ${label.toLowerCase()}` : "No matches"}</option>
+      <option value="">{emptyLabel ?? (matches.length ? `Choose a ${label.toLowerCase()}` : "No matches")}</option>
       {matches.map(option => <option key={option.key} value={option.key}>{option.label}</option>)}
     </select>
   </fieldset>;
 }
 
-export function BulkReviewFlow({ clusters, skills, selected, initialCluster, supported, batches, fullPoolSize, blankWorkbookHref, view, review, savedReviews, familyRequired = true, children }: {
-  clusters: Option[]; skills: Skill[]; selected: string; initialCluster: string; supported: boolean; batches: number | null;
+export function BulkReviewFlow({ families, clusters, skills, selected, initialFamily, initialCluster, supported, batches, fullPoolSize, blankWorkbookHref, view, review, savedReviews, familyRequired = true, children }: {
+  families: Option[]; clusters: Cluster[]; skills: Skill[]; selected: string; initialFamily: string; initialCluster: string; supported: boolean; batches: number | null;
   fullPoolSize: number | null; blankWorkbookHref?: string; familyRequired?: boolean;
   view: "export" | "workbook" | "preview"; review?: ReactNode; savedReviews?: ReactNode; children: ReactNode;
 }) {
   const router = useRouter();
-  const [cluster, setCluster] = useState(skills.find(skill => skill.key === selected)?.cluster ?? initialCluster);
+  const selectedSkill = skills.find(skill => skill.key === selected);
+  const selectedCluster = clusters.find(cluster => cluster.key === (selectedSkill?.cluster ?? initialCluster));
+  const [family, setFamily] = useOptimistic(selectedSkill?.family ?? selectedCluster?.family ?? initialFamily);
+  const [cluster, setCluster] = useOptimistic(selectedSkill?.cluster ?? initialCluster);
   const [workbookStep, setWorkbookStep] = useState(1);
   const [navigating, navigate] = useTransition();
   const [visibleSkill, setVisibleSkill] = useOptimistic(selected);
@@ -76,7 +81,7 @@ export function BulkReviewFlow({ clusters, skills, selected, initialCluster, sup
     const nextView = index === 0 ? "export" : index === 3 ? "preview" : "workbook";
     if (nextView === "workbook") setWorkbookStep(index);
     if (nextView !== view) {
-      const query = new URLSearchParams({ cluster, skill: selected, view: nextView });
+      const query = new URLSearchParams({ family, cluster, skill: selected, view: nextView });
       navigate(() => router.push(`?${query}`, { scroll: false }));
     }
   }
@@ -110,27 +115,39 @@ export function BulkReviewFlow({ clusters, skills, selected, initialCluster, sup
     startTransition(() => upload(form));
   }
   return <>
-    <section aria-label="Lesson filters" className="grid gap-4 rounded-2xl border border-[var(--border)] bg-white p-5 sm:grid-cols-2">
-      <SearchMenu label="Cluster" value={cluster} options={clusters} disabled={navigating || pending} onChange={key => {
-        setCluster(key);
+    <section aria-label="Lesson filters" className="grid gap-4 rounded-2xl border border-[var(--border)] bg-white p-5 sm:grid-cols-3">
+      <SearchMenu label="Micro-skill family" value={family} options={families} disabled={navigating || pending} onChange={key => {
         setWorkbookStep(1);
-        if (selected) navigate(() => {
+        navigate(() => {
+          setFamily(key);
+          setCluster("");
           setVisibleSkill("");
-          router.push(`?${new URLSearchParams({ cluster: key })}`, { scroll: false });
+          router.push(`?${new URLSearchParams({ family: key })}`, { scroll: false });
         });
       }} />
-      {cluster && <SearchMenu key={cluster} label="Micro-skill" value={visibleSkill} disabled={navigating || pending}
-        options={skills.filter(skill => skill.cluster === cluster)} onChange={key => {
+      <SearchMenu key={`cluster-${family}`} label="Cluster" value={cluster}
+        options={clusters.filter(cluster => cluster.family === family)} disabled={!family || navigating || pending}
+        emptyLabel={!family ? "Choose a family first" : undefined} onChange={key => {
+          setWorkbookStep(1);
+          navigate(() => {
+            setCluster(key);
+            setVisibleSkill("");
+            router.push(`?${new URLSearchParams({ family, cluster: key })}`, { scroll: false });
+          });
+        }} />
+      <SearchMenu key={`skill-${family}:${cluster}`} label="Micro-skill" value={visibleSkill} disabled={!family || !cluster || navigating || pending}
+        emptyLabel={!cluster ? "Choose a cluster first" : undefined}
+        options={skills.filter(skill => skill.family === family && skill.cluster === cluster)} onChange={key => {
           setWorkbookStep(1);
           navigate(() => {
             setVisibleSkill(key);
-            router.push(`?${new URLSearchParams({ cluster, skill: key })}`, { scroll: false });
+            router.push(`?${new URLSearchParams({ family, cluster, skill: key })}`, { scroll: false });
           });
-        }} />}
+        }} />
     </section>
     {switchingLesson ? <p role="status" className="rounded-xl bg-[color:var(--mist)] p-4">
       {nextLesson ? `Opening ${nextLesson.label}…` : "Loading lesson filters…"}
-    </p> : !selected ? <p className="rounded-xl bg-[color:var(--mist)] p-4">Choose a cluster and micro-skill to start reviewing words.</p>
+    </p> : !selected ? <p className="rounded-xl bg-[color:var(--mist)] p-4">Choose a micro-skill family, cluster and micro-skill to start reviewing words.</p>
       : !supported ? <p className="rounded-xl bg-[color:var(--mist)] p-4">
         Workbook review is unavailable for this micro-skill.</p> : <>
       <nav aria-label="Bulk review steps" className={`grid gap-2 ${familyRequired ? "sm:grid-cols-4" : "sm:grid-cols-3"}`}>

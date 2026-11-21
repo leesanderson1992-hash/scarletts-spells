@@ -38,7 +38,7 @@ const button = "rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-whi
 const card = "space-y-3 rounded-xl border border-[var(--border)] bg-white p-5";
 
 export default async function LessonUpdates({ searchParams }: {
-  searchParams: Promise<{ error?: string; published?: string; skill?: string; cluster?: string; view?: string }>;
+  searchParams: Promise<{ error?: string; published?: string; skill?: string; cluster?: string; family?: string; view?: string }>;
 }) {
   const actor = await requireAdminUser();
   const params = await searchParams;
@@ -50,9 +50,10 @@ export default async function LessonUpdates({ searchParams }: {
   const baseReview = isIdentifyBaseReview(params.skill);
   const specialistRoute = specialistWorkbookRoute(params.skill);
   const supported = Boolean(specialistRoute) || baseReview || suffixPilot || canUpdateIngLesson() && Boolean(skill);
-  const [clusterRows, skillRows, result, suffix, base, specialist, otherRequests] = await Promise.all([
-    db.from("micro_skill_clusters").select("skill_cluster_key,display_name").eq("is_active", true).order("display_name"),
-    db.from("micro_skill_catalog").select("micro_skill_key,display_name,skill_cluster_key")
+  const [familyRows, clusterRows, skillRows, result, suffix, base, specialist, otherRequests] = await Promise.all([
+    db.from("micro_skill_families").select("skill_family_key,display_name").eq("is_active", true).order("display_name"),
+    db.from("micro_skill_clusters").select("skill_cluster_key,skill_family_key,display_name").eq("is_active", true).order("display_name"),
+    db.from("micro_skill_catalog").select("micro_skill_key,display_name,skill_cluster_key,skill_family_key")
       .eq("is_active", true).eq("is_assignable", true).order("display_name"),
     supported && skill && (view === "preview" || view === "export")
       ? loadStagingIngUpdate(db, skill, view === "export" ? "pool" : "full").then(update => ({ update, error: null }),
@@ -63,7 +64,7 @@ export default async function LessonUpdates({ searchParams }: {
     specialistRoute && params.skill && view !== "workbook" ? loadSpecialistBulkReview(db, params.skill, specialistRoute) : null,
     !supported && params.skill ? loadLessonReviewRequests(db, params.skill) : null,
   ]);
-  if (clusterRows.error || skillRows.error) throw new Error("Could not load the lesson filters.");
+  if (familyRows.error || clusterRows.error || skillRows.error) throw new Error("Could not load the lesson filters.");
   const suffixTitle = suffixReviewTitle(params.skill ?? "");
   const selected = params.skill ?? "";
   const prefixSkill = prefixWorkbookEnabled(selected) ? selected : null;
@@ -83,9 +84,14 @@ export default async function LessonUpdates({ searchParams }: {
     .eq("parent_user_id", actor.id).eq("is_archived", false).order("first_name") : null;
   const lessonName = skill ? STAGING_ING_LESSONS[skill] : "";
   const clusterLabels = new Map((clusterRows.data ?? []).map(row => [row.skill_cluster_key, row.display_name]));
-  const skills = (skillRows.data ?? []).map(row => ({ key: row.micro_skill_key, label: row.display_name, cluster: row.skill_cluster_key }));
+  const skills = (skillRows.data ?? []).map(row => ({ key: row.micro_skill_key, label: row.display_name,
+    cluster: row.skill_cluster_key, family: row.skill_family_key }));
+  const families = (familyRows.data ?? []).filter(row => skills.some(skill => skill.family === row.skill_family_key))
+    .map(row => ({ key: row.skill_family_key, label: row.display_name }));
   const clusters = [...new Set(skills.map(item => item.cluster).filter(Boolean))].map(key => ({
     key,
+    family: (clusterRows.data ?? []).find(row => row.skill_cluster_key === key)?.skill_family_key
+      ?? skills.find(skill => skill.cluster === key)?.family ?? "",
     label: clusterLabels.get(key) ?? (key === "D4_INF_ING_ENDINGS" ? "-ing endings" : key.replace(/^D\d+_/u, "").replaceAll("_", " ")),
   })).sort((a, b) => a.label.localeCompare(b.label));
   const { update } = result;
@@ -120,9 +126,9 @@ export default async function LessonUpdates({ searchParams }: {
       <ul className="list-disc pl-5">{[...otherRequests!.values()].sort((a, b) => a.word.localeCompare(b.word)).map(row =>
         <li key={row.word_id}><Link className="underline" href={`/admin/teaching-dictionary/${row.word_id}`}>{row.word}</Link></li>)}</ul>
     </section>}
-    <BulkReviewFlow key={selected} clusters={clusters} skills={skills} selected={selected}
+    <BulkReviewFlow key={selected} families={families} clusters={clusters} skills={skills} selected={selected}
       savedReviews={params.skill && resolveAdleRouteActivationEnvironment() ? <SavedFamilyReviews db={db} environment={resolveAdleRouteActivationEnvironment()!} skill={params.skill} /> : null}
-      familyRequired={!isHomophoneReviewSkill(selected)} initialCluster={params.cluster ?? ""} supported={supported} view={view}
+      familyRequired={!isHomophoneReviewSkill(selected)} initialFamily={params.family ?? ""} initialCluster={params.cluster ?? ""} supported={supported} view={view}
       fullPoolSize={specialist?.current.length ?? base?.current.length ?? suffix?.current.length ?? update?.current.length ?? null}
       blankWorkbookHref={blankWorkbookSkill ? `/admin/teaching-dictionary/export/review-workbook?skill=${blankWorkbookSkill}&scope=blank` : undefined}
       review={view === "export" ? <>
