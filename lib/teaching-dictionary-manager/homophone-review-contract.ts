@@ -13,8 +13,13 @@ export const CONTENT_WORD_DICTIONARY_SKILLS = [
 export const CONTRACTION_DICTIONARY_SKILLS = [
   "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS",
 ] as const;
+export const FUNCTION_WORD_DICTIONARY_SKILLS = HOMOPHONE_REVIEW_SKILLS.filter(key => key.startsWith("D4_HOM_FUNCTION_WORD_HOMOPHONES_"));
 export function homophoneReviewSpec(skill: unknown) {
-  return typeof skill === "string" ? manifest.skills.find(row => row.key === skill) : undefined;
+  const spec = typeof skill === "string" ? manifest.skills.find(row => row.key === skill) : undefined;
+  if (!spec || !FUNCTION_WORD_DICTIONARY_SKILLS.includes(spec.key)) return spec;
+  return { ...spec, routeStatus: "needs_contextual_choice_v1",
+    sets: spec.key === "D4_HOM_FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR"
+      ? spec.sets.map(set => ({ ...set, members: ["where", "we're", "wear"] })) : spec.sets };
 }
 export function isHomophoneReviewSkill(skill: unknown): skill is HomophoneReviewSkill {
   return Boolean(homophoneReviewSpec(skill));

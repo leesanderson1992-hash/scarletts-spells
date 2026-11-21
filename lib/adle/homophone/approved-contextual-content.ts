@@ -1,4 +1,5 @@
 import approved from "@/data/adle/homophone/convergence-v1/approved-lesson-content.json";
+import functionContent from "@/data/adle/homophone/convergence-v1/function-word-dictionary-content.json";
 import type { ContextualChoiceContent, ContextualChoiceSet } from "./contextual-choice-contract";
 import { validateContextualChoiceContent } from "./contextual-choice-contract";
 
@@ -16,7 +17,8 @@ export type PublishedContrastAuthority = {
 
 /** Bind the exact approved workbook to reviewed database set and word identities. */
 export function buildApprovedContextualContent(microSkillKey: string, publishedSets: readonly PublishedContrastAuthority[]): ContextualChoiceContent {
-  const source = approved.lessons.find(lesson => lesson.microSkillKey === microSkillKey);
+  const migrated = functionContent.lessons.find(lesson => lesson.microSkillKey === microSkillKey);
+  const source = migrated ?? approved.lessons.find(lesson => lesson.microSkillKey === microSkillKey);
   if (!source) throw new Error(`homophone_contextual_skill_unknown:${microSkillKey}`);
   const byKey = new Map(publishedSets.map(set => [set.setKey, set]));
   if (byKey.size !== publishedSets.length) throw new Error("homophone_contextual_set_duplicate");
@@ -44,9 +46,9 @@ export function buildApprovedContextualContent(microSkillKey: string, publishedS
       correctWordId: correct.canonicalWordId, optionWordIds: [...set.memberWordIds],
       evidenceMode: "independent_sentence" as const };
   }));
-  const content: ContextualChoiceContent = { microSkillKey, contentVersion: approved.contentVersion,
+  const content: ContextualChoiceContent = { microSkillKey, contentVersion: migrated ? functionContent.contentVersion : approved.contentVersion,
     teachingExplanation: source.teachingExplanation, sets, questions,
-    reviewStatus: "approved", approvalReference: approved.approvalReference };
+    reviewStatus: "approved", approvalReference: migrated ? functionContent.approvalReference : approved.approvalReference };
   validateContextualChoiceContent(content);
   return content;
 }

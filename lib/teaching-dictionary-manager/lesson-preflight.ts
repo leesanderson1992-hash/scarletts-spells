@@ -39,6 +39,7 @@ import { dictationVariants } from "./authoring";
 import { compilerCoverage } from "./compiler-coverage";
 import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
 import { loadApprovedContextualContentForSkills } from "@/lib/adle/homophone/published-contextual-content-loader";
+import { FUNCTION_WORD_DICTIONARY_SKILLS } from "./homophone-review-contract";
 import { approvedFactsSupersedeDraft, unpublishedDraftWordIds } from "./draft-freshness";
 
 const ZERO_CHILD = "00000000-0000-4000-8000-000000000001";
@@ -433,6 +434,10 @@ async function loadLessonReadinessUnmeasured(scope: ReadinessScope = {}): Promis
     authorities.map((row) => [row.id as string, row]),
   );
   const matchesScope = (route: CurriculumRouteDefinition, skill: string): boolean => {
+        // Keep explicit historical audits available without listing the retired
+        // route as another requirement on the current Dictionary word page.
+        if (!scope.routeId && route.routeId === "homophone_word_lab"
+          && FUNCTION_WORD_DICTIONARY_SKILLS.includes(skill)) return false;
         if (scope.routeId && scope.routeId !== route.routeId) return false;
         if (scope.microSkillKey && scope.microSkillKey !== skill) return false;
         if (!scope.wordId) return true;

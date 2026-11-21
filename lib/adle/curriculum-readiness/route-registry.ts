@@ -9,6 +9,7 @@ import { COMPARATIVE_MICRO_SKILLS } from "../inflection/contracts";
 import { ING_MICRO_SKILLS } from "../ing/contracts";
 import { HOMOPHONE_LESSONS } from "../homophone/lesson";
 import approvedContextualLessons from "@/data/adle/homophone/convergence-v1/approved-lesson-content.json";
+import functionWordLessons from "@/data/adle/homophone/convergence-v1/function-word-dictionary-content.json";
 import { WEAK_VOWEL_MICRO_SKILLS } from "../word-lab/weak-vowel-dinner";
 
 /**
@@ -108,7 +109,7 @@ export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[
   },
   {
     routeId: "homophone_contextual_choice", routeVersion: "v1",
-    supportedMicroSkillKeys: approvedContextualLessons.lessons.map(lesson => lesson.microSkillKey).sort(),
+    supportedMicroSkillKeys: [...approvedContextualLessons.lessons, ...functionWordLessons.lessons].map(lesson => lesson.microSkillKey).sort(),
     routeOwnership: { kind: "declared_micro_skills" }, implementationState: "registered", newAssignmentCapable: true,
     requiresAuthenticSelectableItem: true, payloadKind: "homophone_contextual_lesson_v1", payloadVersions: [1],
     activationAuthority: "database_route_activation", wordSupportAuthority: "route_content", canonicalContentAuthority: "route_content",

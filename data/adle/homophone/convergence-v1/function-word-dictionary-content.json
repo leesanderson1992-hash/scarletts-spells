@@ -1,0 +1,725 @@
+{
+  "schemaVersion": 1,
+  "contentVersion": "function-word-dictionary-2026-11-21-v1",
+  "approvalReference": "Owner authorised Function-word homophone review and chose where/we're/wear in Codex, 2026-11-21",
+  "sourceReference": "Reviewed d4-hom/v4 activities and convergence contrast-set review; explicit sense-aligned practice replacements and owner-corrected roster",
+  "lessons": [
+    {
+      "microSkillKey": "D4_HOM_FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE",
+      "teachingExplanation": "Choose the spelling that matches the meaning: there (in that place); their (belonging to them); they're (they are).",
+      "commonMisconception": "Choosing by sound without checking the meaning in the sentence.",
+      "sets": [
+        {
+          "setKey": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE",
+          "relationKind": "homophone",
+          "members": [
+            {
+              "word": "there",
+              "intendedSense": "in that place",
+              "grammaticalRole": "adverb",
+              "teachingSentence": "Put the box there by the wall."
+            },
+            {
+              "word": "their",
+              "intendedSense": "belonging to them",
+              "grammaticalRole": "determiner",
+              "teachingSentence": "The children put on their coats."
+            },
+            {
+              "word": "they're",
+              "intendedSense": "they are",
+              "grammaticalRole": "contraction",
+              "teachingSentence": "They're waiting outside the classroom."
+            }
+          ],
+          "shortSentences": [
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S1",
+              "word": "there",
+              "sentence": "Put the suitcase over there beside the stairs.",
+              "intendedSense": "in that place"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S2",
+              "word": "their",
+              "sentence": "The twins left their football boots in the changing room.",
+              "intendedSense": "belonging to them"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S3",
+              "word": "they're",
+              "sentence": "they're practising for the school concert this afternoon.",
+              "intendedSense": "they are"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S4",
+              "word": "there",
+              "sentence": "A spider is hiding there.",
+              "intendedSense": "in that place"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S5",
+              "word": "there",
+              "sentence": "The books are over there.",
+              "intendedSense": "in that place"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S6",
+              "word": "their",
+              "sentence": "their dog is friendly.",
+              "intendedSense": "belonging to them"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S7",
+              "word": "they're",
+              "sentence": "they're playing outside.",
+              "intendedSense": "they are"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S8",
+              "word": "there",
+              "sentence": "Put it there, please.",
+              "intendedSense": "in that place"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S9",
+              "word": "their",
+              "sentence": "their house has a garden.",
+              "intendedSense": "belonging to them"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S10",
+              "word": "they're",
+              "sentence": "they're both very tired.",
+              "intendedSense": "they are"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S11",
+              "word": "there",
+              "sentence": "Is anyone there?",
+              "intendedSense": "in that place"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S12",
+              "word": "their",
+              "sentence": "their coats are wet.",
+              "intendedSense": "belonging to them"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S13",
+              "word": "they're",
+              "sentence": "they're making lunch.",
+              "intendedSense": "they are"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S14",
+              "word": "there",
+              "sentence": "Look over there!",
+              "intendedSense": "in that place"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S15",
+              "word": "their",
+              "sentence": "their team won today.",
+              "intendedSense": "belonging to them"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S16",
+              "word": "they're",
+              "sentence": "they're nearly ready.",
+              "intendedSense": "they are"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S17",
+              "word": "there",
+              "sentence": "The spider is sitting there.",
+              "intendedSense": "in that place"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S18",
+              "word": "their",
+              "sentence": "their bags are heavy.",
+              "intendedSense": "belonging to them"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S19",
+              "word": "they're",
+              "sentence": "they're walking home.",
+              "intendedSense": "they are"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S20",
+              "word": "there",
+              "sentence": "We left two biscuits there.",
+              "intendedSense": "in that place"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S21",
+              "word": "their",
+              "sentence": "their mum called.",
+              "intendedSense": "belonging to them"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S22",
+              "word": "they're",
+              "sentence": "they're coming soon.",
+              "intendedSense": "they are"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S23",
+              "word": "there",
+              "sentence": "I sat there quietly.",
+              "intendedSense": "in that place"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:S24",
+              "word": "their",
+              "sentence": "their toys are scattered.",
+              "intendedSense": "belonging to them"
+            }
+          ],
+          "passages": [
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:P1",
+              "firstWord": "there",
+              "firstSentence": "Put the box there by the wall.",
+              "secondWord": "their",
+              "secondSentence": "The children put on their coats."
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:P2",
+              "firstWord": "their",
+              "firstSentence": "The children put on their coats.",
+              "secondWord": "they're",
+              "secondSentence": "They're waiting outside the classroom."
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:REVIEWED:P3",
+              "firstWord": "they're",
+              "firstSentence": "They're waiting outside the classroom.",
+              "secondWord": "there",
+              "secondSentence": "Put the box there by the wall."
+            }
+          ],
+          "choiceQuestions": [
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:DICTIONARY:there",
+              "word": "there",
+              "sentenceWithBlank": "Put the suitcase over ____ beside the stairs."
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:DICTIONARY:their",
+              "word": "their",
+              "sentenceWithBlank": "The twins left ____ football boots in the changing room."
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE:DICTIONARY:they're",
+              "word": "they're",
+              "sentenceWithBlank": "____ practising for the school concert this afternoon."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO",
+      "teachingExplanation": "Choose the spelling that matches the meaning: to (towards a place or person); too (also); two (the number after one).",
+      "commonMisconception": "Choosing by sound without checking the meaning in the sentence.",
+      "sets": [
+        {
+          "setKey": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO",
+          "relationKind": "homophone",
+          "members": [
+            {
+              "word": "to",
+              "intendedSense": "towards a place or person",
+              "grammaticalRole": "preposition",
+              "teachingSentence": "We walked to the library."
+            },
+            {
+              "word": "too",
+              "intendedSense": "also",
+              "grammaticalRole": "adverb",
+              "teachingSentence": "I would like to come too."
+            },
+            {
+              "word": "two",
+              "intendedSense": "the number after one",
+              "grammaticalRole": "number",
+              "teachingSentence": "We found two shells on the beach."
+            }
+          ],
+          "shortSentences": [
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S1",
+              "word": "to",
+              "sentence": "Lena went to the library after school.",
+              "intendedSense": "towards a place or person"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S2",
+              "word": "too",
+              "sentence": "My little brother came too.",
+              "intendedSense": "also"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S3",
+              "word": "two",
+              "sentence": "We saw two rabbits hiding under the hedge.",
+              "intendedSense": "the number after one"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S4",
+              "word": "to",
+              "sentence": "Come to the gate.",
+              "intendedSense": "towards a place or person"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S5",
+              "word": "to",
+              "sentence": "We walked to school.",
+              "intendedSense": "towards a place or person"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S6",
+              "word": "too",
+              "sentence": "I want some too.",
+              "intendedSense": "also"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S7",
+              "word": "two",
+              "sentence": "I have two cats.",
+              "intendedSense": "the number after one"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S8",
+              "word": "to",
+              "sentence": "Please come to me.",
+              "intendedSense": "towards a place or person"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S9",
+              "word": "too",
+              "sentence": "I would like a turn too.",
+              "intendedSense": "also"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S10",
+              "word": "two",
+              "sentence": "two ducks swam past.",
+              "intendedSense": "the number after one"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S11",
+              "word": "to",
+              "sentence": "Give it to Dad.",
+              "intendedSense": "towards a place or person"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S12",
+              "word": "too",
+              "sentence": "Can I play too?",
+              "intendedSense": "also"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S13",
+              "word": "two",
+              "sentence": "We saw two foxes.",
+              "intendedSense": "the number after one"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S14",
+              "word": "to",
+              "sentence": "She went to bed.",
+              "intendedSense": "towards a place or person"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S15",
+              "word": "too",
+              "sentence": "The teacher joined the game too.",
+              "intendedSense": "also"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S16",
+              "word": "two",
+              "sentence": "two buses arrived.",
+              "intendedSense": "the number after one"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S17",
+              "word": "to",
+              "sentence": "I walked to the park.",
+              "intendedSense": "towards a place or person"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S18",
+              "word": "too",
+              "sentence": "My brother came too.",
+              "intendedSense": "also"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S19",
+              "word": "two",
+              "sentence": "two stars shone brightly.",
+              "intendedSense": "the number after one"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S20",
+              "word": "to",
+              "sentence": "Run to the gate.",
+              "intendedSense": "towards a place or person"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S21",
+              "word": "too",
+              "sentence": "My sister likes that book too.",
+              "intendedSense": "also"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S22",
+              "word": "two",
+              "sentence": "We counted two frogs.",
+              "intendedSense": "the number after one"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S23",
+              "word": "to",
+              "sentence": "Hand this to Mum.",
+              "intendedSense": "towards a place or person"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:S24",
+              "word": "too",
+              "sentence": "Please bring a pencil too.",
+              "intendedSense": "also"
+            }
+          ],
+          "passages": [
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:P1",
+              "firstWord": "to",
+              "firstSentence": "We walked to the library.",
+              "secondWord": "too",
+              "secondSentence": "I would like to come too."
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:P2",
+              "firstWord": "too",
+              "firstSentence": "I would like to come too.",
+              "secondWord": "two",
+              "secondSentence": "We found two shells on the beach."
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:REVIEWED:P3",
+              "firstWord": "two",
+              "firstSentence": "We found two shells on the beach.",
+              "secondWord": "to",
+              "secondSentence": "We walked to the library."
+            }
+          ],
+          "choiceQuestions": [
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:DICTIONARY:to",
+              "word": "to",
+              "sentenceWithBlank": "Lena went ____ the library after school."
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:DICTIONARY:too",
+              "word": "too",
+              "sentenceWithBlank": "My little brother came ____."
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO:DICTIONARY:two",
+              "word": "two",
+              "sentenceWithBlank": "We saw ____ rabbits hiding under the hedge."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR",
+      "teachingExplanation": "Choose the spelling that matches the meaning: where (in which place); we're (we are); wear (have clothing on your body).",
+      "commonMisconception": "Choosing by sound without checking the meaning in the sentence.",
+      "sets": [
+        {
+          "setKey": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR",
+          "relationKind": "homophone",
+          "members": [
+            {
+              "word": "where",
+              "intendedSense": "in which place",
+              "grammaticalRole": "adverb",
+              "teachingSentence": "Where did you put the keys?"
+            },
+            {
+              "word": "we're",
+              "intendedSense": "we are",
+              "grammaticalRole": "contraction",
+              "teachingSentence": "We're going to the library now."
+            },
+            {
+              "word": "wear",
+              "intendedSense": "have clothing on your body",
+              "grammaticalRole": "verb",
+              "teachingSentence": "I will wear a coat today."
+            }
+          ],
+          "shortSentences": [
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S1",
+              "word": "we're",
+              "sentence": "We're ready for the trip.",
+              "intendedSense": "we are"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S2",
+              "word": "where",
+              "sentence": "where did you find that beautiful pebble?",
+              "intendedSense": "in which place"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S3",
+              "word": "wear",
+              "sentence": "You must wear a helmet when riding your bike.",
+              "intendedSense": "have clothing on your body"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S4",
+              "word": "we're",
+              "sentence": "We're going to school together.",
+              "intendedSense": "we are"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S5",
+              "word": "we're",
+              "sentence": "We're baking cakes for the fair.",
+              "intendedSense": "we are"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S6",
+              "word": "where",
+              "sentence": "where is my coat?",
+              "intendedSense": "in which place"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S7",
+              "word": "wear",
+              "sentence": "wear your warm hat.",
+              "intendedSense": "have clothing on your body"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S8",
+              "word": "we're",
+              "sentence": "We're both tired after swimming.",
+              "intendedSense": "we are"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S9",
+              "word": "where",
+              "sentence": "where did you go?",
+              "intendedSense": "in which place"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S10",
+              "word": "wear",
+              "sentence": "I wear blue socks.",
+              "intendedSense": "have clothing on your body"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S11",
+              "word": "we're",
+              "sentence": "We're opening the doors for visitors.",
+              "intendedSense": "we are"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S12",
+              "word": "where",
+              "sentence": "where is the ball?",
+              "intendedSense": "in which place"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S13",
+              "word": "wear",
+              "sentence": "wear your raincoat today.",
+              "intendedSense": "have clothing on your body"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S14",
+              "word": "we're",
+              "sentence": "We're excited about the school play.",
+              "intendedSense": "we are"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S15",
+              "word": "where",
+              "sentence": "where are my shoes?",
+              "intendedSense": "in which place"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S16",
+              "word": "wear",
+              "sentence": "You must wear a helmet.",
+              "intendedSense": "have clothing on your body"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S17",
+              "word": "we're",
+              "sentence": "We're feeling brave before the show.",
+              "intendedSense": "we are"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S18",
+              "word": "where",
+              "sentence": "where does she live?",
+              "intendedSense": "in which place"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S19",
+              "word": "wear",
+              "sentence": "I wear glasses now.",
+              "intendedSense": "have clothing on your body"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S20",
+              "word": "we're",
+              "sentence": "We're early for the school concert.",
+              "intendedSense": "we are"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S21",
+              "word": "where",
+              "sentence": "where is the park?",
+              "intendedSense": "in which place"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S22",
+              "word": "wear",
+              "sentence": "wear a coat outside.",
+              "intendedSense": "have clothing on your body"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S23",
+              "word": "we're",
+              "sentence": "We're waiting beside the school gate.",
+              "intendedSense": "we are"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:S24",
+              "word": "where",
+              "sentence": "where did it land?",
+              "intendedSense": "in which place"
+            }
+          ],
+          "passages": [
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:P1",
+              "firstWord": "where",
+              "firstSentence": "Where did you put the keys?",
+              "secondWord": "we're",
+              "secondSentence": "We're going to the library now."
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:P2",
+              "firstWord": "we're",
+              "firstSentence": "We're going to the library now.",
+              "secondWord": "wear",
+              "secondSentence": "I will wear a coat today."
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:REVIEWED:P3",
+              "firstWord": "wear",
+              "firstSentence": "I will wear a coat today.",
+              "secondWord": "where",
+              "secondSentence": "Where did you put the keys?"
+            }
+          ],
+          "choiceQuestions": [
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:DICTIONARY:where",
+              "word": "where",
+              "sentenceWithBlank": "____ did you find that beautiful pebble?"
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:DICTIONARY:we're",
+              "word": "we're",
+              "sentenceWithBlank": "____ ready for the trip."
+            },
+            {
+              "id": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR:DICTIONARY:wear",
+              "word": "wear",
+              "sentenceWithBlank": "You must ____ a helmet when riding your bike."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "wordPages": [
+    {
+      "setKey": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE",
+      "word": "there",
+      "cheatCode": "THERE contains HERE. HERE and THERE both tell us about a place.",
+      "imageDescription": "Map with a nearby HERE marker and a distant THERE marker; highlight HERE inside THERE.",
+      "imageSrc": "/adle/homophones/v1/there.jpg"
+    },
+    {
+      "setKey": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE",
+      "word": "their",
+      "cheatCode": "THEIR contains HEIR. An HEIR inherits belongings, and THEIR also shows belonging.",
+      "imageDescription": "Friendly young heir receiving a treasure chest. Display THEIR with HEIR highlighted.",
+      "imageSrc": "/adle/homophones/v1/their.jpg"
+    },
+    {
+      "setKey": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE",
+      "word": "they're",
+      "cheatCode": "THEY'RE means THEY ARE. The apostrophe replaces the missing A.",
+      "imageDescription": "They are contracts to they're; the apostrophe replaces a.",
+      "imageSrc": "/adle/homophones/function-word-v1/they-re.svg"
+    },
+    {
+      "setKey": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO",
+      "word": "to",
+      "cheatCode": "TO points towards a place or person: go TO school. One O.",
+      "imageDescription": "A path from a house TO a school, with a direction sign labelled TO. Emphasise its single O.",
+      "imageSrc": "/adle/homophones/v1/to.jpg"
+    },
+    {
+      "setKey": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO",
+      "word": "too",
+      "cheatCode": "TOO means ALSO: I am coming TOO. The extra O helps you remember another person joining in.",
+      "imageDescription": "An overfull ice-cream cone with one extra round scoop shaped like O. Display TOO with the second O highlighted.",
+      "imageSrc": "/adle/homophones/v1/too.jpg"
+    },
+    {
+      "setKey": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO",
+      "word": "two",
+      "cheatCode": "TWO means 2. The W looks like TWO V shapes joined together.",
+      "imageDescription": "Two cheerful children hold up large V shapes that join to make W; show 2 and TWO.",
+      "imageSrc": "/adle/homophones/v1/two.jpg"
+    },
+    {
+      "setKey": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR",
+      "word": "where",
+      "cheatCode": "WHERE contains HERE. WHERE asks about a place; HERE is an answer.",
+      "imageDescription": "Child searching a map and spotting HERE, with WHERE? above the scene. Highlight HERE inside WHERE.",
+      "imageSrc": "/adle/homophones/v1/where.jpg"
+    },
+    {
+      "setKey": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR",
+      "word": "we're",
+      "cheatCode": "WE'RE = WE ARE: the apostrophe replaces the A.",
+      "imageDescription": "We are contracts to we're; the apostrophe replaces a.",
+      "imageSrc": "/adle/homophones/function-word-v1/we-re.svg"
+    },
+    {
+      "setKey": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR",
+      "word": "wear",
+      "cheatCode": "WEAR contains EAR. You WEAR earmuffs over your EARs.",
+      "imageDescription": "Child wearing big cosy earmuffs. Display WEAR and EAR, highlighting EAR within WEAR.",
+      "imageSrc": "/adle/homophones/v1/wear.jpg"
+    }
+  ],
+  "sourceSha256": "0555b627bec5c8c251328e54afd1b4c7c663787f0f59d400111668e13bc5e3f9"
+}

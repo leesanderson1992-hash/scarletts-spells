@@ -141,7 +141,8 @@ export function normaliseWord(value: string) {
 }
 
 export function routeForSkill(key: string) {
-  return ADLE_CURRICULUM_ROUTE_REGISTRY.find((route) => route.routeId !== "generic_composer"
+  return ADLE_CURRICULUM_ROUTE_REGISTRY.find((route) => route.routeId === "homophone_contextual_choice"
+    && route.supportedMicroSkillKeys.includes(key)) ?? ADLE_CURRICULUM_ROUTE_REGISTRY.find((route) => route.routeId !== "generic_composer"
     && route.supportedMicroSkillKeys.includes(key)) ?? null;
 }
 

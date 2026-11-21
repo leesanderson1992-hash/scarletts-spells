@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import content from "@/data/adle/homophone/convergence-v1/approved-lesson-content.json";
 import cheatCodes from "@/data/adle/homophone/convergence-v1/approved-cheat-codes.json";
 import retainedLessons from "@/data/adle/candidates/d4-hom/v4/lessons.json";
+import functionContent from "@/data/adle/homophone/convergence-v1/function-word-dictionary-content.json";
 import { homophoneActivities, type HomophoneLesson, type HomophoneLessonSnapshotV1 } from "./lesson";
 import { validateConvergencePreview } from "./convergence-preview-validation";
 
@@ -13,7 +14,7 @@ type SetContent = { setKey: string; relationKind: string; members: Member[];
   shortSentences: ShortSentence[]; passages: Passage[]; choiceQuestions: ChoiceQuestion[] };
 type LessonContent = { microSkillKey: string; teachingExplanation: string; commonMisconception: string; sets: SetContent[] };
 
-export const APPROVED_CONVERGENCE_LESSONS = content.lessons as LessonContent[];
+export const APPROVED_CONVERGENCE_LESSONS = [...content.lessons, ...functionContent.lessons] as LessonContent[];
 export const CONVERGENCE_CONTENT_VERSION = content.contentVersion;
 const combinedContentSha256 = createHash("sha256").update(`${content.sourceSha256}:${cheatCodes.sourceSha256}:${retainedLessons.sourceSha256}`).digest("hex");
 
@@ -95,11 +96,12 @@ function buildSelectedConvergenceLesson(microSkillKey: string, selectedSetKeys: 
   const dictation = selected.length === 1 ? selected[0].passages.slice(0, 3) : selected.map(set => set.passages[0]);
   const relations = new Set(selected.map(set => set.relationKind));
   if (cheatCodes.contentVersion !== content.contentVersion) throw new Error("homophone_cheat_code_version_mismatch");
-  const bySetWord = new Map(cheatCodes.wordPages.map(item => [`${item.setKey}\u0000${item.word}`, item]));
+  const bySetWord = new Map([...cheatCodes.wordPages, ...functionContent.wordPages].map(item => [`${item.setKey}\u0000${item.word}`, item]));
   const teachingGroups = selected.map(set => ({ id: set.setKey, words: set.members.map(member => {
     const sheet = bySetWord.get(`${set.setKey}\u0000${member.word}`);
     if (!sheet?.cheatCode) throw new Error(`homophone_cheat_code_missing:${set.setKey}:${member.word}`);
-    const imageSrc = source.sets.length === 1
+    const migratedArt = functionContent.wordPages.find(item => item.setKey === set.setKey && item.word === member.word);
+    const imageSrc = migratedArt ? migratedArt.imageSrc ?? undefined : source.sets.length === 1
       ? `/adle/homophones/convergence-v1/word-art/${member.word.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}.jpg`
       : undefined;
     return { word: member.word, definition: member.intendedSense, cheatCode: sheet.cheatCode,
@@ -128,7 +130,9 @@ function buildSelectedConvergenceLesson(microSkillKey: string, selectedSetKeys: 
     snapshotSchemaVersion: 3, route: { routeId: "homophone_word_lab", routeVersion: "v2" },
     recipe: { recipeKey: "homophone_word_lab", recipeVersion: "v2" },
     contentVersion: `${CONVERGENCE_CONTENT_VERSION}:intro-v3:word-art-v1:cheat-${cheatCodes.sourceSha256.slice(0, 12)}:${variant}`,
-    sourceSha256: content.sourceSha256, contentSha256: combinedContentSha256,
+    sourceSha256: functionContent.lessons.some(row => row.microSkillKey === microSkillKey) ? functionContent.sourceSha256 : content.sourceSha256,
+    contentSha256: functionContent.lessons.some(row => row.microSkillKey === microSkillKey)
+      ? createHash("sha256").update(`${combinedContentSha256}:${functionContent.sourceSha256}`).digest("hex") : combinedContentSha256,
     microSkillKey, lesson, activities: homophoneActivities(lesson),
   };
   const questions = selected.flatMap(set => set.choiceQuestions.map(question => ({ ...question,

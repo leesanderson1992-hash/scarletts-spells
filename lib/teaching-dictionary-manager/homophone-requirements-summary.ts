@@ -1,12 +1,13 @@
 import "server-only";
 
 import manifest from "@/data/adle/homophone/convergence-v1/manifest.json";
+import { homophoneReviewSpec } from "./homophone-review-contract";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 /** The convergence roster defines the exact scope of this Production check. */
 export async function loadHomophoneRequirementsSummary() {
   const db = createServiceRoleClient();
-  const skills = manifest.skills;
+  const skills = manifest.skills.map(row => homophoneReviewSpec(row.key)!);
   const skillKeys = skills.map((skill) => skill.key);
   const setKeys = [...new Set(skills.flatMap((skill) => skill.sets.map((set) => set.setKey)))];
   const wordKeys = [...new Set(skills.flatMap((skill) => skill.sets.flatMap((set) => set.members)))];
