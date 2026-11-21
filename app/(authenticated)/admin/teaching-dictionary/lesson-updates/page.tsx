@@ -77,7 +77,7 @@ export default async function LessonUpdates({ searchParams }: {
   const compoundQueue = compoundSkill && view === "preview" ? await loadPendingCompoundWorkbookQueue(db, compoundSkill) : null;
   const readyCompounds = compoundQueue?.filter(row => !row.blockers.length).slice(0, 30) ?? [];
   const schwaSkill = isSchwaWorkbookSkill(selected) ? selected : null;
-  const schwaQueue = schwaSkill && view === "preview" ? await loadSchwaWorkbookQueue(db, schwaSkill) : null;
+  const schwaQueue = schwaSkill && view === "preview" ? specialist && "queue" in specialist ? specialist.queue : await loadSchwaWorkbookQueue(db, schwaSkill) : null;
   const readySchwa = schwaQueue?.filter(row => !row.blockers.length && !row.published).slice(0, 20) ?? [];
   const blankWorkbookSkill = prefixSkill ?? (suffixPilot || comparativeSkill || compoundSkill || schwaSkill || isHomophoneReviewSkill(selected) ? selected : null);
   const prefixQueue = prefixSkill && view === "preview" && specialist

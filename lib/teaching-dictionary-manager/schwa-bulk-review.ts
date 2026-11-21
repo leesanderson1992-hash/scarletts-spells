@@ -5,7 +5,6 @@ import { createHash } from "node:crypto";
 import type { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { loadReviewedMeaningBundles } from "./multi-sense-export";
 import { loadLessonReviewRequests } from "./lesson-review-requests";
-import { loadTeachingDictionaryEvidenceAuthorityForSkill } from "./evidence-authority";
 import { ingReviewEnvironment } from "./ing-staging-scope";
 import { emptyMetadata, emptyMorphology, routeBlockers, DICTIONARY_BANDS, type WordDraftPayload, type RouteContentDraft } from "./contracts";
 import { type WeakVowelRouteFactsV1 } from "./weak-vowel-authoring";
@@ -212,12 +211,13 @@ export async function publishSchwaWorkbookWord(db: Db, actor: string, skill: str
 export async function loadSchwaBulkReview(db: Db, skill: string, includeBundles = false) {
   if (!isSchwaWorkbookSkill(skill)) throw new Error("Unsupported Schwa lesson.");
   const environment = ingReviewEnvironment()!;
-  const [assigned, requests, publications, queue, pool] = await Promise.all([
-    loadTeachingDictionaryEvidenceAuthorityForSkill(db, environment, skill), loadLessonReviewRequests(db, skill),
+  const [requests, publications, queue, pool] = await Promise.all([
+    loadLessonReviewRequests(db, skill),
     db.from("adle_weak_vowel_content_publications").select("canonical_word_id").eq("micro_skill_key", skill),
     loadSchwaWorkbookQueue(db, skill), loadWeakVowelSelectionPool({ client: db, environmentKey: environment }, skill),
   ]);
   if (publications.error) throw new Error("Could not load the Schwa lesson pool.");
+  const assigned = pool.authority.relationships;
   const ids = [...new Set([...assigned.map(row => row.canonicalWordId), ...requests.keys(), ...publications.data.map(row => row.canonical_word_id), ...queue.map(row => row.wordId)])];
   const current = pool.words.map(row => ({ canonicalWordId: row.canonicalWordId, word: row.spelling, base: "", meaning: row.definition, dictationSentence: row.sentence }));
   const words = ids.length ? await db.from("canonical_teaching_dictionary_words").select("id,display_word").in("id", ids).eq("row_status", "active") : { data: [], error: null };
@@ -234,5 +234,5 @@ export async function loadSchwaBulkReview(db: Db, skill: string, includeBundles 
     if (active && !issues.length) return [];
     return [{ id: word.id, word: word.display_word, href: `/admin/teaching-dictionary/${word.id}#td-overview`, note: issues.join(" ") }];
   }).sort((a, b) => a.word.localeCompare(b.word, "en-GB"));
-  return { current, rows, bundles: includeBundles ? rows.map(row => bundles.find(bundle => bundle.wordId === row.id) ?? { wordId: row.id, displayWord: row.word, sourceSenseReviewedAt: "", analyses: [], senseSet: { pronunciations: [], senses: [{ id: "review", definition: "", partOfSpeech: "", pronunciationId: null }] } } satisfies MultiSenseCsvBundle) : [], title: "Schwa and weak vowels", routeId: "weak_vowel_word_lab", skill };
+  return { current, rows, queue, bundles: includeBundles ? rows.map(row => bundles.find(bundle => bundle.wordId === row.id) ?? { wordId: row.id, displayWord: row.word, sourceSenseReviewedAt: "", analyses: [], senseSet: { pronunciations: [], senses: [{ id: "review", definition: "", partOfSpeech: "", pronunciationId: null }] } } satisfies MultiSenseCsvBundle) : [], title: "Schwa and weak vowels", routeId: "weak_vowel_word_lab", skill };
 }

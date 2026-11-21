@@ -14,9 +14,9 @@ grant execute on function public.teaching_dictionary_schwa_sense_fingerprint(uui
 create or replace function public.teaching_dictionary_schwa_shared_facts(p_words uuid[])
 returns table(word_id uuid,definition text,sentence text)
 language sql stable security definer set search_path=public,pg_temp as $$
- select id,d.definition,s.dictation_sentence from unnest(p_words) id
- left join lateral (select v.definition from public.teaching_dictionary_definition_versions v where v.canonical_word_id=id and v.route_id is null order by v.published_at desc,v.id desc limit 1) d on true
- left join lateral (select v.dictation_sentence from public.canonical_teaching_dictionary_dictation_sentences v where v.canonical_word_id=id and v.row_status='active' and v.review_status='approved_for_first_exposure' order by v.created_at desc,v.id desc limit 1) s on true
+ select target.word_id,d.definition,s.dictation_sentence from unnest(p_words) as target(word_id)
+ left join lateral (select v.definition from public.teaching_dictionary_definition_versions v where v.canonical_word_id=target.word_id and v.route_id is null order by v.published_at desc,v.id desc limit 1) d on true
+ left join lateral (select v.dictation_sentence from public.canonical_teaching_dictionary_dictation_sentences v where v.canonical_word_id=target.word_id and v.row_status='active' and v.review_status='approved_for_first_exposure' order by v.created_at desc,v.id desc limit 1) s on true
  where cardinality(p_words)<=100
 $$;
 revoke all on function public.teaching_dictionary_schwa_shared_facts(uuid[]) from public,anon,authenticated;
