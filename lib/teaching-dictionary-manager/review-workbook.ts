@@ -1,3 +1,4 @@
+import type { WorkbookPartPrefill } from "./review-workbook-part-prefill";
 import { isSchwaWorkbookSkill, SCHWA_WORKBOOK_FIELDS, type SchwaWorkbookFacts } from "./weak-vowel-workbook";
 import { isHomophoneReviewSkill } from "./homophone-review-contract";
 import { isCompoundWorkbookSkill, type CompoundWorkbookFacts } from "./compound-workbook";
@@ -42,6 +43,7 @@ const workbookLabel = (skill: string, key: string) => key === prefixMeaningKey ?
 
 export async function buildReviewWorkbook(input: { skill: string; title: string; bundles: MultiSenseCsvBundle[];
   notes: ReadonlyMap<string, string>; families: ReadonlyMap<string, string[]>;
+  wordPartPrefills?: ReadonlyMap<string, WorkbookPartPrefill>;
   schwaFacts?: ReadonlyMap<string, SchwaWorkbookFacts>; compoundFacts?: ReadonlyMap<string, CompoundWorkbookFacts>; suffixFacts?: ReadonlyMap<string, SuffixWorkbookFacts>; requestedSenses?: ReadonlyMap<string, string | null> }) {
   const keys = workbookKeys(input.skill);
   const workbook = new ExcelJS.Workbook();
@@ -95,6 +97,8 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   const [headers, ...rows] = csvRecords(renderMultiSenseCsvBundles(input.bundles));
   for (const values of rows) {
     const entry = Object.fromEntries(headers.map((key, i) => [key, (values[i] ?? "").replace(/^'(?=[=+@\-\t\r])/u, "")]));
+    const partPrefill = input.wordPartPrefills?.get(`${entry.canonical_word_id}:${entry.sense_id}`);
+    for (const [key, value] of Object.entries(partPrefill?.fields ?? {})) if (!entry[key] || /^part_\d+_id$/u.test(key)) entry[key] = value;
     for (const index of partIndexes) {
       const prefix = `part_${index}_`;
       const source = entry[`${prefix}underlying_form`], surface = entry[`${prefix}visible_letters`];
@@ -106,7 +110,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     const notes = [
       input.notes.get(entry.canonical_word_id),
       entry.part_of_speech !== "root" && !entry.dictation_sentence ? "Add a dictation sentence for this meaning." : "",
-      !entry.part_1_kind ? "Review the word parts." : "",
+      ...(partPrefill?.issues ?? (!entry.part_1_kind ? ["Review the word parts."] : [])),
       !isHomophoneReviewSkill(input.skill) && !isSchwaWorkbookSkill(input.skill) && !entry.family_key ? "Choose the teaching family for this meaning." : "",
       !entry.ipa || !entry.spoken_syllable_count || !entry.stress_pattern
         ? "Check pronunciation, syllable count and stress." : "",
@@ -124,6 +128,10 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     row.height = 32;
     row.alignment = { vertical: "middle", wrapText: true };
     addDropdowns(row);
+    for (const key of partPrefill?.missingFields ?? []) {
+      row.getCell(key).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFDEDF7" } };
+      row.getCell(key).note = partPrefill!.issues.join("\n");
+    }
     const familyPart = Array.from({ length: FLAT_IMPORT_PART_LIMIT }, (_, index) => index + 1)
       .find(index => (entry[`part_${index}_id`] || `part_${index}`) === entry.component_part_id
         || (!entry.component_part_id && ["base", "root"].includes(entry[`part_${index}_kind`])));

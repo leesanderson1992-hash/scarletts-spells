@@ -1,4 +1,5 @@
 import "server-only";
+import { prefillWorkbookParts, type WorkbookPartPrefill } from "./review-workbook-part-prefill";
 
 import type { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { targetOccurrences } from "./authoring";
@@ -13,7 +14,7 @@ type Db = ReturnType<typeof createServiceRoleClient>;
 export async function prefillReviewWorkbookFacts(db: Db, bundles: MultiSenseCsvBundle[], skill: string,
   publishedBases: ReadonlyMap<string, string> = new Map()) {
   const singles = bundles.filter(bundle => bundle.senseSet.senses.length === 1);
-  const ids = singles.filter(bundle => !bundle.sourceSenseReviewedAt || !bundle.senseSet.senses[0].dictationSentence?.trim())
+  const ids = singles.filter(bundle => !bundle.sourceSenseReviewedAt || !bundle.senseSet.senses[0].dictationSentence?.trim() || !bundle.analyses.length)
     .map(bundle => bundle.wordId);
   const legacy = new Set(singles.filter(bundle => !bundle.sourceSenseReviewedAt).map(bundle => bundle.wordId));
   const sentences = new Map<string, { dictationSentence: string; dictationTargetTokenIndex: number }>();
@@ -24,6 +25,7 @@ export async function prefillReviewWorkbookFacts(db: Db, bundles: MultiSenseCsvB
   for (let offset = 0; offset < ids.length; offset += 75) {
     const batch = ids.slice(offset, offset + 75);
     const legacyBatch = batch.filter(id => legacy.has(id));
+    const partBatch = batch.filter(id => !bundles.find(bundle => bundle.wordId === id)?.analyses.length);
     const [dictation, metadata, parts] = await Promise.all([
       db.from("canonical_teaching_dictionary_dictation_sentences")
         .select("canonical_word_id,dictation_sentence,dictation_target_token_index").in("canonical_word_id", batch)
@@ -33,9 +35,9 @@ export async function prefillReviewWorkbookFacts(db: Db, bundles: MultiSenseCsvB
         .select("canonical_word_id,phoneme_hint,syllables,stress_pattern").in("canonical_word_id", legacyBatch)
         .eq("row_status", "active").eq("review_status", "approved_for_first_exposure")
         .order("created_at", { ascending: false }).order("id", { ascending: false }) : null,
-      legacyBatch.length ? db.from("canonical_teaching_dictionary_word_morphology")
-        .select("canonical_word_id,morphology_parts,morphology_joins,morphology_transformations,raw_morpholex_pos").in("canonical_word_id", legacyBatch)
-        .eq("row_status", "active").eq("review_status", "approved_for_first_exposure").eq("analysis_status", "approved")
+      partBatch.length ? db.from("canonical_teaching_dictionary_word_morphology")
+        .select("canonical_word_id,morphology_parts,morphology_joins,morphology_transformations,raw_morpholex_pos").in("canonical_word_id", partBatch)
+        .eq("row_status", "active")
         .order("created_at", { ascending: false }).order("id", { ascending: false }) : null,
     ]);
     if (dictation.error || metadata?.error || parts?.error) throw new Error("Could not load existing Dictionary facts for the review workbook.");
@@ -113,8 +115,19 @@ export async function prefillReviewWorkbookFacts(db: Db, bundles: MultiSenseCsvB
       relationshipKind: isPrefixWorkbookSkill(skill) ? "derived" : "", requestedSkillKeys: [],
     }] };
   });
-  const bases = [...new Set(hydrated.flatMap(bundle => bundle.analyses.flatMap(analysis =>
-    analysis.parts.filter(part => part.kind === "base" || part.kind === "root").map(part => part.sourceText))))];
+  const wordPartPrefills = new Map<string, WorkbookPartPrefill>();
+  for (const bundle of hydrated) for (const sense of bundle.senseSet.senses) {
+    const original = bundles.find(item => item.wordId === bundle.wordId)?.analyses.find(analysis => analysis.senseId === sense.id);
+    const fallback = bundle.senseSet.senses.length === 1 ? morphology.get(bundle.wordId) : null;
+    const source = original ?? fallback ?? bundle.analyses.find(analysis => analysis.senseId === sense.id);
+    wordPartPrefills.set(`${bundle.wordId}:${sense.id}`, prefillWorkbookParts({ word: bundle.displayWord,
+      definition: sense.definition, parts: source?.parts, joins: source?.joins, transformations: source?.transformations }));
+  }
+  const bases = [...new Set([...hydrated.flatMap(bundle => bundle.analyses.flatMap(analysis =>
+    analysis.parts.filter(part => part.kind === "base" || part.kind === "root").map(part => part.sourceText))),
+    ...[...wordPartPrefills.values()].flatMap(prefill => Array.from({ length: FLAT_IMPORT_PART_LIMIT }, (_, index) => index + 1)
+      .filter(index => ["base", "root"].includes(prefill.fields[`part_${index}_kind`]))
+      .map(index => prefill.fields[`part_${index}_underlying_form`]).filter(Boolean))])];
   const families = new Map<string, string[]>();
   const seen = new Set<string>();
   for (let offset = 0; offset < bases.length; offset += 50) {
@@ -130,7 +143,7 @@ export async function prefillReviewWorkbookFacts(db: Db, bundles: MultiSenseCsvB
       families.set(row.base_lemma, [...(families.get(row.base_lemma) ?? []), label]);
     }
   }
-  return { bundles: hydrated, families };
+  return { bundles: hydrated, families, wordPartPrefills };
 }
 
 function prefixPartSuggestions(raw: unknown, word: string, skill: PrefixWorkbookSkill): CanonicalPart[] | null {

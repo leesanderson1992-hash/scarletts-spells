@@ -195,7 +195,7 @@ async function reviewBundles(db: ReturnType<typeof createServiceRoleClient>, row
 }
 
 async function workbookResponse(skill: keyof typeof STAGING_ING_LESSONS, batch: number,
-  data: Pick<Parameters<typeof buildReviewWorkbook>[0], "bundles" | "notes" | "families" | "requestedSenses">) {
+  data: Pick<Parameters<typeof buildReviewWorkbook>[0], "bundles" | "notes" | "families" | "requestedSenses" | "wordPartPrefills">) {
   const bytes = await buildReviewWorkbook({ skill, title: STAGING_ING_LESSONS[skill], ...data });
   return downloadWorkbook(bytes, `teaching-dictionary-review-${skill}-${batch}.xlsx`);
 }
