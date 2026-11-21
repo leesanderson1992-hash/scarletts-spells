@@ -4,6 +4,12 @@ import manifest from "@/data/adle/homophone/convergence-v1/manifest.json";
 export type HomophoneReviewSkill = `D4_HOM_${string}`;
 export const HOMOPHONE_REVIEW_SKILLS = manifest.skills.map(skill => skill.key);
 export const CONFUSABLE_DICTIONARY_SKILLS = HOMOPHONE_REVIEW_SKILLS.filter(key => key.startsWith("D4_HOM_CONFUSABLE_WORDS_"));
+/** Content-word lessons whose reviewed Dictionary facts are now publishable. */
+export const CONTENT_WORD_DICTIONARY_SKILLS = [
+  "D4_HOM_CONTENT_WORD_HOMOPHONES_ALLOWED_ALOUD",
+  "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T",
+  "D4_HOM_CONTENT_WORD_HOMOPHONES_MORNING_MOURNING",
+] as const;
 export function homophoneReviewSpec(skill: unknown) {
   return typeof skill === "string" ? manifest.skills.find(row => row.key === skill) : undefined;
 }

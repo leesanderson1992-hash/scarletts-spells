@@ -1,6 +1,6 @@
 import "server-only";
 import { buildDictionaryContextualContent } from "@/lib/adle/homophone/dictionary-content";
-import { CONFUSABLE_DICTIONARY_SKILLS } from "./homophone-review-contract";
+import { CONFUSABLE_DICTIONARY_SKILLS, CONTENT_WORD_DICTIONARY_SKILLS } from "./homophone-review-contract";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
 import { loadApprovedContextualContentForSkills } from "@/lib/adle/homophone/published-contextual-content-loader";
@@ -11,7 +11,7 @@ import { loadCurrentLessonSenses } from "./lesson-sense-projection";
 import { ingReviewEnvironment } from "./ing-staging-scope";
 
 export function homophoneCanonicalPublishingEnabled(skill: string) {
-  return ingReviewEnvironment() !== null && CONFUSABLE_DICTIONARY_SKILLS.includes(skill);
+  return ingReviewEnvironment() !== null && [...CONFUSABLE_DICTIONARY_SKILLS, ...CONTENT_WORD_DICTIONARY_SKILLS].includes(skill);
 }
 
 /** Build an immutable, sense-specific Dictionary projection. Contrast questions,
