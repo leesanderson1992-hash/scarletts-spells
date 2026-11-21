@@ -18,6 +18,8 @@ export interface PublishedWeakVowelWord {
   contentSha256AtPublication: string;
   dictionaryFingerprintAtReview: string;
   currentDictionaryFingerprint: string;
+  /** Set only by the reader after verifying the selected canonical sense and pronunciation. */
+  canonicalFactsVerified?: boolean;
   wordAudioSha256AtPublication: string;
   sentenceAudioSha256AtPublication: string;
   definition: string;
@@ -37,7 +39,8 @@ export function publishedWeakVowelWordBlockers(row: PublishedWeakVowelWord, skil
   const facts = row.routeContent.content.weakVowel;
   const blockers = weakVowelRouteBlockers(facts, { displayWord: row.spelling,
     dictationSentence: row.sentence, definition: row.definition, microSkillKey: skill });
-  if (!row.contentVersionId || row.dictionaryFingerprintAtReview !== row.currentDictionaryFingerprint ||
+  if (!row.contentVersionId || (!row.canonicalFactsVerified && row.dictionaryFingerprintAtReview !== row.currentDictionaryFingerprint) ||
+    (Boolean(facts.canonicalSenseId) && !row.canonicalFactsVerified) ||
     row.sourceFingerprint !== facts.sourceFingerprint || row.routeContent.routeId !== "weak_vowel_word_lab" ||
     !/^[a-f0-9]{64}$/.test(row.contentSha256AtPublication) ||
     row.routeContent.routeVersion !== "v1" || row.routeContent.microSkillKey !== skill ||
@@ -114,6 +117,8 @@ export function prepareLessonFromPublishedWeakVowelWords(input: {
     const matchingFamilies = input.publishedFamilies?.filter((entry) =>
       entry.canonicalWordId === row.canonicalWordId &&
       entry.family.authorityId === (facts.canonicalFamilyId || facts.familyAuthorityId)) ?? [];
+    if (facts.canonicalSenseId && facts.familyDecision === "approve" && matchingFamilies.length !== 1)
+      blockers.push({ canonicalWordId: row.canonicalWordId, reason: "approved_dictionary_family_unavailable" });
     if (matchingFamilies.length > 1) blockers.push({ canonicalWordId: row.canonicalWordId, reason: "ambiguous_approved_family" });
     return {
       schemaVersion: DETECTIVE_ROUND_VERSION, contentVersion: row.contentVersionId, reviewStatus: "approved" as const,

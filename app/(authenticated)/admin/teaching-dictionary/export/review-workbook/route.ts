@@ -1,3 +1,5 @@
+import { isSchwaWorkbookSkill } from "@/lib/teaching-dictionary-manager/weak-vowel-workbook";
+import { loadSchwaWorkbookFacts } from "@/lib/teaching-dictionary-manager/schwa-bulk-review";
 import { isHomophoneReviewSkill } from "@/lib/teaching-dictionary-manager/homophone-review-contract";
 import { isCompoundWorkbookSkill, compoundWorkbookTitle } from "@/lib/teaching-dictionary-manager/compound-workbook";
 import { prefillCompoundWorkbook } from "@/lib/teaching-dictionary-manager/compound-review";
@@ -32,6 +34,7 @@ export async function GET(request: Request) {
   const batch = Number(params.get("batch") ?? "1");
   if (!canUpdateIngLesson() || !supportsReviewWorkbook(skill))
     return new Response("Workbook review is unavailable for this lesson.", { status: 404 });
+  if (scope === "blank" && isSchwaWorkbookSkill(skill)) return downloadWorkbook(await buildReviewWorkbook({skill, title: "Schwa and weak vowels", bundles: [], notes: new Map(), families: new Map()}), `teaching-dictionary-blank-${skill}.xlsx`);
   if (scope === "blank" && isHomophoneReviewSkill(skill)) return downloadWorkbook(await buildReviewWorkbook({skill, title: "Homophones and confusable words", bundles: [], notes: new Map(), families: new Map()}), `teaching-dictionary-blank-${skill}.xlsx`);
   if (scope === "blank" && isCompoundWorkbookSkill(skill)) return downloadWorkbook(await buildReviewWorkbook({ skill, title: compoundWorkbookTitle(skill), bundles: [], notes: new Map(), families: new Map() }), `teaching-dictionary-blank-${skill}.xlsx`);
   if (scope === "blank" && isComparativeReviewSkill(skill)) {
@@ -100,6 +103,7 @@ export async function GET(request: Request) {
     const review = await includeActiveWorkbookReview(db, skill, current, rows, specialistRoute !== "weak_vowel_word_lab");
     const selected = review.slice((batch - 1) * ING_REVIEW_BATCH_SIZE, batch * ING_REVIEW_BATCH_SIZE);
     if (!selected.length) {
+      if (isSchwaWorkbookSkill(skill) && batch === 1) return downloadWorkbook(await buildReviewWorkbook({skill,title,bundles:[],notes:new Map(),families:new Map()}), `teaching-dictionary-blank-${skill}.xlsx`);
       if (prefixWorkbookEnabled(skill) && batch === 1) return blankPrefixWorkbook(skill);
       return new Response("No words need review in this batch.", { status: 404 });
     }
@@ -109,7 +113,7 @@ export async function GET(request: Request) {
     const prepared = compound?.bundles ?? (isComparativeReviewSkill(skill) ? await prefillComparativeWorkbook(db, skill, reviewed) : reviewed);
     const facts = await prefillReviewWorkbookFacts(db, prepared, skill,
       new Map(current.map(word => [word.canonicalWordId, word.base])));
-    return downloadWorkbook(await buildReviewWorkbook({ skill, title, ...facts, notes, requestedSenses, compoundFacts: compound?.compoundFacts }),
+    return downloadWorkbook(await buildReviewWorkbook({ skill, title, ...facts, notes, requestedSenses, schwaFacts: isSchwaWorkbookSkill(skill) ? await loadSchwaWorkbookFacts(db, skill, selected.map(row => row.id)) : undefined, compoundFacts: compound?.compoundFacts }),
     `teaching-dictionary-review-${skill}-${batch}.xlsx`);
   }
   if (!isStagingIngSkill(skill)) return new Response("Workbook review is unavailable for this lesson.", { status: 404 });

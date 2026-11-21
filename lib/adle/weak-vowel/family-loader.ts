@@ -1,3 +1,4 @@
+import { loadSchwaDictionaryFamily } from "./canonical-family-loader";
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -16,8 +17,15 @@ export async function loadWeakVowelFamilies(input: { client: SupabaseClient;
     return facts.familyDecision === "approve" && facts.familyAuthorityId
       ? [{ word, familyId: facts.familyAuthorityId }] : [];
   });
-  const ids = [...new Set(chosen.map((entry) => entry.familyId))];
-  if (!ids.length) return { current: [], published: [] };
+  const canonicalPublished: Array<{ canonicalWordId: string; family: DetectiveFamilyV1 }> = [];
+  for (const entry of chosen.filter(entry => entry.familyId.startsWith("dictionary:"))) {
+    const facts = entry.word.routeContent.content.weakVowel;
+    const family = facts.canonicalSenseId ? await loadSchwaDictionaryFamily(input.client, entry.word.canonicalWordId, facts.canonicalSenseId, entry.familyId.slice("dictionary:".length)) : null;
+    if (family) canonicalPublished.push({ canonicalWordId: entry.word.canonicalWordId, family });
+  }
+  const canonicalCurrent = [...new Map(canonicalPublished.map(entry => [entry.family.authorityId + ":" + entry.family.sourceFingerprint, { authorityId: entry.family.authorityId, sourceFingerprint: entry.family.sourceFingerprint, memberWordIds: entry.family.members.map(member => member.canonicalWordId) }])).values()];
+  const ids = [...new Set(chosen.map((entry) => entry.familyId).filter(id => !id.startsWith("dictionary:")))];
+  if (!ids.length) return { current: canonicalCurrent, published: canonicalPublished };
   const families = await input.client.from("canonical_teaching_dictionary_base_word_families")
     .select("id,base_word_id,base_family_key,source_row_hash,row_status,review_status")
     .in("id", ids).eq("row_status", "active").eq("review_status", "approved_for_first_exposure");
@@ -51,8 +59,8 @@ export async function loadWeakVowelFamilies(input: { client: SupabaseClient;
   const spelling = new Map((words?.data ?? []).map((word) => [word.id, word.display_word]));
   const recordings = new Map(input.selected.map((word) => [word.canonicalWordId,
     { ...word.routeContent.content.weakVowel.wordRecording, reviewStatus: "approved" as const }]));
-  const current: CurrentDetectiveFamilyAuthority[] = [];
-  const published: Array<{ canonicalWordId: string; family: DetectiveFamilyV1 }> = [];
+  const current: CurrentDetectiveFamilyAuthority[] = [...canonicalCurrent];
+  const published: Array<{ canonicalWordId: string; family: DetectiveFamilyV1 }> = [...canonicalPublished];
   for (const family of families.data ?? []) {
     if (!/^[a-f0-9]{64}$/.test(family.source_row_hash) || !spelling.has(family.base_word_id)) continue;
     const familyMembers = (members.data ?? []).filter((member) => member.base_word_family_id === family.id)

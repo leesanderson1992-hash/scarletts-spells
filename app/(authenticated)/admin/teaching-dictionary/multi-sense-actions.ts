@@ -1,4 +1,6 @@
 "use server";
+import { isSchwaWorkbookSkill, type SchwaWorkbookFacts } from "@/lib/teaching-dictionary-manager/weak-vowel-workbook";
+import { stageSchwaWorkbookDraft, loadSchwaWorkbookQueue } from "@/lib/teaching-dictionary-manager/schwa-bulk-review";
 
 import { isHomophoneReviewSkill } from "@/lib/teaching-dictionary-manager/homophone-review-contract";
 import { isCompoundWorkbookSkill, type CompoundWorkbookFacts } from "@/lib/teaching-dictionary-manager/compound-workbook";
@@ -23,7 +25,7 @@ import { hasCandidateRule, isComparativeReviewSkill } from "@/lib/teaching-dicti
 import { routeForSkill } from "@/lib/teaching-dictionary-manager/contracts";
 import { loadLessonReadiness } from "@/lib/teaching-dictionary-manager/lesson-preflight";
 import { canUpdateIngLesson, isStagingIngSkill, loadStagingIngWordReleaseStatuses } from "@/lib/teaching-dictionary-manager/ing-staging-release";
-import { ABLE_IBLE_SKILL, type SuffixWorkbookFacts } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
+import { type SuffixWorkbookFacts } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
 import { isSuffixWorkbookPilot, isIdentifyBaseReview, specialistWorkbookRoute, supportsReviewWorkbook } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
 import { stageAbleIbleWord, suffixWorkbookIssues } from "@/lib/teaching-dictionary-manager/able-ible-review";
 import { NEGATIVE_PREFIX_SKILL, prefixWorkbookChoice, prefixWorkbookEnabled, prefixWorkbookFieldLabel,
@@ -34,7 +36,7 @@ import { saveBulkSkillApprovals } from "./bulk-assign/actions";
 
 type ImportIssue = { word: string; rows: number[]; wordId?: string; reason: string };
 type LessonResult = { word: string; wordId: string; meaning: string; skillKey: string;
-  approval: "Approved" | "Already approved" | "Needs review"; release?: string; routeId?: string; draftId?: string };
+  approval: "Approved" | "Already approved" | "Needs review" | "Ready to publish"; release?: string; routeId?: string; draftId?: string };
 export type MultiSenseImportState = {
   lessons?: LessonResult[];
   familyTasks?: WorkbookFamilyTask[];
@@ -61,7 +63,7 @@ function importIssue(message: string) {
 }
 
 function workbookBasePartOfSpeech(skill: string) {
-  if (isCompoundWorkbookSkill(skill) || isSuffixWorkbookPilot(skill) || isComparativeReviewSkill(skill) || skill === SUB_INTER_SUPER_PREFIX_SKILL) return null;
+  if (isSchwaWorkbookSkill(skill) || isCompoundWorkbookSkill(skill) || isSuffixWorkbookPilot(skill) || isComparativeReviewSkill(skill) || skill === SUB_INTER_SUPER_PREFIX_SKILL) return null;
   return skill === NEGATIVE_PREFIX_SKILL ? "adjective" : "verb";
 }
 
@@ -78,6 +80,7 @@ export async function importReviewedMultiSenseCsv(
     return { error: workbook ? "Choose a workbook smaller than 4 MB." : "Choose a CSV smaller than 4 MB." };
   const db = createServiceRoleClient();
   let familyTasks: WorkbookFamilyTask[] | undefined;
+  let schwaFacts = new Map<number, SchwaWorkbookFacts>();
   let compoundFacts = new Map<number, CompoundWorkbookFacts>();
   let prefixMeanings = new Map<number, string>();
   let suffixFacts = new Map<number, SuffixWorkbookFacts>();
@@ -94,12 +97,13 @@ export async function importReviewedMultiSenseCsv(
           (typeof item.familyKey === "string") === (typeof item.createSenseId === "string") ||
           (item.familyKey?.length ?? 0) > 200 || (item.createSenseId?.length ?? 0) > 200))
         throw new Error("Choose a valid family decision.");
-      const { csv, rowNumbers, pendingFamilies, compoundFacts: workbookCompoundFacts, suffixFacts: workbookSuffixFacts, prefixMeanings: workbookPrefixMeanings } = await readReviewWorkbook(await file.arrayBuffer(), skill, {
+      const { csv, rowNumbers, pendingFamilies, schwaFacts: workbookSchwaFacts, compoundFacts: workbookCompoundFacts, suffixFacts: workbookSuffixFacts, prefixMeanings: workbookPrefixMeanings } = await readReviewWorkbook(await file.arrayBuffer(), skill, {
         targetRow, decisions,
         resolve: (base, decision) => decision.createSenseId
           ? createWorkbookFamily(db, actor.id, base, decision.createSenseId, workbookBasePartOfSpeech(skill))
           : approvedWorkbookFamily(db, decision.familyKey ?? "", true),
       });
+      schwaFacts = workbookSchwaFacts;
       compoundFacts = workbookCompoundFacts;
       suffixFacts = workbookSuffixFacts;
       prefixMeanings = workbookPrefixMeanings;
@@ -167,7 +171,7 @@ export async function importReviewedMultiSenseCsv(
     const applied = workbook ? await db.rpc("import_teaching_dictionary_partial_review", {
       ...importFacts, p_environment: resolveAdleRouteActivationEnvironment(), p_skill: skill,
       p_dependencies: waiting.map(task => ({ senseId: task.senseId, componentPartId: task.componentPartId,
-        context: { prefixMeaning: prefixMeanings.get(task.row), suffixFacts: suffixFacts.get(task.row), compoundFacts: compoundFacts.get(task.row) } })),
+        context: { prefixMeaning: prefixMeanings.get(task.row), suffixFacts: suffixFacts.get(task.row), compoundFacts: compoundFacts.get(task.row), schwaFacts: schwaFacts.get(task.row) } })),
     }) : await db.rpc("import_reviewed_teaching_dictionary_word", importFacts);
     if (applied.error || typeof applied.data !== "string") {
       issues.push({ word, rows, reason: importIssue(applied.error?.code === "23505" ? "23505" : applied.error?.message ?? "") });
@@ -190,6 +194,15 @@ export async function importReviewedMultiSenseCsv(
         const report = (reason: string) => issues.push({
           word, wordId, rows: [rows[index]], reason: `${prefix}: ${reason}`,
         });
+        if (workbook && isSchwaWorkbookSkill(skillKey)) {
+          try {
+            lesson.draftId = await stageSchwaWorkbookDraft(db, actor.id, { ...bundle, wordId }, skillKey, analysis.senseId, schwaFacts.get(rows[index])!);
+            const [review] = await loadSchwaWorkbookQueue(db, skillKey, [wordId]);
+            lesson.approval = review && !review.blockers.length ? "Ready to publish" : "Needs review";
+            lesson.release = review?.blockers.join(" ") || "Reviewed Dictionary facts saved. Publish from Preview.";
+          } catch (error) { report(error instanceof Error ? error.message : "Could not save the Schwa review."); }
+          continue;
+        }
         if (workbook && isIdentifyBaseReview(skillKey)) {
           lesson.release = "Check and publish from the preview step";
           continue;

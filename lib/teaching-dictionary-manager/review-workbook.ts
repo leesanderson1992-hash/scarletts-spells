@@ -1,3 +1,4 @@
+import { isSchwaWorkbookSkill, SCHWA_WORKBOOK_FIELDS, type SchwaWorkbookFacts } from "./weak-vowel-workbook";
 import { isHomophoneReviewSkill } from "./homophone-review-contract";
 import { isCompoundWorkbookSkill, type CompoundWorkbookFacts } from "./compound-workbook";
 import { isComparativeReviewSkill } from "./lesson-candidate";
@@ -29,7 +30,7 @@ const prefixMeaningKey = "prefix_meaning_group";
 const partIndexes = Array.from({ length: FLAT_IMPORT_PART_LIMIT }, (_, index) => index + 1);
 const workbookPrefixParts = (row: Record<string, string>, allowed: readonly string[]) => partIndexes.filter(index =>
   row[`part_${index}_kind`] === "prefix" && allowed.includes(row[`part_${index}_underlying_form`]?.toLowerCase()));
-const workbookKeys = (skill: string) => isCompoundWorkbookSkill(skill) ? [...reviewKeys, ...suffixFields, "component_to_whole_relationship"]
+const workbookKeys = (skill: string) => isSchwaWorkbookSkill(skill) ? [...reviewKeys, ...SCHWA_WORKBOOK_FIELDS] : isCompoundWorkbookSkill(skill) ? [...reviewKeys, ...suffixFields, "component_to_whole_relationship"]
   : isSuffixReviewSkill(skill) ? [...reviewKeys, ...suffixFields]
   : isPrefixWorkbookSkill(skill) ? [...reviewKeys.slice(0, 4), prefixMeaningKey, ...reviewKeys.slice(4)] : reviewKeys;
 const hidden = new Set(["canonical_word_id", "source_sense_reviewed_at", "sense_id", "pronunciation_id"]);
@@ -41,7 +42,7 @@ const workbookLabel = (skill: string, key: string) => key === prefixMeaningKey ?
 
 export async function buildReviewWorkbook(input: { skill: string; title: string; bundles: MultiSenseCsvBundle[];
   notes: ReadonlyMap<string, string>; families: ReadonlyMap<string, string[]>;
-  compoundFacts?: ReadonlyMap<string, CompoundWorkbookFacts>; suffixFacts?: ReadonlyMap<string, SuffixWorkbookFacts>; requestedSenses?: ReadonlyMap<string, string | null> }) {
+  schwaFacts?: ReadonlyMap<string, SchwaWorkbookFacts>; compoundFacts?: ReadonlyMap<string, CompoundWorkbookFacts>; suffixFacts?: ReadonlyMap<string, SuffixWorkbookFacts>; requestedSenses?: ReadonlyMap<string, string | null> }) {
   const keys = workbookKeys(input.skill);
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet(sheetName, { views: [{ state: "frozen", xSplit: 1, ySplit: headerRow }] });
@@ -69,7 +70,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     use_in_lesson: list(["Review", "Yes", "No"], false),
     part_of_speech: list(["verb", "noun", "adjective", "adverb", "pronoun", "preposition", "conjunction", "determiner", "interjection", "numeral", "contraction", "root"]),
   };
-  if (suffixWorkbook || isCompoundWorkbookSkill(input.skill)) {
+  if (suffixWorkbook || isCompoundWorkbookSkill(input.skill) || isSchwaWorkbookSkill(input.skill)) {
     Object.assign(commonDropdowns, {
       age_band: list(DICTIONARY_BANDS.ageBand),
       frequency_band: list(DICTIONARY_BANDS.frequencyBand),
@@ -77,6 +78,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
       has_schwa: list(["Yes", "No"]),
     });
   }
+  if (isSchwaWorkbookSkill(input.skill)) Object.assign(commonDropdowns, { weak_vowel_sound: list(["Schwa", "Other unstressed vowel"]), family_exploration: list(["Not used", "Use approved family"]), weak_vowel_occurrence: list(["1", "2", "3", "4"]) });
   if (prefixWorkbook) commonDropdowns[prefixMeaningKey] = list(prefixWorkbook.choices.map(choice => choice.label));
   commonDropdowns.relationship_kind = list(["derived", "free_base", "regular_inflection", "irregular_inflection", "contraction", "historical_relative"]);
   for (let index = 1; index <= FLAT_IMPORT_PART_LIMIT; index++) {
@@ -105,7 +107,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
       input.notes.get(entry.canonical_word_id),
       entry.part_of_speech !== "root" && !entry.dictation_sentence ? "Add a dictation sentence for this meaning." : "",
       !entry.part_1_kind ? "Review the word parts." : "",
-      !isHomophoneReviewSkill(input.skill) && !entry.family_key ? "Choose the teaching family for this meaning." : "",
+      !isHomophoneReviewSkill(input.skill) && !isSchwaWorkbookSkill(input.skill) && !entry.family_key ? "Choose the teaching family for this meaning." : "",
       !entry.ipa || !entry.spoken_syllable_count || !entry.stress_pattern
         ? "Check pronunciation, syllable count and stress." : "",
     ].filter(Boolean).join(" ");
@@ -118,7 +120,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
         entry[prefixMeaningKey] = (choices.length === 1 ? choices[0] : choices.find(choice => choice.gloss === gloss))?.label ?? "";
       }
     }
-    const row = sheet.addRow({ ...entry, ...input.suffixFacts?.get(entry.canonical_word_id), component_to_whole_relationship: input.compoundFacts?.get(entry.canonical_word_id)?.componentToWholeRelationship ?? "", use_in_lesson: input.requestedSenses?.get(entry.canonical_word_id) === entry.sense_id ? "Yes" : "Review", needs_review: notes });
+    const row = sheet.addRow({ ...entry, ...input.schwaFacts?.get(entry.canonical_word_id), ...input.suffixFacts?.get(entry.canonical_word_id), component_to_whole_relationship: input.compoundFacts?.get(entry.canonical_word_id)?.componentToWholeRelationship ?? "", use_in_lesson: input.requestedSenses?.get(entry.canonical_word_id) === entry.sense_id ? "Yes" : "Review", needs_review: notes });
     row.height = 32;
     row.alignment = { vertical: "middle", wrapText: true };
     addDropdowns(row);
@@ -194,6 +196,13 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   else if (prefixWorkbook && input.skill !== UN_PREFIX_SKILL) guide.addRow([
     prefixWorkbookFieldLabel(input.skill),
     `Choose ${prefixWorkbook.choices.map(choice => `${choice.label} for ${choice.prefix}-`).join(" and ")}. Leave this blank to use the group for the prefix you enter.`,
+  ]);
+  if (isSchwaWorkbookSkill(input.skill)) guide.addRows([
+    ["Weak vowel target", "Enter the target letter or complete ending, for example a or ar. Choose its occurrence (1 means the first). Targets must contain one written vowel."],
+    ["Weak vowel sound", "Choose Schwa or Other unstressed vowel for the selected British pronunciation. A quiet vowel is not always a schwa."],
+    ["Activity syllables", "Use middle dots, for example a·bout. These are the spoken activity cuts, separate from morphological word parts. Hyphens are accepted and standardised. Separate accepted alternatives with |."],
+    ["Family exploration", "Choose Not used when this optional activity is not suitable. Choose Use approved family to use a reviewed family with at least two words; resolve its link in this flow."],
+    ["Publication", "Upload saves the reviewed Dictionary facts and activity annotations. Missing facts stay in Bulk review. One Publish click releases all ready words."],
   ]);
   if (blankPrefixWorkbook) guide.addRows([
     ["New words", "Start on the first blank row. Enter the spelling, meaning, part of speech, IPA, spoken syllable count, stress and dictation. The upload fills the hidden IDs."],
@@ -319,7 +328,7 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
       row.family_key = row.family_key.split(" | ").at(-1) ?? "";
       if (row.family_key === "Needs family review") row.family_key = "";
       if (row.use_in_lesson !== "Yes") continue;
-      if (isHomophoneReviewSkill(skill)) {
+      if (isHomophoneReviewSkill(skill) || isSchwaWorkbookSkill(skill) && row.family_exploration !== "Use approved family") {
         if (!row.family_key) { row.component_part_id = ""; row.relationship_kind = ""; }
         continue;
       }
@@ -347,6 +356,7 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
       if (!row.relationship_kind && ING_RULE_FOR_SKILL[skill as IngMicroSkill]) row.relationship_kind = "regular_inflection";
       if (!row.relationship_kind && isComparativeReviewSkill(skill))
         row.relationship_kind = row.part_2_kind ? "regular_inflection" : "free_base";
+      if (!row.relationship_kind && isSchwaWorkbookSkill(skill)) row.relationship_kind = row.part_2_kind ? "derived" : "free_base";
       if (!row.relationship_kind && isCompoundWorkbookSkill(skill)) row.relationship_kind = "derived";
       if (!row.relationship_kind && isSuffixReviewSkill(skill)) row.relationship_kind = "derived";
       if (!row.relationship_kind && isPrefixWorkbookSkill(skill)) row.relationship_kind = "derived";
@@ -370,6 +380,6 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
   const prefixMeanings = new Map<number, string>();
   if (hasPrefixChoice) for (const row of requestedRows)
     prefixMeanings.set(Number(row.workbook_row), row[prefixMeaningKey]);
-  return { compoundFacts, prefixMeanings, suffixFacts: new Map(requestedRows.map(row => [Number(row.workbook_row),
+  return { schwaFacts: new Map(requestedRows.map(row => [Number(row.workbook_row), Object.fromEntries(SCHWA_WORKBOOK_FIELDS.map(key => [key, row[key] ?? ""])) as SchwaWorkbookFacts])), compoundFacts, prefixMeanings, suffixFacts: new Map(requestedRows.map(row => [Number(row.workbook_row),
     { age_band: row.age_band ?? "", frequency_band: row.frequency_band ?? "", complexity_band: row.complexity_band ?? "", has_schwa: row.has_schwa ?? "" } satisfies SuffixWorkbookFacts])), csv, rowNumbers: records.map(row => Number(row.workbook_row)), pendingFamilies };
 }

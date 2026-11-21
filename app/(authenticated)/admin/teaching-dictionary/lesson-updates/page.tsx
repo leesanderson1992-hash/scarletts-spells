@@ -1,3 +1,6 @@
+import { isSchwaWorkbookSkill } from "@/lib/teaching-dictionary-manager/weak-vowel-workbook";
+import { loadSchwaWorkbookQueue } from "@/lib/teaching-dictionary-manager/schwa-bulk-review";
+import { saveSchwaWorkbookDetails, publishSchwaWorkbookWords, generateSchwaWorkbookLesson } from "./schwa-actions";
 import { homophoneCanonicalPublishingEnabled, loadCanonicalHomophonePreview } from "@/lib/teaching-dictionary-manager/homophone-canonical-release";
 import { publishHomophoneDictionaryLesson, generateHomophoneDictionaryLesson } from "./homophone-actions";
 import { isHomophoneReviewSkill } from "@/lib/teaching-dictionary-manager/homophone-review-contract";
@@ -73,14 +76,17 @@ export default async function LessonUpdates({ searchParams }: {
   const compoundSkill = isCompoundWorkbookSkill(selected) ? selected : null;
   const compoundQueue = compoundSkill && view === "preview" ? await loadPendingCompoundWorkbookQueue(db, compoundSkill) : null;
   const readyCompounds = compoundQueue?.filter(row => !row.blockers.length).slice(0, 30) ?? [];
-  const blankWorkbookSkill = prefixSkill ?? (suffixPilot || comparativeSkill || compoundSkill || isHomophoneReviewSkill(selected) ? selected : null);
+  const schwaSkill = isSchwaWorkbookSkill(selected) ? selected : null;
+  const schwaQueue = schwaSkill && view === "preview" ? await loadSchwaWorkbookQueue(db, schwaSkill) : null;
+  const readySchwa = schwaQueue?.filter(row => !row.blockers.length && !row.published).slice(0, 20) ?? [];
+  const blankWorkbookSkill = prefixSkill ?? (suffixPilot || comparativeSkill || compoundSkill || schwaSkill || isHomophoneReviewSkill(selected) ? selected : null);
   const prefixQueue = prefixSkill && view === "preview" && specialist
     ? await loadPendingPrefixWorkbookQueue(db, prefixSkill) : null;
   const readyPrefixRows = prefixQueue?.filter(row => !row.blockers.length).slice(0, PREFIX_PUBLISH_BATCH_SIZE) ?? [];
-  const draftWordIds = new Set([...(prefixQueue?.map(row => row.wordId) ?? []), ...(compoundQueue?.map(row => row.wordId) ?? [])]);
+  const draftWordIds = new Set([...(schwaQueue?.map(row => row.wordId) ?? []),...(prefixQueue?.map(row => row.wordId) ?? []), ...(compoundQueue?.map(row => row.wordId) ?? [])]);
   const homophoneRelease = homophoneCanonicalPublishingEnabled(selected) && view === "preview"
     ? await loadCanonicalHomophonePreview(db, selected) : null;
-  const homophoneLearners = homophoneRelease?.content ? await db.from("children").select("id,first_name")
+  const homophoneLearners = homophoneRelease?.content || schwaSkill && resolveAdleRouteActivationEnvironment() === "staging" ? await db.from("children").select("id,first_name")
     .eq("parent_user_id", actor.id).eq("is_archived", false).order("first_name") : null;
   const lessonName = skill ? STAGING_ING_LESSONS[skill] : "";
   const clusterLabels = new Map((clusterRows.data ?? []).map(row => [row.skill_cluster_key, row.display_name]));
@@ -131,7 +137,7 @@ export default async function LessonUpdates({ searchParams }: {
     </section>}
     <BulkReviewFlow key={selected} families={families} clusters={clusters} skills={skills} selected={selected}
       savedReviews={params.skill && resolveAdleRouteActivationEnvironment() ? <SavedFamilyReviews db={db} environment={resolveAdleRouteActivationEnvironment()!} skill={params.skill} /> : null}
-      familyRequired={!isHomophoneReviewSkill(selected)} initialFamily={params.family ?? ""} initialCluster={params.cluster ?? ""} supported={supported} view={view}
+      familyRequired={!isHomophoneReviewSkill(selected) && !schwaSkill} initialFamily={params.family ?? ""} initialCluster={params.cluster ?? ""} supported={supported} view={view}
       fullPoolSize={specialist?.current.length ?? base?.current.length ?? suffix?.current.length ?? update?.current.length ?? null}
       blankWorkbookHref={blankWorkbookSkill ? `/admin/teaching-dictionary/export/review-workbook?skill=${blankWorkbookSkill}&scope=blank` : undefined}
       review={view === "export" ? <>
@@ -180,6 +186,31 @@ export default async function LessonUpdates({ searchParams }: {
       {specialist.rows.some(row => specialist.current.some(word => word.canonicalWordId === row.id)) &&
         <p className="text-sm text-slate-600">{specialist.rows.filter(row => specialist.current.some(word => word.canonicalWordId === row.id)).length} Active words are also in review for missing facts or unpublished updates. Their existing lesson version stays available.</p>}
       <Link className="font-semibold underline" href={`/admin/adle-lesson-readiness?route=${specialist.routeId}&skill=${selected}`}>Open lesson readiness</Link>
+      {schwaSkill && schwaQueue && <div className="space-y-4">
+        {params.published && <p role="status">{params.published} words published. Passing words are Active in ADLE.</p>}
+        <p>Dictionary meanings, pronunciation and word parts are reused. Review the exact weak vowel and spoken activity cuts below. Family exploration is optional.</p>
+        {schwaQueue.filter(row => !row.published || row.blockers.length).map(row => <form action={saveSchwaWorkbookDetails} key={row.id} className="space-y-3 rounded-lg border p-4">
+          <input type="hidden" name="skill" value={schwaSkill} /><input type="hidden" name="word_id" value={row.wordId} /><input type="hidden" name="draft_id" value={row.id} />
+          <h3 className="font-semibold">{row.payload.displayWord} · {row.blockers.length ? "Needs facts" : "Ready to publish"}</h3>
+          <p>{row.payload.definition}</p><ul className="list-disc pl-5 text-sm">{row.blockers.map(issue => <li key={issue}>{issue}</li>)}</ul>
+          <div className="grid gap-3 md:grid-cols-2">
+            <label className="grid gap-1 text-sm"><span>Target letter or ending<FormatHint label="weak vowel target" format="One target span containing one written vowel." example="a for about; ar for collar." /></span><input name="weak_vowel_target" defaultValue={row.fields.weak_vowel_target} className="rounded border p-2" maxLength={20} /></label>
+            <label className="grid gap-1 text-sm">Occurrence<select name="weak_vowel_occurrence" defaultValue={row.fields.weak_vowel_occurrence || "1"} className="rounded border p-2">{[1,2,3,4].map(i => <option key={i}>{i}</option>)}</select></label>
+            <label className="grid gap-1 text-sm">Sound<select name="weak_vowel_sound" defaultValue={row.fields.weak_vowel_sound} className="rounded border p-2"><option value="">Choose</option><option>Schwa</option><option>Other unstressed vowel</option></select></label>
+            <label className="grid gap-1 text-sm"><span>Activity syllables<FormatHint label="activity syllables" format="Spoken activity cuts separated by middle dots. Separate from word parts." example="a·bout" /></span><input name="activity_syllables" defaultValue={row.fields.activity_syllables} className="rounded border p-2" maxLength={150} /></label>
+            {([['age_band', 'Age band', DICTIONARY_BANDS.ageBand], ['frequency_band', 'Frequency', DICTIONARY_BANDS.frequencyBand], ['complexity_band', 'Complexity', DICTIONARY_BANDS.complexityBand], ['has_schwa', 'Pronunciation has schwa', ['Yes', 'No']]] as const).map(([key, title, choices]) => <label className="grid gap-1 text-sm" key={key}>{title}<select name={key} defaultValue={row.fields[key]} className="rounded border p-2"><option value="">Choose</option>{choices.map(choice => <option key={choice}>{choice}</option>)}</select></label>)}
+            <label className="grid gap-1 text-sm">Family exploration<select name="family_exploration" defaultValue={row.fields.family_exploration} className="rounded border p-2"><option>Not used</option><option>Use approved family</option></select></label>
+          </div>
+          <div className="flex flex-wrap gap-3"><ActionSubmitButton className={button} pendingLabel="Saving and checking…">Save and recheck</ActionSubmitButton><Link className="underline" href={`/admin/teaching-dictionary/${row.wordId}#td-base-family`}>Open meaning and family</Link></div>
+        </form>)}
+        {resolveAdleRouteActivationEnvironment() === "staging" && specialist.current.length >= 4 && <form action={generateSchwaWorkbookLesson} className="grid gap-3 rounded-lg border p-4">
+          <h3 className="font-semibold">Generate a staging test lesson</h3><p className="text-sm">Creates a four-word test queue using Active words. Use a fresh staging test learner.</p><input type="hidden" name="skill" value={schwaSkill} />
+          <label className="grid gap-1">Test learner<select name="child_id" required className="rounded border p-2"><option value="">Choose a fresh test learner</option>{homophoneLearners?.data?.map(child => <option key={child.id} value={child.id}>{child.first_name}</option>)}</select></label>
+          <label className="grid gap-1">Active target<select name="word_id" required className="rounded border p-2">{specialist.current.map(word => <option key={word.canonicalWordId} value={word.canonicalWordId}>{word.word}</option>)}</select></label>
+          <ActionSubmitButton className={button} pendingLabel="Generating lesson…">Generate test lesson</ActionSubmitButton>
+        </form>}
+        {readySchwa.length > 0 && <form action={publishSchwaWorkbookWords}><input type="hidden" name="skill" value={schwaSkill} />{readySchwa.map(row => <input key={row.id} type="hidden" name="draft_id" value={row.id} />)}<ActionSubmitButton className={button} pendingLabel="Publishing reviewed words…">Publish {readySchwa.length} ready words</ActionSubmitButton></form>}
+      </div>}
       {compoundSkill && compoundQueue && <>
         {params.published && <p role="status">{params.published} compound words published and available in ADLE.</p>}
         {compoundQueue.map(row => <form action={saveCompoundWorkbookDetails} key={row.id} className="space-y-3 rounded-lg border p-3">

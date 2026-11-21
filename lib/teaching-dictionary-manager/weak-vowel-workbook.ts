@@ -1,0 +1,40 @@
+import { WEAK_VOWEL_MICRO_SKILLS } from "@/lib/adle/word-lab/weak-vowel-dinner";
+import type { WeakVowelRouteFactsV1 } from "./weak-vowel-authoring";
+export const SCHWA_WORKBOOK_FIELDS = ["weak_vowel_target", "weak_vowel_occurrence", "weak_vowel_sound", "activity_syllables", "family_exploration", "age_band", "frequency_band", "complexity_band", "has_schwa"] as const;
+export type SchwaWorkbookFacts = Record<typeof SCHWA_WORKBOOK_FIELDS[number], string>;
+export const isSchwaWorkbookSkill = (value: unknown): value is typeof WEAK_VOWEL_MICRO_SKILLS[number] =>
+  typeof value === "string" && (WEAK_VOWEL_MICRO_SKILLS as readonly string[]).includes(value);
+export function schwaWorkbookFacts(word: string, facts?: Partial<WeakVowelRouteFactsV1>): SchwaWorkbookFacts {
+  const target = facts?.target;
+  const before = target ? word.slice(0, target.start) : "";
+  return { weak_vowel_target: target?.text ?? "", weak_vowel_occurrence: target ? String(before.split(target.text).length) : "",
+    weak_vowel_sound: target?.soundType === "schwa" ? "Schwa" : target?.soundType === "other_unstressed" ? "Other unstressed vowel" : "",
+    activity_syllables: facts?.acceptedCutSets?.length ? facts.acceptedCutSets.map(cuts => { const edges = [0, ...cuts, word.length]; return edges.slice(0, -1).map((start, i) => word.slice(start, edges[i + 1])).join("·"); }).join(" | ") : "",
+    family_exploration: facts?.familyDecision === "approve" ? "Use approved family" : "Not used", age_band: "", frequency_band: "", complexity_band: "", has_schwa: "" };
+}
+/** Human-readable annotations become exact spans; an ambiguous vowel is never guessed. */
+export function parseSchwaWorkbookFacts(word: string, fields: SchwaWorkbookFacts) {
+  const errors: string[] = [];
+  const target = fields.weak_vowel_target.trim();
+  const occurrence = Number(fields.weak_vowel_occurrence || "1");
+  const starts = [...word.matchAll(/./gu)].map(m => m.index!).filter(index => target && word.startsWith(target, index));
+  const start = Number.isSafeInteger(occurrence) && occurrence > 0 ? starts[occurrence - 1] : undefined;
+  if (start === undefined) errors.push("Choose a target letter or ending and its occurrence in the word.");
+  const vowels = [...target.matchAll(/[aeiouy]/gi)];
+  if (vowels.length !== 1) errors.push("The target must contain exactly one written vowel; select a smaller target.");
+  const soundType = fields.weak_vowel_sound === "Schwa" ? "schwa" : fields.weak_vowel_sound === "Other unstressed vowel" ? "other_unstressed" : "";
+  if (!soundType) errors.push("Choose Schwa or Other unstressed vowel.");
+  const variants = fields.activity_syllables.trim().replaceAll("-", "·").split("|").map(variant => variant.trim().split("·"));
+  if (!fields.activity_syllables.trim() || variants.some(segments => segments.some(part => !part) || segments.join("") !== word))
+    errors.push("Enter activity syllables that join to the word, separated by middle dots, for example a·bout. Separate accepted alternatives with |.");
+  if (!["Not used", "Use approved family"].includes(fields.family_exploration)) errors.push("Choose whether to use approved family exploration.");
+  const cutSets = variants.map(segments => { const cuts: number[] = []; let offset = 0;
+    for (const segment of segments.slice(0, -1)) { offset += segment.length; cuts.push(offset); } return cuts;
+  });
+  const cuts = cutSets[0];
+  const end = (start ?? 0) + target.length;
+  const syllableIndex = cuts.filter(cut => cut <= (start ?? 0)).length + 1;
+  return { errors, annotation: { acceptedCutSets: cutSets, target: { text: target, start: start ?? 0, end, syllableIndex, soundType },
+    selectionTarget: { text: vowels[0]?.[0] ?? "", start: (start ?? 0) + (vowels[0]?.index ?? 0), end: (start ?? 0) + (vowels[0]?.index ?? 0) + 1 },
+    detectiveVowelIndex: (start ?? 0) + (vowels[0]?.index ?? 0) } };
+}

@@ -1,3 +1,5 @@
+import { isSchwaWorkbookSkill, type SchwaWorkbookFacts } from "./weak-vowel-workbook";
+import { stageSchwaWorkbookDraft } from "./schwa-bulk-review";
 import "server-only";
 import { randomUUID } from "node:crypto";
 import type { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -17,7 +19,7 @@ type Db = ReturnType<typeof createServiceRoleClient>;
 export type FamilyDependency = { id: string; canonical_word_id: string; sense_id: string; micro_skill_key: string;
   component_part_id: string; base_form: string; base_kind: string; expected_meaning: string; expected_morphology_id: string;
   expected_reviewed_at: string; reviewed_by: string; updated_at: string; confirmed_family_key: string | null;
-  status: string; detail: string; family_resolved: boolean; context: { prefixMeaning?: string; suffixFacts?: SuffixWorkbookFacts; compoundFacts?: CompoundWorkbookFacts } };
+  status: string; detail: string; family_resolved: boolean; context: { schwaFacts?: SchwaWorkbookFacts; prefixMeaning?: string; suffixFacts?: SuffixWorkbookFacts; compoundFacts?: CompoundWorkbookFacts } };
 export const familyMeaningKey = (value: string) => value.normalize("NFC").trim().toLocaleLowerCase("en-GB").replace(/\s+/gu, " ").replace(/[.!]$/u, "");
 type Family = { family_key: string; base_lemma: string; base_kind: string; base_meaning: string; review_status: string; revision?: number };
 export function matchingDependencyFamily(dependency: Pick<FamilyDependency, "confirmed_family_key" | "expected_meaning" | "base_form" | "base_kind">, families: Family[]) {
@@ -104,7 +106,9 @@ export async function recheckWaitingFamilyWords(db: Db, environment: "staging" |
       }
       const skill = row.micro_skill_key;
       let draftId: string | undefined;
-      if (prefixWorkbookEnabled(skill) && row.context.prefixMeaning)
+      if (isSchwaWorkbookSkill(skill) && row.context.schwaFacts)
+        draftId = await stageSchwaWorkbookDraft(db, row.reviewed_by, bundle, skill, row.sense_id, row.context.schwaFacts);
+      else if (prefixWorkbookEnabled(skill) && row.context.prefixMeaning)
         draftId = await stagePrefixWorkbookDraft(db, row.reviewed_by, bundle, skill, row.sense_id, row.context.prefixMeaning);
       else if (isSuffixWorkbookPilot(skill) && row.context.suffixFacts)
         await stageAbleIbleWord(db, row.reviewed_by, bundle, row.sense_id, row.context.suffixFacts, skill);

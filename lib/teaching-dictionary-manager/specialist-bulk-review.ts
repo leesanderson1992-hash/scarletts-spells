@@ -1,3 +1,5 @@
+import { isSchwaWorkbookSkill } from "./weak-vowel-workbook";
+import { loadSchwaBulkReview } from "./schwa-bulk-review";
 import { isHomophoneReviewSkill } from "./homophone-review-contract";
 import { loadHomophoneBulkReview } from "./homophone-bulk-review";
 import { isCompoundWorkbookSkill } from "./compound-workbook";
@@ -28,6 +30,7 @@ import type { MultiSenseCsvBundle } from "./multi-sense-csv";
 type Db = ReturnType<typeof createServiceRoleClient>;
 type PoolWord = { canonicalWordId: string; word: string; base: string; meaning: string; dictationSentence: string };
 export async function loadSpecialistBulkReview(db: Db, skill: string, routeId: string, includeBundles = false) {
+  if (isSchwaWorkbookSkill(skill)) return loadSchwaBulkReview(db, skill, includeBundles);
   if (isHomophoneReviewSkill(skill)) return loadHomophoneBulkReview(db, skill, includeBundles);
   if (isCompoundWorkbookSkill(skill)) return loadCompoundBulkReview(db, skill, includeBundles);
   const environment = ingReviewEnvironment();

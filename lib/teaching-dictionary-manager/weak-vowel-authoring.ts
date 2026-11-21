@@ -6,6 +6,8 @@ import { deviceSpeechSource, isDeviceSpeechSource, isWeakVowelAudioSource } from
  * governed route-content workflow. */
 export interface WeakVowelRouteFactsV1 {
   schemaVersion: "weak_vowel_route_facts_v1";
+  canonicalSenseId?: string;
+  canonicalSenseFingerprint?: string;
   sourceFingerprint: string;
   activityEligibility: Record<"dinner" | "detective" | "memoryLock" | "dictation" | "family", {
     status: "ready" | "blocked" | "not_applicable";

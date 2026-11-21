@@ -1,0 +1,19 @@
+import assert from "node:assert/strict";
+import ExcelJS from "exceljs";
+import { buildReviewWorkbook, readReviewWorkbook } from "../lib/teaching-dictionary-manager/review-workbook";
+import { isSchwaWorkbookSkill, parseSchwaWorkbookFacts, schwaWorkbookFacts } from "../lib/teaching-dictionary-manager/weak-vowel-workbook";
+import { WEAK_VOWEL_MICRO_SKILLS } from "../lib/adle/word-lab/weak-vowel-dinner";
+import { weakVowelRouteBlockers } from "../lib/teaching-dictionary-manager/weak-vowel-authoring";
+import type { MultiSenseCsvBundle } from "../lib/teaching-dictionary-manager/multi-sense-csv";
+const skill = "D4_SCHWA_INITIAL_A_INITIAL";
+const bundle: MultiSenseCsvBundle = {wordId:"",displayWord:"about",sourceSenseReviewedAt:"",senseSet:{pronunciations:[{id:"p",ipa:"/əˈbaʊt/",spokenSyllableCount:2,stressPattern:"unstressed-primary"}],senses:[{id:"s",definition:"On the subject of something.",partOfSpeech:"preposition",pronunciationId:"p",dictationSentence:"We talked about school.",dictationTargetTokenIndex:2}]},analyses:[{senseId:"s",parts:[{id:"base",kind:"base",sourceText:"about",surfaceText:"about",gloss:"On the subject of something.",displayRange:{start:0,end:5}}],joins:[],transformations:[],wordSum:"about",familyKey:"",componentPartId:"",relationshipKind:"",requestedSkillKeys:[]}]};
+for(const key of WEAK_VOWEL_MICRO_SKILLS){assert(isSchwaWorkbookSkill(key));const bytes=await buildReviewWorkbook({skill:key,title:"Schwa",bundles:[],families:new Map(),notes:new Map()});const workbook=new ExcelJS.Workbook();await workbook.xlsx.load(bytes as unknown as ArrayBuffer);const sheet=workbook.getWorksheet("Words to review")!;const headers=sheet.getRow(3).values as string[];assert(sheet.getCell(4,headers.indexOf("Weak vowel sound")).dataValidation);assert(sheet.getCell(4,headers.indexOf("Family exploration")).dataValidation);}
+const fields={weak_vowel_target:"a",weak_vowel_occurrence:"1",weak_vowel_sound:"Schwa",activity_syllables:"a-bout",family_exploration:"Not used",age_band:"middle_primary",frequency_band:"high",complexity_band:"low",has_schwa:"Yes"};
+assert.deepEqual(parseSchwaWorkbookFacts("camera",{...fields,weak_vowel_target:"e",activity_syllables:"cam·er·a | ca·mer·a"}).annotation.acceptedCutSets,[[3,5],[2,5]]);
+assert.deepEqual(parseSchwaWorkbookFacts("about",fields).errors,[]);
+assert.deepEqual(parseSchwaWorkbookFacts("about",fields).annotation.acceptedCutSets,[[1]]);
+assert(parseSchwaWorkbookFacts("about",{...fields,weak_vowel_target:"z"}).errors.length);
+assert(parseSchwaWorkbookFacts("about",{...fields,activity_syllables:"ab·ot"}).errors.length);
+const bytes=await buildReviewWorkbook({skill,title:"Initial a",bundles:[bundle],families:new Map(),notes:new Map(),schwaFacts:new Map([["",fields]]),requestedSenses:new Map([["","s"]])});const wb=new ExcelJS.Workbook();await wb.xlsx.load(bytes as unknown as ArrayBuffer);const parsed=await readReviewWorkbook((await wb.xlsx.writeBuffer()) as unknown as ArrayBuffer,skill);assert.equal(parsed.pendingFamilies.length,0);assert.equal(parsed.schwaFacts.get(4)?.weak_vowel_sound,"Schwa");assert(parsed.csv.includes("about"));assert.equal(schwaWorkbookFacts("banana",{target:{text:"a",start:5,end:6,syllableIndex:3,soundType:"schwa"},acceptedCutSets:[[2,4]]}).weak_vowel_occurrence,"3");
+assert(weakVowelRouteBlockers({...parseSchwaWorkbookFacts("about",fields).annotation,schemaVersion:"weak_vowel_route_facts_v1",spokenSyllableCount:2},{displayWord:"about",definition:"On a topic",dictationSentence:"Talk about it.",microSkillKey:skill}).some(issue=>issue.includes("recording")||issue.includes("audio")));
+console.log({passed:true,blankWorkbooks:10,roundTrip:true,invalidTargetFlagged:true,invalidCutsFlagged:true,familyOptional:true});

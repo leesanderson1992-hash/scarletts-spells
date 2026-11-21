@@ -21,21 +21,24 @@ export async function loadWeakVowelSelectionPool(input: {
 }, skill: WeakVowelMicroSkill) {
   const publishedAssociations = await loadPublishedWritingAssociations(input.client, input.environmentKey);
   const authority = await loadCanonicalWordSkillRelationshipAuthority({ client: input.client,
-    environmentKey: input.environmentKey, explicitReviewedAssociations: publishedAssociations });
-  const dictionaryOnly = input.environmentKey === "staging" && process.env.ADLE_WEAK_VOWEL_DICTIONARY_ONLY === "enabled";
-  const publishedIds = new Set(publishedAssociations.filter(pair => pair.microSkillKey === skill &&
-    pair.relationshipRole === "demonstrates" && pair.rowStatus === "active").map(pair => pair.canonicalWordId));
-  const approvedIds = new Set(authority.relationships.filter((pair) => pair.microSkillKey === skill && (!dictionaryOnly || publishedIds.has(pair.canonicalWordId)))
-    .map((pair) => pair.canonicalWordId));
+    environmentKey: input.environmentKey, explicitReviewedAssociations: publishedAssociations, microSkillKey: skill });
+  // The reviewed publication pool supplies both targets and practice in every
+  // environment. A legacy generic support row cannot admit or hide a word.
+  const dictionaryOnly = true;
+  const approvedIds = new Set(authority.relationships.filter(pair => pair.microSkillKey === skill)
+    .map(pair => pair.canonicalWordId));
   const words = [];
   const candidates = [...approvedIds];
-  for (let start = 0; start < candidates.length; start += 24) {
-    const batches = Array.from({ length: Math.min(4, Math.ceil((candidates.length - start) / 6)) },
-      (_, index) => candidates.slice(start + index * 6, start + (index + 1) * 6));
+  for (let start = 0; start < candidates.length; start += 200) {
+    const batches = Array.from({ length: Math.min(2, Math.ceil((candidates.length - start) / 100)) },
+      (_, index) => candidates.slice(start + index * 100, start + (index + 1) * 100));
     const rows = (await Promise.all(batches.map(canonicalWordIds => loadPublishedWeakVowelWords({
       client: input.client, microSkillKey: skill, canonicalWordIds,
     })))).flat();
-    words.push(...rows.filter(row => publishedWeakVowelWordBlockers(row, skill).length === 0));
+    const valid = rows.filter(row => publishedWeakVowelWordBlockers(row, skill).length === 0);
+    const familyWords = valid.filter(row => row.routeContent.content.weakVowel.canonicalSenseId && row.routeContent.content.weakVowel.familyDecision === "approve");
+    const families = familyWords.length ? await loadWeakVowelFamilies({ client: input.client, selected: familyWords }) : null;
+    words.push(...valid.filter(row => !familyWords.includes(row) || families?.published.some(entry => entry.canonicalWordId === row.canonicalWordId)));
   }
   return { authority, approvedIds, dictionaryOnly, words };
 }

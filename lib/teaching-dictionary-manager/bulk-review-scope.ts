@@ -1,3 +1,4 @@
+import { isSchwaWorkbookSkill } from "./weak-vowel-workbook";
 import { homophoneReviewRoute } from "./homophone-review-contract";
 import { isCompoundWorkbookSkill, COMPOUND_WORKBOOK_ROUTE } from "./compound-workbook";
 import { COMPARATIVE_MICRO_SKILLS } from "@/lib/adle/inflection/contracts";
@@ -30,6 +31,7 @@ export function specialistWorkbookRoute(skill: unknown) {
   if (ingReviewEnvironment() !== null && homophoneReviewRoute(skill)) return homophoneReviewRoute(skill);
   if (ingReviewEnvironment() !== null && isCompoundWorkbookSkill(skill)) return COMPOUND_WORKBOOK_ROUTE;
   if (prefixWorkbookEnabled(skill)) return PREFIX_WORKBOOK_ROUTE;
+  if (ingReviewEnvironment() !== null && isSchwaWorkbookSkill(skill)) return "weak_vowel_word_lab";
   return ingReviewEnvironment() !== null && typeof skill === "string" && Object.hasOwn(specialistRoutes, skill)
     ? specialistRoutes[skill] : null;
 }
