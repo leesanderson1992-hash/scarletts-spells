@@ -10,6 +10,9 @@ export const CONTENT_WORD_DICTIONARY_SKILLS = [
   "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T",
   "D4_HOM_CONTENT_WORD_HOMOPHONES_MORNING_MOURNING",
 ] as const;
+export const CONTRACTION_DICTIONARY_SKILLS = [
+  "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS",
+] as const;
 export function homophoneReviewSpec(skill: unknown) {
   return typeof skill === "string" ? manifest.skills.find(row => row.key === skill) : undefined;
 }
