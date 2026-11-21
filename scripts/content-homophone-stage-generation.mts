@@ -6,6 +6,7 @@ import {loadActiveCanonicalHomophoneContent} from '../lib/teaching-dictionary-ma
 import {prepareContextualHomophoneAssignment,persistContextualHomophoneAssignment} from '../lib/adle/homophone/convergence-readiness-loader';
 import {validateFrozenConvergenceAssignment} from '../lib/adle/homophone/convergence-assignment';
 import {fullHomophonePassage} from '../lib/adle/homophone/lesson';
+import {fingerprintSnapshotValue} from '../lib/adle/composable-lesson/canonical-fingerprint';
 import {getLondonPracticeDate} from '../lib/practice-date';
 import type {LearningItemFact} from '../lib/adle/learning-items';
 assert.equal(process.env.NEXT_PUBLIC_SUPABASE_URL,'https://qkpjbajicacbrphthibk.supabase.co');
@@ -15,7 +16,7 @@ for(const skill of CONTENT_WORD_DICTIONARY_SKILLS){
  const content=await loadActiveCanonicalHomophoneContent(db,skill);assert(content);
  const target=skill.endsWith('ED_FOR_T')?'guessed':skill.endsWith('MORNING_MOURNING')?'mourning':'allowed';
  const set=content.sets.find(set=>set.members.some(member=>member.word===target));assert(set);
- const name=`Content QA ${target} 20261121`;
+ const name=`Content QA ${target} ${date} ${fingerprintSnapshotValue(content).slice(0,8)}`;
  const prior=await db.from('children').select('id').eq('parent_user_id',actor).eq('first_name',name).eq('is_archived',false).maybeSingle();assert.ifError(prior.error);
  const created=prior.data?null:await db.from('children').insert({parent_user_id:actor,first_name:name}).select('id').single();assert.ifError(created?.error);const childId=prior.data?.id??created!.data!.id;
  const existing=await db.from('adle_learning_items').select('id,canonical_word_id,item_status,intake_on').eq('child_id',childId).eq('micro_skill_key',skill).eq('row_status','active');assert.ifError(existing.error);
@@ -23,7 +24,7 @@ for(const skill of CONTENT_WORD_DICTIONARY_SKILLS){
  const missing=queue.filter(item=>!existing.data.some(row=>row.id===item.learningItemId));if(missing.length){const saved=await db.from('adle_learning_items').insert(missing.map(item=>({id:item.learningItemId,child_id:childId,canonical_word_id:item.canonicalWordId,micro_skill_key:skill,source_kind:item.sourceKind,source_ref:item.sourceRef,intake_on:date,item_status:'pending',row_status:'active'})));assert.ifError(saved.error);}
  const prepared=await prepareContextualHomophoneAssignment({client:db,parentUserId:actor,childId,date,microSkillKey:skill,learningItems:queue,wordStates:[],environmentKey:'staging'});assert.equal(prepared.status,'ready',JSON.stringify(prepared));if(prepared.status!=='ready')throw new Error('Staging generation blocked');
  assert(validateFrozenConvergenceAssignment(prepared.snapshot));const generated=prepared.snapshot.contextCheck.selectedSets.flatMap(set=>set.members);assert(generated.some(member=>member.word===target));
- for(const member of generated){const fact=content.dictionaryFacts!.find(fact=>fact.wordId===member.canonicalWordId);assert(fact);assert.equal(member.intendedSense,fact.sense.definition);assert.equal(member.grammaticalRole,fact.sense.partOfSpeech);assert.equal(member.teachingSentence,fact.sense.dictationSentence);assert(prepared.snapshot.guidedLesson.lesson.dictationPassages.some(p=>fullHomophonePassage(p).includes(fact.sense.dictationSentence!)));if(member.word==='mourning')assert.equal(member.grammaticalRole,'verb');}
+ for(const member of generated){const fact=content.dictionaryFacts!.find(fact=>fact.wordId===member.canonicalWordId);assert(fact);assert.equal(member.intendedSense,fact.sense.definition);assert.equal(member.grammaticalRole,fact.sense.partOfSpeech);assert.equal(member.teachingSentence,fact.sense.dictationSentence);assert(prepared.snapshot.guidedLesson.lesson.dictationPassages.some(p=>fullHomophonePassage(p).includes(fact.sense.dictationSentence!)));if(member.word==='mourning'){assert.equal(member.grammaticalRole,'verb');const question=prepared.snapshot.contextCheck.questions.find(q=>q.correctWordId===member.canonicalWordId);assert.equal(question?.sentenceWithBlank,'They are ____ their grandfather, who died last week.');assert(prepared.snapshot.guidedLesson.lesson.dictationPassages.every(p=>!fullHomophonePassage(p).includes('in mourning')));}}
  const assignmentId=await persistContextualHomophoneAssignment({client:db,parentUserId:actor,childId,date,prepared});
  const session=await db.from('adle_today_session_orchestrations').upsert({daily_assignment_id:assignmentId,child_id:childId,parent_user_id:actor,assignment_date:date,major_stage:'specialist_lesson',review_generation_status:'not_required',specialist_generation_status:'ready',specialist_started_at:new Date().toISOString()},{onConflict:'daily_assignment_id',ignoreDuplicates:true});assert.ifError(session.error);
  const readback=await db.from('daily_assignments').select('compiled_lesson_snapshot').eq('id',assignmentId).single();assert.ifError(readback.error);assert.deepEqual(readback.data.compiled_lesson_snapshot,prepared.snapshot);

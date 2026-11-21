@@ -1,4 +1,5 @@
 import "server-only";
+import { dictionaryEditorialContent } from "@/lib/adle/homophone/dictionary-editorial";
 import { buildDictionaryContextualContent } from "@/lib/adle/homophone/dictionary-content";
 import { CONFUSABLE_DICTIONARY_SKILLS, CONTENT_WORD_DICTIONARY_SKILLS } from "./homophone-review-contract";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -48,7 +49,8 @@ export async function loadCanonicalHomophonePreview(db: SupabaseClient, skill: s
     .eq("environment_key", ingReviewEnvironment()!).eq("route_id", "homophone_contextual_choice")
     .eq("route_version", "v1").eq("micro_skill_key", skill).maybeSingle();
   if (head.error) throw new Error("Could not read the current lesson release.");
-  const content = buildDictionaryContextualContent(template, dictionaryFacts, selectedSetKeys);
+  const projected = buildDictionaryContextualContent(template, dictionaryFacts, selectedSetKeys);
+  const content = projected ? dictionaryEditorialContent(projected) : null;
   if (!content) return {blockers, content: null, fingerprint: "", currentRevisionId: head.data?.current_revision_id ?? null};
   return {blockers, content, fingerprint: fingerprintSnapshotValue(content), currentRevisionId: head.data?.current_revision_id ?? null};
 }

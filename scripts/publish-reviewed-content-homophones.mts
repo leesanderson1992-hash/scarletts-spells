@@ -18,6 +18,8 @@ const db=createServiceRoleClient(),results=[];
 for(const skill of CONTENT_WORD_DICTIONARY_SKILLS){
  assert(homophoneCanonicalPublishingEnabled(skill));
  const preview=await loadCanonicalHomophonePreview(db,skill);assert(preview.content,preview.blockers.join(' '));assert.deepEqual(preview.blockers,[]);
+ const mourning=preview.content.dictionaryFacts!.find(fact=>fact.sense.dictationSentence==='The family is mourning their old pet.');
+ if(skill.endsWith('MORNING_MOURNING')){assert(mourning);assert.equal(mourning.sense.partOfSpeech,'verb');assert(!preview.content.teachingExplanation.includes('sadness after someone dies'));assert(preview.content.questions.filter(question=>question.correctWordId===mourning.wordId).every(question=>question.sentenceWithBlank==='They are ____ their grandfather, who died last week.'));}
  let revision=preview.currentRevisionId;
  if(mode==='apply'){
   const saved=await db.rpc('publish_homophone_dictionary_v3',{p_environment:environment,p_content:preview.content,p_expected_head:preview.currentRevisionId,p_actor:actor});assert.ifError(saved.error);assert(saved.data);revision=saved.data;
@@ -30,7 +32,7 @@ for(const skill of CONTENT_WORD_DICTIONARY_SKILLS){
   for(const member of snapshot.contextCheck.selectedSets.flatMap(row=>row.members)){
    const fact=content.dictionaryFacts!.find(f=>f.wordId===member.canonicalWordId);assert(fact);assert.equal(member.intendedSense,fact.sense.definition);assert.equal(member.grammaticalRole,fact.sense.partOfSpeech);assert.equal(member.teachingSentence,fact.sense.dictationSentence);
    const teaching=snapshot.guidedLesson.lesson.teachingGroups!.flatMap(group=>group.words).find(word=>word.word===member.word);assert(teaching);assert.equal(teaching.definition,fact.sense.definition);assert(snapshot.guidedLesson.lesson.dictationPassages.some(p=>fullHomophonePassage(p).includes(fact.sense.dictationSentence!)));
-   if(member.word==='mourning'){assert.equal(fact.sense.partOfSpeech,'verb');assert.equal(fact.sense.dictationSentence,'The family is mourning their old pet.');}
+   if(member.word==='mourning'){assert.equal(fact.sense.partOfSpeech,'verb');assert.equal(fact.sense.dictationSentence,'The family is mourning their old pet.');assert.equal(snapshot.contextCheck.questions.find(question=>question.correctWordId===member.canonicalWordId)?.sentenceWithBlank,'They are ____ their grandfather, who died last week.');}
   }
   generated.push({set:set.setKey,words:snapshot.contextCheck.selectedSets.flatMap(row=>row.members).map(m=>m.word)});
  }
