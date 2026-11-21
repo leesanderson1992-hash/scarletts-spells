@@ -86,8 +86,11 @@ export default async function LessonUpdates({ searchParams }: {
   const clusterLabels = new Map((clusterRows.data ?? []).map(row => [row.skill_cluster_key, row.display_name]));
   const skills = (skillRows.data ?? []).map(row => ({ key: row.micro_skill_key, label: row.display_name,
     cluster: row.skill_cluster_key, family: row.skill_family_key }));
-  const families = (familyRows.data ?? []).filter(row => skills.some(skill => skill.family === row.skill_family_key))
-    .map(row => ({ key: row.skill_family_key, label: row.display_name }));
+  const familyLabels = new Map((familyRows.data ?? []).map(row => [row.skill_family_key, row.display_name]));
+  // Existing active lessons remain reachable while older catalogues acquire parent labels.
+  const families = [...new Set(skills.map(skill => skill.family).filter(Boolean))]
+    .map(key => ({ key, label: familyLabels.get(key) ?? key.replace(/^D\d+_/u, "").replaceAll("_", " ") }))
+    .sort((a, b) => a.label.localeCompare(b.label));
   const clusters = [...new Set(skills.map(item => item.cluster).filter(Boolean))].map(key => ({
     key,
     family: (clusterRows.data ?? []).find(row => row.skill_cluster_key === key)?.skill_family_key
