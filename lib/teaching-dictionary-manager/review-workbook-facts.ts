@@ -1,4 +1,5 @@
 import "server-only";
+import { isSchwaWorkbookSkill } from "./weak-vowel-workbook";
 import { prefillWorkbookParts, type WorkbookPartPrefill } from "./review-workbook-part-prefill";
 
 import type { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -133,7 +134,7 @@ export async function prefillReviewWorkbookFacts(db: Db, bundles: MultiSenseCsvB
   for (let offset = 0; offset < bases.length; offset += 50) {
     const { data, error } = await db.from("teaching_dictionary_families_with_current_meaning")
       .select("family_key,base_lemma,base_meaning,base_part_of_speech,review_status,base_kind")
-      .in("base_lemma", bases.slice(offset, offset + 50)).in("base_kind", skill === ABLE_IBLE_SKILL ? ["free_base", "bound_root"] : ["free_base"]).order("revision", { ascending: false });
+      .in("base_lemma", bases.slice(offset, offset + 50)).in("base_kind", (skill === ABLE_IBLE_SKILL || isSchwaWorkbookSkill(skill)) ? ["free_base", "bound_root"] : ["free_base"]).order("revision", { ascending: false });
     if (error) throw new Error("Could not load family choices for the review workbook.");
     for (const row of data ?? []) {
       if (seen.has(row.family_key)) continue;
