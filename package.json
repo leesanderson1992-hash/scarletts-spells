@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/build-reviewed-audio-manifest.mjs",
     "build": "next build",
     "homophone:convergence:build": "python3 scripts/build-homophone-convergence.py",
     "homophone:convergence:report": "python3 scripts/report-homophone-convergence-readiness.py",

@@ -10,12 +10,11 @@ import { emptyMetadata, emptyMorphology, routeBlockers, DICTIONARY_BANDS, type W
 import { type WeakVowelRouteFactsV1 } from "./weak-vowel-authoring";
 import { parseSchwaWorkbookFacts, schwaWorkbookFacts, isSchwaWorkbookSkill, type SchwaWorkbookFacts } from "./weak-vowel-workbook";
 import { loadWeakVowelSelectionPool } from "@/lib/adle/weak-vowel/readiness-loader";
-import { deviceSpeechSource, isDeviceSpeechSource } from "@/lib/adle/weak-vowel/audio-source";
+import { deviceSpeechSource } from "@/lib/adle/weak-vowel/audio-source";
 import { saveBulkSkillApprovalsAsActor } from "./bulk-approval-service";
 import type { MultiSenseCsvBundle } from "./multi-sense-csv";
 import { randomUUID } from "node:crypto";
-import { readFile } from "node:fs/promises";
-import path from "node:path";
+import { reviewedAudioBlockers } from "@/lib/adle/weak-vowel/reviewed-audio";
 type Db = ReturnType<typeof createServiceRoleClient>;
 export const SCHWA_WORKBOOK_SOURCE = "Schwa Bulk review workbook v1";
 const hash = (value: string) => createHash("sha256").update(value).digest("hex");
@@ -155,7 +154,7 @@ export async function loadSchwaWorkbookQueue(db: Db, skill: string, wordIds?: st
     const fields = route.content.schwaWorkbookFields as SchwaWorkbookFacts;
     const facts = route.content.weakVowel as WeakVowelRouteFactsV1;
     const fingerprint = fingerprints.get(draft.canonical_word_id);
-    const blockers = [...parseSchwaWorkbookFacts(payload.displayWord, fields).errors, ...routeBlockers(route, payload)];
+    const blockers = [...parseSchwaWorkbookFacts(payload.displayWord, fields).errors, ...routeBlockers(route, payload), ...reviewedAudioBlockers(facts)];
     if (!(DICTIONARY_BANDS.ageBand as readonly string[]).includes(payload.ageBand)) blockers.push("Choose the dictionary age band.");
     if (!(DICTIONARY_BANDS.frequencyBand as readonly string[]).includes(payload.frequencyBand)) blockers.push("Choose the dictionary frequency band.");
     if (!(DICTIONARY_BANDS.complexityBand as readonly string[]).includes(payload.complexityBand)) blockers.push("Choose the dictionary complexity band.");
@@ -189,15 +188,6 @@ export async function publishSchwaWorkbookWord(db: Db, actor: string, skill: str
   const approval = await saveBulkSkillApprovalsAsActor({ microSkillKey: skill, applyWordIds: [row.wordId], excludeWordIds: [], clearWordIds: [], deassignWordIds: [], senseIds: { [row.wordId]: row.payload.skillSenseIds![skill] }, requestId: randomUUID(), workbookReadback: true, sourceKind: "teaching_dictionary_import" }, actor);
   if (!approval.ok) throw new Error(approval.blocked[0]?.reason ?? approval.error ?? "Could not approve the teaching meaning.");
   const route = row.payload.routeContents[0]; const facts = route.content.weakVowel as WeakVowelRouteFactsV1;
-  for (const clip of [facts.wordRecording, facts.sentenceRecording]) {
-    const bytes = isDeviceSpeechSource(clip.src) ? clip.src : await (async () => {
-      if (!/^\/audio\/[a-z0-9/_-]+\.(?:mp3|wav)$/i.test(clip.src)) throw new Error("Invalid reviewed audio path.");
-      if (!process.env.VERCEL_URL) return await readFile(path.join(process.cwd(), "public", clip.src));
-      const response = await fetch(`https://${process.env.VERCEL_URL}${clip.src}`, { cache: "no-store" });
-      if (!response.ok) throw new Error("Reviewed audio is unavailable."); return Buffer.from(await response.arrayBuffer());
-    })();
-    if (createHash("sha256").update(bytes).digest("hex") !== clip.sha256) throw new Error("The reviewed audio changed.");
-  }
   const overview = await db.rpc("review_teaching_dictionary_overview", { p_draft: row.id, p_actor: actor });
   if (overview.error) throw new Error(overview.error.message);
   const staged = await db.rpc("stage_teaching_dictionary_route_draft", { p_draft: row.id, p_actor: actor });
