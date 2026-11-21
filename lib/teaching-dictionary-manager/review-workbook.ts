@@ -293,6 +293,8 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
     && (!options?.targetRow || Number(row.workbook_row) === options.targetRow)));
   if (!selected.length) throw new Error("Choose Yes under Use in lesson for at least one meaning.");
   for (const group of selected) {
+    if (isSchwaWorkbookSkill(skill) && group.filter(row => row.use_in_lesson === "Yes").length > 1)
+      throw new Error(`Choose one teaching meaning under Use in lesson for ${group[0].display_word}. Other meanings stay in the Dictionary.`);
     if (isCompoundWorkbookSkill(skill)) for (const row of group) compoundFacts.set(Number(row.workbook_row), { componentToWholeRelationship: row.component_to_whole_relationship ?? "" });
     const tasks: WorkbookFamilyTask[] = [];
     if (hasPrefixChoice) {

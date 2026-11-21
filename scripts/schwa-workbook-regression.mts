@@ -16,4 +16,14 @@ assert(parseSchwaWorkbookFacts("about",{...fields,weak_vowel_target:"z"}).errors
 assert(parseSchwaWorkbookFacts("about",{...fields,activity_syllables:"ab·ot"}).errors.length);
 const bytes=await buildReviewWorkbook({skill,title:"Initial a",bundles:[bundle],families:new Map(),notes:new Map(),schwaFacts:new Map([["",fields]]),requestedSenses:new Map([["","s"]])});const wb=new ExcelJS.Workbook();await wb.xlsx.load(bytes as unknown as ArrayBuffer);const parsed=await readReviewWorkbook((await wb.xlsx.writeBuffer()) as unknown as ArrayBuffer,skill);assert.equal(parsed.pendingFamilies.length,0);assert.equal(parsed.schwaFacts.get(4)?.weak_vowel_sound,"Schwa");assert(parsed.csv.includes("about"));assert.equal(schwaWorkbookFacts("banana",{target:{text:"a",start:5,end:6,syllableIndex:3,soundType:"schwa"},acceptedCutSets:[[2,4]]}).weak_vowel_occurrence,"3");
 assert(weakVowelRouteBlockers({...parseSchwaWorkbookFacts("about",fields).annotation,schemaVersion:"weak_vowel_route_facts_v1",spokenSyllableCount:2},{displayWord:"about",definition:"On a topic",dictationSentence:"Talk about it.",microSkillKey:skill}).some(issue=>issue.includes("recording")||issue.includes("audio")));
-console.log({passed:true,blankWorkbooks:10,roundTrip:true,invalidTargetFlagged:true,invalidCutsFlagged:true,familyOptional:true});
+const ambiguous = structuredClone(bundle);
+ambiguous.senseSet.senses.push({...ambiguous.senseSet.senses[0],id:"s2",definition:"Roughly a certain amount."});
+ambiguous.analyses.push({...ambiguous.analyses[0],senseId:"s2"});
+const ambiguousBytes=await buildReviewWorkbook({skill,title:"Meaning choice",bundles:[ambiguous],notes:new Map(),families:new Map()});
+const ambiguousWorkbook=new ExcelJS.Workbook();await ambiguousWorkbook.xlsx.load(ambiguousBytes as unknown as ArrayBuffer);
+const ambiguousSheet=ambiguousWorkbook.getWorksheet("Words to review")!;
+const ambiguousHeaders=ambiguousSheet.getRow(3).values as string[];
+for(const number of [4,5]) ambiguousSheet.getRow(number).getCell(ambiguousHeaders.indexOf("Use in lesson")).value="Yes";
+const ambiguousBuffer=await ambiguousWorkbook.xlsx.writeBuffer();
+await assert.rejects(()=>readReviewWorkbook(ambiguousBuffer as unknown as ArrayBuffer,skill),/Choose one teaching meaning/);
+console.log({passed:true,meaningChoiceRequired:true,blankWorkbooks:10,roundTrip:true,invalidTargetFlagged:true,invalidCutsFlagged:true,familyOptional:true});
