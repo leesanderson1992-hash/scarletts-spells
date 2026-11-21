@@ -131,3 +131,32 @@ assert.equal(missing.lesson, null);
 assert.deepEqual(missing.blockers, [{ canonicalWordId: published[0].canonicalWordId,
   reason: "required_route_content_unpublished" }]);
 console.log("PASS: published weak-vowel content freezes selected demand words and blocks stale, deassigned and unpublished pairs");
+
+// The approved canonical family choice is intent, not a core-content dependency.
+const canonical = structuredClone(published);
+const familyWord = canonical[0];
+familyWord.canonicalFactsVerified = true;
+Object.assign(familyWord.routeContent.content.weakVowel, {
+  canonicalSenseId: "review", canonicalSenseFingerprint: familyWord.sourceFingerprint,
+  familyDecision: "approve", familyAuthorityId: "dictionary:optional-family",
+});
+familyWord.routeContent.content.weakVowel.activityEligibility.family = { status: "ready", reason: null };
+const waiting = prepareLessonFromPublishedWeakVowelWords({ ...input, published: canonical });
+assert(waiting.lesson, JSON.stringify(waiting.blockers));
+assert.equal(waiting.lesson.words[0].detective.family, null);
+const family = { authorityId: "dictionary:optional-family", sourceFingerprint: "f".repeat(64),
+  reviewStatus: "approved" as const, name: familyWord.spelling,
+  members: canonical.slice(0, 2).map(row => ({canonicalWordId: row.canonicalWordId,
+    spelling: row.spelling, recording: null, morphologyNote: null, alignedVowelSpan: null})), explanation: null };
+const grown = prepareLessonFromPublishedWeakVowelWords({ ...input, published: canonical,
+  publishedFamilies: [{canonicalWordId: familyWord.canonicalWordId, family}],
+  currentFamilyAuthorities: [{authorityId: family.authorityId, sourceFingerprint: family.sourceFingerprint,
+    memberWordIds: family.members.map(member => member.canonicalWordId)}] });
+assert(grown.lesson, JSON.stringify(grown.blockers));
+assert.equal(grown.lesson.words[0].detective.family?.authorityId, family.authorityId);
+assert.notEqual(waiting.lesson.contentVersion, grown.lesson.contentVersion);
+assert.equal(waiting.lesson.words[0].detective.family, null, "Saved lesson remains unchanged");
+const duplicate = prepareLessonFromPublishedWeakVowelWords({...input, published:canonical,
+  publishedFamilies:[{canonicalWordId:familyWord.canonicalWordId,family},{canonicalWordId:familyWord.canonicalWordId,family}]});
+assert.equal(duplicate.lesson,null);
+console.log("PASS: waiting family does not block core; current family enriches new lessons without republishing; ambiguity still blocks");

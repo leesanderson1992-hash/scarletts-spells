@@ -87,6 +87,9 @@ export function prepareLessonFromPublishedWeakVowelWords(input: {
   if (blockers.length) return { lesson: null, blockers };
   const contentVersion = `weak_vowel_selected_v1:${fingerprintSnapshotValue({
     microSkillKey: input.microSkillKey,
+    families: (input.publishedFamilies ?? []).filter(entry => selected.some(row => row.canonicalWordId === entry.canonicalWordId))
+      .map(entry => ({ canonicalWordId: entry.canonicalWordId, family: entry.family }))
+      .sort((a, b) => a.canonicalWordId.localeCompare(b.canonicalWordId)),
     selected: selected.map((row) => ({ contentVersionId: row.contentVersionId,
       sourceFingerprint: row.sourceFingerprint, contentSha256AtPublication: row.contentSha256AtPublication,
       definition: row.definition, sentence: row.sentence,
@@ -117,8 +120,8 @@ export function prepareLessonFromPublishedWeakVowelWords(input: {
     const matchingFamilies = input.publishedFamilies?.filter((entry) =>
       entry.canonicalWordId === row.canonicalWordId &&
       entry.family.authorityId === (facts.canonicalFamilyId || facts.familyAuthorityId)) ?? [];
-    if (facts.canonicalSenseId && facts.familyDecision === "approve" && matchingFamilies.length !== 1)
-      blockers.push({ canonicalWordId: row.canonicalWordId, reason: "approved_dictionary_family_unavailable" });
+    // Canonical family exploration is optional. The current approved family is
+    // included automatically when available; core activities continue while it waits.
     if (matchingFamilies.length > 1) blockers.push({ canonicalWordId: row.canonicalWordId, reason: "ambiguous_approved_family" });
     return {
       schemaVersion: DETECTIVE_ROUND_VERSION, contentVersion: row.contentVersionId, reviewStatus: "approved" as const,

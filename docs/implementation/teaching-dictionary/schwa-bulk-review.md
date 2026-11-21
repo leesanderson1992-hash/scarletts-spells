@@ -21,6 +21,13 @@ upload, resolve family dependencies, recheck, then publish ready words.
 - Optional family exploration requires a current sense-specific approved family,
   its Dictionary base/root entry and at least two approved members. Linking a
   family does not imply a shared pronunciation or a vowel alignment.
+  This is independent of core readiness: a selected family that is not yet ready
+  shows **Waiting** while the core word can be published and remain **Active**.
+  Each new lesson reads the current approved family. Once it has enough members,
+  exploration becomes **Ready** and is included without re-upload or re-publish.
+  **Not used** remains an explicit opt-out. Saved lessons retain their snapshots.
+  The database writer requires a valid current family when available and permits
+  no family only while it is unavailable; a forged or stale family is rejected.
 - Both target and practice eligibility come from the same current, approved,
   published Schwa pool. A generic legacy support row cannot admit another word.
 

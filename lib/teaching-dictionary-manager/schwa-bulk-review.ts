@@ -164,11 +164,14 @@ export async function loadSchwaWorkbookQueue(db: Db, skill: string, wordIds?: st
     if (!payload.metadata.stress_pattern.trim()) blockers.push("Approve the stress pattern for this pronunciation.");
     if (fingerprint?.sense_fingerprint !== facts.canonicalSenseFingerprint) blockers.push("Dictionary facts changed; upload the latest review workbook or save the current meaning again.");
     if (fields.family_exploration === "Use approved family" && facts.familyDecision !== "approve") blockers.push("Link the selected meaning to an approved family.");
-    if (facts.familyDecision === "approve" && facts.familyAuthorityId?.startsWith("dictionary:") &&
-      !await loadSchwaDictionaryFamily(db, draft.canonical_word_id, facts.canonicalSenseId!, facts.familyAuthorityId.slice("dictionary:".length)))
-      blockers.push("Family exploration needs the reviewed base/root entry and at least two approved linked words.");
+    // Optional enrichment is checked live, independently of the core publication.
+    // Retain the reviewed intent so family growth needs no workbook or republish.
+    const familyState = facts.familyDecision === "approve" && facts.familyAuthorityId?.startsWith("dictionary:")
+      ? await loadSchwaDictionaryFamily(db, draft.canonical_word_id, facts.canonicalSenseId!, facts.familyAuthorityId.slice("dictionary:".length))
+        ? "ready" as const : "waiting" as const
+      : "not_used" as const;
     const publication = publications.data?.find(row => versions.data.some(version => version.draft_id === draft.id && version.id === row.content_version_id));
-    return { id: draft.id, wordId: draft.canonical_word_id, payload, fields, blockers: [...new Set(blockers)], published: Boolean(publication && !blockers.length) };
+    return { id: draft.id, wordId: draft.canonical_word_id, payload, fields, familyState, blockers: [...new Set(blockers)], published: Boolean(publication && !blockers.length) };
   }));
   return queue;
 }

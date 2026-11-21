@@ -189,10 +189,11 @@ export default async function LessonUpdates({ searchParams }: {
       <Link className="font-semibold underline" href={`/admin/adle-lesson-readiness?route=${specialist.routeId}&skill=${selected}`}>Open lesson readiness</Link>
       {schwaSkill && schwaQueue && <div className="space-y-4">
         {params.published && <p role="status">{params.published} words published. Passing words are Active in ADLE.</p>}
-        <p>Dictionary meanings, pronunciation and word parts are reused. Review the exact weak vowel and spoken activity cuts below. Family exploration is optional.</p>
+        <p>Dictionary meanings, pronunciation and word parts are reused. Review the exact weak vowel and spoken activity cuts below. Family exploration is optional and never holds up the core lesson. When selected, it is included automatically in new lessons once enough approved family members are available.</p>
         {schwaQueue.filter(row => !row.published || row.blockers.length).map(row => <form action={saveSchwaWorkbookDetails} key={row.id} className="space-y-3 rounded-lg border p-4">
           <input type="hidden" name="skill" value={schwaSkill} /><input type="hidden" name="word_id" value={row.wordId} /><input type="hidden" name="draft_id" value={row.id} />
           <h3 className="font-semibold">{row.payload.displayWord} · {row.blockers.length ? "Needs facts" : "Ready to publish"}</h3>
+          <p className="text-sm text-slate-600">Family exploration: {row.familyState === "waiting" ? "Waiting for the approved base/root and at least two approved family members. You can publish the core lesson now." : row.familyState === "ready" ? "Ready — included automatically in new lessons." : "Not used."}</p>
           <p>{row.payload.definition}</p><ul className="list-disc pl-5 text-sm">{row.blockers.map(issue => <li key={issue}>{issue}</li>)}</ul>
           <div className="grid gap-3 md:grid-cols-2">
             <label className="grid gap-1 text-sm"><span>Target letter or ending<FormatHint label="weak vowel target" format="One target span containing one written vowel." example="a for about; ar for collar." /></span><input name="weak_vowel_target" defaultValue={row.fields.weak_vowel_target} className="rounded border p-2" maxLength={20} /></label>
@@ -204,6 +205,12 @@ export default async function LessonUpdates({ searchParams }: {
           </div>
           <div className="flex flex-wrap gap-3"><ActionSubmitButton className={button} pendingLabel="Saving and checking…">Save and recheck</ActionSubmitButton><Link className="underline" href={`/admin/teaching-dictionary/${row.wordId}#td-base-family`}>Open meaning and family</Link></div>
         </form>)}
+        {schwaQueue.some(row => row.published && !row.blockers.length) && <details className="rounded-lg border p-4">
+          <summary className="cursor-pointer font-semibold">Active words · Family exploration status</summary>
+          <ul className="mt-3 space-y-2 text-sm">{schwaQueue.filter(row => row.published && !row.blockers.length).map(row => <li key={row.id}>
+            <Link className="font-semibold underline" href={`/admin/teaching-dictionary/${row.wordId}#td-base-family`}>{row.payload.displayWord}</Link> · Active · Family exploration: {row.familyState === "waiting" ? "Waiting for enough approved family members. It will be included automatically in new lessons when ready." : row.familyState === "ready" ? "Ready — included in new lessons." : "Not used."}
+          </li>)}</ul>
+        </details>}
         {resolveAdleRouteActivationEnvironment() === "staging" && specialist.current.length >= 4 && <form action={generateSchwaWorkbookLesson} className="grid gap-3 rounded-lg border p-4">
           <h3 className="font-semibold">Generate a staging test lesson</h3><p className="text-sm">Creates a four-word test queue using Active words. Use a fresh staging test learner.</p><input type="hidden" name="skill" value={schwaSkill} />
           <label className="grid gap-1">Test learner<select name="child_id" required className="rounded border p-2"><option value="">Choose a fresh test learner</option>{homophoneLearners?.data?.map(child => <option key={child.id} value={child.id}>{child.first_name}</option>)}</select></label>

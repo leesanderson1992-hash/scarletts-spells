@@ -9,7 +9,7 @@ import { loadSchwaWorkbookQueue, publishSchwaWorkbookWord } from "../lib/teachin
 const connection = process.env.SUPABASE_STAGING_DB_URL;
 assert(connection?.includes("qkpjbajicacbrphthibk"));
 assert.equal(process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT, "staging");
-const prepared = JSON.parse(fs.readFileSync("outputs/schwa-bulk-workflow-20261121/initial-o-prepared.json", "utf8"));
+const prepared = JSON.parse(fs.readFileSync(process.env.SCHWA_PREPARED_FIXTURE ?? "outputs/schwa-bulk-workflow-20261121/initial-o-prepared.json", "utf8"));
 const actor = process.env.STAGING_ADMIN_USER_ID!;
 assert.equal(prepared.header.parentUserId, actor);
 const client = createServiceRoleClient();

@@ -36,9 +36,9 @@ export async function loadWeakVowelSelectionPool(input: {
       client: input.client, microSkillKey: skill, canonicalWordIds,
     })))).flat();
     const valid = rows.filter(row => publishedWeakVowelWordBlockers(row, skill).length === 0);
-    const familyWords = valid.filter(row => row.routeContent.content.weakVowel.canonicalSenseId && row.routeContent.content.weakVowel.familyDecision === "approve");
-    const families = familyWords.length ? await loadWeakVowelFamilies({ client: input.client, selected: familyWords }) : null;
-    words.push(...valid.filter(row => !familyWords.includes(row) || families?.published.some(entry => entry.canonicalWordId === row.canonicalWordId)));
+    // A waiting optional family must never exclude an approved core word.
+    // Family exploration is resolved from current approved members at generation.
+    words.push(...valid);
   }
   return { authority, approvedIds, dictionaryOnly, words };
 }
