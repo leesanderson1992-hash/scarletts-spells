@@ -32,9 +32,36 @@ const bundle: MultiSenseCsvBundle = { wordId: fixture.wordId, displayWord: "popu
 for (const key of WEAK_VOWEL_MICRO_SKILLS) {
   const facts = await prefillReviewWorkbookFacts(db, [bundle], key);
   assert(facts.families.get("popul")?.some(option=>option.endsWith(` | ${fixture.familyKey}`)), key);
+  const blankFacts = await prefillReviewWorkbookFacts(db, [], key);
+  const blank = new ExcelJS.Workbook();await blank.xlsx.load(await buildReviewWorkbook({skill:key,title:"Blank roots",...blankFacts,notes:new Map()}) as unknown as ArrayBuffer);
+  const blankSheet=blank.getWorksheet("Words to review")!,blankHeaders=blankSheet.getRow(3).values as string[];
+  assert.deepEqual(blankSheet.getCell(4,blankHeaders.indexOf("Word family")).dataValidation.formulae,["ReviewedRootFamilyChoices"]);
+  assert((blank.getWorksheet("Family options")!.getColumn(1).values as string[]).some(option=>String(option).endsWith(` | ${fixture.familyKey}`)));
 }
 const facts = await prefillReviewWorkbookFacts(db, [bundle], skill);
 const fields = {weak_vowel_target:"ar",weak_vowel_occurrence:"1",weak_vowel_sound:"Schwa",activity_syllables:"pop·u·lar",family_exploration:"Use approved family",age_band:"middle_primary",frequency_band:"high",complexity_band:"low",has_schwa:"Yes"};
+// Reproduce production: the currently stored analysis is the whole base popular.
+// The downloaded list must still let an editor change it to popul + ar.
+const whole = structuredClone(bundle);
+whole.analyses[0].parts = [{id:"root",kind:"base",sourceText:"popular",surfaceText:"popular",gloss:fixture.definition,displayRange:{start:0,end:7}}];
+whole.analyses[0].joins = [];
+whole.analyses[0].wordSum = "popular";
+const wholeFacts = await prefillReviewWorkbookFacts(db,[whole],skill);
+assert(wholeFacts.rootFamilyOptions.some(option=>option.endsWith(` | ${fixture.familyKey}`)));
+const wholeBytes = await buildReviewWorkbook({skill,title:"Edit an existing whole-base analysis",...wholeFacts,notes:new Map(),requestedSenses:new Map([[fixture.wordId,"review"]]),schwaFacts:new Map([[fixture.wordId,fields]])});
+const editable = new ExcelJS.Workbook();await editable.xlsx.load(wholeBytes as unknown as ArrayBuffer);
+const editSheet=editable.getWorksheet("Words to review")!,editHeaders=editSheet.getRow(3).values as string[];
+const edit=(name:string,value:string)=>{editSheet.getCell(4,editHeaders.indexOf(name)).value=value;};
+const rootOption=wholeFacts.rootFamilyOptions.find(option=>option.endsWith(` | ${fixture.familyKey}`))!;
+assert((editable.getWorksheet("Family options")!.getColumn(1).values as string[]).includes(rootOption));
+edit("Part 1 kind","root");edit("Part 1 underlying form","popul");edit("Part 1 visible letters","popul");edit("Part 1 meaning","");
+edit("Part 2 id","suffix");edit("Part 2 kind","suffix");edit("Part 2 underlying form","ar");edit("Part 2 visible letters","ar");edit("Part 2 meaning","relating to");edit("Part 2 join before","none");edit("Word family",rootOption);
+const editedBytes=await editable.xlsx.writeBuffer();
+const edited=await readReviewWorkbook(editedBytes as unknown as ArrayBuffer,skill,{decisions:[],resolve:async()=>approvedWorkbookFamily(db,fixture.familyKey,true)});
+assert.equal(edited.pendingFamilies.length,0);
+const editedWord=prepareReviewedCsv(edited.csv)[0];assert.equal(editedWord.error,null);
+assert.equal(editedWord.bundle!.analyses[0].parts[0].gloss,fixture.familyMeaning);
+fs.writeFileSync(`${dir}/edit-popular-to-popul.xlsx`,Buffer.from(editedBytes));
 const bytes = await buildReviewWorkbook({skill,title:"Schwa root family test",...facts,notes:new Map(),requestedSenses:new Map([[fixture.wordId,"review"]]),schwaFacts:new Map([[fixture.wordId,fields]])});
 const wb = new ExcelJS.Workbook();await wb.xlsx.load(bytes as unknown as ArrayBuffer);
 const sheet=wb.getWorksheet("Words to review")!, headings=sheet.getRow(3).values as string[];
@@ -62,5 +89,5 @@ const draft=await stageSchwaWorkbookDraft(db,actor,saved,skill,"review",fields);
 const row=(await loadSchwaWorkbookQueue(db,skill,[fixture.wordId])).find(row=>row.id===draft)!;assert.deepEqual(row.blockers,[]);assert.equal(row.familyState,"waiting");
 await publishSchwaWorkbookWord(db,actor,skill,draft);
 const active=(await loadSchwaWorkbookQueue(db,skill,[fixture.wordId])).find(row=>row.id===draft)!;assert(active.published);
-const report={passed:true,rootChoicesForAllTenSchwaWorkbooks:true,populListedInDownloadedWorkbook:true,rootTaskResolved:true,rootMeaningFilledAutomatically:true,wrongFamilyKindRejected:true,rootPartsAndMembershipSaved:true,coreWordPublished:true,optionalExploration:"waiting for root-entry requirements",productionChanges:0};
+const report={passed:true,rootChoicesForAllTenSchwaWorkbooks:true,blankWorkbooksIncludeRoots:true,editingWholeBaseToRootSupported:true,populListedInDownloadedWorkbook:true,rootTaskResolved:true,rootMeaningFilledAutomatically:true,wrongFamilyKindRejected:true,rootPartsAndMembershipSaved:true,coreWordPublished:true,optionalExploration:"waiting for root-entry requirements",productionChanges:0};
 fs.writeFileSync(`${dir}/staging-proof.json`,JSON.stringify(report,null,2));console.log(report);

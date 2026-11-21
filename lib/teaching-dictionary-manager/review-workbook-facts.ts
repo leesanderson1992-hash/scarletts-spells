@@ -144,7 +144,26 @@ export async function prefillReviewWorkbookFacts(db: Db, bundles: MultiSenseCsvB
       families.set(row.base_lemma, [...(families.get(row.base_lemma) ?? []), label]);
     }
   }
-  return { bundles: hydrated, families, wordPartPrefills };
+  // Editors may change a stored whole base into a root in the workbook. Keep
+  // the reviewed root catalogue available without guessing a family assignment.
+  const rootFamilyOptions: string[] = [];
+  if (isSchwaWorkbookSkill(skill)) {
+    const rootsSeen = new Set<string>();
+    for (let offset = 0; ; offset += 250) {
+      const { data, error } = await db.from("teaching_dictionary_families_with_current_meaning")
+        .select("family_key,base_lemma,base_meaning,base_part_of_speech,review_status")
+        .eq("base_kind", "bound_root").order("revision", { ascending: false }).order("family_key")
+        .range(offset, offset + 249);
+      if (error) throw new Error("Could not load approved root families for the review workbook.");
+      for (const root of data ?? []) {
+        if (rootsSeen.has(root.family_key)) continue;
+        rootsSeen.add(root.family_key);
+        if (root.review_status === "approved") rootFamilyOptions.push(`${root.base_lemma} · ${root.base_part_of_speech} · ${root.base_meaning} | ${root.family_key}`);
+      }
+      if ((data?.length ?? 0) < 250) break;
+    }
+  }
+  return { bundles: hydrated, families, wordPartPrefills, rootFamilyOptions };
 }
 
 function prefixPartSuggestions(raw: unknown, word: string, skill: PrefixWorkbookSkill): CanonicalPart[] | null {

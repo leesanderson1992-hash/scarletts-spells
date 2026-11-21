@@ -43,7 +43,7 @@ const workbookLabel = (skill: string, key: string) => key === prefixMeaningKey ?
 
 export async function buildReviewWorkbook(input: { skill: string; title: string; bundles: MultiSenseCsvBundle[];
   notes: ReadonlyMap<string, string>; families: ReadonlyMap<string, string[]>;
-  wordPartPrefills?: ReadonlyMap<string, WorkbookPartPrefill>;
+  wordPartPrefills?: ReadonlyMap<string, WorkbookPartPrefill>; rootFamilyOptions?: readonly string[];
   schwaFacts?: ReadonlyMap<string, SchwaWorkbookFacts>; compoundFacts?: ReadonlyMap<string, CompoundWorkbookFacts>; suffixFacts?: ReadonlyMap<string, SuffixWorkbookFacts>; requestedSenses?: ReadonlyMap<string, string | null> }) {
   const keys = workbookKeys(input.skill);
   const workbook = new ExcelJS.Workbook();
@@ -136,7 +136,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
       .find(index => (entry[`part_${index}_id`] || `part_${index}`) === entry.component_part_id
         || (!entry.component_part_id && ["base", "root"].includes(entry[`part_${index}_kind`])));
     const familyChoices = input.families.get(entry[`part_${familyPart}_underlying_form`]) ?? [];
-    const options = [...new Set([...familyChoices, entry.family_key, "Needs family review"].filter(Boolean))];
+    const options = [...new Set([...familyChoices, ...(isSchwaWorkbookSkill(input.skill) ? input.rootFamilyOptions ?? [] : []), entry.family_key, "Needs family review"].filter(Boolean))];
     const start = familyOptions.rowCount + 1;
     for (const family of options) familyOptions.addRow([family]);
     const rangeName = `FamilyChoices${row.number}`;
@@ -148,11 +148,19 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     }
   }
   {
+    const rootOptions = isSchwaWorkbookSkill(input.skill) ? input.rootFamilyOptions ?? [] : [];
+    let blankFamilyValidation = list(["Needs family review"]);
+    if (rootOptions.length) {
+      const start = familyOptions.rowCount + 1;
+      for (const option of [...rootOptions, "Needs family review"]) familyOptions.addRow([option]);
+      workbook.definedNames.add(`'Family options'!$A$${start}:$A$${familyOptions.rowCount}`, "ReviewedRootFamilyChoices");
+      blankFamilyValidation = { type: "list", allowBlank: true, formulae: ["ReviewedRootFamilyChoices"] };
+    }
     const firstBlankRow = headerRow + rows.length + 1;
     for (let number = firstBlankRow; number < firstBlankRow + 100; number++) {
       const row = sheet.getRow(number);
       addDropdowns(row);
-      row.getCell("family_key").dataValidation = list(["Needs family review"]);
+      row.getCell("family_key").dataValidation = blankFamilyValidation;
     }
   }
   sheet.autoFilter = { from: { row: headerRow, column: 1 }, to: { row: headerRow, column: keys.length } };
