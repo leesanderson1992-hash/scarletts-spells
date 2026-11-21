@@ -137,6 +137,7 @@ export default async function LessonUpdates({ searchParams }: {
     </section>}
     <BulkReviewFlow key={selected} families={families} clusters={clusters} skills={skills} selected={selected}
       savedReviews={params.skill && resolveAdleRouteActivationEnvironment() ? <SavedFamilyReviews db={db} environment={resolveAdleRouteActivationEnvironment()!} skill={params.skill} /> : null}
+      familyGuidance={schwaSkill ? "Family exploration is optional. Link or create a family in this flow when you choose to use it." : undefined}
       familyRequired={!isHomophoneReviewSkill(selected) && !schwaSkill} initialFamily={params.family ?? ""} initialCluster={params.cluster ?? ""} supported={supported} view={view}
       fullPoolSize={specialist?.current.length ?? base?.current.length ?? suffix?.current.length ?? update?.current.length ?? null}
       blankWorkbookHref={blankWorkbookSkill ? `/admin/teaching-dictionary/export/review-workbook?skill=${blankWorkbookSkill}&scope=blank` : undefined}
