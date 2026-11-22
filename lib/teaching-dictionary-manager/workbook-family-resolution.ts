@@ -38,7 +38,7 @@ async function loadWorkbookBases(db: Db, base: string, partOfSpeech: WorkbookBas
     const senseSet = reviewed.data?.sense_set as DictionarySenseSet | undefined;
     for (const sense of senseSet?.senses ?? []) {
       const parts = analyses.data.find(row => row.sense_id === sense.id)?.morphology_parts as CanonicalPart[] | undefined;
-      const part = parts?.find(item => item.kind === "base" && item.sourceText === base
+      const part = parts?.find(item => item.kind === "base" && item.sourceText.toLowerCase() === base
         && item.surfaceText === word.data?.display_word);
       if ((!parts || parts.length === 1 && part) && sense.partOfSpeech !== "root" && (partOfSpeech === null || sense.partOfSpeech === partOfSpeech))
         bases.push({ wordId, senseId: sense.id, partId: part?.id ?? "base", meaning: sense.definition, partOfSpeech: sense.partOfSpeech });
