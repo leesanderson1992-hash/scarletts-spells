@@ -39,7 +39,8 @@ export async function loadReviewedMeaningBundles(db: ReturnType<typeof createSer
         transformations: analysis.morphology_transformations as MultiSenseCsvBundle["analyses"][number]["transformations"],
         wordSum: analysis.word_sum, familyKey: family?.family_key ?? "",
         componentPartId: family?.component_part_id ?? "",
-        relationshipKind: family?.relationship_kind ?? "", requestedSkillKeys: [] }];
+        relationshipKind: family?.relationship_kind ?? "",
+        familyLinks: matching.map(link => ({ familyKey: link.family_key, componentPartId: link.component_part_id, relationshipKind: link.relationship_kind })), requestedSkillKeys: [] }];
     }) }];
   });
   return bundles;

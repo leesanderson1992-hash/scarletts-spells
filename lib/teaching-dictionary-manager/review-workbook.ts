@@ -352,6 +352,13 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
       }
       const bases = Array.from({ length: FLAT_IMPORT_PART_LIMIT }, (_, index) => index + 1)
         .filter(index => ["base", "root"].includes(row[`part_${index}_kind`]));
+      if (bases.length > 1 && !row.component_part_id && !row.family_key) {
+        for (const part of bases) tasks.push({ row: rowNumber, word: row.display_word, meaning: row.definition,
+          base: row[`part_${part}_underlying_form`].toLocaleLowerCase("en-GB"), sentence: row.dictation_sentence,
+          senseId: row.sense_id, componentPartId: row[`part_${part}_id`] || `part_${part}`,
+          baseKind: row[`part_${part}_kind`] === "root" ? "bound_root" : "free_base", baseMeaning: row[`part_${part}_meaning`] });
+        continue;
+      }
       const part = bases.length === 1 || isCompoundWorkbookSkill(skill) && !row.component_part_id ? bases[0] : bases.find(index =>
         (row[`part_${index}_id`] || `part_${index}`) === row.component_part_id);
       const base = part ? row[`part_${part}_underlying_form`].toLocaleLowerCase("en-GB") : "";

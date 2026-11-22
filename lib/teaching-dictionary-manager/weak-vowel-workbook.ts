@@ -2,7 +2,7 @@ import { WEAK_VOWEL_MICRO_SKILLS } from "@/lib/adle/word-lab/weak-vowel-dinner";
 import type { WeakVowelRouteFactsV1 } from "./weak-vowel-authoring";
 import { parseSyllableBreakdown } from "./authoring";
 export const SCHWA_WORKBOOK_FIELDS = ["weak_vowel_target", "weak_vowel_occurrence", "weak_vowel_sound", "activity_syllables", "family_exploration", "age_band", "frequency_band", "complexity_band", "has_schwa"] as const;
-export type SchwaWorkbookFacts = Record<typeof SCHWA_WORKBOOK_FIELDS[number], string>;
+export type SchwaWorkbookFacts = Record<typeof SCHWA_WORKBOOK_FIELDS[number], string> & { lesson_family_key?: string };
 export const isSchwaWorkbookSkill = (value: unknown): value is typeof WEAK_VOWEL_MICRO_SKILLS[number] =>
   typeof value === "string" && (WEAK_VOWEL_MICRO_SKILLS as readonly string[]).includes(value);
 export function schwaWorkbookFacts(word: string, facts?: Partial<WeakVowelRouteFactsV1>): SchwaWorkbookFacts {

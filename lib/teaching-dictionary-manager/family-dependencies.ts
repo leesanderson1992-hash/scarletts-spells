@@ -32,7 +32,7 @@ export function matchingDependencyFamily(dependency: Pick<FamilyDependency, "con
 }
 
 /** A bounded, leased worker. It links and rechecks reviewed facts; it never publishes. */
-export async function recheckWaitingFamilyWords(db: Db, environment: "staging" | "production", base?: string, limit = 10, wordId?: string) {
+export async function recheckWaitingFamilyWords(db: Db, environment: "staging" | "production", base?: string, limit = 10, wordId?: string): Promise<{ checked: number; ready: number; changed: number }> {
   const claimed = wordId
     ? await db.rpc("claim_dictionary_family_dependencies_for_word", { p_environment: environment, p_limit: limit, p_word: wordId })
     : await db.rpc("claim_dictionary_family_dependencies", { p_environment: environment, p_limit: limit, p_base: base ?? null });
@@ -163,6 +163,14 @@ export async function recheckWaitingFamilyWords(db: Db, environment: "staging" |
       await finish("ready", "Family linked and lesson checks rerun. Open Preview to review and publish; no automatic publication."); ready++;
     } catch (error) {
       await finish("error", error instanceof Error ? error.message : "Family recheck failed. It will be retried.");
+    }
+  }
+  if (wordId) {
+    const synced = await db.rpc("sync_dictionary_family_components", { p_environment: environment, p_word: wordId, p_skill: null });
+    if (synced.error) throw new Error("Could not discover the word's other family components.");
+    if (synced.data > 0) {
+      const next = await recheckWaitingFamilyWords(db, environment, undefined, limit, wordId);
+      return { checked: rows.length + next.checked, ready: ready + next.ready, changed: changed + next.changed };
     }
   }
   return { checked: rows.length, ready, changed };

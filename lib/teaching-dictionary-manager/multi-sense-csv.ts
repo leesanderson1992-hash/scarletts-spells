@@ -20,6 +20,8 @@ export type MultiSenseCsvBundle = {
     familyKey: string;
     componentPartId: string;
     relationshipKind: string;
+    /** All reviewed component memberships; familyKey is only the legacy single-family projection. */
+    familyLinks?: { familyKey: string; componentPartId: string; relationshipKind: string }[];
     requestedSkillKeys: string[];
   }[];
 };

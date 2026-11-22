@@ -16,6 +16,7 @@ import type { MultiSenseCsvBundle } from "./multi-sense-csv";
 import { randomUUID } from "node:crypto";
 import { reviewedAudioBlockers } from "@/lib/adle/weak-vowel/reviewed-audio";
 import { normaliseWrittenSyllableBreakdown } from "./authoring";
+import { chooseLessonFamily } from "./lesson-family-choice";
 type Db = ReturnType<typeof createServiceRoleClient>;
 export const SCHWA_WORKBOOK_SOURCE = "Schwa Bulk review workbook v1";
 const hash = (value: string) => createHash("sha256").update(value).digest("hex");
@@ -60,18 +61,24 @@ export async function loadSchwaWorkbookFacts(db: Db, skill: string, ids: string[
 export async function stageSchwaWorkbookDraft(db: Db, actor: string, bundle: MultiSenseCsvBundle,
   skill: string, senseId: string, fields: SchwaWorkbookFacts) {
   if (!isSchwaWorkbookSkill(skill)) throw new Error("Choose a supported Schwa lesson.");
+  const [approved] = await loadReviewedMeaningBundles(db, [bundle.wordId]);
+  if (!approved) throw new Error("Approve the current Dictionary meaning and parts first.");
+  bundle = approved;
   const sense = bundle.senseSet.senses.find(sense => sense.id === senseId);
   const analysis = bundle.analyses.find(analysis => analysis.senseId === senseId);
   const pronunciation = bundle.senseSet.pronunciations.find(row => row.id === sense?.pronunciationId);
   if (!sense || !analysis) throw new Error("Approve the meaning and word parts first.");
-  const [word, versions, fingerprint, oldSentence, oldPronunciation] = await Promise.all([
+  const [word, versions, fingerprint, oldSentence, oldPronunciation, saved] = await Promise.all([
     db.from("canonical_teaching_dictionary_words").select("normalised_word,dialect_code,age_band,frequency_band,complexity_band").eq("id", bundle.wordId).single(),
     db.from("teaching_dictionary_route_content_versions").select("content").eq("canonical_word_id", bundle.wordId)
       .eq("micro_skill_key", skill).eq("route_id", "weak_vowel_word_lab").order("published_at", { ascending: false }).order("id", { ascending: false }).limit(1),
     db.rpc("teaching_dictionary_schwa_sense_fingerprint", { p_word: bundle.wordId, p_sense: senseId }),
     db.from("canonical_teaching_dictionary_dictation_sentences").select("dictation_sentence").eq("canonical_word_id", bundle.wordId).eq("row_status", "active").order("created_at", { ascending: false }).limit(1),
     db.from("canonical_teaching_dictionary_word_metadata").select("phoneme_hint,stress_pattern,syllables").eq("canonical_word_id", bundle.wordId).eq("row_status", "active").eq("review_status", "approved_for_first_exposure").order("created_at", { ascending: false }).limit(1),
+    db.from("teaching_dictionary_manager_drafts").select("id,payload").eq("canonical_word_id", bundle.wordId)
+      .eq("source_reference", SCHWA_WORKBOOK_SOURCE).contains("payload", { skillKeys: [skill] }).order("created_at", { ascending: false }).limit(1).maybeSingle(),
   ]);
+  if (saved.error) throw new Error("Could not load the saved lesson family choice.");
   if (word.error || versions.error || fingerprint.error || !fingerprint.data || oldSentence.error || oldPronunciation.error) throw new Error("Could not check the current Dictionary facts.");
   const prior = (versions.data[0]?.content as unknown as RouteContentDraft | undefined)?.content?.weakVowel as WeakVowelRouteFactsV1 | undefined;
   const parsed = parseSchwaWorkbookFacts(bundle.displayWord, fields);
@@ -99,9 +106,15 @@ export async function stageSchwaWorkbookDraft(db: Db, actor: string, bundle: Mul
   };
   // Existing canonical family links are independent of whether this optional activity is used.
   if (fields.family_exploration === "Use approved family") {
-    if (analysis.familyKey) {
-      facts.familyDecision = "approve"; facts.familyAuthorityId = `dictionary:${analysis.familyKey}`;
+    const savedRoute = (saved.data?.payload as WordDraftPayload | undefined)?.routeContents.find(route => route.microSkillKey === skill);
+    const savedKey = (savedRoute?.content.schwaWorkbookFields as SchwaWorkbookFacts | undefined)?.lesson_family_key;
+    const selected = chooseLessonFamily(analysis, fields.lesson_family_key,
+      savedKey || prior?.familyAuthorityId?.replace(/^dictionary:/u, ""));
+    if (fields.lesson_family_key && !selected) throw new Error("Choose a currently linked family for this lesson.");
+    if (selected) {
+      facts.familyDecision = "approve"; facts.familyAuthorityId = `dictionary:${selected}`;
       facts.activityEligibility.family = status;
+      fields = { ...fields, lesson_family_key: selected };
     }
   }
   const payload: WordDraftPayload = {
@@ -115,8 +128,7 @@ export async function stageSchwaWorkbookDraft(db: Db, actor: string, bundle: Mul
     skillKeys: [skill], skillSenseIds: { [skill]: senseId }, routeContents: [{ routeId: "weak_vowel_word_lab", routeVersion: "v1", microSkillKey: skill, wordMeaning: sense.definition, wordSum: analysis.wordSum,
       content: { weakVowel: facts, schwaWorkbookFields: fields } }],
   };
-  const previous = await db.from("teaching_dictionary_manager_drafts").select("id,payload").eq("canonical_word_id", bundle.wordId)
-    .eq("source_reference", SCHWA_WORKBOOK_SOURCE).contains("payload", { skillKeys: [skill] }).order("created_at", { ascending: false }).limit(1).maybeSingle();
+  const previous = saved;
   if (previous.error) throw new Error("Could not check the saved Schwa review.");
   if (previous.data && semanticJson(previous.data.payload) === semanticJson(payload)) return previous.data.id;
   const draft = await db.from("teaching_dictionary_manager_drafts").insert({ canonical_word_id: bundle.wordId,
@@ -125,7 +137,7 @@ export async function stageSchwaWorkbookDraft(db: Db, actor: string, bundle: Mul
   return draft.data.id;
 }
 
-export async function loadSchwaWorkbookQueue(db: Db, skill: string, wordIds?: string[]) {
+export async function loadSchwaWorkbookQueue(db: Db, skill: string, wordIds?: string[], includeFamilyState = true) {
   let query = db.from("teaching_dictionary_manager_drafts").select("id,canonical_word_id,payload,created_at")
     .eq("source_reference", SCHWA_WORKBOOK_SOURCE).contains("payload", { skillKeys: [skill] }).order("created_at", { ascending: false });
   if (wordIds) query = query.in("canonical_word_id", wordIds);
@@ -164,13 +176,13 @@ export async function loadSchwaWorkbookQueue(db: Db, skill: string, wordIds?: st
     if (!payload.metadata.phoneme_hint.trim()) blockers.push("Approve British IPA for this meaning.");
     if (!payload.metadata.stress_pattern.trim()) blockers.push("Approve the stress pattern for this pronunciation.");
     if (fingerprint?.sense_fingerprint !== facts.canonicalSenseFingerprint) blockers.push("Dictionary facts changed; upload the latest review workbook or save the current meaning again.");
-    if (fields.family_exploration === "Use approved family" && facts.familyDecision !== "approve") blockers.push("Link the selected meaning to an approved family.");
+    // Family exploration is optional; missing membership/choice cannot hold up core publishing.
     // Optional enrichment is checked live, independently of the core publication.
     // Retain the reviewed intent so family growth needs no workbook or republish.
-    const familyState = facts.familyDecision === "approve" && facts.familyAuthorityId?.startsWith("dictionary:")
+    const familyState = includeFamilyState && facts.familyDecision === "approve" && facts.familyAuthorityId?.startsWith("dictionary:")
       ? await loadSchwaDictionaryFamily(db, draft.canonical_word_id, facts.canonicalSenseId!, facts.familyAuthorityId.slice("dictionary:".length))
         ? "ready" as const : "waiting" as const
-      : "not_used" as const;
+      : fields.family_exploration === "Use approved family" ? "waiting" as const : "not_used" as const;
     const publication = publications.data?.find(row => versions.data.some(version => version.draft_id === draft.id && version.id === row.content_version_id));
     return { id: draft.id, wordId: draft.canonical_word_id, payload, fields, familyState, blockers: [...new Set(blockers)], published: Boolean(publication && !blockers.length) };
   }));
@@ -180,8 +192,14 @@ export async function loadSchwaWorkbookQueue(db: Db, skill: string, wordIds?: st
 export async function publishSchwaWorkbookWord(db: Db, actor: string, skill: string, draftId: string) {
   const identity = await db.from("teaching_dictionary_manager_drafts").select("canonical_word_id").eq("id", draftId).single();
   if (identity.error) throw new Error("Open the latest Schwa preview.");
-  const row = (await loadSchwaWorkbookQueue(db, skill, [identity.data.canonical_word_id])).find(row => row.id === draftId);
+  const row = (await loadSchwaWorkbookQueue(db, skill, [identity.data.canonical_word_id], false)).find(row => row.id === draftId);
   if (!row || row.blockers.length) throw new Error(row?.blockers.join(" ") || "Open the latest Schwa preview.");
+  return publishCheckedSchwaWorkbookWord(db, actor, skill, row);
+}
+
+/** The job preflight loads its small batch once. SQL publication rechecks fingerprints atomically. */
+export async function publishCheckedSchwaWorkbookWord(db: Db, actor: string, skill: string, row: Awaited<ReturnType<typeof loadSchwaWorkbookQueue>>[number]) {
+  if (row.blockers.length) throw new Error(row.blockers.join(" "));
   if (row.published) {
     const version = await db.from("teaching_dictionary_route_content_versions").select("id").eq("draft_id", row.id).eq("micro_skill_key", skill).single();
     if (version.error) throw new Error("Could not verify the published Schwa word.");

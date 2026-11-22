@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {chooseLessonFamily} from '../lib/teaching-dictionary-manager/lesson-family-choice';
+import type {MultiSenseCsvBundle} from '../lib/teaching-dictionary-manager/multi-sense-csv';
+const analysis={familyKey:'',componentPartId:'',relationshipKind:'',familyLinks:[{familyKey:'photo_base_family',componentPartId:'part_1',relationshipKind:'derived'},{familyKey:'graph_root_base_family',componentPartId:'part_2',relationshipKind:'derived'}]} as MultiSenseCsvBundle['analyses'][number];
+assert.equal(chooseLessonFamily(analysis),null,'Do not guess between two families');
+assert.equal(chooseLessonFamily(analysis,'graph_root_base_family'),'graph_root_base_family');
+assert.equal(chooseLessonFamily(analysis,undefined,'photo_base_family'),'photo_base_family','Retain the previous lesson choice');
+assert.equal(chooseLessonFamily(analysis,'unlinked_family'),null);
+assert.equal(analysis.familyLinks?.length,2,'Choosing a lesson family cannot remove component links');
+assert.equal(chooseLessonFamily({...analysis,familyLinks:[analysis.familyLinks![0]]}),'photo_base_family');
+console.log({passed:true,multipleLinksRetained:true,explicitLessonChoice:true,unlinkedFamilyRejected:true});

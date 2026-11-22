@@ -179,6 +179,11 @@ export async function importReviewedMultiSenseCsv(
     }
     words += 1;
     const wordId = applied.data;
+    if (workbook && waiting.length) {
+      const synced = await db.rpc("sync_dictionary_family_components", { p_environment: resolveAdleRouteActivationEnvironment(), p_word: wordId, p_skill: skill });
+      if (synced.error) issues.push({ word, wordId, rows, reason: "Reviewed facts are saved. Refresh Family assignment to recheck the remaining components." });
+      if (waiting.length > 1) scheduleFamilyDependencyRecheck(undefined, wordId);
+    }
     if (replacedFields.length) conflicts.push({ word, rows, wordId,
       reason: `Workbook accepted as the new authority for ${replacedFields.join(", ")}.` });
     for (const [index, analysis] of bundle.analyses.entries()) {

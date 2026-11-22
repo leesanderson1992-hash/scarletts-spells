@@ -89,7 +89,7 @@ export function ResolveWorkbookFamilies({ tasks, skill, saving, onResolve, saved
     <div className="space-y-2" aria-label="Words needing a family">
       {tasks.map(item => <button key={item.row} type="button" aria-pressed={task.row === item.row}
         className={`w-full rounded-lg border p-2 text-left ${task.row === item.row ? "border-[var(--scarlett)] bg-[color:var(--mist)]" : "border-[var(--border)]"}`}
-        onClick={() => setRow(item.row)}><strong>{item.word}</strong><br /><span className="text-sm">{item.meaning}</span></button>)}
+        onClick={() => setRow(item.row)}><strong>{item.word} · {item.base}</strong><br /><span className="text-sm">{item.meaning}</span></button>)}
     </div>
     <FamilyDecision key={`${task.row}:${task.base}:${task.baseKind}`} task={task} skill={skill} saving={saving} onResolve={onResolve} savedWordId={savedWordIds?.[task.row]} />
   </div>;

@@ -16,11 +16,12 @@ export async function saveSchwaWorkbookDetails(form: FormData) {
   const href = `${base}?skill=${skill}&view=preview`; let error = "";
   try {
     const db = createServiceRoleClient(); const wordId = String(form.get("word_id"));
-    const row = (await loadSchwaWorkbookQueue(db, skill)).find(row => row.wordId === wordId && row.id === form.get("draft_id"));
+    const row = (await loadSchwaWorkbookQueue(db, skill, [wordId], false)).find(row => row.wordId === wordId && row.id === form.get("draft_id"));
     if (!row) throw new Error("Open the latest saved Schwa review.");
     const [bundle] = await loadReviewedMeaningBundles(db, [wordId]);
     if (!bundle) throw new Error("Approve the Dictionary facts first.");
     const fields = Object.fromEntries(SCHWA_WORKBOOK_FIELDS.map(key => [key, String(form.get(key) ?? "").trim()])) as SchwaWorkbookFacts;
+    fields.lesson_family_key = String(form.get("lesson_family_key") ?? "").trim() || undefined;
     await stageSchwaWorkbookDraft(db, actor.id, bundle, skill, row.payload.skillSenseIds![skill], fields);
   } catch (cause) { error = cause instanceof Error ? cause.message : "Could not save the activity facts."; }
   revalidatePath(base); redirect(error ? `${href}&error=${encodeURIComponent(error)}` : href);
