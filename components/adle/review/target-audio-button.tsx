@@ -1,6 +1,6 @@
 "use client";
 
-import { PronunciationAudioCredit, usePreferredBritishAudio } from "@/components/adle/activities/shared/authored-audio";
+import { usePreferredBritishAudio } from "@/components/adle/activities/shared/authored-audio";
 import type { ReviewTargetSnapshotV3 } from "@/lib/adle/review-v3/contracts";
 
 export function TargetAudioButton(props: {
@@ -10,9 +10,9 @@ export function TargetAudioButton(props: {
 }) {
   const speechText = props.target.audioAuthority.kind === "speech_text"
     ? props.target.audioAuthority.speechText ?? "" : "";
-  const { play, lookingUp, attribution } = usePreferredBritishAudio(speechText);
+  const { play, lookingUp } = usePreferredBritishAudio(speechText);
   return (
-    <><button
+    <button
       type="button"
       onClick={() => {
         if (props.onPlay) {
@@ -31,6 +31,6 @@ export function TargetAudioButton(props: {
         <path d="M15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14" />
       </svg>
       <span className="review-audio-number" aria-hidden="true">{props.index + 1}</span>
-    </button>{!props.onPlay && <PronunciationAudioCredit credit={attribution} />}</>
+    </button>
   );
 }

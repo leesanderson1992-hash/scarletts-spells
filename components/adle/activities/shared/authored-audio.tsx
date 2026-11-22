@@ -7,16 +7,8 @@ export function speakWord(word: string, rate = 0.8): void {
   speakAuthoredNarration(word, rate <= 0.7 ? "dictation" : "word");
 }
 
-type AudioAttribution = { author: string; sourceUrl: string; licenceUrl: string };
-export function PronunciationAudioCredit({ credit }: { credit?: AudioAttribution }) {
-  return credit ? <span className="text-xs text-[color:var(--mid)]">
-    <a href={credit.sourceUrl} target="_blank" rel="noreferrer" className="underline">{credit.author}</a>
-    {" · "}<a href={credit.licenceUrl} target="_blank" rel="noreferrer" className="underline">CC BY 3.0 US</a>{" · MP3 conversion"}
-  </span> : null;
-}
-
 export function usePreferredBritishAudio(word: string, kind: NarrationKind = "word") {
-  const [lookup, setLookup] = useState<{ key: string; src: string | null; attribution?: AudioAttribution } | null>(null);
+  const [lookup, setLookup] = useState<{ key: string; src: string | null } | null>(null);
   const needsLookup = kind !== "guide" && Boolean(word.trim()) && word.length <= 500;
   const lookupKey = `${kind}:${word}`;
   const lookingUp = needsLookup && lookup?.key !== lookupKey;
@@ -34,8 +26,8 @@ export function usePreferredBritishAudio(word: string, kind: NarrationKind = "wo
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text: word, kind: kind === "dictation" ? "sentence" : "word" }),
       signal: controller.signal,
-    }).then(async response => response.ok ? await response.json() as { src: string | null; attribution?: AudioAttribution } : { src: null })
-      .then(result => { if (active && !controller.signal.aborted) setLookup({ key: lookupKey, src: result.src, attribution: result.attribution }); })
+    }).then(async response => response.ok ? await response.json() as { src: string | null } : { src: null })
+      .then(result => { if (active && !controller.signal.aborted) setLookup({ key: lookupKey, src: result.src }); })
       .catch(() => { if (active) setLookup({ key: lookupKey, src: null }); })
       .finally(() => { window.clearTimeout(timeout); });
     return () => { active = false; window.clearTimeout(timeout); controller.abort(); };
@@ -54,7 +46,7 @@ export function usePreferredBritishAudio(word: string, kind: NarrationKind = "wo
     }
     speakAuthoredNarration(word, kind);
   }
-  return { play, lookingUp, attribution: lookup?.key === lookupKey ? lookup.attribution : undefined };
+  return { play, lookingUp };
 }
 
 export function HearWordButton(props: {
@@ -63,9 +55,9 @@ export function HearWordButton(props: {
   muted?: boolean;
   kind?: NarrationKind;
 }) {
-  const { play, lookingUp, attribution } = usePreferredBritishAudio(props.word, props.kind ?? "word");
+  const { play, lookingUp } = usePreferredBritishAudio(props.word, props.kind ?? "word");
   return (
-    <><button
+    <button
       type="button"
       onClick={() => { if (!props.muted) void play(); }}
       aria-disabled={props.muted || lookingUp}
@@ -73,6 +65,6 @@ export function HearWordButton(props: {
       className="hear-word-button inline-flex min-h-11 items-center gap-2 rounded-full border border-[var(--border)] bg-white px-4 text-sm font-semibold text-[color:var(--ink)] transition hover:border-[color:var(--scarlett)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[rgba(194,24,91,0.22)]"
     >
       <span aria-hidden="true">🔊</span> {props.label ?? "Hear the word"}
-    </button><PronunciationAudioCredit credit={attribution} /></>
+    </button>
   );
 }

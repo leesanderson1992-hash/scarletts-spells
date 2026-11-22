@@ -18,11 +18,7 @@ export function PronunciationListen(props: {
   return <div className="mt-2 space-y-1">
     <DictationListen key={`${props.word}:${props.ipa}:${text}:${src ?? "device"}`} sentence={text} kind="word"
       recordingSrc={src} label="Listen to word"
-      recordingDescription={reviewedSrc ? "✓ British recording available" : "British pronunciation sample"}
+      recordingDescription="✓ British recording available"
       fallbackDescription={props.sentence?.trim() ? "British recording missing · Device voice uses sentence context" : "British recording missing · Device voice may guess pronunciation"} />
-    {sample && <p className="text-xs text-[color:var(--mid)]">
-      <a className="underline" href={sample.sourceUrl} target="_blank" rel="noreferrer">{sample.author}</a>
-      {" · "}<a className="underline" href={sample.licenceUrl} target="_blank" rel="noreferrer">CC BY 3.0 US</a>{" · MP3 conversion"}
-    </p>}
   </div>;
 }

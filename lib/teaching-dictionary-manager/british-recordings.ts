@@ -1,7 +1,8 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { britishPronunciationSample } from "./pronunciation-playback";
+import { britishPronunciationSample, hasBritishPronunciationSample, britishRecordingPronunciation } from "./pronunciation-playback";
+import type { DictionarySenseSet } from "./senses";
 
 export type BritishRecordingKind = "word" | "sentence";
 export type BritishRecording = { src: string; sha256: string; source: "dictionary" | "schwa_route" };
@@ -9,15 +10,15 @@ export type BritishRecording = { src: string; sha256: string; source: "dictionar
 /** A pronunciation reference is not an approved recording. Only resolve it for
  * a single approved pronunciation; a spelling alone cannot select a sense. */
 export async function britishPronunciationReferenceForText(input: { client: SupabaseClient; text: string }) {
-  if (input.text.trim().toLowerCase() !== "close") return null;
+  if (!hasBritishPronunciationSample(input.text)) return null;
   const words = await input.client.from("canonical_teaching_dictionary_words").select("id")
-    .eq("normalised_word", "close").eq("row_status", "active")
+    .eq("normalised_word", input.text.trim().toLowerCase()).eq("row_status", "active")
     .eq("review_status", "approved_for_first_exposure").eq("dialect_code", "en-GB").limit(2);
   if (words.error || words.data.length !== 1) return null;
   const reviewed = await input.client.from("teaching_dictionary_reviewed_sense_sets").select("sense_set")
     .eq("canonical_word_id", words.data[0].id).maybeSingle();
   if (reviewed.error || !reviewed.data) return null;
-  const set = reviewed.data.sense_set as import("./senses").DictionarySenseSet;
+  const set = reviewed.data.sense_set as DictionarySenseSet;
   const used = new Set(set.senses.map(sense => sense.pronunciationId).filter(Boolean));
   const ipas = [...new Set(set.pronunciations.filter(row => used.has(row.id)).map(row => row.ipa))];
   return ipas.length === 1 ? britishPronunciationSample(input.text, ipas[0]) : null;
@@ -33,7 +34,28 @@ export async function approvedBritishRecording(input: {
     .eq("spoken_text", text).order("approved_at", { ascending: false })
     .order("id", { ascending: false }).limit(1).maybeSingle();
   if (global.error) throw new Error("DICTIONARY_RECORDING_READ_FAILED");
-  if (global.data) return { src: global.data.recording_src, sha256: global.data.sha256, source: "dictionary" };
+  if (global.data) {
+    const recordedIpa = kind === "word" ? britishRecordingPronunciation(global.data.recording_src) : undefined;
+    if (recordedIpa) {
+      const reviewed = await client.from("teaching_dictionary_reviewed_sense_sets").select("sense_set")
+        .eq("canonical_word_id", wordId).maybeSingle();
+      if (reviewed.error) throw new Error("DICTIONARY_RECORDING_PRONUNCIATION_READ_FAILED");
+      const set = reviewed.data?.sense_set as DictionarySenseSet | undefined;
+      if (set) {
+        const used = new Set(set.senses.map(sense => sense.pronunciationId).filter(Boolean));
+        const ipas = [...new Set(set.pronunciations.filter(row => used.has(row.id)).map(row => row.ipa))];
+        if (ipas.length !== 1 || !britishPronunciationSample(text, ipas[0]) ||
+          britishPronunciationSample(text, ipas[0])?.src !== global.data.recording_src) return null;
+      } else {
+        const metadata = await client.from("canonical_teaching_dictionary_word_metadata").select("phoneme_hint")
+          .eq("canonical_word_id", wordId).eq("row_status", "active").eq("review_status", "approved_for_first_exposure")
+          .order("created_at", {ascending:false}).limit(1).maybeSingle();
+        if (metadata.error) throw new Error("DICTIONARY_RECORDING_PRONUNCIATION_READ_FAILED");
+        if (britishPronunciationSample(text, metadata.data?.phoneme_hint ?? "")?.src !== global.data.recording_src) return null;
+      }
+    }
+    return { src: global.data.recording_src, sha256: global.data.sha256, source: "dictionary" };
+  }
 
   // Existing Schwa clips were reviewed for a particular route. Reuse one only
   // when its dictionary fingerprint is current and all matching route clips

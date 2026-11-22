@@ -20,8 +20,7 @@ export async function POST(request: Request) {
     const clip = await britishRecordingForText({ client: db, text, kind: kind as BritishRecordingKind }) ??
       (kind === "sentence" ? await britishRecordingForText({ client: db, text, kind: "word" }) : null);
     const reference = !clip && kind === "word" ? await britishPronunciationReferenceForText({client:db,text}) : null;
-    return NextResponse.json({ src: clip?.src ?? reference?.src ?? null, source: clip?.source ?? (reference ? "pronunciation_reference" : "device_voice"),
-      ...(reference ? {attribution:{author:reference.author,sourceUrl:reference.sourceUrl,licenceUrl:reference.licenceUrl}} : {}) },
+    return NextResponse.json({ src: clip?.src ?? reference?.src ?? null, source: clip?.source ?? (reference ? "pronunciation_reference" : "device_voice") },
       { headers: { "Cache-Control": "private, no-store" } });
   } catch {
     return NextResponse.json({ src: null, source: "device_voice" },

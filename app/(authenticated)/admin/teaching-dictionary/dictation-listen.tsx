@@ -10,9 +10,12 @@ export function DictationListen({ sentence, recordingSrc, label = "Listen", kind
   const audio = useRef<HTMLAudioElement>(null);
   const playing = useRef(false);
   const [error, setError] = useState(false);
-  useEffect(() => () => {
-    audio.current?.pause();
-    if (playing.current) window.speechSynthesis?.cancel();
+  useEffect(() => {
+    const element = audio.current;
+    return () => {
+      element?.pause();
+      if (playing.current) window.speechSynthesis?.cancel();
+    };
   }, []);
 
   async function listen() {

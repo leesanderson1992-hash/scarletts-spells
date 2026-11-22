@@ -1,0 +1,422 @@
+[
+  {
+    "word": "loud",
+    "ipa": "/lˈaʊd/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/b74f718e-c3f5-56bc-90c4-2eb77129e9fd-b83e66e04480dfe4.mp3",
+    "sha256": "b83e66e04480dfe4078b3fbafe190540ec088fc30b5d5bd7ddd8f4465b6d84ad"
+  },
+  {
+    "word": "wind",
+    "ipa": "/wɪnd/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/7070a8c3-43e7-5927-a56d-96039c66236a-729e0233853762b1.mp3",
+    "sha256": "729e0233853762b16b962241e37baad47025bdafd67c86a58f1be673c3bc3f22"
+  },
+  {
+    "word": "slow",
+    "ipa": "/slˈəʊ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/567c22bd-043b-525d-80ad-4c510e6a08d2-15e4318d9263a3cc.mp3",
+    "sha256": "15e4318d9263a3cc3a5c34aca724db7fbec81bb4e7a04e2455aa86462508dd36"
+  },
+  {
+    "word": "closer",
+    "ipa": "/ˈkləʊsə/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/589d80cc-fd12-51f7-beb5-6dca4206243b-8ad1beb262a1d54a.mp3",
+    "sha256": "8ad1beb262a1d54a226ee3487a361339d06f582d67f6f5d5a1b8ecac5a578660"
+  },
+  {
+    "word": "December",
+    "ipa": "/dɪˈsembə/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/2ffeb23b-b6d1-5746-b2b1-2c5316dbd54d-1b5b0256008f3e6c.mp3",
+    "sha256": "1b5b0256008f3e6c362c60d53a5db4562ffd8da3636fa9a23a145e4e86790839"
+  },
+  {
+    "word": "either",
+    "ipa": "/ˈaɪðɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/a3fbd7bb-68e0-5d2b-81ca-858cd0bede63-28e39265b2bfe7c7.mp3",
+    "sha256": "28e39265b2bfe7c7a4f29bba17ab368156e5eef29e3168341fb6ed1df70a5dc9"
+  },
+  {
+    "word": "grandmother",
+    "ipa": "/ˈɡrænˌmʌðə/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/73efe7d1-9186-5e4b-933c-4f1d6a1a0ba9-1c63b88abdb54f9e.mp3",
+    "sha256": "1c63b88abdb54f9ea06d249faaca48ad3efff3d6ea3f4cb8d868a959ccbce69e"
+  },
+  {
+    "word": "longer",
+    "ipa": "/lˈɒŋɡɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/370c28c6-5788-5849-bc88-904c5425db38-40b624aaa70d9840.mp3",
+    "sha256": "40b624aaa70d9840fa97359f314d269e399b1fc826b3a11777a92e4bdad5400b"
+  },
+  {
+    "word": "mother",
+    "ipa": "ˈmʌðə",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/6f8a5d74-5775-5048-88b0-4763da263be6-0e4d5d0fd38ac9bb.mp3",
+    "sha256": "0e4d5d0fd38ac9bbaa8bf188fa605e45a355f3f1ec8422f87794b63f8bc2526b"
+  },
+  {
+    "word": "October",
+    "ipa": "/ɒkˈtəʊbə/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/30326173-bbcc-5b75-8548-f4d56eb0ac07-54449cddcd9801e2.mp3",
+    "sha256": "54449cddcd9801e2c75154967b0e3a218326fc22d97fc7d1e6aa3cd4675d6227"
+  },
+  {
+    "word": "older",
+    "ipa": "/ˈəʊldɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/b60536b9-e986-5e47-800f-e129256b2f1c-b9fabb300b9e5a9d.mp3",
+    "sha256": "b9fabb300b9e5a9da1ace92bdaa296e21a5056e845f47d9941bf95a212cde115"
+  },
+  {
+    "word": "over",
+    "ipa": "/ˈəʊvɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/a4e3f4f5-b835-546a-80d5-2a55489353a2-2d3b088934baa9d3.mp3",
+    "sha256": "2d3b088934baa9d3c7f350ee1b87855512a81989ae2c62b2102dd6faf3625f54"
+  },
+  {
+    "word": "easier",
+    "ipa": "/ˈiːzɪɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/fb5f933e-2561-5d17-b250-195233531108-424022acaea2c5ce.mp3",
+    "sha256": "424022acaea2c5ceaa4a9f8fe53a95227783cef695ed021e2844730700ca61af"
+  },
+  {
+    "word": "heavier",
+    "ipa": "/hˈɛviɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/d0adf903-ed0c-541a-a48f-85d84d5884ec-7103256fd8f1e673.mp3",
+    "sha256": "7103256fd8f1e6733a63262958276d9b45982bcea00e0bb2df9d10c26553d4d3"
+  },
+  {
+    "word": "hunter",
+    "ipa": "/hˈʌntɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/7a54117c-5bd9-5236-a7ab-3a22e1b0c79c-080364d65dba8c82.mp3",
+    "sha256": "080364d65dba8c8263a4a090d141d9faaaea4b341c203347d34eea51213612f6"
+  },
+  {
+    "word": "letter",
+    "ipa": "/lˈɛtɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/5da0c0c9-e832-52d7-86e8-7a6fce083eff-9b1f00b707329bb7.mp3",
+    "sha256": "9b1f00b707329bb7f7e2e0d8e591dcfde2e673ad2a195be8a44b8fc89fd869e0"
+  },
+  {
+    "word": "louder",
+    "ipa": "/lˈaʊdɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/cce95d01-aa74-53db-8151-11514b300b1d-618e0dec610745e5.mp3",
+    "sha256": "618e0dec610745e52639a94c8b88714176454ac3e5329d16bd1eb96033c2dfa2"
+  },
+  {
+    "word": "November",
+    "ipa": "/nəʊˈvembə/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/266de494-f996-584a-81c1-a7641d98e8c5-927ad95b1f828a4f.mp3",
+    "sha256": "927ad95b1f828a4fb4a3c89c83cd06b5c8923289049a4d4ed9a4f8610528a0f9"
+  },
+  {
+    "word": "offer",
+    "ipa": "/ˈɒfɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/c9d6799f-85e1-5932-a61f-a367e0c126e9-589b552c37ba8ed4.mp3",
+    "sha256": "589b552c37ba8ed4f78aa163b1c5f7ee2b8d1273bd10fcf0e2b21b34c1bb1f3d"
+  },
+  {
+    "word": "other",
+    "ipa": "/ˈʌðɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/5419cd6f-d9ae-5d48-a71f-df3eebc76243-9575438a2752e964.mp3",
+    "sha256": "9575438a2752e964694e2777925894fe199dc52f8752e3b6a5a495ce292b3fdd"
+  },
+  {
+    "word": "jumper",
+    "ipa": "/dʒˈʌmpɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/35ebcaaf-35ba-5979-b85b-40e8f34696f2-e788725c57dd0308.mp3",
+    "sha256": "e788725c57dd0308726f53da4869104e54f225365ad2c2b154eaf8a5aadc4294"
+  },
+  {
+    "word": "prettier",
+    "ipa": "/pɹˈɪtiɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/38c7d3ba-e8e7-5e96-ac43-b43415e6e7f4-b84533d2362a106c.mp3",
+    "sha256": "b84533d2362a106c489189fbcb29a1bd1a3b56f8925f60a3ecf3b3008b6b8b0a"
+  },
+  {
+    "word": "re-enter",
+    "ipa": "/ˌriːˈentə/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/e908403c-c139-54d3-a53b-456f1f255351-2245d88848253b98.mp3",
+    "sha256": "2245d88848253b981d0d6c596b8088c9405d7393960ba59cfb14f4b2fa45c392"
+  },
+  {
+    "word": "redder",
+    "ipa": "/ɹˈɛdɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/68578968-283c-5da7-8008-c5c8553b5e65-a18545ceb183b93c.mp3",
+    "sha256": "a18545ceb183b93ccc577a9a50ae4d6a6212074b1aa359f67bb6622459315e5d"
+  },
+  {
+    "word": "richer",
+    "ipa": "/ɹˈɪtʃɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/12cd9023-203c-54c8-8752-e7ad7e11b8db-f18a0492c508d939.mp3",
+    "sha256": "f18a0492c508d939a6ca3afd5b47520543a28453b0e4075126bf1fb61837f234"
+  },
+  {
+    "word": "safer",
+    "ipa": "/sˈeɪfɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/1359d09e-9e27-54c8-ad70-6d8d89d48ad0-96d4ddebb4de49e5.mp3",
+    "sha256": "96d4ddebb4de49e5351b8d4d722230983032d37034da0366ddd2b6cff33af56c"
+  },
+  {
+    "word": "shoulder",
+    "ipa": "/ʃˈəʊldɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/7ab9bf69-a486-5179-8b13-9d2f598ed26c-b8ac1f82011f8ee8.mp3",
+    "sha256": "b8ac1f82011f8ee8fad0ac2ba466e3902df7ce80f22ca00d4a45805213c3edfb"
+  },
+  {
+    "word": "sister",
+    "ipa": "/sˈɪstɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/ffabb81e-6ea1-5b90-8650-6b02acdbccfb-9b7c03f03dc9d225.mp3",
+    "sha256": "9b7c03f03dc9d2253fcf837df5064179cdf4e909a48038bc57606655476faf63"
+  },
+  {
+    "word": "slower",
+    "ipa": "/slˈəʊɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/fcfd59dd-b0b1-50bc-8f3f-d5293fec9b49-a9b271a743fb7ce4.mp3",
+    "sha256": "a9b271a743fb7ce41ea7e99dcc8ec1e6099da92a49d284850f64e57d3aed9fab"
+  },
+  {
+    "word": "stranger",
+    "ipa": "/stɹˈeɪndʒɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/0e8b1cd2-93c6-5ae0-99d1-eb2a8a2e76b2-c21d0bdd75b43bc5.mp3",
+    "sha256": "c21d0bdd75b43bc505b03ad1809cfa330c3e94c1e610754edcd28714d0c95751"
+  },
+  {
+    "word": "summer",
+    "ipa": "/sˈʌmɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/6348e8dd-eec0-5c32-9aea-549dcc6f1858-645b0a30456f5a9e.mp3",
+    "sha256": "645b0a30456f5a9e59fc9a9aada691d5dbf11cee55090c52c866e3fcd02b75b8"
+  },
+  {
+    "word": "paper",
+    "ipa": "/pˈeɪpɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/1f596f27-0808-546f-83eb-1b253adadc2a-8c246f9e64226925.mp3",
+    "sha256": "8c246f9e64226925b9cc367dd65bfce5b7d8e8d5349d1375b492bdc4f45dab57"
+  },
+  {
+    "word": "soldier",
+    "ipa": "/sˈəʊldʒɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/69b17d77-a52c-5cea-ac4e-4e75ada0dde7-3715df2bf54d5795.mp3",
+    "sha256": "3715df2bf54d5795d2ed49f85e0dc095d8832fb73aa80b7546ce81382117dfa2"
+  },
+  {
+    "word": "suffer",
+    "ipa": "/sˈʌfɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/55fc5e84-f23c-5889-9790-9c29e4b2f0e7-4d84c189730ae6f1.mp3",
+    "sha256": "4d84c189730ae6f1eb88d7f4cc68ba208cf146fde3d09241751f4b76888cf8fe"
+  },
+  {
+    "word": "quarter",
+    "ipa": "/kwˈɔːtɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/0cca0611-6e8f-5c0b-ab69-4e0c4a0e4f06-2471a0c97299025a.mp3",
+    "sha256": "2471a0c97299025abb611ac71aae178ce528408902cf17cb447fb8ec32819506"
+  },
+  {
+    "word": "receiver",
+    "ipa": "/ɹɪsˈiːvɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/443b2456-2f88-5b37-8b2b-793a2ff1b742-94c68708c9cf6777.mp3",
+    "sha256": "94c68708c9cf67770170ea2ff31f33c47b70b5967fe0c2cb28917bd21d3d0f7b"
+  },
+  {
+    "word": "remember",
+    "ipa": "/ɹɪmˈɛmbɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/31a6b8a9-388d-53e0-a0e8-19298ce09a00-e02b0f7605159b6a.mp3",
+    "sha256": "e02b0f7605159b6aebf532cbd140ae8158a8df30645e9327fa1d434da6431838"
+  },
+  {
+    "word": "September",
+    "ipa": "/sepˈtembə/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/400cb901-fd31-5ccb-a8c7-9297aca86ed9-48c578aa62f9d543.mp3",
+    "sha256": "48c578aa62f9d543956c1a0f73fe5835c444ac963ad0eeab828d49f365cf6023"
+  },
+  {
+    "word": "singer",
+    "ipa": "/ˈsɪŋə/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/ed434931-48b9-5ee8-9a39-6ab6ad1b3eab-1fa693ea739d9daf.mp3",
+    "sha256": "1fa693ea739d9daf8c177260774faddc0a7d697b510b13a4dcdcd682cfc6b704"
+  },
+  {
+    "word": "slaughter",
+    "ipa": "/slˈɔːtɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/1ac45753-eee7-5db0-9d04-bda0566429fa-61c364aa78a28870.mp3",
+    "sha256": "61c364aa78a2887082360a8ac6b15aa8b565170db7cceb88715634eb415cb731"
+  },
+  {
+    "word": "teacher",
+    "ipa": "/tˈiːtʃɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/c5f532bd-f776-56e4-af56-9454418e7dca-85aac6533acfa05b.mp3",
+    "sha256": "85aac6533acfa05bf27302730307c75824c61010696d07718265ee186439cc8c"
+  },
+  {
+    "word": "thinner",
+    "ipa": "/θˈɪnɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/f792b55e-e324-5776-bcd3-ce41a5e8c277-4e2a8bc7afb8fd05.mp3",
+    "sha256": "4e2a8bc7afb8fd0580390ad722c7e80910feaf891edab6dba3028306ed821b12"
+  },
+  {
+    "word": "under",
+    "ipa": "/ˈʌndɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/1568a1a6-9a32-5da0-ad48-6c11a82913af-83321830317cf7c1.mp3",
+    "sha256": "83321830317cf7c16664a289b4304b8955e0b692b82331c384b05d9829a99d2e"
+  },
+  {
+    "word": "wetter",
+    "ipa": "/wˈɛtɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/40bea9f9-9c57-5890-b7fc-f2c706f57eff-c25965593991c3df.mp3",
+    "sha256": "c25965593991c3dfd61b34040022b290310ac1a44f10b14bda97baf1a4aa01c8"
+  },
+  {
+    "word": "windier",
+    "ipa": "/ˈwɪndiə/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/092ee864-4205-5b77-816c-0a9fc63c92c6-7560a5fff9f67639.mp3",
+    "sha256": "7560a5fff9f676395402b3e3acef66f4598b37291c6d4010031d4376796b5858"
+  },
+  {
+    "word": "tiger",
+    "ipa": "/tˈaɪɡɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/4b066639-3151-5afb-8bc4-a51a231340b0-d3d6cabde819b2e0.mp3",
+    "sha256": "d3d6cabde819b2e00563e36fa0d2ac51ba0e1b1958cb6200bbfeaf31f904ff0e"
+  },
+  {
+    "word": "water",
+    "ipa": "/wˈɔːtɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/4661673c-a663-53b6-b977-840154d9a12c-57091ce26d236782.mp3",
+    "sha256": "57091ce26d236782c69632fa55ae36fc0cea7836b3ae976a709c14d720ebea46"
+  },
+  {
+    "word": "wider",
+    "ipa": "/wˈaɪdɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/d9bf5dd2-b639-5109-a785-1ab74f77ddda-3428cf5aaa422a61.mp3",
+    "sha256": "3428cf5aaa422a6178665c850415c17caf59f81b2e8cb555efeaacbfeebbeeff"
+  },
+  {
+    "word": "winter",
+    "ipa": "/wˈɪntɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/ba0580f0-cebd-5292-93a1-ee3a1338fff3-329c8c450ed95ac3.mp3",
+    "sha256": "329c8c450ed95ac3642528421ecb982458305bb075fd1ce6e20a6c9af5120df8"
+  },
+  {
+    "word": "close",
+    "ipa": "/kləʊs/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/4fd32750-8874-52f4-9802-3903230b0f61-29308a4beb24f960.mp3",
+    "sha256": "29308a4beb24f960c3d6ac8612817943d20db1973824835142ff65f24647ad2e"
+  },
+  {
+    "word": "easy",
+    "ipa": "/ˈiːzi/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/a8b8fd97-50bd-571e-8875-21a466237bf3-54d11e5d55d5ad4d.mp3",
+    "sha256": "54d11e5d55d5ad4d13a88fab0a29b37e4d33e1070a0851771080306c7b60ad7c"
+  },
+  {
+    "word": "heavy",
+    "ipa": "/hˈɛvi/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/8f8a6ce6-cc23-5729-8dfc-b8a75750efea-c53b6187cbfa8a01.mp3",
+    "sha256": "c53b6187cbfa8a0130ecc81c086ce20e2ba7ac71b49b6fa1f8475cda412c0ac5"
+  },
+  {
+    "word": "receive",
+    "ipa": "/ɹɪsˈiːv/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/d25bf45f-424d-5296-8e05-ab5ac6c1c71d-96c56dd114b23d22.mp3",
+    "sha256": "96c56dd114b23d2279be33d08cb371a65ed7e7f7f16485ad10c18359f88239ac"
+  },
+  {
+    "word": "safe",
+    "ipa": "/sˈeɪf/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/cd6240f3-f235-5fb4-839b-c882a282beb6-34e1b9fc44db75f2.mp3",
+    "sha256": "34e1b9fc44db75f2b3f33a4d8d179027ed51961e279eae055458ffd6b6d01068"
+  },
+  {
+    "word": "wet",
+    "ipa": "/wˈɛt/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/d427f42c-6ebc-5e6e-8fc9-8f753619729f-c33711cb40c130c1.mp3",
+    "sha256": "c33711cb40c130c112b1e1fc8efe19c4ef1d90ffe6460833b8c6473325ca8822"
+  },
+  {
+    "word": "wide",
+    "ipa": "/wˈaɪd/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/3c749395-ec9d-582b-bfe3-b5bebd18cafc-4d636fdd15ef2fac.mp3",
+    "sha256": "4d636fdd15ef2fac9859a06f2b363821a1c57cb43b84d8196b4a7cfa758128a5"
+  },
+  {
+    "word": "sunflower",
+    "ipa": "/ˈsʌnˌflaʊə/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/6dcf0d7b-a87c-5490-bd04-72946a5990e3-46baa7e6ca2078ff.mp3",
+    "sha256": "46baa7e6ca2078ffa93f84b45b7b5daa4fcc0c5b5e2d2411e1ab21732cf480c4"
+  },
+  {
+    "word": "thermometer",
+    "ipa": "/θɜːmˈɒmɪtɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/af6dfbc1-4f2b-54ab-b676-88b588c61feb-5d1cb096e631b0d8.mp3",
+    "sha256": "5d1cb096e631b0d82998595ec1ce928281573c441fd69c6b9eca0231d64e6112"
+  },
+  {
+    "word": "red",
+    "ipa": "/ɹˈɛd/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/a4026e69-7200-5e85-b93c-6aadfbc0860b-b065332edb2eafc7.mp3",
+    "sha256": "b065332edb2eafc72c840bdd9bdd116e768016b7e2cf4e827efc389b57c6b3e1"
+  },
+  {
+    "word": "thin",
+    "ipa": "/θˈɪn/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/4298f1d1-f9b0-5b12-8deb-516f988528e5-5f65449840f0e3a6.mp3",
+    "sha256": "5f65449840f0e3a674803cbdcac669e315713cab0cb8928e42cfd79d538391cd"
+  },
+  {
+    "word": "sing",
+    "ipa": "/sˈɪŋ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/e9d2ce70-eab0-5e49-b5b4-2ed02938b7bc-7c7f21c23d8d7a53.mp3",
+    "sha256": "7c7f21c23d8d7a537c40f0ccab467e53642893d8a49db367668d6cee953b0983"
+  },
+  {
+    "word": "strange",
+    "ipa": "/stɹˈeɪndʒ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/4821f14b-08a7-5cc0-ad98-770637190801-123acc951964f1cf.mp3",
+    "sha256": "123acc951964f1cf13432b3668783024438f0c0e7e915b0fe6f97015b42fc386"
+  },
+  {
+    "word": "pretty",
+    "ipa": "/pɹˈɪti/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/edaf770d-19f1-5f61-95d5-c000090942e3-7210afd464f3f42e.mp3",
+    "sha256": "7210afd464f3f42e4c43e167eec59bed6d6ee7de69d135da726b42df921f2761"
+  },
+  {
+    "word": "fun",
+    "ipa": "/fˈʌn/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/ec4fcaf1-481a-5632-b524-bef10498cca4-4b979439c5f0dd9a.mp3",
+    "sha256": "4b979439c5f0dd9a1c0ec9c645414bbc0932f9d0dd29bf6d98dd64c58673e594"
+  },
+  {
+    "word": "long",
+    "ipa": "/lˈɒŋ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/b75f5eaa-0f58-5e31-ac41-ed1957f575d8-61929f35fea7f266.mp3",
+    "sha256": "61929f35fea7f266ffe42f75464557e3e41793663724d714ab682b7b551adaee"
+  },
+  {
+    "word": "hunt",
+    "ipa": "/hˈʌnt/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/aa2ae407-2709-500c-a7f7-da7fdcf82929-923b6c0a7141191b.mp3",
+    "sha256": "923b6c0a7141191b73b6995bb7441d4a3a634b42e9c959f8136dd88f87b0372c"
+  },
+  {
+    "word": "old",
+    "ipa": "/ˈəʊld/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/5914a319-500a-5327-93c2-6b956bb79da1-8725a74ad423c4f1.mp3",
+    "sha256": "8725a74ad423c4f1a48f331cd4350bb0234cb534cfbaa2900fb1735f4f663ff9"
+  },
+  {
+    "word": "enter",
+    "ipa": "/ˈɛntɐ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/406b2cdb-08cd-555a-a242-b8a481ecae27-3ecce7aa4b1ffecc.mp3",
+    "sha256": "3ecce7aa4b1ffecc64015b582cddd516eaea9a1b3a9017c404ec662fe99075a9"
+  },
+  {
+    "word": "rich",
+    "ipa": "/ɹˈɪtʃ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/85cfdeb1-e819-520a-a76b-89c8b6c616fa-84c6ee1b093fe8aa.mp3",
+    "sha256": "84c6ee1b093fe8aa0057740349ab41b80602dbdf45b5e0c50a86e90f446b5b86"
+  },
+  {
+    "word": "teach",
+    "ipa": "/tˈiːtʃ/",
+    "src": "/audio/teaching-dictionary/google-en-gb-20261122/word/9fccbc20-e9d2-5550-a288-cce529ea9480-922ca545d9483412.mp3",
+    "sha256": "922ca545d9483412e86b4f7953372622fd853939bd3b52d99e20b0cf61b6ad97"
+  }
+]
