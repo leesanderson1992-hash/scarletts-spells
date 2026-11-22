@@ -61,8 +61,17 @@ export async function recheckWaitingFamilyWords(db: Db, environment: "staging" |
       if (!facts || facts.families.length > 1) {
         await finish("needs_choice", "Choose the teaching component and family on the word page; the approved analysis has multiple possible choices."); continue;
       }
+      const lastDecision = facts.families.length ? null : await db.from("teaching_dictionary_sense_family_membership_events")
+        .select("action,reviewed_at").eq("canonical_word_id", row.canonical_word_id).eq("sense_id", row.sense_id)
+        .eq("sense_morphology_id", morphology.data.id).eq("component_part_id", facts.component.id)
+        .order("event_sequence", { ascending: false }).limit(1).maybeSingle();
+      if (lastDecision?.error) throw new Error("Could not check the latest family decision.");
+      // Removing a link is an editorial decision, not permission to restore the
+      // old workbook choice. A later explicit Bulk review choice may relink it.
+      const withdrawn = lastDecision?.data?.action === "withdraw" && (!row.confirmed_family_key ||
+        Date.parse(row.updated_at) <= Date.parse(lastDecision.data.reviewed_at));
       const sameComponent = facts.component.id === row.component_part_id && facts.base === row.base_form && facts.kind === row.base_kind;
-      const confirmed = facts.families[0] ?? (sameComponent && familyMeaningKey(facts.meaning) === familyMeaningKey(row.expected_meaning) ? row.confirmed_family_key : null);
+      const confirmed = withdrawn ? null : facts.families[0] ?? (sameComponent && familyMeaningKey(facts.meaning) === familyMeaningKey(row.expected_meaning) ? row.confirmed_family_key : null);
       if (!sameComponent || bundle.sourceSenseReviewedAt !== row.expected_reviewed_at || morphology.data.id !== row.expected_morphology_id ||
         facts.meaning !== row.expected_meaning || confirmed !== row.confirmed_family_key) {
         const next = { component_part_id: facts.component.id, base_form: facts.base, base_kind: facts.kind,
@@ -74,6 +83,9 @@ export async function recheckWaitingFamilyWords(db: Db, environment: "staging" |
         if (updated.error) throw new Error("Could not refresh the saved review from approved dictionary facts.");
         if (!updated.data.length) continue; // A newer editor decision owns this row.
         row = { ...row, ...next };
+      }
+      if (withdrawn) {
+        await finish("needs_choice", "Family link removed on the word page. Choose a family here or approve a new link on the word page."); continue;
       }
       if (bundle.senseSet.senses.find(sense => sense.id === row.sense_id)?.partOfSpeech === "root") {
         await finish("needs_review", "This is a root support entry. Use dedicated root-family review, not an ordinary spelling target."); continue;

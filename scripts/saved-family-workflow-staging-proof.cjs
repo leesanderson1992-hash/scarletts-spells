@@ -4,10 +4,11 @@ assert.equal(process.env.NEXT_PUBLIC_SUPABASE_URL,'https://qkpjbajicacbrphthibk.
 process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT='staging';
 const actor=process.env.STAGING_ADMIN_USER_ID;assert(actor);
 const callbacks=[];const original=Module._load;
-Module._load=function(name,...args){if(name==='@/lib/admin/access')return{requireAdminUser:async()=>({id:actor})};if(name==='next/cache')return{updateTag(){},revalidatePath(){},revalidateTag(){},unstable_cache:fn=>fn,cacheLife(){},cacheTag(){}};if(name==='next/server')return{after(fn){callbacks.push(fn)}};return original.call(this,name,...args)};
+Module._load=function(name,...args){if(name==='@/lib/admin/access')return{requireAdminUser:async()=>({id:actor})};if(name==='next/cache')return{updateTag(){},revalidatePath(){},revalidateTag(){},unstable_cache:fn=>fn,cacheLife(){},cacheTag(){}};if(name==='next/navigation')return{redirect(url){throw new Error(url)}};if(name==='next/server')return{after(fn){callbacks.push(fn)}};return original.call(this,name,...args)};
 const {createServiceRoleClient}=require('../lib/supabase/service-role');
 const {reviewSenseMorphology,reviewSenseFamilyMembership}=require('../app/(authenticated)/admin/teaching-dictionary/sense-morphology-actions');
 const {recheckWaitingFamilyWords}=require('../lib/teaching-dictionary-manager/family-dependencies');
+const {assignSavedReviewFamily}=require('../app/(authenticated)/admin/teaching-dictionary/lesson-updates/family-dependency-actions');
 const {loadReviewedMeaningBundles}=require('../lib/teaching-dictionary-manager/multi-sense-export');
 const read=async q=>{const r=await q;assert.ifError(r.error);return r.data};
 (async()=>{const db=createServiceRoleClient(),sql=new pg.Client({connectionString:process.env.SUPABASE_STAGING_DB_URL});await sql.connect();try{
@@ -28,10 +29,17 @@ await read(db.from('teaching_dictionary_family_dependencies').update({status:'re
 const linked=await reviewSenseFamilyMembership({wordId:bundle.wordId,senseId:dep.sense_id,morphologyId:approved.morphologyId,familyKey:links[0].family_key,componentPartId:nextId,relationshipKind:links[0].relationship_kind,action:'approve'});assert(linked.ok,JSON.stringify(linked));
 await recheckWaitingFamilyWords(db,'staging','stack',20);
 const updated=await read(db.from('teaching_dictionary_family_dependencies').select('*').eq('id',dep.id).single());assert(updated.family_resolved,updated.detail);
+// An explicit removal must remain unresolved until the editor chooses again.
+const withdrawn=await reviewSenseFamilyMembership({wordId:bundle.wordId,senseId:dep.sense_id,morphologyId:approved.morphologyId,familyKey:links[0].family_key,componentPartId:nextId,relationshipKind:links[0].relationship_kind,action:'withdraw'});assert(withdrawn.ok);
+await recheckWaitingFamilyWords(db,'staging','stack',20);
+const waiting=await read(db.from('teaching_dictionary_family_dependencies').select('*').eq('id',dep.id).single());assert.equal(waiting.status,'needs_choice');assert.equal(waiting.family_resolved,false);assert.equal(waiting.confirmed_family_key,null);
+const assigned=await assignSavedReviewFamily({id:dep.id,expectedUpdatedAt:waiting.updated_at,familyKey:links[0].family_key});assert(assigned.ok,JSON.stringify(assigned));
+assert((await read(db.from('teaching_dictionary_family_dependencies').select('*').eq('id',dep.id).single())).family_resolved);
+const stale=await assignSavedReviewFamily({id:dep.id,expectedUpdatedAt:waiting.updated_at,familyKey:links[0].family_key});assert(!stale.ok,'Stale choices must not overwrite a newer decision');
 // The SQL lease survives competing workers. All lease test changes roll back.
 await sql.query('begin');await sql.query("update teaching_dictionary_family_dependencies set checked_at=null,status='ready',lease_until=null where id=$1",[dep.id]);
 const claim=(await sql.query('select * from claim_dictionary_family_dependencies($1,20,$2)',['staging','stack'])).rows;assert(claim.some(r=>r.id===dep.id));
 assert(!(await sql.query('select * from claim_dictionary_family_dependencies($1,20,$2)',['staging','stack'])).rows.some(r=>r.id===dep.id));await sql.query('rollback');
 assert.deepEqual((await sql.query('select * from adle_route_activation_heads order by environment_key,route_id,route_version,micro_skill_key')).rows,heads);
-const report={word:'unstack',wordPageApprovalReconciled:true,componentIdUpdated:nextId,approvedFamilyLinked:true,readyRowsRechecked:true,leasePreserved:true,lessonActivationsUnchanged:true,status:updated.status,detail:updated.detail};fs.writeFileSync('outputs/saved-family-workflow-20261122/staging-worker-proof.json',JSON.stringify(report,null,2));console.log(report);
+const report={word:'unstack',wordPageApprovalReconciled:true,componentIdUpdated:nextId,approvedFamilyLinked:true,readyRowsRechecked:true,leasePreserved:true,withdrawalPreserved:true,savedAssignmentWithoutWorkbook:true,staleChoiceRejected:true,lessonActivationsUnchanged:true,status:updated.status,detail:updated.detail};fs.writeFileSync('outputs/saved-family-workflow-20261122/staging-worker-proof.json',JSON.stringify(report,null,2));console.log(report);
 }finally{await sql.end()}})().catch(e=>{console.error(e);process.exitCode=1});
