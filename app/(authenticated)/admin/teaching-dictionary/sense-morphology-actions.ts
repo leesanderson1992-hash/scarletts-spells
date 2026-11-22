@@ -55,6 +55,8 @@ export async function reviewSenseMorphology(input: { wordId: string; senseId: st
     ?.replaceAll("_", " ").toLowerCase() ?? "The word parts could not be approved." };
   updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   revalidatePath(`/admin/teaching-dictionary/${input.wordId}`);
+  revalidatePath("/admin/teaching-dictionary/lesson-updates");
+  scheduleFamilyDependencyRecheck();
   return { ok: true, morphologyId: result.data ?? undefined };
 }
 

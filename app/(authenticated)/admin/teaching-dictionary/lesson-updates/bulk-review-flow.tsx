@@ -1,12 +1,10 @@
 "use client";
 
-import { startTransition, useActionState, useOptimistic, useRef, useState, useTransition, type ReactNode } from "react";
+import { useActionState, useOptimistic, useState, useTransition, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { importReviewedMultiSenseCsv, type MultiSenseImportState } from "../multi-sense-actions";
 
-import { ResolveWorkbookFamilies } from "./resolve-workbook-families";
-import type { WorkbookFamilyDecision } from "@/lib/teaching-dictionary-manager/review-workbook";
 
 type Option = { key: string; label: string };
 type Cluster = Option & { family: string };
@@ -37,7 +35,7 @@ function SearchMenu({ label, value, options, disabled, emptyLabel, onChange }: {
 export function BulkReviewFlow({ families, clusters, skills, selected, initialFamily, initialCluster, supported, batches, fullPoolSize, blankWorkbookHref, view, review, savedReviews, familyRequired = true, familyGuidance, children }: {
   families: Option[]; clusters: Cluster[]; skills: Skill[]; selected: string; initialFamily: string; initialCluster: string; supported: boolean; batches: number | null;
   fullPoolSize: number | null; blankWorkbookHref?: string; familyRequired?: boolean; familyGuidance?: string;
-  view: "export" | "workbook" | "preview"; review?: ReactNode; savedReviews?: ReactNode; children: ReactNode;
+  view: "export" | "workbook" | "families" | "preview"; review?: ReactNode; savedReviews?: ReactNode; children: ReactNode;
 }) {
   const router = useRouter();
   const selectedSkill = skills.find(skill => skill.key === selected);
@@ -49,36 +47,17 @@ export function BulkReviewFlow({ families, clusters, skills, selected, initialFa
   const [visibleSkill, setVisibleSkill] = useOptimistic(selected);
   const switchingLesson = visibleSkill !== selected;
   const nextLesson = skills.find(skill => skill.key === visibleSkill);
-  const step = view === "export" ? 0 : view === "preview" ? 3 : workbookStep;
-  const workbook = useRef<File | null>(null);
-  const decisions = useRef(new Map<string, WorkbookFamilyDecision[]>());
+  const step = view === "export" ? 0 : view === "preview" ? 3 : view === "families" ? 2 : workbookStep;
   const [result, upload, pending] = useActionState(async (previous: MultiSenseImportState, form: FormData) => {
-    const target = Number(form.get("family_target_row") ?? 0);
-    if (!target) {
-      const file = form.get("review_workbook");
-      workbook.current = file instanceof File ? file : null;
-      decisions.current.clear();
-    }
     const response = await importReviewedMultiSenseCsv(previous, form);
-    if (!target) {
-      if (response.familyTasks?.length) setWorkbookStep(2);
-      return response;
-    }
-    const task = previous.familyTasks?.find(item => item.row === target);
-    if (!task) return previous;
-    if (response.error || (!response.words && response.issues?.length))
-      return { ...previous, error: response.error ?? response.issues?.[0].reason };
-    const pending = response.familyTasks ?? [];
-    const familyTasks = [...(previous.familyTasks ?? []).filter(item => item.word !== task.word), ...pending];
-    const issues = [...(previous.issues ?? []).filter(issue => issue.word !== task.word), ...(response.issues ?? [])];
-    return { words: (previous.words ?? 0) + (response.words ?? 0),
-      approved: (previous.approved ?? 0) + (response.approved ?? 0),
-      alreadyApproved: (previous.alreadyApproved ?? 0) + (response.alreadyApproved ?? 0),
-      lessons: [...(previous.lessons ?? []), ...(response.lessons ?? [])], familyTasks, issues,
-      conflicts: [...(previous.conflicts ?? []).filter(item => item.word !== task.word), ...(response.conflicts ?? [])] };
+    if (response.familyTasks?.length) {
+      setWorkbookStep(2);
+      navigate(() => router.push(`?${new URLSearchParams({ family, cluster, skill: selected, view: "families" })}`, { scroll: false }));
+    } else if (response.words) router.refresh();
+    return response;
   }, {});
   function openStep(index: number) {
-    const nextView = index === 0 ? "export" : index === 3 ? "preview" : "workbook";
+    const nextView = index === 0 ? "export" : index === 3 ? "preview" : index === 2 ? "families" : "workbook";
     if (nextView === "workbook") setWorkbookStep(index);
     if (nextView !== view) {
       const query = new URLSearchParams({ family, cluster, skill: selected, view: nextView });
@@ -100,20 +79,6 @@ export function BulkReviewFlow({ families, clusters, skills, selected, initialFa
     </p>)}
   </div>;
 
-  function resolve(decision: WorkbookFamilyDecision) {
-    if (!workbook.current) return;
-    const task = result.familyTasks?.find(item => item.row === decision.row);
-    if (!task) return;
-    const previousChoices = decisions.current.get(task.word) ?? [];
-    const choices = [...previousChoices.filter(item => item.row !== decision.row), decision];
-    decisions.current.set(task.word, choices);
-    const form = new FormData();
-    form.set("review_workbook", workbook.current);
-    form.set("workbook_skill", selected);
-    form.set("family_target_row", String(decision.row));
-    form.set("family_decisions", JSON.stringify(choices));
-    startTransition(() => upload(form));
-  }
   return <>
     <section aria-label="Lesson filters" className="grid gap-4 rounded-2xl border border-[var(--border)] bg-white p-5 sm:grid-cols-3">
       <SearchMenu label="Micro-skill family" value={family} options={families} disabled={navigating || pending} onChange={key => {
@@ -150,16 +115,15 @@ export function BulkReviewFlow({ families, clusters, skills, selected, initialFa
     </p> : !selected ? <p className="rounded-xl bg-[color:var(--mist)] p-4">Choose a micro-skill family, cluster and micro-skill to start reviewing words.</p>
       : !supported ? <p className="rounded-xl bg-[color:var(--mist)] p-4">
         Workbook review is unavailable for this micro-skill.</p> : <>
-      <nav aria-label="Bulk review steps" className={`grid gap-2 ${familyRequired ? "sm:grid-cols-4" : "sm:grid-cols-3"}`}>
-        {steps.map((label, index) => ({label: !familyRequired && index === 3 ? "Lesson readiness" : label, index})).filter(item => familyRequired || item.index !== 2).map(({label, index}, position) => <button key={label} type="button" aria-current={step === index ? "step" : undefined}
+      <nav aria-label="Bulk review steps" className="grid gap-2 sm:grid-cols-4">
+        {steps.map((label, index) => <button key={label} type="button" aria-current={step === index ? "step" : undefined}
           disabled={pending || navigating} onClick={() => openStep(index)}
           className={`rounded-xl border p-3 text-left font-semibold ${step === index
             ? "border-[var(--scarlett)] bg-[color:var(--mist)]" : "border-[var(--border)] bg-white"}`}>
-          {position + 1} · {label}
+          {index + 1} · {label}
         </button>)}
       </nav>
       {navigating && <p role="status">Loading lesson review…</p>}
-      {savedReviews}
       {step === 0 && <section className="space-y-3 rounded-2xl border border-[var(--border)] bg-white p-5">
         <h2 className="text-xl font-semibold">Export words needing review</h2>
         <p>The workbook shows existing facts and what needs checking. Choose the lesson meaning in the workbook. {familyGuidance ?? (familyRequired ? "You can resolve missing families after uploading." : "This lesson uses contrast sets; no family assignment is required.")}</p>
@@ -202,7 +166,7 @@ export function BulkReviewFlow({ families, clusters, skills, selected, initialFa
         <h2 className="text-xl font-semibold">Resolve word families</h2>
         {result.error && <p role="alert" className="text-rose-800">{result.error}</p>}
         {result.issues?.map((issue, index) => <p key={index} className="text-rose-800">{issue.word} · {issue.reason}</p>)}
-        <ResolveWorkbookFamilies tasks={result.familyTasks ?? []} skill={selected} saving={pending} onResolve={resolve} />
+        {savedReviews}
         {results}
         <button type="button" className={actionClass} disabled={pending || navigating} onClick={() => openStep(3)}>Preview lesson update</button>
       </section>}

@@ -47,7 +47,7 @@ export default async function LessonUpdates({ searchParams }: {
   const params = await searchParams;
   const db = createServiceRoleClient();
   const view = params.published || params.error || params.view === "preview" ? "preview"
-    : params.view === "workbook" ? "workbook" : "export";
+    : params.view === "families" ? "families" : params.view === "workbook" ? "workbook" : "export";
   const skill = isStagingIngSkill(params.skill) ? params.skill : null;
   const suffixPilot = isSuffixWorkbookPilot(params.skill);
   const baseReview = isIdentifyBaseReview(params.skill);
@@ -62,9 +62,9 @@ export default async function LessonUpdates({ searchParams }: {
       ? loadStagingIngUpdate(db, skill, view === "export" ? "pool" : "full").then(update => ({ update, error: null }),
         (error: unknown) => ({ update: null, error: error instanceof Error ? error.message : "Could not load the lesson update." }))
       : Promise.resolve({ update: null, error: null }),
-    suffixPilot && view !== "workbook" ? loadAbleIbleReview(db, params.skill) : null,
-    baseReview && view !== "workbook" ? loadIdentifyBaseReview(db) : null,
-    specialistRoute && params.skill && view !== "workbook" ? loadSpecialistBulkReview(db, params.skill, specialistRoute) : null,
+    suffixPilot && (view === "export" || view === "preview") ? loadAbleIbleReview(db, params.skill) : null,
+    baseReview && (view === "export" || view === "preview") ? loadIdentifyBaseReview(db) : null,
+    specialistRoute && params.skill && (view === "export" || view === "preview") ? loadSpecialistBulkReview(db, params.skill, specialistRoute) : null,
     !supported && params.skill ? loadLessonReviewRequests(db, params.skill) : null,
   ]);
   if (familyRows.error || clusterRows.error || skillRows.error) throw new Error("Could not load the lesson filters.");
@@ -136,7 +136,7 @@ export default async function LessonUpdates({ searchParams }: {
         <li key={row.word_id}><Link className="underline" href={`/admin/teaching-dictionary/${row.word_id}`}>{row.word}</Link></li>)}</ul>
     </section>}
     <BulkReviewFlow key={selected} families={families} clusters={clusters} skills={skills} selected={selected}
-      savedReviews={params.skill && resolveAdleRouteActivationEnvironment() ? <SavedFamilyReviews db={db} environment={resolveAdleRouteActivationEnvironment()!} skill={params.skill} /> : null}
+      savedReviews={view === "families" && params.skill && resolveAdleRouteActivationEnvironment() ? <SavedFamilyReviews db={db} environment={resolveAdleRouteActivationEnvironment()!} skill={params.skill} /> : null}
       familyGuidance={schwaSkill ? "Family exploration is optional. Link or create a family in this flow when you choose to use it." : undefined}
       familyRequired={!isHomophoneReviewSkill(selected) && !schwaSkill} initialFamily={params.family ?? ""} initialCluster={params.cluster ?? ""} supported={supported} view={view}
       fullPoolSize={specialist?.current.length ?? base?.current.length ?? suffix?.current.length ?? update?.current.length ?? null}

@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {savedFamilyFacts} from '../lib/teaching-dictionary-manager/saved-family-facts';
+import type {MultiSenseCsvBundle} from '../lib/teaching-dictionary-manager/multi-sense-csv';
+const bundle = {sourceSenseReviewedAt:'approved',senseSet:{senses:[{id:'chosen',definition:'More amusing.',partOfSpeech:'adjective'}]},analyses:[{senseId:'chosen',parts:[{id:'new-base',kind:'base',sourceText:'funny',surfaceText:'funni',gloss:'Amusing.'}]}]} as unknown as MultiSenseCsvBundle;
+const facts=savedFamilyFacts(bundle,'chosen','old-base',[{component_part_id:'new-base',family_key:'funny_base_family'}]);
+assert.equal(facts?.base,'funny');assert.equal(facts?.component.id,'new-base');assert.deepEqual(facts?.families,['funny_base_family']);
+assert.equal(savedFamilyFacts({...bundle,sourceSenseReviewedAt:''},'chosen','old-base',[]),null,'Draft facts cannot replace reviewed facts');
+assert.equal(savedFamilyFacts(bundle,'removed-sense','old-base',[]),null,'Do not choose another meaning');
+const compound=structuredClone(bundle);compound.analyses[0].parts.push({...compound.analyses[0].parts[0],id:'another-base',sourceText:'other'});
+assert.equal(savedFamilyFacts(compound,'chosen','missing-component',[]),null,'Two replacement bases require a choice');
+assert.equal(savedFamilyFacts(compound,'chosen','new-base',[])?.base,'funny','Keep an explicitly selected component');
+const root=structuredClone(bundle);root.analyses[0].parts[0].kind='root';assert.equal(savedFamilyFacts(root,'chosen','old-base',[])?.kind,'bound_root');
+assert.equal(savedFamilyFacts(bundle,'chosen','old-base',[{component_part_id:'new-base',family_key:'a'},{component_part_id:'new-base',family_key:'b'}])?.families.length,2,'Do not discard distinct family choices');
+console.log({passed:true,approvedEditsReconciled:true,draftsExcluded:true,removedSensesAndAmbiguousPartsRequireChoice:true});

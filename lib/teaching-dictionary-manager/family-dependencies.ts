@@ -14,6 +14,7 @@ import { isCompoundWorkbookSkill, type CompoundWorkbookFacts } from "./compound-
 import { stageCompoundWorkbookDraft } from "./compound-workbook-draft";
 import type { SuffixWorkbookFacts } from "./able-ible-workbook";
 import { publicationBlockers, routeBlockers, type WordDraftPayload } from "./contracts";
+import { savedFamilyFacts } from "./saved-family-facts";
 
 type Db = ReturnType<typeof createServiceRoleClient>;
 export type FamilyDependency = { id: string; canonical_word_id: string; sense_id: string; micro_skill_key: string;
@@ -36,7 +37,8 @@ export async function recheckWaitingFamilyWords(db: Db, environment: "staging" |
   if (claimed.error) throw new Error("Could not claim saved family reviews.");
   const rows = claimed.data as FamilyDependency[];
   let ready = 0, changed = 0;
-  for (const row of rows) {
+  for (const claimedRow of rows) {
+    let row = claimedRow;
     let familyResolved = false;
     const finish = async (status: string, detail: string) => {
       const saved = await db.from("teaching_dictionary_family_dependencies").update({ status, detail, family_resolved: familyResolved, lease_until: null })
@@ -48,8 +50,30 @@ export async function recheckWaitingFamilyWords(db: Db, environment: "staging" |
       const morphology = await db.from("teaching_dictionary_current_sense_morphology").select("id")
         .eq("canonical_word_id", row.canonical_word_id).eq("sense_id", row.sense_id).maybeSingle();
       if (morphology.error) throw new Error("Could not read the current approved parts.");
-      if (!bundle || bundle.sourceSenseReviewedAt !== row.expected_reviewed_at || morphology.data?.id !== row.expected_morphology_id) {
-        await finish("needs_review", "The word changed after this review. Review its latest facts before linking automatically."); continue;
+      if (!bundle || !morphology.data) {
+        await finish("needs_review", "Approve the current meaning and word parts on the word page. Saved drafts do not replace approved facts."); continue;
+      }
+      const currentLinks = await db.from("teaching_dictionary_current_sense_family_memberships")
+        .select("family_key,component_part_id").eq("canonical_word_id", row.canonical_word_id)
+        .eq("sense_id", row.sense_id).eq("sense_morphology_id", morphology.data.id);
+      if (currentLinks.error) throw new Error("Could not read the current approved family links.");
+      const facts = savedFamilyFacts(bundle, row.sense_id, row.component_part_id, currentLinks.data);
+      if (!facts || facts.families.length > 1) {
+        await finish("needs_choice", "Choose the teaching component and family on the word page; the approved analysis has multiple possible choices."); continue;
+      }
+      const sameComponent = facts.component.id === row.component_part_id && facts.base === row.base_form && facts.kind === row.base_kind;
+      const confirmed = facts.families[0] ?? (sameComponent && familyMeaningKey(facts.meaning) === familyMeaningKey(row.expected_meaning) ? row.confirmed_family_key : null);
+      if (!sameComponent || bundle.sourceSenseReviewedAt !== row.expected_reviewed_at || morphology.data.id !== row.expected_morphology_id ||
+        facts.meaning !== row.expected_meaning || confirmed !== row.confirmed_family_key) {
+        const next = { component_part_id: facts.component.id, base_form: facts.base, base_kind: facts.kind,
+          expected_meaning: facts.meaning, expected_morphology_id: morphology.data.id,
+          expected_reviewed_at: bundle.sourceSenseReviewedAt, confirmed_family_key: confirmed,
+          updated_at: new Date().toISOString() };
+        const updated = await db.from("teaching_dictionary_family_dependencies").update(next)
+          .eq("id", row.id).eq("updated_at", row.updated_at).select("id");
+        if (updated.error) throw new Error("Could not refresh the saved review from approved dictionary facts.");
+        if (!updated.data.length) continue; // A newer editor decision owns this row.
+        row = { ...row, ...next };
       }
       if (bundle.senseSet.senses.find(sense => sense.id === row.sense_id)?.partOfSpeech === "root") {
         await finish("needs_review", "This is a root support entry. Use dedicated root-family review, not an ordinary spelling target."); continue;
@@ -132,7 +156,7 @@ export async function recheckWaitingFamilyWords(db: Db, environment: "staging" |
 
 export async function loadSavedFamilyReviews(db: Db, environment: string, skill?: string) {
   let query = db.from("teaching_dictionary_family_dependencies")
-    .select("id,canonical_word_id,sense_id,micro_skill_key,component_part_id,base_form,base_kind,expected_meaning,status,detail,family_resolved")
+    .select("id,canonical_word_id,sense_id,micro_skill_key,component_part_id,base_form,base_kind,expected_meaning,status,detail,family_resolved,updated_at")
     .eq("environment_key", environment).order("updated_at", { ascending: false }).limit(100);
   if (skill) query = query.eq("micro_skill_key", skill);
   const result = await query;

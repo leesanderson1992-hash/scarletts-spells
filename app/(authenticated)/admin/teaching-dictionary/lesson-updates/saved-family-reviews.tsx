@@ -1,46 +1,41 @@
 import Link from "next/link";
 import type { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { loadSavedFamilyReviews } from "@/lib/teaching-dictionary-manager/family-dependencies";
-import { resolveSavedFamilyReview } from "./family-dependency-actions";
+import { loadReviewedMeaningBundles } from "@/lib/teaching-dictionary-manager/multi-sense-export";
 import { SavedFamilyReviewRefresh } from "./saved-family-review-refresh";
-import { ActionSubmitButton } from "../action-submit-button";
+import { SavedFamilyAssignments, type SavedFamilyTask } from "./saved-family-assignments";
 
 export async function SavedFamilyReviews({ db, environment, skill }: {
   db: ReturnType<typeof createServiceRoleClient>; environment: string; skill: string;
 }) {
   const rows = await loadSavedFamilyReviews(db, environment, skill);
-  if (!rows.length) return null;
-  const [words, choices] = await Promise.all([
-    db.from("canonical_teaching_dictionary_words").select("id,display_word").in("id", [...new Set(rows.map(row => row.canonical_word_id))]),
-    db.from("teaching_dictionary_families_with_current_meaning").select("family_key,base_lemma,base_kind,base_meaning,review_status,revision")
-      .in("base_lemma", [...new Set(rows.map(row => row.base_form))]).order("revision", { ascending: false }),
-  ]);
-  if (words.error || choices.error) throw new Error("Could not load saved family choices.");
-  const families = [...new Map([...choices.data].reverse().map(row => [row.family_key, row])).values()].filter(row => row.review_status === "approved");
-  return <details className="space-y-3 rounded-xl border bg-white p-5" open={rows.some(row => !row.family_resolved)}>
-    <summary className="cursor-pointer text-xl font-semibold">Saved family reviews ({rows.length})</summary>
-    <p className="text-sm">Your reviewed facts are saved. You can leave and return without re-uploading. Family approvals trigger a recheck; retries also run every five minutes. Publishing remains your decision.</p>
-    <SavedFamilyReviewRefresh skill={skill} pending={rows.some(row => !row.family_resolved)}
-      signature={JSON.stringify(rows.map(({ id, status, detail }) => ({ id, status, detail })))} />
-    <ul className="divide-y">{rows.map(row => <li key={row.id} className="space-y-2 py-3">
-      <Link className="font-semibold underline" href={`/admin/teaching-dictionary/${row.canonical_word_id}`}>
-        {words.data.find(word => word.id === row.canonical_word_id)?.display_word}</Link>
-      <p className="text-sm">{row.base_kind === "bound_root" ? "Root" : "Base"}: {row.base_form} · {row.expected_meaning}</p>
-      <p role="status" className="text-sm">{row.family_resolved ? "Family resolved. Lesson checks rerun; Preview shows the current remaining facts and publishing status." : `${row.status.replaceAll("_", " ")} · ${row.detail}`}</p>
-      {row.family_resolved && <Link className="text-sm underline" href={`/admin/teaching-dictionary/lesson-updates?skill=${encodeURIComponent(skill)}&view=preview`}>Open current lesson checks and publish preview</Link>}
-      {!row.family_resolved && <form action={resolveSavedFamilyReview} className="flex flex-wrap gap-2">
-        <input type="hidden" name="dependency_id" value={row.id} />
-        <label className="grid gap-1 text-sm">Approved family meaning
-          <select name="family_key" className="rounded border p-2" defaultValue="">
-            <option value="">Recheck automatic matching</option>
-            {families.filter(family => family.base_lemma === row.base_form && family.base_kind === row.base_kind).map(family =>
-              <option key={family.family_key} value={family.family_key}>{family.base_lemma} · {family.base_meaning}</option>)}
-          </select>
-        </label>
-        <ActionSubmitButton pendingLabel="Rechecking saved reviews…" className="self-end rounded border px-3 py-2 text-sm">Confirm and recheck matching words</ActionSubmitButton>
-        <Link className="self-end p-2 text-sm underline" href={`/admin/recommend-dictionary-entries?q=${encodeURIComponent(row.base_form)}`}>Review base/root recommendation</Link>
-      </form>}
-    </li>)}</ul>
-    {rows.length === 100 && <p className="text-sm">Showing the latest 100 saved dependencies for this lesson.</p>}
-  </details>;
+  if (!rows.length) return <p>No saved family assignments for this lesson. Upload a reviewed workbook to add words.</p>;
+  const bundles = await loadReviewedMeaningBundles(db, [...new Set(rows.map(row => row.canonical_word_id))]);
+  const pending = rows.filter(row => !row.family_resolved);
+  const resolved = rows.filter(row => row.family_resolved);
+  const tasks: SavedFamilyTask[] = pending.map((row, index) => {
+    const bundle = bundles.find(bundle => bundle.wordId === row.canonical_word_id);
+    const sense = bundle?.senseSet.senses.find(sense => sense.id === row.sense_id);
+    return { row: index + 1, dependencyId: row.id, wordId: row.canonical_word_id, updatedAt: row.updated_at,
+      word: bundle?.displayWord ?? row.base_form, meaning: sense?.definition ?? row.expected_meaning,
+      sentence: sense?.dictationSentence ?? "", base: row.base_form, baseKind: row.base_kind as "free_base" | "bound_root",
+      baseMeaning: row.expected_meaning, senseId: row.sense_id, componentPartId: row.component_part_id, detail: row.detail };
+  });
+  return <div className="space-y-4">
+    <p>Your reviews are saved. Assign an existing family or create a free-base family here. Approved word-page changes update this queue automatically; publishing remains your decision.</p>
+    <SavedFamilyReviewRefresh skill={skill} pending={pending.length > 0}
+      signature={JSON.stringify(rows.map(({ id, status, detail, updated_at }) => ({ id, status, detail, updated_at })))} />
+    <h3 className="font-semibold">Needs family assignment ({pending.length})</h3>
+    <SavedFamilyAssignments tasks={tasks} skill={skill} />
+    <details className="rounded-xl border bg-white p-4">
+      <summary className="cursor-pointer font-semibold">Family resolved ({resolved.length})</summary>
+      <ul className="mt-3 divide-y">{resolved.map(row => <li key={row.id} className="py-2">
+        <Link className="font-semibold underline" href={`/admin/teaching-dictionary/${row.canonical_word_id}`}>
+          {bundles.find(bundle => bundle.wordId === row.canonical_word_id)?.displayWord ?? row.base_form}</Link>
+        <p className="text-sm">{row.detail}</p>
+      </li>)}</ul>
+    </details>
+    <Link className="font-semibold underline" href={`?skill=${encodeURIComponent(skill)}&view=preview`}>Open current lesson checks and publish preview</Link>
+    {rows.length === 100 && <p className="text-sm">Showing the latest 100 saved reviews for this lesson.</p>}
+  </div>;
 }
