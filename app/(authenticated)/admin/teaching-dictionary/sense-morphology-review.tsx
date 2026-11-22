@@ -200,11 +200,11 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
     <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-[var(--paper)] p-3">
       <p className="font-semibold">{typedParts.length ? generatedWordSum(parts, props.displayWord) : "Word parts needed"}</p>
       <span className={currentLinks.length ? "text-sm text-emerald-800" : "text-sm text-amber-900"}>
-        {currentLinks.length ? "✓ Family linked" : "Family needed"}
+        {currentLinks.length > 1 ? `✓ ${currentLinks.length} families linked` : currentLinks.length ? "✓ Family linked" : "Family needed"}
       </span>
     </div>
     {currentLinks.map(link => <div key={link.id} className="flex flex-wrap items-center gap-2 text-sm">
-      <span>{link.base_meaning ?? families.get(link.family_key)?.base_meaning ?? link.family_key} · {link.relationship_kind.replaceAll("_", " ")}</span>
+      <span><strong>{typedParts.find(part => part.id === link.component_part_id)?.sourceText}</strong> · {link.base_meaning ?? families.get(link.family_key)?.base_meaning ?? link.family_key} · {link.relationship_kind.replaceAll("_", " ")}</span>
       <button type="button" className="underline disabled:opacity-50" disabled={pending}
         onClick={() => submitLink("withdraw", link)}>Remove link</button>
     </div>)}
