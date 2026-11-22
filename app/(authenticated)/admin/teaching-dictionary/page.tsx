@@ -164,7 +164,7 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
                 <td className="p-2">
                   <Link id={`catalogue-word-${word.id}`} className="scroll-mt-16 font-semibold underline" prefetch={false}
                     href={catalogueWordHref(word.id, location)}>{word.display_word}</Link>
-                  <p className="mt-1 text-xs">Written: {fact?.written_syllable_breakdown ? normaliseWrittenSyllableBreakdown(fact.written_syllable_breakdown) : "No reviewed split"}</p>
+                  <p className="mt-1 text-xs">Written: {fact?.written_syllable_breakdown ? normaliseWrittenSyllableBreakdown(fact.written_syllable_breakdown, word.display_word) : "No reviewed split"}</p>
                   <p className="text-xs">Phoneme: {fact?.phoneme_hint || "Unknown"}</p>
                 </td>
                 <td className="p-2">

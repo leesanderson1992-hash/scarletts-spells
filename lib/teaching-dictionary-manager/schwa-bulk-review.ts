@@ -15,6 +15,7 @@ import { saveBulkSkillApprovalsAsActor } from "./bulk-approval-service";
 import type { MultiSenseCsvBundle } from "./multi-sense-csv";
 import { randomUUID } from "node:crypto";
 import { reviewedAudioBlockers } from "@/lib/adle/weak-vowel/reviewed-audio";
+import { normaliseWrittenSyllableBreakdown } from "./authoring";
 type Db = ReturnType<typeof createServiceRoleClient>;
 export const SCHWA_WORKBOOK_SOURCE = "Schwa Bulk review workbook v1";
 const hash = (value: string) => createHash("sha256").update(value).digest("hex");
@@ -105,7 +106,8 @@ export async function stageSchwaWorkbookDraft(db: Db, actor: string, bundle: Mul
   }
   const payload: WordDraftPayload = {
     displayWord: bundle.displayWord, senseSet: bundle.senseSet, definition: sense.definition, dictationSentence: sentence,
-    dictationTargetTokenIndex: sense.dictationTargetTokenIndex ?? 0, writtenSyllableBreakdown: fields.activity_syllables.replaceAll("-", "·"),
+    dictationTargetTokenIndex: sense.dictationTargetTokenIndex ?? 0,
+    writtenSyllableBreakdown: normaliseWrittenSyllableBreakdown(fields.activity_syllables.split("|")[0], bundle.displayWord),
     ageBand: fields.age_band || word.data.age_band || "", frequencyBand: fields.frequency_band || word.data.frequency_band || "", complexityBand: fields.complexity_band || word.data.complexity_band || "",
     metadata: { ...emptyMetadata(), has_schwa: fields.has_schwa === "Yes" ? true : fields.has_schwa === "No" ? false : null, syllables: String(pronunciation?.spokenSyllableCount ?? ""), phoneme_hint: pronunciation?.ipa ?? "", stress_pattern: pronunciation?.stressPattern ?? "" },
     canonicalMorphology: { ...emptyMorphology(), parts: analysis.parts, joins: analysis.joins, transformations: analysis.transformations, wordSum: analysis.wordSum, analysisStatus: "approved", rawPartOfSpeech: sense.partOfSpeech },

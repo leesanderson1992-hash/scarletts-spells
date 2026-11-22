@@ -133,9 +133,30 @@ export function writtenSyllableBlockers(
     : ["Written syllable breakdown must reproduce the word."];
 }
 
-/** Accept historical separators at intake while storing one display format. */
-export function normaliseWrittenSyllableBreakdown(value: string): string {
-  return value.trim().replace(/[-‧]/gu, "·");
+/** Match against the spelling before treating a hyphen as a syllable separator.
+ * A spelling hyphen belongs to its adjacent syllable: re-·en·ter. */
+export function parseSyllableBreakdown(word: string, value: string): string[] | null {
+  const parts: string[] = [];
+  let offset = 0, part = "";
+  for (const character of value.trim()) {
+    if (character === "·" || character === "‧" || character === "-" && word[offset] !== "-") {
+      if (!/[\p{L}\p{N}]/u.test(part)) return null;
+      parts.push(part); part = "";
+    } else {
+      if (!word.startsWith(character, offset)) return null;
+      part += character; offset += character.length;
+    }
+  }
+  if (offset !== word.length || !/[\p{L}\p{N}]/u.test(part)) return null;
+  return [...parts, part];
+}
+
+/** Accept historical separators at intake while preserving spelling punctuation. */
+export function normaliseWrittenSyllableBreakdown(value: string, word?: string): string {
+  const parts = word ? parseSyllableBreakdown(word, value) : null;
+  if (parts) return parts.join("·");
+  // Do not erase a spelling hyphen while displaying an incomplete/invalid review.
+  return value.trim().replace(word?.includes("-") ? /‧/gu : /[-‧]/gu, "·");
 }
 
 export function canonicalStructureBlockers(

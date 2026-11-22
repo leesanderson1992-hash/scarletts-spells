@@ -104,7 +104,7 @@ export async function teachingDictionaryExportRows(): Promise<Record<string, unk
         dictation_sentence: sentence.dictation_sentence ?? "", dictation_target_token_index: sentence.dictation_target_token_index ?? 0,
         age_band: word.age_band ?? "", frequency_band: word.frequency_band ?? "", complexity_band: word.complexity_band ?? "",
         ...Object.fromEntries(WORD_METADATA_FIELDS.map((key) => [key, metadata[key] ?? ""])),
-        written_syllable_breakdown: normaliseWrittenSyllableBreakdown(String(metadata.written_syllable_breakdown ?? "")),
+        written_syllable_breakdown: normaliseWrittenSyllableBreakdown(String(metadata.written_syllable_breakdown ?? ""), word.display_word),
         has_schwa: metadata.has_schwa == null ? "" : String(metadata.has_schwa),
         raw_morpholex_segmentation: morph.raw_morpholex_segmentation ?? "", raw_morpholex_pos: morph.raw_morpholex_pos ?? "",
         morphology_parts: morph.morphology_parts ?? [], feature_keys: morph.feature_keys ?? [], morphology_joins: morph.morphology_joins ?? [],

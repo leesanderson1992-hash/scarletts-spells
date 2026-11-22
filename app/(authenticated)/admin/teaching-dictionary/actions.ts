@@ -363,7 +363,7 @@ function payloadFromForm(form: FormData): WordDraftPayload {
     if (!parsed || !Array.isArray(parsed.skillKeys) || !parsed.metadata || !parsed.canonicalMorphology
       || !Array.isArray(parsed.routeContents)) throw new Error("TEACHING_DRAFT_INVALID");
     if (parsed.writtenSyllableBreakdown !== undefined)
-      parsed.writtenSyllableBreakdown = normaliseWrittenSyllableBreakdown(parsed.writtenSyllableBreakdown);
+      parsed.writtenSyllableBreakdown = normaliseWrittenSyllableBreakdown(parsed.writtenSyllableBreakdown, parsed.displayWord);
     const prefilled = prefillDictionaryMeanings(parsed);
     prefilled.routeContents = routeContentsForSelectedSkills(prefilled);
     return withDerivedMorphologyMetadata(prefilled);
@@ -924,7 +924,7 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
       }
       if (current && row.exportVersion === "1" && row.writtenSyllableBreakdown !== undefined &&
         row.writtenSyllableBreakdown !== normaliseWrittenSyllableBreakdown(
-          String(metadataByWord.get(current.id)?.written_syllable_breakdown ?? ""))) {
+          String(metadataByWord.get(current.id)?.written_syllable_breakdown ?? ""), current.display_word)) {
         errors.push(`Row ${row.rowNumber}: Written syllable breakdown is read-only. Download a fresh CSV if this review changed.`);
         return [];
       }

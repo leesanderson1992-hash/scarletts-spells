@@ -432,7 +432,7 @@ export async function TeachingDictionaryDetail({
         dictationTargetTokenIndex: dictation?.dictation_target_token_index ?? 0,
         dictationVariants:
           set?.variants as WordDraftPayload["dictationVariants"],
-        writtenSyllableBreakdown: normaliseWrittenSyllableBreakdown(metadata?.written_syllable_breakdown ?? ""),
+        writtenSyllableBreakdown: normaliseWrittenSyllableBreakdown(metadata?.written_syllable_breakdown ?? "", word?.display_word),
         ageBand: word?.age_band ?? "",
         frequencyBand: word?.frequency_band ?? "",
         complexityBand: word?.complexity_band ?? "",
@@ -499,7 +499,7 @@ export async function TeachingDictionaryDetail({
   if (!initial.senseSet) initial.senseSet = currentInitial.senseSet;
   if (!initial.skillSenseIds) initial.skillSenseIds = currentInitial.skillSenseIds;
   if (initial.writtenSyllableBreakdown)
-    initial.writtenSyllableBreakdown = normaliseWrittenSyllableBreakdown(initial.writtenSyllableBreakdown);
+    initial.writtenSyllableBreakdown = normaliseWrittenSyllableBreakdown(initial.writtenSyllableBreakdown, initial.displayWord);
   const suggestions = [
     ...routeContents.map((route) => ({
       label: `Existing ${route.microSkillKey.replaceAll("_", " ")} analysis`,

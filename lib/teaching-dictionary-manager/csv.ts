@@ -181,7 +181,7 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
   return values.map((cells, index) => {
     const raw = Object.fromEntries(names.map((name, column) => [name, cells[column]?.trim() ?? ""]));
     if (names.includes("written_syllable_breakdown"))
-      raw.written_syllable_breakdown = normaliseWrittenSyllableBreakdown(raw.written_syllable_breakdown);
+      raw.written_syllable_breakdown = normaliseWrittenSyllableBreakdown(raw.written_syllable_breakdown, raw.display_word || raw.normalised_word || raw.targetWord);
     if (raw.tdm_export_version) for (const name of names) {
       if (/^'[=+@\-\t\r]/.test(raw[name])) raw[name] = raw[name].slice(1);
     }

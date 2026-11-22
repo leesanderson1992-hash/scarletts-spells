@@ -1,5 +1,6 @@
 import { WEAK_VOWEL_MICRO_SKILLS } from "@/lib/adle/word-lab/weak-vowel-dinner";
 import type { WeakVowelRouteFactsV1 } from "./weak-vowel-authoring";
+import { parseSyllableBreakdown } from "./authoring";
 export const SCHWA_WORKBOOK_FIELDS = ["weak_vowel_target", "weak_vowel_occurrence", "weak_vowel_sound", "activity_syllables", "family_exploration", "age_band", "frequency_band", "complexity_band", "has_schwa"] as const;
 export type SchwaWorkbookFacts = Record<typeof SCHWA_WORKBOOK_FIELDS[number], string>;
 export const isSchwaWorkbookSkill = (value: unknown): value is typeof WEAK_VOWEL_MICRO_SKILLS[number] =>
@@ -24,9 +25,10 @@ export function parseSchwaWorkbookFacts(word: string, fields: SchwaWorkbookFacts
   if (vowels.length !== 1) errors.push("The target must contain exactly one written vowel; select a smaller target.");
   const soundType = fields.weak_vowel_sound === "Schwa" ? "schwa" : fields.weak_vowel_sound === "Other unstressed vowel" ? "other_unstressed" : "";
   if (!soundType) errors.push("Choose Schwa or Other unstressed vowel.");
-  const variants = fields.activity_syllables.trim().replaceAll("-", "·").split("|").map(variant => variant.trim().split("·"));
-  if (!fields.activity_syllables.trim() || variants.some(segments => segments.some(part => !part) || segments.join("") !== word))
-    errors.push("Enter activity syllables that join to the word, separated by middle dots, for example a·bout. Separate accepted alternatives with |.");
+  const parsedVariants = fields.activity_syllables.trim().split("|").map(variant => parseSyllableBreakdown(word, variant));
+  if (parsedVariants.some(segments => segments === null))
+    errors.push("Enter activity syllables that join to the word, separated by middle dots, for example a·bout. Keep spelling hyphens, as in re-·en·ter. Separate accepted alternatives with |.");
+  const variants = parsedVariants.map(segments => segments ?? []);
   if (!["Not used", "Use approved family"].includes(fields.family_exploration)) errors.push("Choose whether to use approved family exploration.");
   const cutSets = variants.map(segments => { const cuts: number[] = []; let offset = 0;
     for (const segment of segments.slice(0, -1)) { offset += segment.length; cuts.push(offset); } return cuts;

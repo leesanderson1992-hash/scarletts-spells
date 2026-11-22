@@ -68,7 +68,7 @@ export async function stagePrefixWorkbookDraft(db: Db, actorId: string, bundle: 
     displayWord: bundle.displayWord, senseSet: bundle.senseSet, definition: sense.definition,
     dictationSentence: sense.dictationSentence ?? "", dictationTargetTokenIndex: sense.dictationTargetTokenIndex ?? 0,
     writtenSyllableBreakdown: normaliseWrittenSyllableBreakdown(written
-      || details?.writtenSyllableBreakdown || priorDetails?.writtenSyllableBreakdown || ""),
+      || details?.writtenSyllableBreakdown || priorDetails?.writtenSyllableBreakdown || "", bundle.displayWord),
     ageBand: facts.age_band || details?.ageBand || priorDetails?.ageBand || "",
     frequencyBand: facts.frequency_band || details?.frequencyBand || priorDetails?.frequencyBand || "",
     complexityBand: facts.complexity_band || details?.complexityBand || priorDetails?.complexityBand || "",

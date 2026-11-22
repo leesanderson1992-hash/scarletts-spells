@@ -47,7 +47,7 @@ async function hydrateCandidatePage(rows: DictionaryWord[], skill: string) {
       approvable: row.review_status === "approved_for_first_exposure",
       hasSchwa: metadata?.has_schwa ?? null, syllableCount: syllableCount(metadata?.syllables),
       writtenSyllableBreakdown: metadata?.written_syllable_breakdown
-        ? normaliseWrittenSyllableBreakdown(metadata.written_syllable_breakdown) : null,
+        ? normaliseWrittenSyllableBreakdown(metadata.written_syllable_breakdown, row.display_word) : null,
       morphemeParts: morphemeParts(morphologyByWord.get(row.id)?.morphology_parts),
       phonemeHint: metadata?.phoneme_hint ?? null,
       phonemeSymbols: isolatedPhonemeSymbols(metadata?.phoneme_hint),

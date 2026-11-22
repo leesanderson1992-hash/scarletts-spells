@@ -216,7 +216,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   if (isSchwaWorkbookSkill(input.skill)) guide.addRows([
     ["Weak vowel target", "Enter the target letter or complete ending, for example a or ar. Choose its occurrence (1 means the first). Targets must contain one written vowel."],
     ["Weak vowel sound", "Choose Schwa or Other unstressed vowel for the selected British pronunciation. A quiet vowel is not always a schwa."],
-    ["Activity syllables", "Use middle dots, for example a·bout. These are the spoken activity cuts, separate from morphological word parts. Hyphens are accepted and standardised. Separate accepted alternatives with |."],
+    ["Activity syllables", "Use middle dots, for example a·bout. These are the spoken activity cuts, separate from morphological word parts. Hyphens used as separators are standardised. Keep spelling hyphens, as in re-·en·ter. Separate accepted alternatives with |."],
     ["Family exploration", "Choose Not used to opt out. Use approved family includes exploration automatically in new lessons once its approved base/root and at least two approved members are available. While the family waits, the core word can still be published and Active. Resolve its family link in this flow."],
     ["Publication", "Upload saves the reviewed Dictionary facts and activity annotations. Missing facts stay in Bulk review. One Publish click releases all ready words."],
   ]);

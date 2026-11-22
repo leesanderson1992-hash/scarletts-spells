@@ -11,7 +11,7 @@ export function overviewSourceHash(source: Record<string, unknown>): string {
     text("dictation_sentence"), Number(source.dictation_target_token_index ?? 0),
     text("age_band"), text("frequency_band"), text("complexity_band"),
     ...WORD_METADATA_FIELDS.map(text),
-    normaliseWrittenSyllableBreakdown(text("written_syllable_breakdown")),
+    normaliseWrittenSyllableBreakdown(text("written_syllable_breakdown"), text("display_word")),
     source.has_schwa == null || source.has_schwa === "" ? null
       : String(source.has_schwa).toLowerCase(),
     text("raw_morpholex_segmentation"), text("raw_morpholex_pos"),
