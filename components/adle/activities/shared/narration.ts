@@ -15,6 +15,7 @@ function speakWithBrowserVoice(text: string, kind: NarrationKind): void {
     !("SpeechSynthesisUtterance" in window) || text.trim() === "") return;
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "en-GB";
   const british = window.speechSynthesis.getVoices().find((voice) => /^en[-_]GB$/i.test(voice.lang));
   if (british) { utterance.voice = british; utterance.lang = "en-GB"; }
   utterance.rate = kind === "dictation" ? 0.7 : kind === "guide" ? 0.85 : 0.8;

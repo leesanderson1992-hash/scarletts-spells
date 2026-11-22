@@ -7,10 +7,11 @@ import { sentenceTokens, targetOccurrences } from "@/lib/teaching-dictionary-man
 import { partOfSpeechOptions } from "@/lib/teaching-dictionary-manager/part-of-speech-options";
 import { FormatHint } from "./format-hint";
 import { DictationListen } from "./dictation-listen";
+import { PronunciationListen } from "./pronunciation-listen";
 
 const field = "w-full rounded-md border border-[var(--border)] bg-white px-2 py-1.5 text-sm";
 
-export function SenseEditor({ value, word, onChange, selectedSenseId, onSelectSense, recordingSources, panel }: {
+export function SenseEditor({ value, word, onChange, selectedSenseId, onSelectSense, recordingSources, panel, approvedWord, approvedSenseSet, wordRecordingSrc }: {
   value: DictionarySenseSet;
   word: string;
   onChange: (next: DictionarySenseSet) => void;
@@ -18,6 +19,9 @@ export function SenseEditor({ value, word, onChange, selectedSenseId, onSelectSe
   onSelectSense: (senseId: string) => void;
   recordingSources: ReadonlyMap<string, string>;
   panel: "meaning" | "pronunciation";
+  approvedWord: string | null;
+  approvedSenseSet: DictionarySenseSet | null;
+  wordRecordingSrc?: string;
 }) {
   const updateSense = (id: string, update: Partial<DictionarySenseSet["senses"][number]>) =>
     onChange({ ...value, senses: value.senses.map(sense => sense.id === id ? { ...sense, ...update } : sense) });
@@ -52,6 +56,9 @@ export function SenseEditor({ value, word, onChange, selectedSenseId, onSelectSe
           <button type="button" className="font-semibold underline" aria-expanded={editingPronunciation}
             onClick={() => setEditingPronunciation(open => !open)}>{editingPronunciation ? "Done" : "Edit pronunciation"}</button>
         </div>
+        {pronunciation?.ipa.trim() && <PronunciationListen word={word} ipa={pronunciation.ipa}
+          sentence={sense.dictationSentence} approvedWord={approvedWord} approvedSenseSet={approvedSenseSet}
+          wordRecordingSrc={wordRecordingSrc} />}
         {editingPronunciation && <div className="mt-3">
           {(value.pronunciations.length > 1 || !sense.pronunciationId || sense.partOfSpeech === "root") && <label className="text-sm">Pronunciation for this meaning
             <select className={field} value={sense.pronunciationId ?? ""} onChange={event => updateSense(sense.id, { pronunciationId: event.target.value || null })}>

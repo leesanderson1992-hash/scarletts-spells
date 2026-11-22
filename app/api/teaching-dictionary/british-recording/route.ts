@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { britishRecordingForText, type BritishRecordingKind } from "@/lib/teaching-dictionary-manager/british-recordings";
+import { britishRecordingForText, britishPronunciationReferenceForText, type BritishRecordingKind } from "@/lib/teaching-dictionary-manager/british-recordings";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +19,9 @@ export async function POST(request: Request) {
     const db = createServiceRoleClient();
     const clip = await britishRecordingForText({ client: db, text, kind: kind as BritishRecordingKind }) ??
       (kind === "sentence" ? await britishRecordingForText({ client: db, text, kind: "word" }) : null);
-    return NextResponse.json({ src: clip?.src ?? null, source: clip?.source ?? "device_voice" },
+    const reference = !clip && kind === "word" ? await britishPronunciationReferenceForText({client:db,text}) : null;
+    return NextResponse.json({ src: clip?.src ?? reference?.src ?? null, source: clip?.source ?? (reference ? "pronunciation_reference" : "device_voice"),
+      ...(reference ? {attribution:{author:reference.author,sourceUrl:reference.sourceUrl,licenceUrl:reference.licenceUrl}} : {}) },
       { headers: { "Cache-Control": "private, no-store" } });
   } catch {
     return NextResponse.json({ src: null, source: "device_voice" },

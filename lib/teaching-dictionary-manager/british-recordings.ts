@@ -1,9 +1,27 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { britishPronunciationSample } from "./pronunciation-playback";
 
 export type BritishRecordingKind = "word" | "sentence";
 export type BritishRecording = { src: string; sha256: string; source: "dictionary" | "schwa_route" };
+
+/** A pronunciation reference is not an approved recording. Only resolve it for
+ * a single approved pronunciation; a spelling alone cannot select a sense. */
+export async function britishPronunciationReferenceForText(input: { client: SupabaseClient; text: string }) {
+  if (input.text.trim().toLowerCase() !== "close") return null;
+  const words = await input.client.from("canonical_teaching_dictionary_words").select("id")
+    .eq("normalised_word", "close").eq("row_status", "active")
+    .eq("review_status", "approved_for_first_exposure").eq("dialect_code", "en-GB").limit(2);
+  if (words.error || words.data.length !== 1) return null;
+  const reviewed = await input.client.from("teaching_dictionary_reviewed_sense_sets").select("sense_set")
+    .eq("canonical_word_id", words.data[0].id).maybeSingle();
+  if (reviewed.error || !reviewed.data) return null;
+  const set = reviewed.data.sense_set as import("./senses").DictionarySenseSet;
+  const used = new Set(set.senses.map(sense => sense.pronunciationId).filter(Boolean));
+  const ipas = [...new Set(set.pronunciations.filter(row => used.has(row.id)).map(row => row.ipa))];
+  return ipas.length === 1 ? britishPronunciationSample(input.text, ipas[0]) : null;
+}
 
 /** A changed word or sentence cannot silently inherit approval for old audio. */
 export async function approvedBritishRecording(input: {

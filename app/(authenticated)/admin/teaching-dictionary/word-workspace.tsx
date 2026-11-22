@@ -1101,6 +1101,7 @@ export function WordWorkspace(props: {
             {(["meaning", "pronunciation"] as const).map(panel => (
               <div key={panel} data-overview-view={panel} hidden={overviewView !== panel}>
                 {overviewView === panel && payload.senseSet && <SenseEditor panel={panel} value={payload.senseSet} word={payload.displayWord}
+                  approvedWord={props.approvedWord} approvedSenseSet={props.approvedSenseSet} wordRecordingSrc={props.wordClip?.src}
                   recordingSources={dictationRecordingSources} onChange={senseSet => change({ senseSet })}
                   selectedSenseId={activeSenseId} onSelectSense={setActiveSenseId} />}
               </div>
