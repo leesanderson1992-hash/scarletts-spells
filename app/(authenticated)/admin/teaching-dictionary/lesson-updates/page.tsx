@@ -1,6 +1,7 @@
 import { isSchwaWorkbookSkill } from "@/lib/teaching-dictionary-manager/weak-vowel-workbook";
 import { loadSchwaWorkbookQueue } from "@/lib/teaching-dictionary-manager/schwa-bulk-review";
-import { saveSchwaWorkbookDetails, publishSchwaWorkbookWords, generateSchwaWorkbookLesson } from "./schwa-actions";
+import { SchwaPublishPanel } from "./schwa-publish-panel";
+import { saveSchwaWorkbookDetails, generateSchwaWorkbookLesson } from "./schwa-actions";
 import { homophoneCanonicalPublishingEnabled, loadCanonicalHomophonePreview } from "@/lib/teaching-dictionary-manager/homophone-canonical-release";
 import { publishHomophoneDictionaryLesson, generateHomophoneDictionaryLesson } from "./homophone-actions";
 import { isHomophoneReviewSkill } from "@/lib/teaching-dictionary-manager/homophone-review-contract";
@@ -78,7 +79,7 @@ export default async function LessonUpdates({ searchParams }: {
   const readyCompounds = compoundQueue?.filter(row => !row.blockers.length).slice(0, 30) ?? [];
   const schwaSkill = isSchwaWorkbookSkill(selected) ? selected : null;
   const schwaQueue = schwaSkill && view === "preview" ? specialist && "queue" in specialist ? specialist.queue : await loadSchwaWorkbookQueue(db, schwaSkill) : null;
-  const readySchwa = schwaQueue?.filter(row => !row.blockers.length && !row.published).slice(0, 20) ?? [];
+  const readySchwa = schwaQueue?.filter(row => !row.blockers.length && !row.published).slice(0, 200) ?? [];
   const blankWorkbookSkill = prefixSkill ?? (suffixPilot || comparativeSkill || compoundSkill || schwaSkill || isHomophoneReviewSkill(selected) ? selected : null);
   const prefixQueue = prefixSkill && view === "preview" && specialist
     ? await loadPendingPrefixWorkbookQueue(db, prefixSkill) : null;
@@ -190,6 +191,7 @@ export default async function LessonUpdates({ searchParams }: {
       {schwaSkill && schwaQueue && <div className="space-y-4">
         {params.published && <p role="status">{params.published} words published. Passing words are Active in ADLE.</p>}
         <p>Dictionary meanings, pronunciation and word parts are reused. Review the exact weak vowel and spoken activity cuts below. Family exploration is optional and never holds up the core lesson. When selected, it is included automatically in new lessons once enough approved family members are available.</p>
+        <SchwaPublishPanel key={schwaSkill} skill={schwaSkill} ready={readySchwa.map(row => ({ id: row.id, word: row.payload.displayWord }))} />
         {schwaQueue.filter(row => !row.published || row.blockers.length).map(row => <form action={saveSchwaWorkbookDetails} key={row.id} className="space-y-3 rounded-lg border p-4">
           <input type="hidden" name="skill" value={schwaSkill} /><input type="hidden" name="word_id" value={row.wordId} /><input type="hidden" name="draft_id" value={row.id} />
           <h3 className="font-semibold">{row.payload.displayWord} · {row.blockers.length ? "Needs facts" : "Ready to publish"}</h3>
@@ -217,7 +219,6 @@ export default async function LessonUpdates({ searchParams }: {
           <label className="grid gap-1">Active target<select name="word_id" required className="rounded border p-2">{specialist.current.map(word => <option key={word.canonicalWordId} value={word.canonicalWordId}>{word.word}</option>)}</select></label>
           <ActionSubmitButton className={button} pendingLabel="Generating lesson…">Generate test lesson</ActionSubmitButton>
         </form>}
-        {readySchwa.length > 0 && <form action={publishSchwaWorkbookWords}><input type="hidden" name="skill" value={schwaSkill} />{readySchwa.map(row => <input key={row.id} type="hidden" name="draft_id" value={row.id} />)}<ActionSubmitButton className={button} pendingLabel="Publishing reviewed words…">Publish {readySchwa.length} ready words</ActionSubmitButton></form>}
       </div>}
       {compoundSkill && compoundQueue && <>
         {params.published && <p role="status">{params.published} compound words published and available in ADLE.</p>}
