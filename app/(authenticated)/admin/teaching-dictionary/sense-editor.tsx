@@ -1,5 +1,6 @@
 "use client";
 
+import { STRESS_OPTIONS, normaliseStressPattern, resizeStressPattern, stressPatternErrors } from "@/lib/teaching-dictionary-manager/stress-pattern";
 import { useState } from "react";
 import type { DictionarySenseSet } from "@/lib/teaching-dictionary-manager/senses";
 import { sentenceTokens, targetOccurrences } from "@/lib/teaching-dictionary-manager/authoring";
@@ -62,9 +63,34 @@ export function SenseEditor({ value, word, onChange, selectedSenseId, onSelectSe
       <label className="text-sm">IPA <FormatHint label="IPA" format="Enter the reviewed pronunciation in IPA; leave blank only if pronunciation is not applicable to a bound root." example="/laɪv/" />
         <input className={field} value={pronunciation.ipa} onChange={event => updatePronunciation(pronunciation.id, { ipa: event.target.value })} /></label>
       <label className="text-sm">Spoken syllable count <FormatHint label="spoken syllable count" format="Enter the number of syllables heard in this pronunciation. Written syllable divisions are recorded separately." example="2" />
-        <input className={field} type="number" min="1" max="20" value={pronunciation.spokenSyllableCount ?? ""} onChange={event => updatePronunciation(pronunciation.id, { spokenSyllableCount: event.target.value ? Number(event.target.value) : null })} /></label>
-      <label className="text-sm">Stress pattern <FormatHint label="stress pattern" format="Choose primary, secondary or unstressed for each spoken syllable, separated by hyphens." example="primary-unstressed" />
-        <input className={field} value={pronunciation.stressPattern} onChange={event => updatePronunciation(pronunciation.id, { stressPattern: event.target.value })} /></label>
+        <input className={field} type="number" min="1" max="20" value={pronunciation.spokenSyllableCount ?? ""} onChange={event => {
+          const count = event.target.value ? Number(event.target.value) : null;
+          updatePronunciation(pronunciation.id, { spokenSyllableCount: count,
+            ...(count && Number.isInteger(count) && count > 0 && count <= 20 ? {stressPattern:resizeStressPattern(pronunciation.stressPattern,count)} : {}) });
+        }} /></label>
+      <fieldset className="text-sm sm:col-span-3">
+        <legend className="inline-flex items-center gap-2">Syllable stress <FormatHint label="syllable stress" format="Choose one stress value for each spoken syllable, in order. Stressed (primary) is the strongest emphasis; secondary is lighter emphasis." example="WIND·y: stressed, unstressed." /></legend>
+        {pronunciation.spokenSyllableCount && pronunciation.spokenSyllableCount > 0 && pronunciation.spokenSyllableCount <= 20 ? <>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {Array.from({length:Math.max(pronunciation.spokenSyllableCount, pronunciation.stressPattern.split("-").length)},(_,index)=>{
+              const tokens=normaliseStressPattern(pronunciation.stressPattern,pronunciation.spokenSyllableCount).split("-");
+              const token=tokens[index]??"";
+              return <label key={index} className="grid gap-1">Syllable {index+1}
+                <select className={field} aria-label={`Stress for syllable ${index+1}`} value={token} onChange={event=>{
+                  const next=Array.from({length:Math.max(tokens.length,pronunciation.spokenSyllableCount!)},(_,at)=>at===index?event.target.value:tokens[at]??"");
+                  updatePronunciation(pronunciation.id,{stressPattern:next.join("-")});
+                }}>
+                  <option value="">Choose stress</option>
+                  {token && !STRESS_OPTIONS.some(option=>option.value===token) && <option value={token}>Review legacy label: {token}</option>}
+                  {STRESS_OPTIONS.map(option=><option key={option.value} value={option.value}>{option.label}</option>)}
+                </select>
+              </label>;
+            })}
+          </div>
+          {pronunciation.stressPattern.split("-").length !== pronunciation.spokenSyllableCount && <button type="button" className="mt-2 underline" onClick={()=>updatePronunciation(pronunciation.id,{stressPattern:resizeStressPattern(pronunciation.stressPattern,pronunciation.spokenSyllableCount!)})}>Use {pronunciation.spokenSyllableCount} stress positions</button>}
+          {stressPatternErrors(pronunciation.stressPattern,pronunciation.spokenSyllableCount).map(error=><p key={error} role="status" className="mt-1 text-amber-900">{error}</p>)}
+        </> : <p className="mt-2">Enter the spoken syllable count first.</p>}
+      </fieldset>
     </div>)}
     <button type="button" className="mt-2 text-sm underline" onClick={() => {
       const id = crypto.randomUUID();

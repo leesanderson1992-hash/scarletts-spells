@@ -73,7 +73,8 @@ import { DictationListen } from "./dictation-listen";
 import { SenseMorphologyReview } from "./sense-morphology-review";
 import { MultiSenseCsvPanel } from "./multi-sense-csv-panel";
 import { prefillDictionaryMeanings } from "@/lib/teaching-dictionary-manager/meaning-prefill";
-import { legacySenseSet } from "@/lib/teaching-dictionary-manager/senses";
+import { normaliseWordPronunciations } from "@/lib/teaching-dictionary-manager/pronunciation-authority";
+import { legacySenseSet, senseSetErrors } from "@/lib/teaching-dictionary-manager/senses";
 import type { DictionarySenseSet } from "@/lib/teaching-dictionary-manager/senses";
 import { evaluateLessonCandidate, hasCandidateRule,
   type CandidateMorphology, type CandidateFamilyLink } from "@/lib/teaching-dictionary-manager/lesson-candidate";
@@ -350,7 +351,7 @@ export function WordWorkspace(props: {
   overviewReviewed: boolean;
 }) {
   const router = useRouter();
-  const [payload, setPayload] = useState<WordDraftPayload>(() => prefillDictionaryMeanings(prefillWeakVowelDrafts({
+  const [payload, setPayload] = useState<WordDraftPayload>(() => normaliseWordPronunciations(prefillDictionaryMeanings(prefillWeakVowelDrafts({
     payload: {
       ...props.initial,
       dictationVariants: dictationVariants(props.initial),
@@ -373,7 +374,7 @@ export function WordWorkspace(props: {
     writtenFacts: props.approvedWrittenFacts,
     family: props.weakFamilyPrefill,
     sourceReference: props.approvedSourceReference,
-  })));
+  }))));
   const [activeSenseId, setActiveSenseId] = useState(() =>
     payload.senseSet?.senses.find(sense => sense.id === props.initialSenseId)?.id ?? payload.senseSet?.senses[0]?.id ?? "");
   const [meaningChangeKind, setMeaningChangeKind] = useState("");
@@ -1023,6 +1024,9 @@ export function WordWorkspace(props: {
     ? morphologyReviewGuidance(payload.canonicalMorphology, payload.displayWord,
       props.affixMeanings, props.currentMorphologyLinkedToFamily)
     : [];
+  const liveApprovalIssues = actionError === "TEACHING_SENSE_SET_INVALID" && payload.senseSet
+    ? senseSetErrors(payload.senseSet) : approvalIssues;
+  const showApprovalError = actionError && (actionError !== "TEACHING_SENSE_SET_INVALID" || liveApprovalIssues.length > 0);
   return (
     <div className="td-word-workspace grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3" ref={workspace} data-checks-ready-ms={checksLoadedMs} data-last-save-ms={lastSaveMs}>
       <form id={formId} action={saveAction}>
@@ -1050,10 +1054,10 @@ export function WordWorkspace(props: {
         />
       </form>
       {saveMessage && <p role="status" className="text-sm text-emerald-800">{saveMessage}{dirty ? " Unsaved edits need approval." : ""}</p>}
-      {actionError && <div role="alert" className="rounded bg-amber-50 p-3 text-sm text-amber-950">
-        <p>{workspaceErrorMessage(actionError)}</p>
-        {approvalIssues.length > 0 && <ul className="mt-1 list-disc pl-5">
-          {approvalIssues.map(issue => <li key={issue}>{issue}</li>)}
+      {showApprovalError && <div role="alert" className="rounded bg-amber-50 p-3 text-sm text-amber-950">
+        <p>{workspaceErrorMessage(actionError!)}</p>
+        {liveApprovalIssues.length > 0 && <ul className="mt-1 list-disc pl-5">
+          {liveApprovalIssues.map(issue => <li key={issue}>{issue}</li>)}
         </ul>}
       </div>}
       <section id="td-overview" className={section} aria-labelledby="td-overview-title">

@@ -1,3 +1,4 @@
+import { normaliseStressPattern } from "./stress-pattern";
 import { emptyMetadata, normaliseWord, publicationBlockers, type WordDraftPayload } from "./contracts";
 import { createHash } from "node:crypto";
 import { canonicalWordSum, type CanonicalPart, type CanonicalJoin } from "./canonical-morphology";
@@ -182,6 +183,7 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
     const raw = Object.fromEntries(names.map((name, column) => [name, cells[column]?.trim() ?? ""]));
     if (names.includes("written_syllable_breakdown"))
       raw.written_syllable_breakdown = normaliseWrittenSyllableBreakdown(raw.written_syllable_breakdown, raw.display_word || raw.normalised_word || raw.targetWord);
+    if (names.includes("stress_pattern")) raw.stress_pattern = normaliseStressPattern(raw.stress_pattern, Number(raw.syllables) || null);
     if (raw.tdm_export_version) for (const name of names) {
       if (/^'[=+@\-\t\r]/.test(raw[name])) raw[name] = raw[name].slice(1);
     }

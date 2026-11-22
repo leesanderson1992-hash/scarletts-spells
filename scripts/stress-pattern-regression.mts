@@ -1,0 +1,25 @@
+import assert from 'node:assert/strict';
+import {normaliseStressPattern,resizeStressPattern,stressPatternErrors} from '../lib/teaching-dictionary-manager/stress-pattern';
+import {legacySenseSet,normaliseSensePronunciations,senseSetErrors} from '../lib/teaching-dictionary-manager/senses';
+import {normaliseWordPronunciations} from '../lib/teaching-dictionary-manager/pronunciation-authority';
+import {emptyMetadata,emptyMorphology,type WordDraftPayload} from '../lib/teaching-dictionary-manager/contracts';
+import {prepareReviewedCsv,renderMultiSenseCsvBundles,type MultiSenseCsvBundle} from '../lib/teaching-dictionary-manager/multi-sense-csv';
+import {parseDictionaryCsv} from '../lib/teaching-dictionary-manager/csv';
+const set=legacySenseSet({wordId:null,definition:'Moving air outdoors.',partOfSpeech:'noun',ipa:'/wɪnd/',spokenSyllables:'1',stressPattern:'single',dictationSentence:'The wind blew.',dictationTargetTokenIndex:1});
+assert.equal(set.pronunciations[0].stressPattern,'primary');assert.deepEqual(senseSetErrors(set),[]);
+for(const label of ['primary','single','stressed',' PRIMARY ']){const copy=structuredClone(set);copy.pronunciations[0].stressPattern=label;assert.deepEqual(senseSetErrors(copy),[]);assert.equal(normaliseSensePronunciations(copy).pronunciations[0].stressPattern,'primary');}
+assert.equal(normaliseStressPattern('stressed-unstressed',2),'primary-unstressed');
+assert.equal(normaliseStressPattern('secondary-primary-unstressed',3),'secondary-primary-unstressed');
+assert(stressPatternErrors('primary-unstressed',1).some(e=>e.includes('2 positions for 1 spoken syllable')));
+assert(stressPatternErrors('single',2).some(e=>e.includes('unrecognised label')));
+assert(stressPatternErrors('primary-mystery',2).some(e=>e.includes('unrecognised label')));
+assert.equal(resizeStressPattern('primary-unstressed',1),'primary');
+assert.equal(resizeStressPattern('primary',2),'primary-');assert(stressPatternErrors('primary-',2).some(e=>e.includes('empty position')));
+const payload={displayWord:'wind',metadata:{...emptyMetadata(),syllables:'2',stress_pattern:'primary-unstressed',phoneme_hint:'/wrong/'},senseSet:set} as WordDraftPayload;
+const normalised=normaliseWordPronunciations(payload);assert.equal(normalised.metadata.syllables,'1');assert.equal(normalised.metadata.stress_pattern,'primary');assert.equal(normalised.metadata.phoneme_hint,'/wɪnd/');assert.equal(payload.metadata.syllables,'2');
+const two=structuredClone(set);two.pronunciations.push({id:'turn',ipa:'/waɪnd/',spokenSyllableCount:1,stressPattern:'primary-unstressed'});two.senses.push({...two.senses[0],id:'turn-sense',definition:'To turn something around.',partOfSpeech:'verb',pronunciationId:'turn'});
+assert(senseSetErrors(two).some(e=>e.includes('/waɪnd/')&&e.includes('2 positions')));two.pronunciations[1].stressPattern='primary';assert.deepEqual(senseSetErrors(two),[]);
+const b:MultiSenseCsvBundle={wordId:'',displayWord:'wind',sourceSenseReviewedAt:'',senseSet:structuredClone(set),analyses:[{senseId:set.senses[0].id,parts:[{id:'base',kind:'base',sourceText:'wind',surfaceText:'wind',gloss:'Moving air outdoors.',displayRange:{start:0,end:4}}],joins:[],transformations:[],wordSum:'wind',familyKey:'',componentPartId:'',relationshipKind:'',requestedSkillKeys:[]}]};
+b.senseSet.pronunciations[0].stressPattern='single';const csv=prepareReviewedCsv(renderMultiSenseCsvBundles([b]))[0];assert.equal(csv.error,null);assert.equal(csv.bundle!.senseSet.pronunciations[0].stressPattern,'primary');
+const flat=parseDictionaryCsv('display_word,syllables,stress_pattern\nwind,1,single')[0];assert.equal(flat.payload.metadata.stress_pattern,'primary');
+console.log({passed:true,windLegacySingleReproduced:true,primaryStillValid:true,legacyLabelsNormalisedAtIntake:true,canonicalSenseOverridesStaleMetadata:true,genuineGapsRemainBlocked:true,errorsIdentifyPronunciation:true,resizingKeepsOneControlPerSyllable:true});

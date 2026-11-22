@@ -1,3 +1,4 @@
+import { normaliseStressPattern, stressPatternErrors } from "./stress-pattern";
 export type DictionaryPronunciation = {
   id: string;
   ipa: string;
@@ -34,7 +35,7 @@ export function legacySenseSet(input: {
   return {
     pronunciations: [{ id: pronunciationId, ipa: input.ipa,
       spokenSyllableCount: /^[1-9][0-9]*$/.test(input.spokenSyllables) ? Number(input.spokenSyllables) : null,
-      stressPattern: input.stressPattern }],
+      stressPattern: normaliseStressPattern(input.stressPattern, Number(input.spokenSyllables) || null) }],
     senses: [{ id: `legacy-sense:${key}`, partOfSpeech: input.partOfSpeech, definition: input.definition,
       pronunciationId, dictationSentence: input.dictationSentence,
       dictationTargetTokenIndex: input.dictationTargetTokenIndex }],
@@ -74,10 +75,13 @@ export function senseSetErrors(value: DictionarySenseSet): string[] {
     if (sense.partOfSpeech !== "root" && selected && (!selected.ipa.trim() ||
       selected.spokenSyllableCount === null || !selected.stressPattern.trim()))
       errors.push("Every spoken meaning needs IPA, syllable count and stress.");
-    if (selected?.spokenSyllableCount && selected.stressPattern &&
-      (!/^(?:primary|secondary|unstressed)(?:-(?:primary|secondary|unstressed))*$/.test(selected.stressPattern) ||
-        selected.stressPattern.split("-").length !== selected.spokenSyllableCount))
-      errors.push("Stress positions must match the spoken syllable count.");
+    if (selected) errors.push(...stressPatternErrors(selected.stressPattern, selected.spokenSyllableCount)
+      .map(error => `Pronunciation ${selected.ipa || selected.id}: ${error}`));
   }
   return [...new Set(errors)];
+}
+
+export function normaliseSensePronunciations(value: DictionarySenseSet): DictionarySenseSet {
+  return { ...value, pronunciations: value.pronunciations.map(pronunciation => ({ ...pronunciation,
+    stressPattern: normaliseStressPattern(pronunciation.stressPattern, pronunciation.spokenSyllableCount) })) };
 }

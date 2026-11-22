@@ -1,3 +1,4 @@
+import { normaliseStressPattern } from "./stress-pattern";
 import { csvRecords, flatMorphology, FLAT_IMPORT_PART_LIMIT, MAX_DICTIONARY_CSV_BYTES } from "./csv";
 import { normaliseWord } from "./contracts";
 import { targetOccurrences } from "./authoring";
@@ -78,7 +79,7 @@ export function parseMultiSenseCsv(text: string): MultiSenseCsvBundle[] {
       const count = raw.spoken_syllable_count;
       if (!/^[1-9][0-9]*$/u.test(count)) throw new Error(`Row ${number}: Spoken syllable count is invalid.`);
       const pronunciation = { id: pronunciationId, ipa: raw.ipa,
-        spokenSyllableCount: Number(count), stressPattern: raw.stress_pattern };
+        spokenSyllableCount: Number(count), stressPattern: normaliseStressPattern(raw.stress_pattern, Number(count)) };
       const byId = pronunciationByWord.get(groupKey) ?? new Map<string, string>();
       const snapshot = JSON.stringify(pronunciation);
       if (byId.has(pronunciationId) && byId.get(pronunciationId) !== snapshot)

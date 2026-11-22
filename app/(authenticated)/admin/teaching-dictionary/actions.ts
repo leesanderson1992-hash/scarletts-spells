@@ -1,4 +1,5 @@
 "use server";
+import { normaliseWordPronunciations } from "@/lib/teaching-dictionary-manager/pronunciation-authority";
 
 import { prefillDictionaryMeanings, singleMeaningSelection } from "@/lib/teaching-dictionary-manager/meaning-prefill";
 import { scheduleFamilyDependencyRecheck } from "@/lib/teaching-dictionary-manager/family-dependency-scheduling";
@@ -359,9 +360,10 @@ async function definitionOnlyPublicationProof(
 
 function payloadFromForm(form: FormData): WordDraftPayload {
   if (form.has("payload_json")) {
-    const parsed = JSON.parse(value(form, "payload_json")) as WordDraftPayload;
+    let parsed = JSON.parse(value(form, "payload_json")) as WordDraftPayload;
     if (!parsed || !Array.isArray(parsed.skillKeys) || !parsed.metadata || !parsed.canonicalMorphology
       || !Array.isArray(parsed.routeContents)) throw new Error("TEACHING_DRAFT_INVALID");
+    parsed = normaliseWordPronunciations(parsed);
     if (parsed.writtenSyllableBreakdown !== undefined)
       parsed.writtenSyllableBreakdown = normaliseWrittenSyllableBreakdown(parsed.writtenSyllableBreakdown, parsed.displayWord);
     const prefilled = prefillDictionaryMeanings(parsed);
