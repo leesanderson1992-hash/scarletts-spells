@@ -31,7 +31,7 @@ export async function assignSavedReviewFamily(input: { id: string; expectedUpdat
       status: "waiting", lease_until: null, checked_at: null, updated_at: new Date().toISOString() })
       .eq("id", input.id).eq("updated_at", input.expectedUpdatedAt).select("id");
     if (saved.error || saved.data.length !== 1) return { ok: false, error: "The word changed while you were choosing. Review the refreshed facts." };
-    await recheckWaitingFamilyWords(db, environment, row.data.base_form, 20);
+    await recheckWaitingFamilyWords(db, environment, undefined, 20, row.data.canonical_word_id);
     updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
     revalidatePath("/admin/teaching-dictionary/lesson-updates");
     revalidatePath(`/admin/teaching-dictionary/${row.data.canonical_word_id}`);

@@ -56,7 +56,7 @@ export async function reviewSenseMorphology(input: { wordId: string; senseId: st
   updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   revalidatePath(`/admin/teaching-dictionary/${input.wordId}`);
   revalidatePath("/admin/teaching-dictionary/lesson-updates");
-  scheduleFamilyDependencyRecheck();
+  scheduleFamilyDependencyRecheck(undefined, input.wordId);
   return { ok: true, morphologyId: result.data ?? undefined };
 }
 
@@ -81,7 +81,7 @@ export async function reviewSenseFamilyMembership(input: { wordId: string; sense
     ?.replaceAll("_", " ").toLowerCase() ?? "The family link could not be approved." };
   updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   revalidatePath(`/admin/teaching-dictionary/${input.wordId}`);
-  scheduleFamilyDependencyRecheck();
+  scheduleFamilyDependencyRecheck(undefined, input.wordId);
   return { ok: true };
 }
 
@@ -176,7 +176,7 @@ export async function createSenseFreeBaseFamily(input: { wordId: string; senseId
   revalidatePath(`/admin/teaching-dictionary/${input.wordId}`);
   if (baseWordId !== input.wordId) revalidatePath(`/admin/teaching-dictionary/${baseWordId}`);
   revalidatePath("/admin/teaching-dictionary/lesson-updates");
-  scheduleFamilyDependencyRecheck(baseWordId);
+  scheduleFamilyDependencyRecheck(baseWordId, input.wordId);
   return { ok: true };
 }
 

@@ -32,8 +32,10 @@ export function matchingDependencyFamily(dependency: Pick<FamilyDependency, "con
 }
 
 /** A bounded, leased worker. It links and rechecks reviewed facts; it never publishes. */
-export async function recheckWaitingFamilyWords(db: Db, environment: "staging" | "production", base?: string, limit = 10) {
-  const claimed = await db.rpc("claim_dictionary_family_dependencies", { p_environment: environment, p_limit: limit, p_base: base ?? null });
+export async function recheckWaitingFamilyWords(db: Db, environment: "staging" | "production", base?: string, limit = 10, wordId?: string) {
+  const claimed = wordId
+    ? await db.rpc("claim_dictionary_family_dependencies_for_word", { p_environment: environment, p_limit: limit, p_word: wordId })
+    : await db.rpc("claim_dictionary_family_dependencies", { p_environment: environment, p_limit: limit, p_base: base ?? null });
   if (claimed.error) throw new Error("Could not claim saved family reviews.");
   const rows = claimed.data as FamilyDependency[];
   let ready = 0, changed = 0;

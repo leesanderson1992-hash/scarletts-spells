@@ -20,18 +20,18 @@ const oldBase=analysis.parts.find(p=>p.kind==='base');assert(oldBase);const next
 const remap=id=>id===oldBase.id?nextId:id;
 const next={...analysis,parts:analysis.parts.map(p=>({...p,id:remap(p.id)})),joins:analysis.joins.map(j=>({...j,afterPartId:remap(j.afterPartId),beforePartId:remap(j.beforePartId)})),transformations:analysis.transformations.map(t=>({...t,sourcePartId:remap(t.sourcePartId)}))};
 const approved=await reviewSenseMorphology({wordId:bundle.wordId,senseId:dep.sense_id,action:'approve',parts:next.parts,joins:next.joins,transformations:next.transformations,wordSum:next.wordSum});assert(approved.ok,JSON.stringify(approved));assert(approved.morphologyId);
-await recheckWaitingFamilyWords(db,'staging','stack',20);
+await Promise.all(callbacks.splice(0).map(fn=>fn()));
 const after=await read(db.from('teaching_dictionary_family_dependencies').select('*').eq('id',dep.id).single());
 assert.equal(after.component_part_id,nextId);assert.equal(after.expected_morphology_id,approved.morphologyId);assert(after.family_resolved,after.detail);
 const links=await read(db.from('teaching_dictionary_current_sense_family_memberships').select('*').eq('canonical_word_id',bundle.wordId).eq('sense_id',dep.sense_id).eq('sense_morphology_id',approved.morphologyId));assert.equal(links.length,1);
 // Prove a ready row becomes claimable after a word-page family approval.
 await read(db.from('teaching_dictionary_family_dependencies').update({status:'ready',family_resolved:true,checked_at:new Date(Date.now()-1000).toISOString(),lease_until:null}).eq('id',dep.id));
 const linked=await reviewSenseFamilyMembership({wordId:bundle.wordId,senseId:dep.sense_id,morphologyId:approved.morphologyId,familyKey:links[0].family_key,componentPartId:nextId,relationshipKind:links[0].relationship_kind,action:'approve'});assert(linked.ok,JSON.stringify(linked));
-await recheckWaitingFamilyWords(db,'staging','stack',20);
+await Promise.all(callbacks.splice(0).map(fn=>fn()));
 const updated=await read(db.from('teaching_dictionary_family_dependencies').select('*').eq('id',dep.id).single());assert(updated.family_resolved,updated.detail);
 // An explicit removal must remain unresolved until the editor chooses again.
 const withdrawn=await reviewSenseFamilyMembership({wordId:bundle.wordId,senseId:dep.sense_id,morphologyId:approved.morphologyId,familyKey:links[0].family_key,componentPartId:nextId,relationshipKind:links[0].relationship_kind,action:'withdraw'});assert(withdrawn.ok);
-await recheckWaitingFamilyWords(db,'staging','stack',20);
+await Promise.all(callbacks.splice(0).map(fn=>fn()));
 const waiting=await read(db.from('teaching_dictionary_family_dependencies').select('*').eq('id',dep.id).single());assert.equal(waiting.status,'needs_choice');assert.equal(waiting.family_resolved,false);assert.equal(waiting.confirmed_family_key,null);
 const assigned=await assignSavedReviewFamily({id:dep.id,expectedUpdatedAt:waiting.updated_at,familyKey:links[0].family_key});assert(assigned.ok,JSON.stringify(assigned));
 assert((await read(db.from('teaching_dictionary_family_dependencies').select('*').eq('id',dep.id).single())).family_resolved);
@@ -41,5 +41,5 @@ await sql.query('begin');await sql.query("update teaching_dictionary_family_depe
 const claim=(await sql.query('select * from claim_dictionary_family_dependencies($1,20,$2)',['staging','stack'])).rows;assert(claim.some(r=>r.id===dep.id));
 assert(!(await sql.query('select * from claim_dictionary_family_dependencies($1,20,$2)',['staging','stack'])).rows.some(r=>r.id===dep.id));await sql.query('rollback');
 assert.deepEqual((await sql.query('select * from adle_route_activation_heads order by environment_key,route_id,route_version,micro_skill_key')).rows,heads);
-const report={word:'unstack',wordPageApprovalReconciled:true,componentIdUpdated:nextId,approvedFamilyLinked:true,readyRowsRechecked:true,leasePreserved:true,withdrawalPreserved:true,savedAssignmentWithoutWorkbook:true,staleChoiceRejected:true,lessonActivationsUnchanged:true,status:updated.status,detail:updated.detail};fs.writeFileSync('outputs/saved-family-workflow-20261122/staging-worker-proof.json',JSON.stringify(report,null,2));console.log(report);
+const report={word:'unstack',wordPageApprovalReconciled:true,componentIdUpdated:nextId,approvedFamilyLinked:true,readyRowsRechecked:true,leasePreserved:true,withdrawalPreserved:true,savedAssignmentWithoutWorkbook:true,editedWordPrioritised:true,staleChoiceRejected:true,lessonActivationsUnchanged:true,status:updated.status,detail:updated.detail};fs.writeFileSync('outputs/saved-family-workflow-20261122/staging-worker-proof.json',JSON.stringify(report,null,2));console.log(report);
 }finally{await sql.end()}})().catch(e=>{console.error(e);process.exitCode=1});

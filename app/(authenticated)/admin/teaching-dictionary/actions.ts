@@ -707,7 +707,7 @@ export async function saveWordWorkspace(form: FormData) {
     // The next word read must see confirmed editorial and relationship writes.
     // Cache expiry does not force the whole editor to rerender.
     updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
-    scheduleFamilyDependencyRecheck();
+    scheduleFamilyDependencyRecheck(undefined, value(form, "word_id") || undefined);
   }
   return result;
 }
