@@ -285,7 +285,7 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
       ...(!payload.definition.trim() ? ["Definition is required."] : []),
       ...(!/^[1-9][0-9]*$/u.test(payload.metadata.syllables) ? ["Spoken syllable count must be a positive number."] : []),
       ...(!payload.metadata.phoneme_hint.trim() ? ["Pronunciation hint is required."] : []),
-      ...(!payload.writtenSyllableBreakdown?.trim() ? ["Written syllable breakdown is required."] : []),
+      ...(!payload.writtenSyllableBreakdown?.trim() ? ["Spoken syllable divisions is required."] : []),
       ...(!/^(?:primary|secondary|unstressed)(?:-(?:primary|secondary|unstressed))*$/u.test(payload.metadata.stress_pattern)
         || payload.metadata.stress_pattern.split("-").length !== Number(payload.metadata.syllables)
         ? ["Stress pattern needs one position for each spoken syllable."] : []),

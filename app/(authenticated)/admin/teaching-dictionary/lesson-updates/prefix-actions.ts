@@ -62,7 +62,7 @@ export async function savePrefixWorkbookDetails(form: FormData) {
     const schwa = form.get("hasSchwa");
     const written = String(form.get("writtenSyllableBreakdown") ?? "").trim();
     if (written.length > 140 || (schwa !== null && schwa !== "" && schwa !== "yes" && schwa !== "no"))
-      throw new Error("Check the written syllables and schwa choice.");
+      throw new Error("Check the spoken syllable divisions and schwa choice.");
     const [syllableError] = writtenSyllableBlockers(bundle.displayWord, written);
     if (syllableError) throw new Error(syllableError);
     await stagePrefixWorkbookDraft(db, actor.id, bundle, skill, senseId, meaning, {

@@ -37,7 +37,7 @@ const workbookKeys = (skill: string) => isSchwaWorkbookSkill(skill) ? [...review
   : isPrefixWorkbookSkill(skill) ? [...reviewKeys.slice(0, 4), prefixMeaningKey, ...reviewKeys.slice(4)] : reviewKeys;
 const hidden = new Set(["canonical_word_id", "source_sense_reviewed_at", "sense_id", "pronunciation_id"]);
 const label = (key: string) => ({
-  written_syllable_breakdown: "Dictionary written syllable divisions", activity_cut_source: "Activity cut source", activity_syllables: "Alternative activity divisions (optional)", spoken_syllable_count: "Spoken syllable count",
+  written_syllable_breakdown: "Dictionary spoken syllable divisions", activity_cut_source: "Activity cut source", activity_syllables: "Alternative activity divisions (optional)", spoken_syllable_count: "Spoken syllable count",
   display_word: "Word", definition: "Meaning", family_key: "Word family",
   component_to_whole_relationship: "How the parts make the meaning", use_in_lesson: "Use in lesson", needs_review: "Needs review", ipa: "IPA",
 }[key] ?? key.replace(/^part_(\d+)_/, "Part $1 ").replaceAll("_", " ").replace(/^./, char => char.toUpperCase()));
@@ -112,7 +112,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     }
     const schwa = input.schwaFacts?.get(entry.canonical_word_id);
     const notes = [
-      ...(isSchwaWorkbookSkill(input.skill) ? [!schwa?.written_syllable_breakdown ? "Review Dictionary written syllable divisions." : "",
+      ...(isSchwaWorkbookSkill(input.skill) ? [!schwa?.written_syllable_breakdown ? "Review Dictionary spoken syllable divisions." : "",
         schwa?.activity_cut_source === "Review conflict" ? "Activity cuts conflict with Dictionary divisions. Choose the cut source." : ""] : []),
       input.notes.get(entry.canonical_word_id),
       entry.part_of_speech !== "root" && !entry.dictation_sentence ? "Add a dictation sentence for this meaning." : "",
@@ -222,10 +222,10 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   if (isSchwaWorkbookSkill(input.skill)) guide.addRows([
     ["Weak vowel target", "Enter the target letter or complete ending, for example a or ar. Choose its occurrence (1 means the first). Targets must contain one written vowel."],
     ["Weak vowel sound", "Choose Schwa or Other unstressed vowel for the selected British pronunciation. A quiet vowel is not always a schwa."],
-    ["Dictionary written syllable divisions", "Review every word here, for example writ·er. Use middle dots; separator hyphens are converted. The divisions must rejoin to the spelling. Upload updates the Teaching Dictionary once for reuse by all Schwa lessons. These are written letter divisions, not a phonetic transcription."],
+    ["Dictionary spoken syllable divisions", "Review every word here, for example wri·ter. Split the word as it is spoken, using its normal spelling and middle dots; separator hyphens are converted. The divisions must rejoin to the spelling. Upload updates the Teaching Dictionary once for reuse by all Schwa lessons. Use the approved British pronunciation; do not split by base, prefix or suffix. Enter ordinary letters, not IPA."],
     ["Activity cut source", "Use dictionary is the default. Existing conflicting cuts are flagged: choose Use dictionary or Reviewed alternative. Leave alternative divisions blank unless a different activity cut is intentionally reviewed."],
     ["Alternative activity divisions (optional)", "Only for Reviewed alternative. Use middle dots; separate accepted alternatives with |. Never use word parts as a substitute for syllable review."],
-    ["Spoken syllable count", "The number heard in the selected pronunciation. This is a count, distinct from the written divisions used to cut the displayed word."],
+    ["Spoken syllable count", "The number heard in the selected pronunciation. This is a count, matching the number of spoken syllable divisions."],
     ["Family exploration", "Choose Not used to opt out. Use approved family includes exploration automatically in new lessons once its approved base/root and at least two approved members are available. While the family waits, the core word can still be published and Active. Resolve its family link in this flow."],
     ["Publication", "Upload saves the reviewed Dictionary facts and activity annotations. Missing facts stay in Bulk review. One Publish click releases all ready words."],
   ]);
@@ -287,6 +287,7 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
   const legacySchwa = isSchwaWorkbookSkill(skill) && sheet?.getCell(headerRow, currentKeys.length).value !== workbookLabel(skill, "activity_cut_source");
   const keys = legacySchwa ? currentKeys.filter(key => !(SCHWA_SYLLABLE_FIELDS as readonly string[]).includes(key)) : currentKeys;
   const matchesHeader = (key: string, value: unknown) => value === workbookLabel(skill, key)
+    || key === "written_syllable_breakdown" && value === "Dictionary written syllable divisions"
     || key === "activity_syllables" && value === "Activity syllables";
   if (!sheet || sheet.getCell("A2").value !== skill || keys.some((key, i) => !matchesHeader(key, sheet.getCell(headerRow, i + 1).value) && !(legacyPrefixForm && key === prefixMeaningKey && sheet.getCell(headerRow, i + 1).value === "Prefix form")))
     throw new Error("Use the review workbook for this micro-skill and keep its column headings.");

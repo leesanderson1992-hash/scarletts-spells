@@ -22,7 +22,7 @@ export async function loadSchwaSyllableAuthority(db: SupabaseClient, ids: string
 }
 export async function saveReviewedSchwaDivisions(db: SupabaseClient, word: string, wordId: string, value: string, actor: string) {
   const normalised = normaliseWrittenSyllableBreakdown(value, word);
-  if (!parseSyllableBreakdown(word, normalised)) throw new Error("Written syllable divisions must join to the spelling, for example writ·er.");
+  if (!parseSyllableBreakdown(word, normalised)) throw new Error("Spoken syllable divisions must join to the spelling, for example wri·ter.");
   const result = await db.rpc("review_dictionary_written_divisions", { p_word: wordId, p_divisions: normalised, p_actor: actor });
   if (result.error) throw new Error(result.error.message);
   return normalised;

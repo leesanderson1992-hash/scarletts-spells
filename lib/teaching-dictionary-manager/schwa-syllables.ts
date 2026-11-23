@@ -10,7 +10,7 @@ export function resolveSchwaSyllables(word: string, dictionary: string, activity
   const conflict = alternatives.some(value => value !== canonical);
   const errors: string[] = [];
   if (source && !(CUT_SOURCES as readonly string[]).includes(source)) errors.push("Choose a listed activity cut source.");
-  if (!parts) errors.push("Review the Dictionary written syllable divisions; they must join to the word.");
+  if (!parts) errors.push("Review the Dictionary spoken syllable divisions; they must join to the word.");
   if (source === "Review conflict" || conflict && !["Use dictionary", "Reviewed alternative"].includes(source))
     errors.push("Activity cuts conflict with Dictionary divisions. Choose Use dictionary or review an alternative.");
   if (source === "Reviewed alternative" && !alternatives.length) errors.push("Enter the reviewed alternative activity divisions.");

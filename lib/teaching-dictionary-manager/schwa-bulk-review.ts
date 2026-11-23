@@ -186,7 +186,7 @@ export async function loadSchwaWorkbookQueue(db: Db, skill: string, wordIds?: st
     const facts = route.content.weakVowel as WeakVowelRouteFactsV1;
     const fingerprint = fingerprints.get(draft.canonical_word_id);
     const blockers = [...(authority.pending && savedFields.syllable_review_epoch !== authority.resetAt
-      ? ["Review the Dictionary written syllable divisions, then Save and recheck before publishing."] : []), ...parseSchwaWorkbookFacts(payload.displayWord, fields).errors, ...routeBlockers(route, payload), ...reviewedAudioBlockers(facts)];
+      ? ["Review the Dictionary spoken syllable divisions, then Save and recheck before publishing."] : []), ...parseSchwaWorkbookFacts(payload.displayWord, fields).errors, ...routeBlockers(route, payload), ...reviewedAudioBlockers(facts)];
     if (!(DICTIONARY_BANDS.ageBand as readonly string[]).includes(payload.ageBand)) blockers.push("Choose the dictionary age band.");
     if (!(DICTIONARY_BANDS.frequencyBand as readonly string[]).includes(payload.frequencyBand)) blockers.push("Choose the dictionary frequency band.");
     if (!(DICTIONARY_BANDS.complexityBand as readonly string[]).includes(payload.complexityBand)) blockers.push("Choose the dictionary complexity band.");
@@ -264,7 +264,7 @@ export async function loadSchwaBulkReview(db: Db, skill: string, includeBundles 
     const bundle = bundles.find(row => row.wordId === word.id);
     const active = current.some(row => row.canonicalWordId === word.id);
     const issues: string[] = syllableReviews.data.some(row => row.canonical_word_id === word.id)
-      ? ["Review the Dictionary written syllable divisions in the workbook, then publish."] : [];
+      ? ["Review the Dictionary spoken syllable divisions in the workbook, then publish."] : [];
     if (!bundle?.sourceSenseReviewedAt) issues.push("Review the canonical meaning, pronunciation and word parts in the workbook.");
     if (draft && (!draft.published || draft.blockers.length)) issues.push(...draft.blockers.length ? draft.blockers : ["Reviewed facts are ready to publish."]);
     if (!active && !issues.length) issues.push("Review the weak-vowel activity facts, then publish.");

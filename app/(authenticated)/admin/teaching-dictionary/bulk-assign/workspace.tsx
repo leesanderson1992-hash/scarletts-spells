@@ -621,7 +621,7 @@ export function BulkAssignWorkspace(props: {
                   </th>;
                 })}
                 <th className="p-1">Word</th><th className="p-1">Phoneme</th><th className="p-1">Schwa</th>
-                <th className="p-1">Parts</th><th className="p-1">Written syllables / spoken count</th>
+                <th className="p-1">Parts</th><th className="p-1">Spoken syllable divisions / spoken count</th>
               </tr></thead>
               <tbody>{visible.map((word) => {
                 const reviewed = assigned.has(`${chosenSkillKey}:${word.id}`)
@@ -651,7 +651,7 @@ export function BulkAssignWorkspace(props: {
                 <dt>Phoneme</dt><dd className="break-words" style={{ overflowWrap: "anywhere" }}>{selectedPronunciation(word)?.ipa ?? word.phonemeHint ?? "Unknown"}</dd>
                 <dt>Schwa</dt><dd>{displayedSchwa(word) === null ? "Unknown" : displayedSchwa(word) ? "Yes" : "No"}</dd>
                 <dt>Parts</dt><dd className="break-words" style={{ overflowWrap: "anywhere" }}>{word.morphemeParts.join(", ") || "Unknown"} <span className="text-[color:var(--mid)]">(word analysis)</span></dd>
-                <dt>Written syllables</dt><dd>{word.writtenSyllableBreakdown || "No reviewed split"}</dd>
+                <dt>Spoken syllable divisions</dt><dd>{word.writtenSyllableBreakdown || "No reviewed split"}</dd>
                 <dt>Spoken syllable count</dt><dd>{selectedPronunciation(word)?.spokenSyllableCount ?? word.syllableCount ?? "Unknown"}</dd>
               </dl>
               <div className="mt-3 flex gap-5"><label className="flex items-center gap-2">{choiceInput(word, "apply")} Apply</label>

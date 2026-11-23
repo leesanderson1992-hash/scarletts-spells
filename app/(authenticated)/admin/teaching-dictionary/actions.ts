@@ -583,7 +583,7 @@ async function performWorkspaceSave(form: FormData) {
         throw new Error("TEACHING_LESSON_SENSE_INVALID");
       const approveWritten = reviewSection === "pronunciation" && payload.senseSet.senses.find(sense => sense.id === value(form, "selected_sense_id"))?.partOfSpeech !== "root";
       const meaningIssues = [...senseSetErrors(payload.senseSet), ...(approveWritten && !parseSyllableBreakdown(payload.displayWord, payload.writtenSyllableBreakdown ?? "")
-        ? ["Enter written syllable divisions that join to the word, for example writ·er."] : [])];
+        ? ["Enter spoken syllable divisions that join to the word, for example wri·ter."] : [])];
       if (meaningIssues.length) return {
         destination, error: "TEACHING_SENSE_SET_INVALID", overviewApproved, issues: meaningIssues,
       };
@@ -936,7 +936,7 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
       if (current && row.exportVersion === "1" && row.writtenSyllableBreakdown !== undefined &&
         row.writtenSyllableBreakdown !== normaliseWrittenSyllableBreakdown(
           String(metadataByWord.get(current.id)?.written_syllable_breakdown ?? ""), current.display_word)) {
-        errors.push(`Row ${row.rowNumber}: Written syllable breakdown is read-only. Download a fresh CSV if this review changed.`);
+        errors.push(`Row ${row.rowNumber}: Spoken syllable divisions is read-only. Download a fresh CSV if this review changed.`);
         return [];
       }
       if (current) {

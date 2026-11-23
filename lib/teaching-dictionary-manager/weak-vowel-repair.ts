@@ -120,7 +120,7 @@ export function buildWeakVowelRepairRows(sources: readonly RepairSource[], expor
       const stressParts = stress.split("-");
       if (/^(primary|secondary|unstressed)(-(primary|secondary|unstressed))*$/.test(stress)) {
         if (/^\d+$/.test(count) && Number(count) !== stressParts.length) add({ code: "SPOKEN_COUNT_STRESS_MISMATCH", classification: "Confirmed inconsistency", fields: ["spoken_syllable_count", "stress_pattern"], observed: { count, stress },
-          explanation: "The numeric spoken count and number of structured stress positions disagree.", repair: "Listen to the intended British recording; approve matching spoken syllables and stress for that variant. Preserve written divisions separately." });
+          explanation: "The numeric spoken count and number of structured stress positions disagree.", repair: "Listen to the intended British recording; approve matching spoken syllables and stress for that variant. Preserve spoken syllable divisions separately." });
       } else add({ code: "STRESS_ANNOTATION_REVIEW", classification: "Potential inconsistency requiring review", fields: ["stress_pattern"], observed: stress,
         explanation: "The stress hint is missing or is not a complete primary/secondary/unstressed sequence.", repair: "Review a complete stress sequence against the chosen recording; do not expand shorthand mechanically." });
       if (partCount(written) !== null && /^\d+$/.test(count) && partCount(written) !== Number(count)) add({ code: "WRITTEN_SPOKEN_DIVISION_REVIEW", classification: "Potential inconsistency requiring review", fields: ["written_breakdown", "spoken_syllable_count"], observed: { written, count },
@@ -294,7 +294,7 @@ export function validateWeakVowelRepairs(edited: readonly RepairRow[], baseline:
   for (const [index, row] of edited.entries()) {
     if (!row.canonical_word_id || !row.proposed_written_breakdown || row.approval_decision === "pending" || row.approval_decision === "exclude") continue;
     const previous = writtenProposals.get(row.canonical_word_id);
-    if (previous && previous !== row.proposed_written_breakdown) errors.push({ row: index + 2, code: "SHARED_WORD_REPAIR_CONFLICT", message: "This canonical word has conflicting proposed written divisions across its review rows." });
+    if (previous && previous !== row.proposed_written_breakdown) errors.push({ row: index + 2, code: "SHARED_WORD_REPAIR_CONFLICT", message: "This canonical word has conflicting proposed spoken syllable divisions across its review rows." });
     writtenProposals.set(row.canonical_word_id, row.proposed_written_breakdown);
   }
   return { status: errors.length ? "blocked" : reviewed ? "reviewed_exclusions_only" : "awaiting_human_review", rows: edited.length, reviewedRows: reviewed, errors, databaseWrites: 0, publicationReady: false };

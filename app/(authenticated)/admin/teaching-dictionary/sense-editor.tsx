@@ -69,7 +69,7 @@ export function SenseEditor({ value, word, onChange, selectedSenseId, onSelectSe
     {value.pronunciations.filter(row => row.id === sense.pronunciationId).map((pronunciation) => <div key={pronunciation.id} className="mt-3 grid gap-2 rounded bg-[var(--paper)] p-3 sm:grid-cols-3">
       <label className="text-sm">IPA <FormatHint label="IPA" format="Enter the reviewed pronunciation in IPA; leave blank only if pronunciation is not applicable to a bound root." example="/laɪv/" />
         <input className={field} value={pronunciation.ipa} onChange={event => updatePronunciation(pronunciation.id, { ipa: event.target.value })} /></label>
-      <label className="text-sm">Spoken syllable count <FormatHint label="spoken syllable count" format="Enter the number of syllables heard in this pronunciation. Written syllable divisions are recorded separately." example="2" />
+      <label className="text-sm">Spoken syllable count <FormatHint label="spoken syllable count" format="Enter the number of syllables heard in this pronunciation. Enter the matching spoken syllable divisions below." example="2" />
         <input className={field} type="number" min="1" max="20" value={pronunciation.spokenSyllableCount ?? ""} onChange={event => {
           const count = event.target.value ? Number(event.target.value) : null;
           updatePronunciation(pronunciation.id, { spokenSyllableCount: count,

@@ -182,9 +182,9 @@ export async function importReviewedMultiSenseCsv(
     const wordId = applied.data;
     if (workbook && isSchwaWorkbookSkill(skill)) {
       const divisions = rows.map(row => schwaFacts.get(row)?.written_syllable_breakdown).filter(Boolean) as string[];
-      if (new Set(divisions).size > 1) { issues.push({ word, wordId, rows, reason: "Use the same Dictionary written divisions for all meanings of this spelling." }); continue; }
+      if (new Set(divisions).size > 1) { issues.push({ word, wordId, rows, reason: "Use the same Dictionary spoken syllable divisions for all meanings of this spelling." }); continue; }
       if (divisions[0]) try { await saveReviewedSchwaDivisions(db, bundle.displayWord, wordId, divisions[0], actor.id); }
-      catch (error) { issues.push({ word, wordId, rows, reason: error instanceof Error ? error.message : "Could not save written divisions." }); continue; }
+      catch (error) { issues.push({ word, wordId, rows, reason: error instanceof Error ? error.message : "Could not save spoken syllable divisions." }); continue; }
     }
     if (workbook && waiting.length) {
       const synced = await db.rpc("sync_dictionary_family_components", { p_environment: resolveAdleRouteActivationEnvironment(), p_word: wordId, p_skill: skill });

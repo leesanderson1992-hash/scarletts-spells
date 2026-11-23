@@ -130,7 +130,7 @@ export function writtenSyllableBlockers(
     normaliseWord(value).replace(/[^\p{L}\p{N}]/gu, "");
   return letters(word) === letters(breakdown)
     ? []
-    : ["Written syllable breakdown must reproduce the word."];
+    : ["Spoken syllable divisions must reproduce the word."];
 }
 
 /** Match against the spelling before treating a hyphen as a syllable separator.

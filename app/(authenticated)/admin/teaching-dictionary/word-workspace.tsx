@@ -216,7 +216,7 @@ function Editable({
   const help: Record<string, { format: string; example: string }> = {
     "Display word": { format: "Enter the spelling exactly as learners should see it.", example: "scrolling" },
     Definition: { format: "Enter one reviewed dictionary meaning reusable across lessons.", example: "Moving content up or down a screen." },
-    "Spoken syllables": { format: "Enter the number of syllables heard. Written syllable divisions use middle dots in their own field.", example: "2" },
+    "Spoken syllables": { format: "Enter the number of syllables heard. Spoken syllable divisions use middle dots in their own field.", example: "2" },
     Phonemes: { format: "Enter the reviewed British pronunciation or phoneme hint.", example: "/ˈskrəʊ.lɪŋ/" },
     "Part of speech": { format: "Choose the grammatical role of this word.", example: "verb" },
     Schwa: { format: "Choose whether this pronunciation contains a schwa.", example: "No" },
@@ -1113,8 +1113,8 @@ export function WordWorkspace(props: {
                   recordingSources={dictationRecordingSources} onChange={senseSet => change({ senseSet })}
                   selectedSenseId={activeSenseId} onSelectSense={setActiveSenseId} />}
                 {panel === "pronunciation" && selectedMeaning?.partOfSpeech !== "root" && <label id="td-written-syllables" className="mt-4 block text-sm">
-                  <span className="inline-flex items-center gap-1 font-medium">Dictionary written syllable divisions
-                    <FormatHint label="Dictionary written syllable divisions" format="Separate divisions of the displayed spelling with middle dots. The letters must join to the word. This shared Dictionary fact supplies Schwa activity cuts; the spoken syllable count above is separate. Separator hyphens are standardised on approval." example="writ·er" />
+                  <span className="inline-flex items-center gap-1 font-medium">Dictionary spoken syllable divisions
+                    <FormatHint label="Dictionary spoken syllable divisions" format="Split the word as it is spoken in the approved British pronunciation. Use the normal spelling with middle dots between syllables; the letters must rejoin to the word. Do not split by word parts. These divisions supply Schwa activity cuts. Separator hyphens are standardised on approval." example="wri·ter" />
                   </span>
                   <input className={`${input} mt-1`} value={payload.writtenSyllableBreakdown ?? ""}
                     onChange={event => change({ writtenSyllableBreakdown: event.target.value })} />
@@ -1312,7 +1312,7 @@ export function WordWorkspace(props: {
                 <tr>
                   <th className="p-2 font-medium">Parts &amp; meanings</th>
                   <th className="p-2 font-medium">Canonical word sum</th>
-                  <th className="p-2 font-medium">Written syllables</th>
+                  <th className="p-2 font-medium">Spoken syllable divisions</th>
                   <th className="p-2 font-medium">Transformations</th>
                 </tr>
               </thead>
@@ -1340,7 +1340,7 @@ export function WordWorkspace(props: {
                   <td data-label="Canonical word sum" className="p-2">
                     {selectedParts.wordSum || "Missing"}
                   </td>
-                  <td data-label="Written syllables" className="p-2">
+                  <td data-label="Spoken syllable divisions" className="p-2">
                     {payload.writtenSyllableBreakdown || "Missing"}
                   </td>
                   <td data-label="Transformations" className="p-2">
@@ -1686,7 +1686,7 @@ export function WordWorkspace(props: {
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
             <p className="sm:col-span-2"><strong>Route validation:</strong> {assignedSkillKeys === null ? "Checking assignment authority…" : assignedSkillKeys.includes(key) && published?.sourceCurrent ? "Ready to be selected when a child needs this word" : "Not yet eligible for a new lesson"}</p>
             <p><strong>Word–skill assignment:</strong> {assignedSkillKeys === null ? "Checking authority…" : assignedSkillKeys.includes(key) ? "Assigned" : "Not assigned (cannot enter new lessons)"}</p>
-            <p><strong>Published lesson content:</strong> {published ? published.sourceCurrent ? "Current for future assignments" : published.syllableReviewPending ? "Written syllable divisions await review and publication" : "Shared dictionary facts changed; re-review needed" : "Not published"}</p>
+            <p><strong>Published lesson content:</strong> {published ? published.sourceCurrent ? "Current for future assignments" : published.syllableReviewPending ? "Spoken syllable divisions await review and publication" : "Shared dictionary facts changed; re-review needed" : "Not published"}</p>
             <p><strong>Editor content:</strong> {blockers.length ? `${blockers.length} requirement(s) outstanding` : "Fields valid; editorial review and publication still required for changes"}</p>
             {published && <p className="break-all text-xs sm:col-span-2">Published version: {published.contentVersionId}</p>}
             </div>
@@ -1705,7 +1705,7 @@ export function WordWorkspace(props: {
           <details className="mt-3" open={!published || !published.sourceCurrent}>
             <summary className="cursor-pointer font-semibold">Required fields and activity decisions</summary>
             <div className="mt-3">
-              <p className="mb-3 text-sm">The shared <a className="underline" href="#td-definition">definition</a> and <a className="underline" href="#td-dictation">complete dictation sentence</a> are edited above. Dictionary written syllable divisions are shared across Schwa lessons. The remaining fields describe this activity.</p>
+              <p className="mb-3 text-sm">The shared <a className="underline" href="#td-definition">definition</a> and <a className="underline" href="#td-dictation">complete dictation sentence</a> are edited above. Dictionary spoken syllable divisions are shared across Schwa lessons. The remaining fields describe this activity.</p>
               <WeakVowelRouteEditor skillKey={key} word={payload.displayWord} sentence={payload.dictationSentence} facts={facts}
                 dictionaryFingerprint={props.dictionaryFingerprint} dictionarySyllables={payload.metadata.syllables} dictionaryWrittenDivisions={payload.writtenSyllableBreakdown ?? ""}
                 blockers={blockers} onChange={next => updateRoute(key, { weakVowel: next })} />

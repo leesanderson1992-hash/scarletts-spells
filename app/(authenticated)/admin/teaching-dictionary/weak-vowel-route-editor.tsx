@@ -119,7 +119,7 @@ export function WeakVowelRouteEditor({ skillKey, word, sentence, facts, dictiona
     <fieldset className="grid gap-3 sm:grid-cols-2">
       <legend className="mb-2 font-semibold">Dinner and Detective targets</legend>
       {label("Spoken syllable count", id("syllableCount"), current.spokenSyllableCount ? String(current.spokenSyllableCount) : "", v => change({ spokenSyllableCount: integer(v) }), "for the chosen recording")}
-      <div className="text-sm sm:col-span-2"><p><strong>Dictionary written divisions:</strong> {dictionaryWrittenDivisions || "Needs review in Pronunciation & dictation"}</p><p>Written divisions cut the displayed letters; the spoken count describes the recording.</p>
+      <div className="text-sm sm:col-span-2"><p><strong>Dictionary spoken syllable divisions:</strong> {dictionaryWrittenDivisions || "Needs review in Pronunciation & dictation"}</p><p>Split the spelling as it is spoken in the approved British pronunciation. The spoken count should match the number of divisions.</p>
         {current.acceptedCutSets && <p>Current activity divisions: {cutsToDivisions(word, current.acceptedCutSets)}</p>}
         {current.syllableSource === "dictionary" ? <p>Using approved Dictionary syllable divisions.</p> : <p className="text-amber-900">Review existing activity cuts against the Dictionary divisions.</p>}
         <button type="button" className="mt-2 underline" onClick={() => {

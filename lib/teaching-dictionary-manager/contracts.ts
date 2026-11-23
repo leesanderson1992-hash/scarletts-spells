@@ -243,7 +243,7 @@ export function publicationBlockers(payload: WordDraftPayload, normalisedWord: s
     if (payload.canonicalMorphology.parts.some(raw => !raw || typeof raw !== "object" || !String((raw as Record<string, unknown>).gloss ?? "").trim())) blockers.push("Add a reviewed meaning for each morphology part.");
   }
 
-  if(payload.writtenSyllableBreakdown !== undefined && !payload.writtenSyllableBreakdown.trim())blockers.push("Add reviewed written syllable breakdown.");
+  if(payload.writtenSyllableBreakdown !== undefined && !payload.writtenSyllableBreakdown.trim())blockers.push("Add reviewed spoken syllable divisions.");
   const primary=dictationVariants(payload)[0];
   if(primary && (primary.sentence!==payload.dictationSentence || primary.targetTokenIndex!==payload.dictationTargetTokenIndex))blockers.push("The primary dictation variant must match the canonical sentence and target.");
   blockers.push(...writtenSyllableBlockers(payload.displayWord, payload.writtenSyllableBreakdown));
