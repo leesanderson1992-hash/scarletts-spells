@@ -12,13 +12,27 @@ revoke all on public.teaching_dictionary_schwa_syllable_reviews from public,anon
 grant all on public.teaching_dictionary_schwa_syllable_reviews to service_role;
 create function public.review_dictionary_written_divisions(p_word uuid,p_divisions text,p_actor uuid)
 returns uuid language plpgsql security definer set search_path=public,extensions,pg_temp as $$
-declare old public.canonical_teaching_dictionary_word_metadata%rowtype; replacement public.canonical_teaching_dictionary_word_metadata%rowtype; spelling text;
+declare old public.canonical_teaching_dictionary_word_metadata%rowtype; replacement public.canonical_teaching_dictionary_word_metadata%rowtype; spelling text; pronunciation jsonb; batch uuid; created uuid;
 begin
  if p_actor is null or not exists(select 1 from auth.users where id=p_actor) then raise exception 'REVIEW_ACTOR_REQUIRED'; end if;
  select display_word into spelling from public.canonical_teaching_dictionary_words where id=p_word and row_status='active' for update;
  if spelling is null or p_divisions is null or length(p_divisions)>300 or replace(p_divisions,'·','')<>spelling or p_divisions ~ '(^·|··|·$)' then raise exception 'WRITTEN_SYLLABLE_BREAKDOWN_WORD_MISMATCH'; end if;
  select * into old from public.canonical_teaching_dictionary_word_metadata where canonical_word_id=p_word and row_status='active' order by created_at desc,id desc limit 1 for update;
- if old.id is null then raise exception 'Review the Dictionary pronunciation metadata first.'; end if;
+ if old.id is null then
+   select p.value into pronunciation from public.teaching_dictionary_reviewed_sense_sets s
+     cross join lateral jsonb_array_elements(s.sense_set->'pronunciations') p where s.canonical_word_id=p_word limit 1;
+   if pronunciation is null then raise exception 'Review the Dictionary pronunciation first.'; end if;
+   select import_batch_id into batch from public.canonical_teaching_dictionary_words where id=p_word;
+   insert into public.canonical_teaching_dictionary_word_metadata
+     (import_batch_id,canonical_word_id,row_status,source_sheet,source_row_number,source_row_hash,source_metadata,
+      source_category,source_use_note,confidence,review_status,reviewed_by,reviewed_at,written_syllable_breakdown,syllables,phoneme_hint,stress_pattern)
+   values(batch,p_word,'active','Schwa written division review',2,
+     encode(digest(convert_to(p_word::text||p_divisions,'UTF8'),'sha256'),'hex'),
+     jsonb_build_object('humanApprovedWrittenSyllableBreakdown',p_divisions,'syllableReviewSource','Owner reviewed Schwa workbook'),
+     'internal_authored','Admin reviewed written divisions; pronunciation reused from approved Dictionary sense','high','approved_for_first_exposure',p_actor::text,now(),p_divisions,
+     pronunciation->>'spokenSyllableCount',pronunciation->>'ipa',pronunciation->>'stressPattern') returning id into created;
+   return created;
+ end if;
  if old.written_syllable_breakdown=p_divisions and old.review_status='approved_for_first_exposure' then return old.id; end if;
  replacement:=jsonb_populate_record(old,jsonb_build_object('id',gen_random_uuid(),'written_syllable_breakdown',p_divisions,
  'created_at',now(),'updated_at',now(),'reviewed_at',now(),'reviewed_by',p_actor::text,
