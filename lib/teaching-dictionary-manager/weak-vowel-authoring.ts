@@ -159,7 +159,7 @@ export function weakVowelRouteBlockers(
         const syllableIndex = target.syllableIndex;
         const bounds = [0, ...cuts, word.length];
         if (!(bounds[syllableIndex - 1] <= start && end <= bounds[syllableIndex])) {
-          blockers.push("The target span crosses a Dinner cut; review the written activity divisions separately from word parts.");
+          blockers.push("The target span crosses a Dinner cut; review the spoken activity divisions separately from word parts.");
           break;
         }
       }

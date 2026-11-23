@@ -31,7 +31,7 @@ export function parseSchwaWorkbookFacts(word: string, fields: SchwaWorkbookFacts
   if (!soundType) errors.push("Choose Schwa or Other unstressed vowel.");
   const parsedVariants = (resolved?.effective ?? fields.activity_syllables).trim().split("|").map(variant => parseSyllableBreakdown(word, variant));
   if (parsedVariants.some(segments => segments === null))
-    errors.push("Enter written activity divisions that join to the word, separated by middle dots, for example a·bout. Keep spelling hyphens, as in re-·en·ter. Separate accepted alternatives with |.");
+    errors.push("Enter spoken activity divisions that join to the word, separated by middle dots, for example a·bout. Keep spelling hyphens, as in re-·en·ter. Separate accepted alternatives with |.");
   const variants = parsedVariants.map(segments => segments ?? []);
   if (!["Not used", "Use approved family"].includes(fields.family_exploration)) errors.push("Choose whether to use approved family exploration.");
   const cutSets = variants.map(segments => { const cuts: number[] = []; let offset = 0;

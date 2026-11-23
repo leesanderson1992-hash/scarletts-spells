@@ -2,7 +2,7 @@ import { normaliseWrittenSyllableBreakdown, parseSyllableBreakdown } from "./aut
 import type { WeakVowelRouteFactsV1 } from "./weak-vowel-authoring";
 
 export const CUT_SOURCES = ["Use dictionary", "Reviewed alternative", "Review conflict"] as const;
-/** Written letter divisions are canonical. A spoken syllable count is not a division. */
+/** Reviewed spoken divisions use the word’s normal letters. The count alone does not specify cuts. */
 export function resolveSchwaSyllables(word: string, dictionary: string, activity = "", source = "") {
   const canonical = normaliseWrittenSyllableBreakdown(dictionary, word);
   const parts = canonical ? parseSyllableBreakdown(word, canonical) : null;
