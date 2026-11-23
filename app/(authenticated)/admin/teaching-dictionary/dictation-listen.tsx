@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { speakAuthoredNarration } from "@/components/adle/activities/shared/narration";
 
-export function DictationListen({ sentence, recordingSrc, label = "Listen", kind = "dictation", recordingDescription = "✓ British recording available", fallbackDescription = "British recording missing · Device voice" }: {
+export function DictationListen({ sentence, recordingSrc, label = "Listen to sentence", kind = "dictation", recordingDescription = "✓ British recording available", fallbackDescription = "British recording missing · Device voice" }: {
   sentence: string; recordingSrc?: string; label?: string; kind?: "word" | "dictation";
   recordingDescription?: string; fallbackDescription?: string;
 }) {

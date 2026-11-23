@@ -57,7 +57,7 @@ export function SenseEditor({ value, word, onChange, selectedSenseId, onSelectSe
             onClick={() => setEditingPronunciation(open => !open)}>{editingPronunciation ? "Done" : "Edit pronunciation"}</button>
         </div>
         {pronunciation?.ipa.trim() && <PronunciationListen word={word} ipa={pronunciation.ipa}
-          sentence={sense.dictationSentence} approvedWord={approvedWord} approvedSenseSet={approvedSenseSet}
+          approvedWord={approvedWord} approvedSenseSet={approvedSenseSet}
           wordRecordingSrc={wordRecordingSrc} />}
         {editingPronunciation && <div className="mt-3">
           {(value.pronunciations.length > 1 || !sense.pronunciationId || sense.partOfSpeech === "root") && <label className="text-sm">Pronunciation for this meaning
