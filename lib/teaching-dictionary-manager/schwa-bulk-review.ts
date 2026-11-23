@@ -1,3 +1,5 @@
+import { loadSchwaSyllableAuthority, saveReviewedSchwaDivisions } from "./schwa-syllable-authority";
+import { resolveSchwaSyllables } from "./schwa-syllables";
 import { semanticJson } from "@/lib/adle/inflection/semantic-json";
 import { loadSchwaDictionaryFamily } from "@/lib/adle/weak-vowel/canonical-family-loader";
 import "server-only";
@@ -50,17 +52,29 @@ export async function loadSchwaWorkbookFacts(db: Db, skill: string, ids: string[
   }
   const metadata = await db.from("canonical_teaching_dictionary_word_metadata").select("canonical_word_id,has_schwa").in("canonical_word_id", ids).eq("row_status", "active").order("created_at", { ascending: false });
   if (metadata.error) throw new Error("Could not load the dictionary bands.");
+  const syllables = await loadSchwaSyllableAuthority(db, ids, ingReviewEnvironment()!);
   for (const word of words.data) {
     const existing = map.get(word.id) ?? schwaWorkbookFacts(word.display_word);
     const has = metadata.data.find(row => row.canonical_word_id === word.id)?.has_schwa;
-    map.set(word.id, { ...existing, age_band: existing.age_band || word.age_band || "", frequency_band: existing.frequency_band || word.frequency_band || "", complexity_band: existing.complexity_band || word.complexity_band || "", has_schwa: existing.has_schwa || (has == null ? "" : has ? "Yes" : "No") });
+    const authority = syllables.get(`${word.id}:${skill}`) ?? syllables.get(`${word.id}:`)!;
+    const resolution = resolveSchwaSyllables(word.display_word, authority.divisions, existing.activity_syllables, existing.activity_cut_source);
+    map.set(word.id, { ...existing, written_syllable_breakdown: authority.divisions,
+      activity_cut_source: resolution.errors.length && resolution.conflict ? "Review conflict" : existing.activity_cut_source || "Use dictionary",
+      activity_syllables: resolution.conflict ? existing.activity_syllables : "", age_band: existing.age_band || word.age_band || "", frequency_band: existing.frequency_band || word.frequency_band || "", complexity_band: existing.complexity_band || word.complexity_band || "", has_schwa: existing.has_schwa || (has == null ? "" : has ? "Yes" : "No") });
   }
   return map;
 }
 
 export async function stageSchwaWorkbookDraft(db: Db, actor: string, bundle: MultiSenseCsvBundle,
-  skill: string, senseId: string, fields: SchwaWorkbookFacts) {
+  skill: string, senseId: string, fields: SchwaWorkbookFacts, options: { reviewWrittenDivisions?: boolean } = {}) {
   if (!isSchwaWorkbookSkill(skill)) throw new Error("Choose a supported Schwa lesson.");
+  if (options.reviewWrittenDivisions && fields.written_syllable_breakdown?.trim())
+    await saveReviewedSchwaDivisions(db, bundle.displayWord, bundle.wordId, fields.written_syllable_breakdown, actor);
+  const authorityMap = await loadSchwaSyllableAuthority(db, [bundle.wordId], ingReviewEnvironment()!);
+  const syllables = authorityMap.get(`${bundle.wordId}:${skill}`) ?? authorityMap.get(`${bundle.wordId}:`)!;
+  const resolution = resolveSchwaSyllables(bundle.displayWord, syllables.divisions, fields.activity_syllables, fields.activity_cut_source);
+  fields = { ...fields, written_syllable_breakdown: syllables.divisions, syllable_review_epoch: options.reviewWrittenDivisions && fields.written_syllable_breakdown?.trim() ? syllables.resetAt ?? "" : fields.syllable_review_epoch ?? "",
+    activity_cut_source: resolution.errors.length && resolution.conflict ? "Review conflict" : fields.activity_cut_source || "Use dictionary" };
   const [approved] = await loadReviewedMeaningBundles(db, [bundle.wordId]);
   if (!approved) throw new Error("Approve the current Dictionary meaning and parts first.");
   bundle = approved;
@@ -100,7 +114,7 @@ export async function stageSchwaWorkbookDraft(db: Db, actor: string, bundle: Mul
     activityEligibility: { dinner: status, detective: status, memoryLock: status, dictation: status, family: { status: "not_applicable", reason: null } },
     wordSense: sense.definition, pronunciationId: pronunciation?.id ?? "", wordRecording,
     spokenSyllableCount: pronunciation?.spokenSyllableCount ?? 0,
-    ...parsed.annotation, target: { ...parsed.annotation.target, soundType: parsed.annotation.target.soundType as "schwa" | "other_unstressed" | "" },
+    ...parsed.annotation, syllableSource: resolution.source, writtenSyllablesAtReview: resolution.canonical, target: { ...parsed.annotation.target, soundType: parsed.annotation.target.soundType as "schwa" | "other_unstressed" | "" },
     familyDecision: "skip", familyAuthorityId: null,
     sentenceRecording, sentenceTarget: { start, end: start + bundle.displayWord.length }, reviewSourceReference: SCHWA_WORKBOOK_SOURCE,
   };
@@ -120,7 +134,7 @@ export async function stageSchwaWorkbookDraft(db: Db, actor: string, bundle: Mul
   const payload: WordDraftPayload = {
     displayWord: bundle.displayWord, senseSet: bundle.senseSet, definition: sense.definition, dictationSentence: sentence,
     dictationTargetTokenIndex: sense.dictationTargetTokenIndex ?? 0,
-    writtenSyllableBreakdown: normaliseWrittenSyllableBreakdown(fields.activity_syllables.split("|")[0], bundle.displayWord),
+    writtenSyllableBreakdown: normaliseWrittenSyllableBreakdown(syllables.divisions, bundle.displayWord),
     ageBand: fields.age_band || word.data.age_band || "", frequencyBand: fields.frequency_band || word.data.frequency_band || "", complexityBand: fields.complexity_band || word.data.complexity_band || "",
     metadata: { ...emptyMetadata(), has_schwa: fields.has_schwa === "Yes" ? true : fields.has_schwa === "No" ? false : null, syllables: String(pronunciation?.spokenSyllableCount ?? ""), phoneme_hint: pronunciation?.ipa ?? "", stress_pattern: pronunciation?.stressPattern ?? "" },
     canonicalMorphology: { ...emptyMorphology(), parts: analysis.parts, joins: analysis.joins, transformations: analysis.transformations, wordSum: analysis.wordSum, analysisStatus: "approved", rawPartOfSpeech: sense.partOfSpeech },
@@ -162,13 +176,17 @@ export async function loadSchwaWorkbookQueue(db: Db, skill: string, wordIds?: st
   if (versions.error) throw new Error("Could not check the Schwa publication.");
   const publications = versions.data.length ? await db.from("adle_weak_vowel_content_publications").select("content_version_id,dictionary_fingerprint").in("content_version_id", versions.data.map(row => row.id)) : { data: [], error: null };
   if (publications.error) throw new Error("Could not verify the Schwa publication.");
+  const syllables = await loadSchwaSyllableAuthority(db, latest.map(row => row.canonical_word_id), ingReviewEnvironment()!);
   const queue = await Promise.all(latest.map(async draft => {
     const payload = draft.payload as unknown as WordDraftPayload;
     const route = payload.routeContents.find(route => route.microSkillKey === skill)!;
-    const fields = route.content.schwaWorkbookFields as SchwaWorkbookFacts;
+    const authority = syllables.get(`${draft.canonical_word_id}:${skill}`) ?? syllables.get(`${draft.canonical_word_id}:`)!;
+    const savedFields = route.content.schwaWorkbookFields as SchwaWorkbookFacts;
+    const fields = { ...savedFields, written_syllable_breakdown: authority.divisions };
     const facts = route.content.weakVowel as WeakVowelRouteFactsV1;
     const fingerprint = fingerprints.get(draft.canonical_word_id);
-    const blockers = [...parseSchwaWorkbookFacts(payload.displayWord, fields).errors, ...routeBlockers(route, payload), ...reviewedAudioBlockers(facts)];
+    const blockers = [...(authority.pending && savedFields.syllable_review_epoch !== authority.resetAt
+      ? ["Review the Dictionary written syllable divisions, then Save and recheck before publishing."] : []), ...parseSchwaWorkbookFacts(payload.displayWord, fields).errors, ...routeBlockers(route, payload), ...reviewedAudioBlockers(facts)];
     if (!(DICTIONARY_BANDS.ageBand as readonly string[]).includes(payload.ageBand)) blockers.push("Choose the dictionary age band.");
     if (!(DICTIONARY_BANDS.frequencyBand as readonly string[]).includes(payload.frequencyBand)) blockers.push("Choose the dictionary frequency band.");
     if (!(DICTIONARY_BANDS.complexityBand as readonly string[]).includes(payload.complexityBand)) blockers.push("Choose the dictionary complexity band.");
@@ -184,7 +202,7 @@ export async function loadSchwaWorkbookQueue(db: Db, skill: string, wordIds?: st
         ? "ready" as const : "waiting" as const
       : fields.family_exploration === "Use approved family" ? "waiting" as const : "not_used" as const;
     const publication = publications.data?.find(row => versions.data.some(version => version.draft_id === draft.id && version.id === row.content_version_id));
-    return { id: draft.id, wordId: draft.canonical_word_id, payload, fields, familyState, blockers: [...new Set(blockers)], published: Boolean(publication && !blockers.length) };
+    return { id: draft.id, wordId: draft.canonical_word_id, payload, fields, familyState, blockers: [...new Set(blockers)], published: Boolean(publication && !blockers.length && !authority.pending) };
   }));
   return queue;
 }
@@ -218,6 +236,10 @@ export async function publishCheckedSchwaWorkbookWord(db: Db, actor: string, ski
   const published = await db.rpc("publish_adle_weak_vowel_content_v1", { p_content_version: id, p_actor: actor,
     p_expected_source_fingerprint: facts.sourceFingerprint, p_expected_word_audio_sha256: facts.wordRecording.sha256, p_expected_sentence_audio_sha256: facts.sentenceRecording.sha256 });
   if (published.error || published.data !== id) throw new Error(published.error?.message ?? "Could not publish the Schwa word.");
+  const completed = await db.from("teaching_dictionary_schwa_syllable_reviews").update({ resolved_at: new Date().toISOString(), resolved_by: actor, content_version_id: id })
+    .eq("environment_key", ingReviewEnvironment()!).eq("canonical_word_id", row.wordId).eq("micro_skill_key", skill)
+    .eq("reset_at", row.fields.syllable_review_epoch || "1970-01-01T00:00:00Z");
+  if (completed.error) throw new Error("Published. Retry to confirm the syllable review status.");
   return { wordId: row.wordId, contentVersionId: id };
 }
 

@@ -1694,9 +1694,9 @@ export function WordWorkspace(props: {
           <details className="mt-3" open={!published || !published.sourceCurrent}>
             <summary className="cursor-pointer font-semibold">Required fields and activity decisions</summary>
             <div className="mt-3">
-              <p className="mb-3 text-sm">The shared <a className="underline" href="#td-definition">definition</a> and <a className="underline" href="#td-dictation">complete dictation sentence</a> are edited above. All fields below belong to this word in this micro-skill.</p>
+              <p className="mb-3 text-sm">The shared <a className="underline" href="#td-definition">definition</a> and <a className="underline" href="#td-dictation">complete dictation sentence</a> are edited above. Dictionary written syllable divisions are shared across Schwa lessons. The remaining fields describe this activity.</p>
               <WeakVowelRouteEditor skillKey={key} word={payload.displayWord} sentence={payload.dictationSentence} facts={facts}
-                dictionaryFingerprint={props.dictionaryFingerprint} dictionarySyllables={payload.metadata.syllables}
+                dictionaryFingerprint={props.dictionaryFingerprint} dictionarySyllables={payload.metadata.syllables} dictionaryWrittenDivisions={payload.writtenSyllableBreakdown ?? ""}
                 blockers={blockers} onChange={next => updateRoute(key, { weakVowel: next })} />
             </div>
           </details>

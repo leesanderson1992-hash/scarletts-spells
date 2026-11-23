@@ -18,6 +18,8 @@ export interface WeakVowelRouteFactsV1 {
   wordRecording: { src: string; sha256: string };
   spokenSyllableCount: number;
   acceptedCutSets: number[][];
+  syllableSource?: "dictionary" | "reviewed_alternative";
+  writtenSyllablesAtReview?: string;
   target: { text: string; start: number; end: number; syllableIndex: number;
     soundType: "schwa" | "other_unstressed" | "" };
   selectionTarget: { text: string; start: number; end: number };
@@ -157,7 +159,7 @@ export function weakVowelRouteBlockers(
         const syllableIndex = target.syllableIndex;
         const bounds = [0, ...cuts, word.length];
         if (!(bounds[syllableIndex - 1] <= start && end <= bounds[syllableIndex])) {
-          blockers.push("The target span crosses a Dinner cut; review the phonological cut separately from morphology.");
+          blockers.push("The target span crosses a Dinner cut; review the written activity divisions separately from word parts.");
           break;
         }
       }

@@ -1,4 +1,5 @@
 "use client";
+import { cutsToDivisions, projectSchwaSyllables } from "@/lib/teaching-dictionary-manager/schwa-syllables";
 
 import type { WeakVowelRouteFactsV1 } from "@/lib/teaching-dictionary-manager/weak-vowel-authoring";
 import { FormatHint } from "./format-hint";
@@ -32,7 +33,7 @@ const textGuidance: Record<string, { format: string; example: string }> = {
   "Approved family authority ID": { format: "Use the ID of the approved family revision selected for this word.", example: "A reviewed family UUID" },
 };
 
-export function WeakVowelRouteEditor({ skillKey, word, sentence, facts, dictionaryFingerprint, dictionarySyllables,
+export function WeakVowelRouteEditor({ skillKey, word, sentence, facts, dictionaryFingerprint, dictionarySyllables, dictionaryWrittenDivisions,
   blockers, onChange }: {
   skillKey: string;
   word: string;
@@ -40,6 +41,7 @@ export function WeakVowelRouteEditor({ skillKey, word, sentence, facts, dictiona
   facts: Facts | undefined;
   dictionaryFingerprint: string | null;
   dictionarySyllables: string;
+  dictionaryWrittenDivisions: string;
   blockers: string[];
   onChange: (facts: Facts) => void;
 }) {
@@ -117,7 +119,17 @@ export function WeakVowelRouteEditor({ skillKey, word, sentence, facts, dictiona
     <fieldset className="grid gap-3 sm:grid-cols-2">
       <legend className="mb-2 font-semibold">Dinner and Detective targets</legend>
       {label("Spoken syllable count", id("syllableCount"), current.spokenSyllableCount ? String(current.spokenSyllableCount) : "", v => change({ spokenSyllableCount: integer(v) }), "for the chosen recording")}
-      {label("Accepted cut positions", id("cuts"), current.acceptedCutSets?.map(set => set.join(",")).join("; ") ?? "", v => change({ acceptedCutSets: v.split(";").map(set => set.trim()).filter(Boolean).map(set => set.split(",").map(n => Number(n.trim()))) }), "zero-based letter gaps; separate alternatives with ;")}
+      <div className="text-sm sm:col-span-2"><p><strong>Dictionary written divisions:</strong> {dictionaryWrittenDivisions || "Needs review in Word details"}</p><p>Written divisions cut the displayed letters; the spoken count describes the recording.</p>
+        {current.acceptedCutSets && <p>Current activity divisions: {cutsToDivisions(word, current.acceptedCutSets)}</p>}
+        {current.syllableSource === "dictionary" ? <p>Using approved Dictionary syllable divisions.</p> : <p className="text-amber-900">Review existing activity cuts against the Dictionary divisions.</p>}
+        <button type="button" className="mt-2 underline" onClick={() => {
+          if (!current.target) return;
+          const projected = projectSchwaSyllables(word, dictionaryWrittenDivisions, { ...current, syllableSource: "dictionary" } as WeakVowelRouteFactsV1);
+          if (!projected.errors.length) onChange({ ...projected.facts, writtenSyllablesAtReview: dictionaryWrittenDivisions });
+        }}>Use Dictionary divisions</button>
+        <details className="mt-2"><summary>Reviewed activity alternative</summary>
+          {label("Alternative cut positions", id("cuts"), current.acceptedCutSets?.map(set => set.join(",")).join("; ") ?? "", v => change({ syllableSource: "reviewed_alternative", acceptedCutSets: v.split(";").map(set => set.trim()).filter(Boolean).map(set => set.split(",").map(n => Number(n.trim()))) }), "Letter gaps, for a deliberately reviewed alternative only")}
+        </details></div>
       {label("Full target start", id("targetStart"), target ? String(target.start) : "", v => updateTarget(integer(v), target?.end ?? 0))}
       {label("Full target end (exclusive)", id("targetEnd"), target ? String(target.end) : "", v => updateTarget(target?.start ?? 0, integer(v)))}
       <p className="text-sm">Full reviewed target: <strong>{target?.text || "missing"}</strong></p>

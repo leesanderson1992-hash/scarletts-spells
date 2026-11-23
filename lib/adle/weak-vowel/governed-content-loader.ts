@@ -1,3 +1,5 @@
+import { loadSchwaSyllableAuthority } from "../../teaching-dictionary-manager/schwa-syllable-authority";
+import { projectSchwaSyllables } from "../../teaching-dictionary-manager/schwa-syllables";
 import { resolveAdleRouteActivationEnvironment } from "../route-activation-environment";
 import "server-only";
 
@@ -60,6 +62,7 @@ export async function loadPublishedWeakVowelWords(input: {
   const fingerprints = await db.rpc("teaching_dictionary_schwa_fingerprints", { p_words: ids, p_senses: senseIds });
   if (fingerprints.error || !Array.isArray(fingerprints.data)) throw new Error("WEAK_VOWEL_DICTIONARY_FINGERPRINT_READ_FAILED");
   const fingerprintById = new Map((fingerprints.data as { word_id: string; dictionary_fingerprint: string; sense_fingerprint: string | null }[]).map(row => [row.word_id, row]));
+  const syllables = await loadSchwaSyllableAuthority(db, ids, resolveAdleRouteActivationEnvironment() ?? "production");
   const result: PublishedWeakVowelWord[] = [];
   for (const id of ids) {
     const publication = newest.get(id);
@@ -71,14 +74,17 @@ export async function loadPublishedWeakVowelWords(input: {
     const sense = facts?.canonicalSenseId ? senseSet?.senses.find(row => row.id === facts.canonicalSenseId) : undefined;
     const definition = facts?.canonicalSenseId ? sense?.definition : definitionById.get(id);
     const sentence = facts?.canonicalSenseId ? sense?.dictationSentence : sentenceById.get(id);
-    if (!publication || !version || !word || !definition || !sentence ||
+    if (!publication || !version || !word || !definition || !sentence || !facts ||
       version.canonical_word_id !== id || version.micro_skill_key !== input.microSkillKey ||
       !version.content || typeof version.content !== "object" || Array.isArray(version.content)) continue;
     const fingerprint = fingerprintById.get(id);
     if (!fingerprint) throw new Error("WEAK_VOWEL_DICTIONARY_FINGERPRINT_READ_FAILED");
     if (facts?.canonicalSenseId && (!fingerprint.sense_fingerprint || fingerprint.sense_fingerprint !== facts.canonicalSenseFingerprint ||
       !bindings.data.some(binding => binding.canonical_word_id === id && binding.sense_id === facts.canonicalSenseId))) continue;
+    const authority = syllables.get(`${id}:${input.microSkillKey}`) ?? syllables.get(`${id}:`)!;
+    const projection = projectSchwaSyllables(String(word.display_word), authority.divisions, facts!);
     result.push({
+      syllableBlockers: [...projection.errors, ...(authority.pending ? ["Dictionary syllable divisions await bulk review and publication."] : [])],
       contentVersionId: String(publication.content_version_id), canonicalWordId: id,
       microSkillKey: input.microSkillKey, spelling: String(word.display_word),
       sourceFingerprint: String(publication.source_fingerprint),
@@ -89,7 +95,7 @@ export async function loadPublishedWeakVowelWords(input: {
       wordAudioSha256AtPublication: String(publication.word_audio_sha256),
       sentenceAudioSha256AtPublication: String(publication.sentence_audio_sha256),
       definition, sentence,
-      routeContent: version.content as PublishedWeakVowelWord["routeContent"],
+      routeContent: { ...content!, content: { ...content!.content, weakVowel: projection.facts } },
     });
   }
   return result;

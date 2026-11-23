@@ -5,7 +5,7 @@ import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { isSchwaWorkbookSkill, SCHWA_WORKBOOK_FIELDS, type SchwaWorkbookFacts } from "@/lib/teaching-dictionary-manager/weak-vowel-workbook";
+import { isSchwaWorkbookSkill, SCHWA_WORKBOOK_FIELDS, SCHWA_SYLLABLE_FIELDS, type SchwaWorkbookFacts } from "@/lib/teaching-dictionary-manager/weak-vowel-workbook";
 import { loadSchwaWorkbookQueue, stageSchwaWorkbookDraft, publishSchwaWorkbookWord } from "@/lib/teaching-dictionary-manager/schwa-bulk-review";
 import { loadReviewedMeaningBundles } from "@/lib/teaching-dictionary-manager/multi-sense-export";
 import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
@@ -20,9 +20,9 @@ export async function saveSchwaWorkbookDetails(form: FormData) {
     if (!row) throw new Error("Open the latest saved Schwa review.");
     const [bundle] = await loadReviewedMeaningBundles(db, [wordId]);
     if (!bundle) throw new Error("Approve the Dictionary facts first.");
-    const fields = Object.fromEntries(SCHWA_WORKBOOK_FIELDS.map(key => [key, String(form.get(key) ?? "").trim()])) as SchwaWorkbookFacts;
+    const fields = Object.fromEntries([...SCHWA_WORKBOOK_FIELDS, ...SCHWA_SYLLABLE_FIELDS].map(key => [key, String(form.get(key) ?? "").trim()])) as SchwaWorkbookFacts;
     fields.lesson_family_key = String(form.get("lesson_family_key") ?? "").trim() || undefined;
-    await stageSchwaWorkbookDraft(db, actor.id, bundle, skill, row.payload.skillSenseIds![skill], fields);
+    await stageSchwaWorkbookDraft(db, actor.id, bundle, skill, row.payload.skillSenseIds![skill], fields, { reviewWrittenDivisions: true });
   } catch (cause) { error = cause instanceof Error ? cause.message : "Could not save the activity facts."; }
   revalidatePath(base); redirect(error ? `${href}&error=${encodeURIComponent(error)}` : href);
 }

@@ -20,6 +20,7 @@ export interface PublishedWeakVowelWord {
   currentDictionaryFingerprint: string;
   /** Set only by the reader after verifying the selected canonical sense and pronunciation. */
   canonicalFactsVerified?: boolean;
+  syllableBlockers?: string[];
   wordAudioSha256AtPublication: string;
   sentenceAudioSha256AtPublication: string;
   definition: string;
@@ -37,8 +38,8 @@ export interface PublishedWeakVowelWord {
  * Trigger membership and approved word–skill membership are separate gates. */
 export function publishedWeakVowelWordBlockers(row: PublishedWeakVowelWord, skill: WeakVowelMicroSkill): string[] {
   const facts = row.routeContent.content.weakVowel;
-  const blockers = weakVowelRouteBlockers(facts, { displayWord: row.spelling,
-    dictationSentence: row.sentence, definition: row.definition, microSkillKey: skill });
+  const blockers = [...row.syllableBlockers ?? [], ...weakVowelRouteBlockers(facts, { displayWord: row.spelling,
+    dictationSentence: row.sentence, definition: row.definition, microSkillKey: skill })];
   if (!row.contentVersionId || (!row.canonicalFactsVerified && row.dictionaryFingerprintAtReview !== row.currentDictionaryFingerprint) ||
     (Boolean(facts.canonicalSenseId) && !row.canonicalFactsVerified) ||
     row.sourceFingerprint !== facts.sourceFingerprint || row.routeContent.routeId !== "weak_vowel_word_lab" ||

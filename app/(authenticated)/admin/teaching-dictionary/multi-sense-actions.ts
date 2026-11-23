@@ -1,4 +1,5 @@
 "use server";
+import { saveReviewedSchwaDivisions } from "@/lib/teaching-dictionary-manager/schwa-syllable-authority";
 import { isSchwaWorkbookSkill, type SchwaWorkbookFacts } from "@/lib/teaching-dictionary-manager/weak-vowel-workbook";
 import { stageSchwaWorkbookDraft, loadSchwaWorkbookQueue } from "@/lib/teaching-dictionary-manager/schwa-bulk-review";
 
@@ -179,6 +180,12 @@ export async function importReviewedMultiSenseCsv(
     }
     words += 1;
     const wordId = applied.data;
+    if (workbook && isSchwaWorkbookSkill(skill)) {
+      const divisions = rows.map(row => schwaFacts.get(row)?.written_syllable_breakdown).filter(Boolean) as string[];
+      if (new Set(divisions).size > 1) { issues.push({ word, wordId, rows, reason: "Use the same Dictionary written divisions for all meanings of this spelling." }); continue; }
+      if (divisions[0]) try { await saveReviewedSchwaDivisions(db, bundle.displayWord, wordId, divisions[0], actor.id); }
+      catch (error) { issues.push({ word, wordId, rows, reason: error instanceof Error ? error.message : "Could not save written divisions." }); continue; }
+    }
     if (workbook && waiting.length) {
       const synced = await db.rpc("sync_dictionary_family_components", { p_environment: resolveAdleRouteActivationEnvironment(), p_word: wordId, p_skill: skill });
       if (synced.error) issues.push({ word, wordId, rows, reason: "Reviewed facts are saved. Refresh Family assignment to recheck the remaining components." });
@@ -201,7 +208,7 @@ export async function importReviewedMultiSenseCsv(
         });
         if (workbook && isSchwaWorkbookSkill(skillKey)) {
           try {
-            lesson.draftId = await stageSchwaWorkbookDraft(db, actor.id, { ...bundle, wordId }, skillKey, analysis.senseId, schwaFacts.get(rows[index])!);
+            lesson.draftId = await stageSchwaWorkbookDraft(db, actor.id, { ...bundle, wordId }, skillKey, analysis.senseId, schwaFacts.get(rows[index])!, { reviewWrittenDivisions: true });
             const [review] = await loadSchwaWorkbookQueue(db, skillKey, [wordId]);
             lesson.approval = review && !review.blockers.length ? "Ready to publish" : "Needs review";
             lesson.release = review?.blockers.join(" ") || "Reviewed Dictionary facts saved. Publish from Preview.";

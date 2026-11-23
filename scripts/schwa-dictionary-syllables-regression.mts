@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {resolveSchwaSyllables,projectSchwaSyllables} from '../lib/teaching-dictionary-manager/schwa-syllables';
+assert.equal(resolveSchwaSyllables('writer','writ-er').effective,'writ·er');
+assert.equal(resolveSchwaSyllables('writer','writ·er','').errors.length,0);
+assert(resolveSchwaSyllables('writer','writ·er','wri·ter').errors.some(error=>error.includes('conflict')));
+assert.equal(resolveSchwaSyllables('writer','writ·er','wri·ter','Use dictionary').effective,'writ·er');
+assert.equal(resolveSchwaSyllables('writer','writ·er','wri·ter','Reviewed alternative').effective,'wri·ter');
+assert(resolveSchwaSyllables('writer','','wri·ter').errors.length);
+assert.equal(resolveSchwaSyllables('re-enter','re-·en·ter').canonical,'re-·en·ter');
+const facts:any={acceptedCutSets:[[4]],target:{start:4,end:6,syllableIndex:2},syllableSource:'dictionary'};
+assert.deepEqual(projectSchwaSyllables('writer','wri·ter',facts).facts.acceptedCutSets,[[3]]);
+assert.deepEqual(facts.acceptedCutSets,[[4]],'Historical facts are never mutated');
+assert(projectSchwaSyllables('writer','wri·ter',{...facts,syllableSource:undefined}).errors.length);
+console.log('Canonical defaults, conflicting legacy cuts, explicit alternatives, hyphens and immutable history passed');

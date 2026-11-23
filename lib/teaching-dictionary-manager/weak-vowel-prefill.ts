@@ -1,3 +1,5 @@
+import { resolveSchwaSyllables } from "./schwa-syllables";
+import { parseSyllableBreakdown } from "./authoring";
 import type { WordDraftPayload, RouteContentDraft } from "./contracts";
 import type { WeakVowelRouteFactsV1 } from "./weak-vowel-authoring";
 import { WEAK_VOWEL_MICRO_SKILLS } from "@/lib/adle/word-lab/weak-vowel-dinner";
@@ -109,6 +111,15 @@ export function prefillWeakVowelDrafts(input: {
         source?.contentVersionId ? `Reviewed ${source.microSkillKey} content ${source.contentVersionId}` : "",
       ].filter(Boolean).join("; "),
     };
+    const canonical = resolveSchwaSyllables(payload.displayWord, payload.writtenSyllableBreakdown ?? "");
+    // Only inherit a blank or explicitly dictionary-owned activity. Conflicting historical cuts require review.
+    if (!canonical.errors.length && (!original.acceptedCutSets?.length || original.syllableSource === "dictionary")) {
+      const parts = parseSyllableBreakdown(payload.displayWord, canonical.effective)!;
+      let offset = 0;
+      next.acceptedCutSets = [parts.slice(0, -1).map(part => offset += part.length)];
+      next.syllableSource = "dictionary"; next.writtenSyllablesAtReview = canonical.canonical;
+      if (next.target) next.target = { ...next.target, syllableIndex: next.acceptedCutSets[0].filter(cut => cut <= next.target!.start).length + 1 };
+    }
     const ready = (condition: boolean, reason: string) => condition
       ? { status: "ready" as const, reason: null }
       : { status: "blocked" as const, reason };
@@ -117,8 +128,8 @@ export function prefillWeakVowelDrafts(input: {
     const sentenceReady = Boolean(next.sentenceRecording?.src && next.sentenceRecording?.sha256 && next.sentenceTarget);
     const cutsReady = Boolean(next.spokenSyllableCount && next.acceptedCutSets?.length);
     next.activityEligibility = {
-      dinner: original.activityEligibility?.dinner?.status === "blocked" && original.activityEligibility.dinner.reason !== "Awaiting reviewed word target and spoken cuts"
-        ? original.activityEligibility.dinner : ready(targetReady && wordAudioReady && cutsReady, "Awaiting reviewed word target and spoken cuts"),
+      dinner: original.activityEligibility?.dinner?.status === "blocked" && original.activityEligibility.dinner.reason !== "Awaiting reviewed word target and written activity divisions"
+        ? original.activityEligibility.dinner : ready(targetReady && wordAudioReady && cutsReady, "Awaiting reviewed word target and written activity divisions"),
       detective: original.activityEligibility?.detective?.status === "blocked" && original.activityEligibility.detective.reason !== "Awaiting reviewed written vowel"
         ? original.activityEligibility.detective : ready(targetReady && wordAudioReady, "Awaiting reviewed written vowel"),
       memoryLock: original.activityEligibility?.memoryLock?.status === "blocked" && original.activityEligibility.memoryLock.reason !== "Awaiting approved word recording"

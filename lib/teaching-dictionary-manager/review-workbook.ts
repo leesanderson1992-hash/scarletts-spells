@@ -1,5 +1,6 @@
+import { CUT_SOURCES } from "./schwa-syllables";
 import type { WorkbookPartPrefill } from "./review-workbook-part-prefill";
-import { isSchwaWorkbookSkill, SCHWA_WORKBOOK_FIELDS, type SchwaWorkbookFacts } from "./weak-vowel-workbook";
+import { isSchwaWorkbookSkill, SCHWA_WORKBOOK_FIELDS, SCHWA_SYLLABLE_FIELDS, type SchwaWorkbookFacts } from "./weak-vowel-workbook";
 import { isHomophoneReviewSkill } from "./homophone-review-contract";
 import { isCompoundWorkbookSkill, type CompoundWorkbookFacts } from "./compound-workbook";
 import { isComparativeReviewSkill } from "./lesson-candidate";
@@ -31,11 +32,12 @@ const prefixMeaningKey = "prefix_meaning_group";
 const partIndexes = Array.from({ length: FLAT_IMPORT_PART_LIMIT }, (_, index) => index + 1);
 const workbookPrefixParts = (row: Record<string, string>, allowed: readonly string[]) => partIndexes.filter(index =>
   row[`part_${index}_kind`] === "prefix" && allowed.includes(row[`part_${index}_underlying_form`]?.toLowerCase()));
-const workbookKeys = (skill: string) => isSchwaWorkbookSkill(skill) ? [...reviewKeys, ...SCHWA_WORKBOOK_FIELDS] : isCompoundWorkbookSkill(skill) ? [...reviewKeys, ...suffixFields, "component_to_whole_relationship"]
+const workbookKeys = (skill: string) => isSchwaWorkbookSkill(skill) ? [...reviewKeys.slice(0, 3), "written_syllable_breakdown", ...reviewKeys.slice(3), ...SCHWA_WORKBOOK_FIELDS, "activity_cut_source"] : isCompoundWorkbookSkill(skill) ? [...reviewKeys, ...suffixFields, "component_to_whole_relationship"]
   : isSuffixReviewSkill(skill) ? [...reviewKeys, ...suffixFields]
   : isPrefixWorkbookSkill(skill) ? [...reviewKeys.slice(0, 4), prefixMeaningKey, ...reviewKeys.slice(4)] : reviewKeys;
 const hidden = new Set(["canonical_word_id", "source_sense_reviewed_at", "sense_id", "pronunciation_id"]);
 const label = (key: string) => ({
+  written_syllable_breakdown: "Dictionary written syllable divisions", activity_cut_source: "Activity cut source", activity_syllables: "Alternative activity divisions (optional)", spoken_syllable_count: "Spoken syllable count",
   display_word: "Word", definition: "Meaning", family_key: "Word family",
   component_to_whole_relationship: "How the parts make the meaning", use_in_lesson: "Use in lesson", needs_review: "Needs review", ipa: "IPA",
 }[key] ?? key.replace(/^part_(\d+)_/, "Part $1 ").replaceAll("_", " ").replace(/^./, char => char.toUpperCase()));
@@ -80,7 +82,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
       has_schwa: list(["Yes", "No"]),
     });
   }
-  if (isSchwaWorkbookSkill(input.skill)) Object.assign(commonDropdowns, { weak_vowel_sound: list(["Schwa", "Other unstressed vowel"]), family_exploration: list(["Not used", "Use approved family"]), weak_vowel_occurrence: list(["1", "2", "3", "4"]) });
+  if (isSchwaWorkbookSkill(input.skill)) Object.assign(commonDropdowns, { activity_cut_source: list(CUT_SOURCES), weak_vowel_sound: list(["Schwa", "Other unstressed vowel"]), family_exploration: list(["Not used", "Use approved family"]), weak_vowel_occurrence: list(["1", "2", "3", "4"]) });
   if (prefixWorkbook) commonDropdowns[prefixMeaningKey] = list(prefixWorkbook.choices.map(choice => choice.label));
   commonDropdowns.relationship_kind = list(["derived", "free_base", "regular_inflection", "irregular_inflection", "contraction", "historical_relative"]);
   for (let index = 1; index <= FLAT_IMPORT_PART_LIMIT; index++) {
@@ -107,7 +109,10 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
       entry[`${prefix}spelling_change_type`] = TRANSFORMATION_OPTIONS.find(option => option.type === type)?.label ?? "Other reviewed change";
       entry[`${prefix}spelling_change_explanation`] ||= type ? transformationExplanation(type, source, surface) : "";
     }
+    const schwa = input.schwaFacts?.get(entry.canonical_word_id);
     const notes = [
+      ...(isSchwaWorkbookSkill(input.skill) ? [!schwa?.written_syllable_breakdown ? "Review Dictionary written syllable divisions." : "",
+        schwa?.activity_cut_source === "Review conflict" ? "Activity cuts conflict with Dictionary divisions. Choose the cut source." : ""] : []),
       input.notes.get(entry.canonical_word_id),
       entry.part_of_speech !== "root" && !entry.dictation_sentence ? "Add a dictation sentence for this meaning." : "",
       ...(partPrefill?.issues ?? (!entry.part_1_kind ? ["Review the word parts."] : [])),
@@ -216,7 +221,10 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   if (isSchwaWorkbookSkill(input.skill)) guide.addRows([
     ["Weak vowel target", "Enter the target letter or complete ending, for example a or ar. Choose its occurrence (1 means the first). Targets must contain one written vowel."],
     ["Weak vowel sound", "Choose Schwa or Other unstressed vowel for the selected British pronunciation. A quiet vowel is not always a schwa."],
-    ["Activity syllables", "Use middle dots, for example a·bout. These are the spoken activity cuts, separate from morphological word parts. Hyphens used as separators are standardised. Keep spelling hyphens, as in re-·en·ter. Separate accepted alternatives with |."],
+    ["Dictionary written syllable divisions", "Review every word here, for example writ·er. Use middle dots; separator hyphens are converted. The divisions must rejoin to the spelling. Upload updates the Teaching Dictionary once for reuse by all Schwa lessons. These are written letter divisions, not a phonetic transcription."],
+    ["Activity cut source", "Use dictionary is the default. Existing conflicting cuts are flagged: choose Use dictionary or Reviewed alternative. Leave alternative divisions blank unless a different activity cut is intentionally reviewed."],
+    ["Alternative activity divisions (optional)", "Only for Reviewed alternative. Use middle dots; separate accepted alternatives with |. Never use word parts as a substitute for syllable review."],
+    ["Spoken syllable count", "The number heard in the selected pronunciation. This is a count, distinct from the written divisions used to cut the displayed word."],
     ["Family exploration", "Choose Not used to opt out. Use approved family includes exploration automatically in new lessons once its approved base/root and at least two approved members are available. While the family waits, the core word can still be published and Active. Resolve its family link in this flow."],
     ["Publication", "Upload saves the reviewed Dictionary facts and activity annotations. Missing facts stay in Bulk review. One Publish click releases all ready words."],
   ]);
@@ -274,8 +282,12 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
   const prefixWorkbook = isPrefixWorkbookSkill(skill) ? prefixWorkbooks[skill] : null;
   const legacyPrefixForm = skill === NEGATIVE_PREFIX_SKILL && sheet?.getCell(headerRow, 5).value === "Prefix form";
   const hasPrefixChoice = prefixWorkbook && (sheet?.getCell(headerRow, 5).value === workbookLabel(skill, prefixMeaningKey) || legacyPrefixForm);
-  const keys = skill === UN_PREFIX_SKILL && !hasPrefixChoice ? reviewKeys : workbookKeys(skill);
-  if (!sheet || sheet.getCell("A2").value !== skill || keys.some((key, i) => sheet.getCell(headerRow, i + 1).value !== (legacyPrefixForm && key === prefixMeaningKey ? "Prefix form" : workbookLabel(skill, key))))
+  const currentKeys = skill === UN_PREFIX_SKILL && !hasPrefixChoice ? reviewKeys : workbookKeys(skill);
+  const legacySchwa = isSchwaWorkbookSkill(skill) && sheet?.getCell(headerRow, currentKeys.length).value !== workbookLabel(skill, "activity_cut_source");
+  const keys = legacySchwa ? currentKeys.filter(key => !(SCHWA_SYLLABLE_FIELDS as readonly string[]).includes(key)) : currentKeys;
+  const matchesHeader = (key: string, value: unknown) => value === workbookLabel(skill, key)
+    || key === "activity_syllables" && value === "Activity syllables";
+  if (!sheet || sheet.getCell("A2").value !== skill || keys.some((key, i) => !matchesHeader(key, sheet.getCell(headerRow, i + 1).value) && !(legacyPrefixForm && key === prefixMeaningKey && sheet.getCell(headerRow, i + 1).value === "Prefix form")))
     throw new Error("Use the review workbook for this micro-skill and keep its column headings.");
   if (sheet.rowCount > 2000 + headerRow) throw new Error("Upload at most 2,000 meaning rows.");
   const groups = new Map<string, Record<string, string>[]>();
@@ -405,6 +417,6 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
   const prefixMeanings = new Map<number, string>();
   if (hasPrefixChoice) for (const row of requestedRows)
     prefixMeanings.set(Number(row.workbook_row), row[prefixMeaningKey]);
-  return { schwaFacts: new Map(requestedRows.map(row => [Number(row.workbook_row), Object.fromEntries(SCHWA_WORKBOOK_FIELDS.map(key => [key, row[key] ?? ""])) as SchwaWorkbookFacts])), compoundFacts, prefixMeanings, suffixFacts: new Map(requestedRows.map(row => [Number(row.workbook_row),
+  return { schwaFacts: new Map(requestedRows.map(row => [Number(row.workbook_row), Object.fromEntries([...SCHWA_WORKBOOK_FIELDS, ...SCHWA_SYLLABLE_FIELDS.filter(key => !legacySchwa || row[key] !== undefined)].map(key => [key, row[key] ?? ""])) as SchwaWorkbookFacts])), compoundFacts, prefixMeanings, suffixFacts: new Map(requestedRows.map(row => [Number(row.workbook_row),
     { age_band: row.age_band ?? "", frequency_band: row.frequency_band ?? "", complexity_band: row.complexity_band ?? "", has_schwa: row.has_schwa ?? "" } satisfies SuffixWorkbookFacts])), csv, rowNumbers: records.map(row => Number(row.workbook_row)), pendingFamilies };
 }
