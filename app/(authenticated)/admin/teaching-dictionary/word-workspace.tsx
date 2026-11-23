@@ -296,6 +296,7 @@ export function WordWorkspace(props: {
   approvedWrittenDivisions: string;
   senseReviewedAt: string | null;
   meaningSaved: boolean;
+  pronunciationSaved: boolean;
   initialSenseId?: string;
   lessonReviewSkillKeys: string[];
   meaningImportRequests: { sense_id: string; micro_skill_key: string }[];
@@ -380,7 +381,7 @@ export function WordWorkspace(props: {
   const [activeSenseId, setActiveSenseId] = useState(() =>
     payload.senseSet?.senses.find(sense => sense.id === props.initialSenseId)?.id ?? payload.senseSet?.senses[0]?.id ?? "");
   const [meaningChangeKind, setMeaningChangeKind] = useState("");
-  const [overviewView, setOverviewView] = useState<OverviewView>(props.initialSenseId ? "parts" : props.wordId ? "meaning" : "details");
+  const [overviewView, setOverviewView] = useState<OverviewView>(props.pronunciationSaved ? "pronunciation" : props.initialSenseId ? "parts" : props.wordId ? "meaning" : "details");
   const activeSense = props.approvedSenseSet?.senses.find(sense => sense.id === activeSenseId);
   const selectedMeaning = payload.senseSet?.senses.find(sense => sense.id === activeSenseId);
   const definitionChanged = Boolean(activeSense && selectedMeaning && activeSense.definition !== selectedMeaning.definition);
@@ -409,7 +410,7 @@ export function WordWorkspace(props: {
   const [openedLessons, setOpenedLessons] = useState<string[]>([]);
   const checksGeneration = useRef(0);
   const initialChecksApplied = useRef(false);
-  const [saveMessage, setSaveMessage] = useState(props.meaningSaved ? "Meaning approved. You can now review its word parts." : props.saved ? "Saved." : "");
+  const [saveMessage, setSaveMessage] = useState(props.pronunciationSaved ? "Pronunciation and syllable divisions approved. Schwa lessons and workbooks use the Dictionary divisions." : props.meaningSaved ? "Meaning approved. You can now review its word parts." : props.saved ? "Saved." : "");
   const [actionError, setActionError] = useState(props.error);
   const [approvalIssues, setApprovalIssues] = useState<string[]>([]);
   const [saveState, saveAction, saving] = useActionState(
@@ -454,7 +455,11 @@ export function WordWorkspace(props: {
         router.replace(`${destination.pathname}${destination.search}#td-canonical-parts`);
         return null;
       }
-      if (form.get("review_section") === "pronunciation") destination.hash = "td-written-syllables";
+      if (form.get("review_section") === "pronunciation" && !error) {
+        destination.searchParams.set("saved", "pronunciation");
+        router.replace(`${destination.pathname}${destination.search}#td-written-syllables`);
+        return null;
+      }
       window.history.replaceState(null, "", `${destination.pathname}${destination.search}${destination.hash || window.location.hash}`);
       if (props.wordId && checksRequested) {
         checksGeneration.current += 1;
@@ -468,7 +473,7 @@ export function WordWorkspace(props: {
           setOverviewReviewed(result.overviewApproved);
         }
         setSaveMessage(form.get("review_section") === "pronunciation" ? "Pronunciation and syllable divisions approved. Schwa lessons and workbooks use the Dictionary divisions." : checksRequested ? "Saved. Updating lesson checks…" : "Saved.");
-        if (String(form.get("review_section") ?? "").startsWith("lesson:") || form.get("review_section") === "pronunciation") router.refresh();
+        if (String(form.get("review_section") ?? "").startsWith("lesson:")) router.refresh();
       }
       return null;
     }, null,

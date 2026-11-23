@@ -658,6 +658,7 @@ export async function TeachingDictionaryDetail({
         }
         saved={Boolean(params.saved)}
         meaningSaved={params.saved === "meaning"}
+        pronunciationSaved={params.saved === "pronunciation"}
         error={params.error ?? params.publish_error ?? params.route_error}
         profileOptions={[
           ...(prefixProfiles.data ?? []).map((profile) => ({
