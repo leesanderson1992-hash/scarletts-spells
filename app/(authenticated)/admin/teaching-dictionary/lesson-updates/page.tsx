@@ -190,7 +190,7 @@ export default async function LessonUpdates({ searchParams }: {
       <Link className="font-semibold underline" href={`/admin/adle-lesson-readiness?route=${specialist.routeId}&skill=${selected}`}>Open lesson readiness</Link>
       {schwaSkill && schwaQueue && <div className="space-y-4">
         {params.published && <p role="status">{params.published} words published. Passing words are Active in ADLE.</p>}
-        <p>Dictionary meanings, pronunciation and word parts are reused. Review the exact weak vowel and spoken activity cuts below. Family exploration is optional and never holds up the core lesson. When selected, it is included automatically in new lessons once enough approved family members are available.</p>
+        <p>Dictionary meanings, pronunciation and word parts are reused. Review the exact weak vowel and Dictionary written divisions below. The spoken syllable count describes the pronunciation. Family exploration is optional and never holds up the core lesson. When selected, it is included automatically in new lessons once enough approved family members are available.</p>
         <SchwaPublishPanel key={schwaSkill} skill={schwaSkill} ready={readySchwa.map(row => ({ id: row.id, word: row.payload.displayWord }))} />
         {schwaQueue.filter(row => !row.published || row.blockers.length).map(row => <form action={saveSchwaWorkbookDetails} key={row.id} className="space-y-3 rounded-lg border p-4">
           <input type="hidden" name="skill" value={schwaSkill} /><input type="hidden" name="word_id" value={row.wordId} /><input type="hidden" name="draft_id" value={row.id} />
