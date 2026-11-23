@@ -106,16 +106,46 @@ export async function britishRecordingForText(input: {
     if (words.data.length !== 1 || words.data[0].display_word.toLocaleLowerCase("en-GB") !== text.trim().toLocaleLowerCase("en-GB")) return null;
     return approvedBritishRecording({ client, wordId: words.data[0].id, kind, text: words.data[0].display_word });
   }
+  // Look up the complete approved utterance, then verify its current Dictionary
+  // authority. New sense sentences need not have a historical dictation row.
+  const recordings = await client.from("teaching_dictionary_british_recording_versions")
+    .select("canonical_word_id,recording_src,sha256").eq("kind", "sentence").eq("spoken_text", text.trim())
+    .order("approved_at", { ascending: false }).order("id", { ascending: false }).limit(100);
+  if (recordings.error) throw new Error("DICTIONARY_AUDIO_SENTENCE_LOOKUP_FAILED");
+  const ids = [...new Set(recordings.data.map(row => row.canonical_word_id))];
+  if (ids.length) {
+    const [words, senses, legacy] = await Promise.all([
+      client.from("canonical_teaching_dictionary_words").select("id").in("id", ids)
+        .eq("row_status", "active").eq("review_status", "approved_for_first_exposure").eq("dialect_code", "en-GB"),
+      client.from("teaching_dictionary_reviewed_sense_sets").select("canonical_word_id,sense_set").in("canonical_word_id", ids),
+      client.from("canonical_teaching_dictionary_dictation_sentences").select("canonical_word_id")
+        .in("canonical_word_id", ids).eq("dictation_sentence", text.trim()).eq("row_status", "active")
+        .eq("review_status", "approved_for_first_exposure"),
+    ]);
+    if (words.error || senses.error || legacy.error) throw new Error("DICTIONARY_AUDIO_SENTENCE_AUTHORITY_FAILED");
+    const currentWords = new Set(words.data.map(row => row.id));
+    for (const clip of recordings.data) {
+      if (!currentWords.has(clip.canonical_word_id)) continue;
+      const reviewed = senses.data.find(row => row.canonical_word_id === clip.canonical_word_id);
+      const matches = reviewed
+        ? (reviewed.sense_set as DictionarySenseSet).senses.some(sense => sense.partOfSpeech !== "root" && sense.dictationSentence?.trim() === text.trim())
+        : legacy.data.some(row => row.canonical_word_id === clip.canonical_word_id);
+      if (matches) return { src: clip.recording_src, sha256: clip.sha256, source: "dictionary" };
+    }
+  }
   const sentences = await client.from("canonical_teaching_dictionary_dictation_sentences")
     .select("canonical_word_id,dictation_sentence").eq("dictation_sentence", text.trim())
     .eq("row_status", "active").eq("review_status", "approved_for_first_exposure").limit(2);
   if (sentences.error) throw new Error("DICTIONARY_AUDIO_SENTENCE_LOOKUP_FAILED");
   if (sentences.data.length !== 1) return null;
-  const word = await client.from("canonical_teaching_dictionary_words").select("id")
-    .eq("id", sentences.data[0].canonical_word_id).eq("row_status", "active")
-    .eq("review_status", "approved_for_first_exposure").eq("dialect_code", "en-GB").maybeSingle();
-  if (word.error) throw new Error("DICTIONARY_AUDIO_SENTENCE_WORD_LOOKUP_FAILED");
-  if (!word.data) return null;
-  return approvedBritishRecording({ client, wordId: sentences.data[0].canonical_word_id, kind,
-    text: sentences.data[0].dictation_sentence });
+  const wordId = sentences.data[0].canonical_word_id;
+  const [word, reviewed] = await Promise.all([
+    client.from("canonical_teaching_dictionary_words").select("id").eq("id", wordId).eq("row_status", "active")
+      .eq("review_status", "approved_for_first_exposure").eq("dialect_code", "en-GB").maybeSingle(),
+    client.from("teaching_dictionary_reviewed_sense_sets").select("sense_set").eq("canonical_word_id", wordId).maybeSingle(),
+  ]);
+  if (word.error || reviewed.error) throw new Error("DICTIONARY_AUDIO_SENTENCE_WORD_LOOKUP_FAILED");
+  if (!word.data || reviewed.data && !(reviewed.data.sense_set as DictionarySenseSet).senses.some(sense =>
+    sense.partOfSpeech !== "root" && sense.dictationSentence?.trim() === text.trim())) return null;
+  return approvedBritishRecording({ client, wordId, kind, text: sentences.data[0].dictation_sentence });
 }
