@@ -599,6 +599,7 @@ export async function TeachingDictionaryDetail({
         normalisedWord={draft?.normalised_word ?? word?.normalised_word ?? ""}
         initial={initial}
         approvedSenseSet={approvedSenseSet ?? null}
+        approvedWrittenDivisions={metadata?.review_status === "approved_for_first_exposure" ? metadata.written_syllable_breakdown ?? "" : ""}
         senseReviewedAt={reviewedSenses?.data?.reviewed_at ?? null}
         initialSenseId={params.sense}
         meaningImportRequests={savedRequests.flatMap(row => row.sense_id ? [{ ...row, sense_id: row.sense_id }] : [])}

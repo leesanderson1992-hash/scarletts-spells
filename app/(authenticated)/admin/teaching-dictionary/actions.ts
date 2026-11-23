@@ -1,4 +1,5 @@
 "use server";
+import { saveReviewedSchwaDivisions } from "@/lib/teaching-dictionary-manager/schwa-syllable-authority";
 import { normaliseWordPronunciations } from "@/lib/teaching-dictionary-manager/pronunciation-authority";
 
 import { prefillDictionaryMeanings, singleMeaningSelection } from "@/lib/teaching-dictionary-manager/meaning-prefill";
@@ -7,7 +8,7 @@ import { standardiseTransformations } from "@/lib/teaching-dictionary-manager/tr
 
 import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
-import { normaliseWrittenSyllableBreakdown, targetOccurrences, withDerivedMorphologyMetadata } from "@/lib/teaching-dictionary-manager/authoring";
+import { normaliseWrittenSyllableBreakdown, parseSyllableBreakdown, targetOccurrences, withDerivedMorphologyMetadata } from "@/lib/teaching-dictionary-manager/authoring";
 import { randomUUID } from "node:crypto";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -428,7 +429,7 @@ async function performWorkspaceSave(form: FormData) {
     const normalisedWord = normaliseWord(value(form, "normalised_word"));
     const payload = payloadFromForm(form);
     const reviewSection = value(form, "review_section");
-    if (!["meaning", "draft", "skills"].includes(reviewSection) && payload.canonicalMorphology.parts.length)
+    if (!["meaning", "pronunciation", "draft", "skills"].includes(reviewSection) && payload.canonicalMorphology.parts.length)
       payload.canonicalMorphology.transformations = standardiseTransformations(payload.canonicalMorphology.parts,
         payload.canonicalMorphology.transformations ?? []);
     if (payload.senseSet) {
@@ -577,10 +578,12 @@ async function performWorkspaceSave(form: FormData) {
     }).select("id").single();
     if (result.error) throw new Error("TEACHING_DRAFT_SAVE_FAILED");
     destination = `${path}?draft=${result.data.id}`;
-    if (reviewSection === "meaning") {
+    if (reviewSection === "meaning" || reviewSection === "pronunciation") {
       if (!wordId || !payload.senseSet?.senses.some(sense => sense.id === value(form, "selected_sense_id")))
         throw new Error("TEACHING_LESSON_SENSE_INVALID");
-      const meaningIssues = senseSetErrors(payload.senseSet);
+      const approveWritten = reviewSection === "pronunciation" && payload.senseSet.senses.find(sense => sense.id === value(form, "selected_sense_id"))?.partOfSpeech !== "root";
+      const meaningIssues = [...senseSetErrors(payload.senseSet), ...(approveWritten && !parseSyllableBreakdown(payload.displayWord, payload.writtenSyllableBreakdown ?? "")
+        ? ["Enter written syllable divisions that join to the word, for example writ·er."] : [])];
       if (meaningIssues.length) return {
         destination, error: "TEACHING_SENSE_SET_INVALID", overviewApproved, issues: meaningIssues,
       };
@@ -596,6 +599,12 @@ async function performWorkspaceSave(form: FormData) {
       });
       if (meaning.error) throw new Error(meaning.error.message.match(/TEACHING_[A-Z_]+/)?.[0]
         ?? "TEACHING_SENSE_SET_SAVE_FAILED");
+      if (approveWritten) await saveReviewedSchwaDivisions(db, payload.displayWord, wordId, payload.writtenSyllableBreakdown!, actor.id);
+      if (reviewSection === "pronunciation") {
+        updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
+        revalidatePath(`${PATH}/${wordId}`);
+        revalidatePath(`${PATH}/lesson-updates`);
+      }
       return { destination, error: null, overviewApproved };
     }
     if (reviewSection && reviewSection !== "skills" && reviewSection !== "draft") {

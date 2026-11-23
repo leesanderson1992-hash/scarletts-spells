@@ -1,4 +1,5 @@
 "use client";
+import { normaliseWrittenSyllableBreakdown } from "@/lib/teaching-dictionary-manager/authoring";
 import { TransformationEditor } from "./transformation-editor";
 
 import {
@@ -292,6 +293,7 @@ export function WordWorkspace(props: {
   normalisedWord: string;
   initial: WordDraftPayload;
   approvedSenseSet: DictionarySenseSet | null;
+  approvedWrittenDivisions: string;
   senseReviewedAt: string | null;
   meaningSaved: boolean;
   initialSenseId?: string;
@@ -452,7 +454,8 @@ export function WordWorkspace(props: {
         router.replace(`${destination.pathname}${destination.search}#td-canonical-parts`);
         return null;
       }
-      window.history.replaceState(null, "", `${destination.pathname}${destination.search}${window.location.hash}`);
+      if (form.get("review_section") === "pronunciation") destination.hash = "td-written-syllables";
+      window.history.replaceState(null, "", `${destination.pathname}${destination.search}${destination.hash || window.location.hash}`);
       if (props.wordId && checksRequested) {
         checksGeneration.current += 1;
         setChecksState("loading");
@@ -464,8 +467,8 @@ export function WordWorkspace(props: {
           setDirty(false);
           setOverviewReviewed(result.overviewApproved);
         }
-        setSaveMessage(checksRequested ? "Saved. Updating lesson checks…" : "Saved.");
-        if (String(form.get("review_section") ?? "").startsWith("lesson:")) router.refresh();
+        setSaveMessage(form.get("review_section") === "pronunciation" ? "Pronunciation and syllable divisions approved. Schwa lessons and workbooks use the Dictionary divisions." : checksRequested ? "Saved. Updating lesson checks…" : "Saved.");
+        if (String(form.get("review_section") ?? "").startsWith("lesson:") || form.get("review_section") === "pronunciation") router.refresh();
       }
       return null;
     }, null,
@@ -1104,6 +1107,15 @@ export function WordWorkspace(props: {
                   approvedWord={props.approvedWord} approvedSenseSet={props.approvedSenseSet} wordRecordingSrc={props.wordClip?.src}
                   recordingSources={dictationRecordingSources} onChange={senseSet => change({ senseSet })}
                   selectedSenseId={activeSenseId} onSelectSense={setActiveSenseId} />}
+                {panel === "pronunciation" && selectedMeaning?.partOfSpeech !== "root" && <label id="td-written-syllables" className="mt-4 block text-sm">
+                  <span className="inline-flex items-center gap-1 font-medium">Dictionary written syllable divisions
+                    <FormatHint label="Dictionary written syllable divisions" format="Separate divisions of the displayed spelling with middle dots. The letters must join to the word. This shared Dictionary fact supplies Schwa activity cuts; the spoken syllable count above is separate. Separator hyphens are standardised on approval." example="writ·er" />
+                  </span>
+                  <input className={`${input} mt-1`} value={payload.writtenSyllableBreakdown ?? ""}
+                    onChange={event => change({ writtenSyllableBreakdown: event.target.value })} />
+                  <span className="mt-1 block text-xs font-medium">{props.approvedWrittenDivisions && normaliseWrittenSyllableBreakdown(payload.writtenSyllableBreakdown ?? "", payload.displayWord) === normaliseWrittenSyllableBreakdown(props.approvedWrittenDivisions, payload.displayWord) ? "✓ Approved Dictionary divisions" : "Needs approval"}</span>
+                  <span className="mt-1 block text-xs text-[color:var(--mid)]">Approved divisions are reused by Schwa lessons and review workbooks. Reviewed activity alternatives stay separate.</span>
+                </label>}
               </div>
             ))}
           {(["parts", "family"] as const).map(panel => (
@@ -1348,12 +1360,6 @@ export function WordWorkspace(props: {
               Go to Word parts
             </button>
           </div>
-          <label id="td-written-syllables" className="mt-3 block text-sm">
-            Written syllable breakdown
-            <FormatHint label="written syllable breakdown" format="Separate written syllables with a middle dot." example="bul·ly·ing" />
-            <input className={`${input} mt-1`} value={payload.writtenSyllableBreakdown ?? ""}
-              onChange={event => change({ writtenSyllableBreakdown: event.target.value })} />
-          </label>
           <h3 className="mt-4 font-semibold">
             Alternate dictation sentences
           </h3>
@@ -2271,9 +2277,9 @@ export function WordWorkspace(props: {
             overviewView !== "family" && overviewView !== "parts" && <div className={actions}>
             {dirty && saveButton("draft", "Save draft")}
             {props.wordId && (overviewView === "meaning" || overviewView === "pronunciation")
-              ? <ActionSubmitButton form={formId} name="review_section" value="meaning" pending={saving}
+              ? <ActionSubmitButton form={formId} name="review_section" value={overviewView === "pronunciation" ? "pronunciation" : "meaning"} pending={saving}
                   disabled={definitionChanged && !meaningChangeKind}
-                  pendingLabel="Approving meaning…" className={button}>Approve meaning and continue to Word parts</ActionSubmitButton>
+                  pendingLabel={overviewView === "pronunciation" ? "Approving pronunciation and syllables…" : "Approving meaning…"} className={button}>{overviewView === "pronunciation" ? "Approve pronunciation and syllables" : "Approve meaning and continue to Word parts"}</ActionSubmitButton>
               : saveButton("overview")}
           </div>}
           </div>
@@ -2371,17 +2377,6 @@ export function WordWorkspace(props: {
         <div  className="mt-2 text-sm">
           {payload.canonicalMorphology.wordSum}
         </div>
-        <label  className="mt-3 block text-sm">
-          Written syllable breakdown
-          <FormatHint label="written syllable breakdown" format="Separate written syllables with a middle dot; the letters must reproduce the word." example="scroll·ing" />
-          <input
-            className={`${input} mt-1`}
-            value={payload.writtenSyllableBreakdown ?? ""}
-            onChange={(event) =>
-              change({ writtenSyllableBreakdown: event.target.value })
-            }
-          />
-        </label>
         <TransformationEditor parts={payload.canonicalMorphology.parts}
           value={payload.canonicalMorphology.transformations ?? []}
           onChange={transformations => change({ canonicalMorphology: { ...payload.canonicalMorphology, transformations } })} />
