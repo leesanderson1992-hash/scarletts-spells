@@ -198,7 +198,7 @@ export async function importReviewedMultiSenseCsv(
         const lesson: LessonResult = { word, wordId, skillKey, meaning: bundle.senseSet.senses[index].definition,
           approval: "Needs review", routeId: routeForSkill(skillKey)?.routeId };
         lessons.push(lesson);
-        if (waiting.some(task => task.senseId === analysis.senseId)) {
+        if (!isSchwaWorkbookSkill(skillKey) && waiting.some(task => task.senseId === analysis.senseId)) {
           lesson.release = "Reviewed facts saved. Waiting for the family; this review can be resumed after leaving the page.";
           continue;
         }

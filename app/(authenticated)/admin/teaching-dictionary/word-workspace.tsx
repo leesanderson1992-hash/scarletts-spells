@@ -311,7 +311,7 @@ export function WordWorkspace(props: {
   staleLessonSenseKeys: string[];
   approvedLessonSenseKeys: string[];
   approvedSkillSenseIds: Record<string, string>;
-  weakPublicationState: { microSkillKey: string; contentVersionId: string; sourceCurrent: boolean }[];
+  weakPublicationState: { microSkillKey: string; contentVersionId: string; sourceCurrent: boolean; syllableReviewPending?: boolean }[];
   approvedWord: string | null;
   approvedDefinition: string | null;
   approvedSentence: string | null;
@@ -1675,7 +1675,7 @@ export function WordWorkspace(props: {
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
             <p className="sm:col-span-2"><strong>Route validation:</strong> {assignedSkillKeys === null ? "Checking assignment authority…" : assignedSkillKeys.includes(key) && published?.sourceCurrent ? "Ready to be selected when a child needs this word" : "Not yet eligible for a new lesson"}</p>
             <p><strong>Word–skill assignment:</strong> {assignedSkillKeys === null ? "Checking authority…" : assignedSkillKeys.includes(key) ? "Assigned" : "Not assigned (cannot enter new lessons)"}</p>
-            <p><strong>Published lesson content:</strong> {published ? published.sourceCurrent ? "Current for future assignments" : "Shared dictionary facts changed; re-review needed" : "Not published"}</p>
+            <p><strong>Published lesson content:</strong> {published ? published.sourceCurrent ? "Current for future assignments" : published.syllableReviewPending ? "Written syllable divisions await review and publication" : "Shared dictionary facts changed; re-review needed" : "Not published"}</p>
             <p><strong>Editor content:</strong> {blockers.length ? `${blockers.length} requirement(s) outstanding` : "Fields valid; editorial review and publication still required for changes"}</p>
             {published && <p className="break-all text-xs sm:col-span-2">Published version: {published.contentVersionId}</p>}
             </div>

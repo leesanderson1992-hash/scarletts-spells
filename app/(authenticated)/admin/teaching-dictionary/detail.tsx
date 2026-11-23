@@ -284,13 +284,15 @@ export async function TeachingDictionaryDetail({
     row.route_id === "weak_vowel_word_lab" && !rolledBackIds.has(row.id) &&
     activeSkillKeys.has(row.micro_skill_key));
   const weakVersionIds = weakVersions.map((row) => row.id);
-  const [weakReviews, weakPublications] = weakVersionIds.length ? await Promise.all([
+  const [weakReviews, weakPublications, syllableReviews] = weakVersionIds.length ? await Promise.all([
     db.from("teaching_dictionary_route_content_reviews").select("content_version_id")
       .in("content_version_id", weakVersionIds),
     db.from("adle_weak_vowel_content_publications").select("content_version_id,micro_skill_key,dictionary_fingerprint,published_at")
       .in("content_version_id", weakVersionIds),
-  ]) : [{ data: [], error: null }, { data: [], error: null }];
-  if (weakReviews.error || weakPublications.error) throw new Error("WEAK_VOWEL_PUBLICATION_STATE_READ_FAILED");
+    db.from("teaching_dictionary_schwa_syllable_reviews").select("micro_skill_key")
+      .eq("environment_key", resolveAdleRouteActivationEnvironment() ?? "production").eq("canonical_word_id", wordId!).is("resolved_at", null),
+  ]) : [{ data: [], error: null }, { data: [], error: null }, { data: [], error: null }];
+  if (weakReviews.error || weakPublications.error || syllableReviews.error) throw new Error("WEAK_VOWEL_PUBLICATION_STATE_READ_FAILED");
   const reviewedWeakIds = new Set((weakReviews.data ?? []).map((row) => row.content_version_id));
   const publishedWeakIds = new Set((weakPublications.data ?? []).map((row) => row.content_version_id));
   const dictionaryFingerprint = wordId && word?.row_status === "active" && word?.review_status === "approved_for_first_exposure"
@@ -317,7 +319,8 @@ export async function TeachingDictionaryDetail({
     .map((row) => ({
     microSkillKey: row.micro_skill_key,
     contentVersionId: row.content_version_id,
-    sourceCurrent: row.dictionary_fingerprint === dictionaryFingerprint?.data,
+    sourceCurrent: row.dictionary_fingerprint === dictionaryFingerprint?.data && !syllableReviews.data.some(review => review.micro_skill_key === row.micro_skill_key),
+    syllableReviewPending: syllableReviews.data.some(review => review.micro_skill_key === row.micro_skill_key),
   }));
   const approvedWeakSources: ReviewedWeakVowelSource[] = weakPublicationState
     .filter(row => row.sourceCurrent && activeSkillKeys.has(row.microSkillKey))

@@ -50,14 +50,15 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   const keys = workbookKeys(input.skill);
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet(sheetName, { views: [{ state: "frozen", xSplit: 1, ySplit: headerRow }] });
-  sheet.columns = keys.map(key => ({ key, width: key === "definition" || key === "needs_review" ? 43
+  sheet.columns = keys.map(key => ({ key, width: key === "definition" || key === "needs_review" || key === "written_syllable_breakdown" ? 43
     : key === "family_key" || key === "dictation_sentence" ? 36 : 23, hidden: hidden.has(key) || isHomophoneReviewSkill(input.skill) && ["family_key", "component_part_id", "relationship_kind"].includes(key) }));
   sheet.getCell("A1").value = input.title;
   sheet.getCell("A1").font = { bold: true, size: 15, color: { argb: "FF0F172A" } };
   sheet.getCell("A2").value = input.skill;
   sheet.getRow(2).hidden = true;
   sheet.getRow(headerRow).values = keys.map(key => workbookLabel(input.skill, key));
-  sheet.getRow(headerRow).height = 28;
+  sheet.getRow(headerRow).height = 44;
+  sheet.getRow(headerRow).alignment = { vertical: "middle", wrapText: true };
   sheet.getRow(headerRow).eachCell(cell => {
     cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
     cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF0F172A" } };
