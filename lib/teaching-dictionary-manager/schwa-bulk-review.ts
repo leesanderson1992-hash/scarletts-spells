@@ -246,14 +246,15 @@ export async function publishCheckedSchwaWorkbookWord(db: Db, actor: string, ski
 export async function loadSchwaBulkReview(db: Db, skill: string, includeBundles = false) {
   if (!isSchwaWorkbookSkill(skill)) throw new Error("Unsupported Schwa lesson.");
   const environment = ingReviewEnvironment()!;
-  const [requests, publications, queue, pool] = await Promise.all([
+  const [requests, publications, queue, pool, syllableReviews] = await Promise.all([
     loadLessonReviewRequests(db, skill),
     db.from("adle_weak_vowel_content_publications").select("canonical_word_id").eq("micro_skill_key", skill),
     loadSchwaWorkbookQueue(db, skill), loadWeakVowelSelectionPool({ client: db, environmentKey: environment }, skill),
+    db.from("teaching_dictionary_schwa_syllable_reviews").select("canonical_word_id").eq("environment_key", environment).eq("micro_skill_key", skill).is("resolved_at", null),
   ]);
-  if (publications.error) throw new Error("Could not load the Schwa lesson pool.");
+  if (publications.error || syllableReviews.error) throw new Error("Could not load the Schwa lesson pool and saved syllable reviews.");
   const assigned = pool.authority.relationships;
-  const ids = [...new Set([...assigned.map(row => row.canonicalWordId), ...requests.keys(), ...publications.data.map(row => row.canonical_word_id), ...queue.map(row => row.wordId)])];
+  const ids = [...new Set([...assigned.map(row => row.canonicalWordId), ...requests.keys(), ...publications.data.map(row => row.canonical_word_id), ...queue.map(row => row.wordId), ...syllableReviews.data.map(row => row.canonical_word_id)])];
   const current = pool.words.map(row => ({ canonicalWordId: row.canonicalWordId, word: row.spelling, base: "", meaning: row.definition, dictationSentence: row.sentence }));
   const words = ids.length ? await db.from("canonical_teaching_dictionary_words").select("id,display_word").in("id", ids).eq("row_status", "active") : { data: [], error: null };
   if (words.error) throw new Error("Could not load assigned Schwa words.");
@@ -262,7 +263,8 @@ export async function loadSchwaBulkReview(db: Db, skill: string, includeBundles 
     const draft = queue.find(row => row.wordId === word.id);
     const bundle = bundles.find(row => row.wordId === word.id);
     const active = current.some(row => row.canonicalWordId === word.id);
-    const issues: string[] = [];
+    const issues: string[] = syllableReviews.data.some(row => row.canonical_word_id === word.id)
+      ? ["Review the Dictionary written syllable divisions in the workbook, then publish."] : [];
     if (!bundle?.sourceSenseReviewedAt) issues.push("Review the canonical meaning, pronunciation and word parts in the workbook.");
     if (draft && (!draft.published || draft.blockers.length)) issues.push(...draft.blockers.length ? draft.blockers : ["Reviewed facts are ready to publish."]);
     if (!active && !issues.length) issues.push("Review the weak-vowel activity facts, then publish.");

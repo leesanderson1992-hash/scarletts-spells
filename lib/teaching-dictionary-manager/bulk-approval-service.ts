@@ -1,4 +1,5 @@
 import "server-only";
+import { isSchwaWorkbookSkill } from "./weak-vowel-workbook";
 
 import { ING_RULE_FOR_SKILL } from "@/lib/adle/ing/contracts";
 import { generateIngWordFromOverview } from "@/lib/teaching-dictionary-manager/ing-overview-recipe";
@@ -96,23 +97,25 @@ export async function saveBulkSkillApprovalsAsActor(input: {
     return failed("Choose a reviewed meaning for every word being applied.");
   const hasRule = hasCandidateRule(input.microSkillKey)
     || environment === "staging" && input.microSkillKey === IDENTIFY_BASE_SKILL;
+  const schwaReapproval = isSchwaWorkbookSkill(input.microSkillKey);
+  const snapshotFacts = hasRule || schwaReapproval;
   const expectedFacts: Record<string, { senseId: string; senseSet: DictionarySenseSet;
     morphologyId: string; morphologySource: "legacy" | "sense"; familyLinkIds: string[] }> = {};
   if (applyWordIds.length) {
     const [reviewed, morphology, familyLinks, senseAnalyses, senseFamilyLinks] = await Promise.all([
       db.from("teaching_dictionary_reviewed_sense_sets")
         .select("canonical_word_id,sense_set").in("canonical_word_id", applyWordIds),
-      hasRule ? db.from("canonical_teaching_dictionary_word_morphology")
+      snapshotFacts ? db.from("canonical_teaching_dictionary_word_morphology")
         .select("id,canonical_word_id,morphology_parts,morphology_joins,analysis_status,review_status,word_sum,created_at")
         .in("canonical_word_id", applyWordIds).eq("row_status", "active")
         .order("created_at", { ascending: false }) : Promise.resolve({ data: [], error: null }),
-      hasRule ? db.from("teaching_dictionary_current_sense_family_links")
+      snapshotFacts ? db.from("teaching_dictionary_current_sense_family_links")
         .select("id,canonical_word_id,sense_id,family_key,component_part_id,relationship_kind")
         .in("canonical_word_id", applyWordIds) : Promise.resolve({ data: [], error: null }),
-      hasRule ? db.from("teaching_dictionary_current_sense_morphology")
+      snapshotFacts ? db.from("teaching_dictionary_current_sense_morphology")
         .select("id,canonical_word_id,sense_id,morphology_parts,morphology_joins,word_sum")
         .in("canonical_word_id", applyWordIds) : Promise.resolve({ data: [], error: null }),
-      hasRule ? db.from("teaching_dictionary_current_sense_family_memberships")
+      snapshotFacts ? db.from("teaching_dictionary_current_sense_family_memberships")
         .select("id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind,base_meaning")
         .in("canonical_word_id", applyWordIds) : Promise.resolve({ data: [], error: null }),
     ]);
@@ -160,7 +163,8 @@ export async function saveBulkSkillApprovalsAsActor(input: {
         : bulkSenseChoiceError({ wordId: id, displayWord: word.display_word,
           senseSet: byWord.get(id) ?? null, senseId: senseIds[id] });
       if (reason) return [{ id, word: word.display_word, reason }];
-      if (candidate && facts.morphologyId && byWord.has(id)) expectedFacts[id] = {
+      if (schwaReapproval && !facts.morphologyId) return [{ id, word: word.display_word, reason: "Approve the selected meaning’s word parts before publishing." }];
+      if ((candidate || schwaReapproval) && facts.morphologyId && byWord.has(id)) expectedFacts[id] = {
         senseId: senseIds[id], senseSet: byWord.get(id)!,
         morphologyId: facts.morphologyId, morphologySource: facts.source,
         familyLinkIds: facts.familyLinkIds,
