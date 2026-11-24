@@ -1,4 +1,4 @@
-import { loadLessonDeassignments } from "./lesson-deassignments";
+import { loadLessonDeassignments, loadPendingSyllableReviewResets } from "./lesson-deassignments";
 import { loadSchwaSyllableAuthority, saveReviewedSchwaDivisions } from "./schwa-syllable-authority";
 import { resolveSchwaSyllables } from "./schwa-syllables";
 import { semanticJson } from "@/lib/adle/inflection/semantic-json";
@@ -165,10 +165,26 @@ export async function stageSchwaWorkbookDraft(db: Db, actor: string, bundle: Mul
   };
   const previous = saved;
   if (previous.error) throw new Error("Could not check the saved Schwa review.");
-  if (previous.data && semanticJson(previous.data.payload) === semanticJson(payload)) return previous.data.id;
+  const resumeReviewedHold = async () => {
+    // A fresh workbook Yes or Save and recheck is an explicit review. A family
+    // worker has no such authority; a later manual removal has no matching hold.
+    if (!explicitSyllableReview) return;
+    const holds = await loadPendingSyllableReviewResets(db, ingReviewEnvironment()!, skill, bundle.wordId);
+    if (!holds.has(bundle.wordId)) return;
+    const selection = await saveBulkSkillApprovalsAsActor({ microSkillKey: skill,
+      applyWordIds: [bundle.wordId], excludeWordIds: [], clearWordIds: [], deassignWordIds: [],
+      senseIds: { [bundle.wordId]: senseId }, requestId: randomUUID(),
+      sourceKind: "teaching_dictionary_import", workbookReadback: true }, actor);
+    if (!selection.ok) throw new Error(selection.error ?? "Reviewed facts saved. Recheck the lesson selection before publishing.");
+  };
+  if (previous.data && semanticJson(previous.data.payload) === semanticJson(payload)) {
+    await resumeReviewedHold();
+    return previous.data.id;
+  }
   const draft = await db.from("teaching_dictionary_manager_drafts").insert({ canonical_word_id: bundle.wordId,
     normalised_word: word.data.normalised_word, dialect_code: word.data.dialect_code, payload, source_kind: "manual", source_reference: SCHWA_WORKBOOK_SOURCE, created_by: actor }).select("id").single();
   if (draft.error) throw new Error("Could not save the Schwa review.");
+  await resumeReviewedHold();
   return draft.data.id;
 }
 
@@ -176,7 +192,7 @@ export async function loadSchwaWorkbookQueue(db: Db, skill: string, wordIds?: st
   let query = db.from("teaching_dictionary_manager_drafts").select("id,canonical_word_id,payload,created_at")
     .eq("source_reference", SCHWA_WORKBOOK_SOURCE).contains("payload", { skillKeys: [skill] }).order("created_at", { ascending: false });
   if (wordIds) query = query.in("canonical_word_id", wordIds);
-  const [drafts, deassigned] = await Promise.all([query, loadLessonDeassignments(db, ingReviewEnvironment()!, skill)]);
+  const [drafts, deassigned] = await Promise.all([query, loadLessonDeassignments(db, ingReviewEnvironment()!, skill, { forReview: true })]);
   if (drafts.error) throw new Error("Could not load saved Schwa reviews.");
   const seen = new Set<string>();
   const latest = drafts.data.filter(draft => {
@@ -274,7 +290,7 @@ export async function loadSchwaBulkReview(db: Db, skill: string, includeBundles 
     db.from("adle_weak_vowel_content_publications").select("canonical_word_id").eq("micro_skill_key", skill),
     loadSchwaWorkbookQueue(db, skill), loadWeakVowelSelectionPool({ client: db, environmentKey: environment }, skill),
     db.from("teaching_dictionary_schwa_syllable_reviews").select("canonical_word_id").eq("environment_key", environment).eq("micro_skill_key", skill).is("resolved_at", null),
-    loadLessonDeassignments(db, environment, skill),
+    loadLessonDeassignments(db, environment, skill, { forReview: true }),
   ]);
   if (publications.error || syllableReviews.error) throw new Error("Could not load the Schwa lesson pool and saved syllable reviews.");
   const assigned = pool.authority.relationships;

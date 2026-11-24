@@ -184,6 +184,6 @@ export async function loadSavedFamilyReviews(db: Db, environment: string, skill?
   if (skill) query = query.eq("micro_skill_key", skill);
   const result = await query;
   if (result.error) throw new Error("Could not load saved family reviews.");
-  const deassigned = skill ? await loadLessonDeassignments(db, environment, skill) : new Set<string>();
+  const deassigned = skill ? await loadLessonDeassignments(db, environment, skill, { forReview: true }) : new Set<string>();
   return result.data.filter(row => !deassigned.has(row.canonical_word_id)) as FamilyDependency[];
 }
