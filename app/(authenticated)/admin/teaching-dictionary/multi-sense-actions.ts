@@ -42,7 +42,7 @@ export type MultiSenseImportState = {
   lessons?: LessonResult[];
   familyTasks?: WorkbookFamilyTask[];
   conflicts?: ImportIssue[];
-  words?: number; approved?: number; alreadyApproved?: number; issues?: ImportIssue[]; error?: string;
+  uploadComplete?: boolean; words?: number; approved?: number; alreadyApproved?: number; issues?: ImportIssue[]; error?: string;
 };
 
 function importIssue(message: string) {
@@ -122,6 +122,7 @@ export async function importReviewedMultiSenseCsv(
   const conflicts: ImportIssue[] = [];
   const lessons: LessonResult[] = [];
   let words = 0;
+  let completedWords = 0;
   let approved = 0;
   let alreadyApproved = 0;
   for (const entry of entries) {
@@ -186,6 +187,7 @@ export async function importReviewedMultiSenseCsv(
       if (divisions[0]) try { await saveReviewedSchwaDivisions(db, bundle.displayWord, wordId, divisions[0], actor.id); }
       catch (error) { issues.push({ word, wordId, rows, reason: error instanceof Error ? error.message : "Could not save spoken syllable divisions." }); continue; }
     }
+    completedWords += 1;
     if (workbook && waiting.length) {
       const synced = await db.rpc("sync_dictionary_family_components", { p_environment: resolveAdleRouteActivationEnvironment(), p_word: wordId, p_skill: skill });
       if (synced.error) issues.push({ word, wordId, rows, reason: "Reviewed facts are saved. Refresh Family assignment to recheck the remaining components." });
@@ -300,7 +302,8 @@ export async function importReviewedMultiSenseCsv(
       for (const row of results) row.release = "Check current lesson readiness";
     }
   }));
-  return { words, approved, alreadyApproved, issues, lessons, familyTasks, conflicts };
+  return { words, approved, alreadyApproved, issues, lessons, familyTasks, conflicts,
+    uploadComplete: entries.length > 0 && completedWords === entries.length };
 }
 
 

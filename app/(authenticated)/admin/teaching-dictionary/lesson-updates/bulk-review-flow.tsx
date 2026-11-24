@@ -42,6 +42,8 @@ export function BulkReviewFlow({ families, clusters, skills, selected, initialFa
   const selectedCluster = clusters.find(cluster => cluster.key === (selectedSkill?.cluster ?? initialCluster));
   const [family, setFamily] = useOptimistic(selectedSkill?.family ?? selectedCluster?.family ?? initialFamily);
   const [cluster, setCluster] = useOptimistic(selectedSkill?.cluster ?? initialCluster);
+  const [uploadedSkill, setUploadedSkill] = useState<string | null>(null);
+  const uploaded = uploadedSkill === selected;
   const [workbookStep, setWorkbookStep] = useState(1);
   const [navigating, navigate] = useTransition();
   const [visibleSkill, setVisibleSkill] = useOptimistic(selected);
@@ -50,6 +52,7 @@ export function BulkReviewFlow({ families, clusters, skills, selected, initialFa
   const step = view === "export" ? 0 : view === "preview" ? 3 : view === "families" ? 2 : workbookStep;
   const [result, upload, pending] = useActionState(async (previous: MultiSenseImportState, form: FormData) => {
     const response = await importReviewedMultiSenseCsv(previous, form);
+    setUploadedSkill(response.uploadComplete ? selected : null);
     if (response.familyTasks?.length) {
       setWorkbookStep(2);
       navigate(() => router.push(`?${new URLSearchParams({ family, cluster, skill: selected, view: "families" })}`, { scroll: false }));
@@ -82,6 +85,7 @@ export function BulkReviewFlow({ families, clusters, skills, selected, initialFa
   return <>
     <section aria-label="Lesson filters" className="grid gap-4 rounded-2xl border border-[var(--border)] bg-white p-5 sm:grid-cols-3">
       <SearchMenu label="Micro-skill family" value={family} options={families} disabled={navigating || pending} onChange={key => {
+        setUploadedSkill(null);
         setWorkbookStep(1);
         navigate(() => {
           setFamily(key);
@@ -93,6 +97,7 @@ export function BulkReviewFlow({ families, clusters, skills, selected, initialFa
       <SearchMenu key={`cluster-${family}`} label="Cluster" value={cluster}
         options={clusters.filter(cluster => cluster.family === family)} disabled={!family || navigating || pending}
         emptyLabel={!family ? "Choose a family first" : undefined} onChange={key => {
+          setUploadedSkill(null);
           setWorkbookStep(1);
           navigate(() => {
             setCluster(key);
@@ -103,6 +108,7 @@ export function BulkReviewFlow({ families, clusters, skills, selected, initialFa
       <SearchMenu key={`skill-${family}:${cluster}`} label="Micro-skill" value={visibleSkill} disabled={!family || !cluster || navigating || pending}
         emptyLabel={!cluster ? "Choose a cluster first" : undefined}
         options={skills.filter(skill => skill.family === family && skill.cluster === cluster)} onChange={key => {
+          setUploadedSkill(null);
           setWorkbookStep(1);
           navigate(() => {
             setVisibleSkill(key);
@@ -150,9 +156,9 @@ export function BulkReviewFlow({ families, clusters, skills, selected, initialFa
         <form action={upload} className="flex flex-wrap items-end gap-3">
           <input type="hidden" name="workbook_skill" value={selected} />
           <label className="grid gap-1 font-medium">Corrected workbook
-            <input type="file" name="review_workbook" accept=".xlsx" required className="rounded-lg border border-[var(--border)] p-2" />
+            <input type="file" name="review_workbook" accept=".xlsx" required disabled={pending} onChange={() => setUploadedSkill(null)} className="rounded-lg border border-[var(--border)] p-2" />
           </label>
-          <button disabled={pending} className={actionClass}>{pending ? "Checking workbook…" : "Check workbook"}</button>
+          <button disabled={pending || uploaded} className={actionClass}>{pending ? "Checking workbook…" : uploaded ? "Uploaded" : "Check workbook"}</button>
         </form>
         {result.error && <p role="alert" className="text-rose-800">{result.error}</p>}
         {results}

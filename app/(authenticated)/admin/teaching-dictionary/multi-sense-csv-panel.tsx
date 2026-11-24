@@ -17,7 +17,12 @@ export function MultiSenseCsvPanel({ wordId, batchCount = 0, skills, guidanceHre
   requests?: { sense_id: string; micro_skill_key: string }[];
   senses?: DictionarySense[];
 }) {
-  const [state, action, pending] = useActionState(importReviewedMultiSenseCsv, {} as MultiSenseImportState);
+  const [uploaded, setUploaded] = useState(false);
+  const [state, action, pending] = useActionState(async (previous: MultiSenseImportState, form: FormData) => {
+    const response = await importReviewedMultiSenseCsv(previous, form);
+    setUploaded(response.uploadComplete === true);
+    return response;
+  }, {} as MultiSenseImportState);
   const [recheck, setRecheck] = useState<string | null>(null);
   const [recheckMessage, setRecheckMessage] = useState("");
   async function retry(skillKey: string, senseId: string) {
@@ -37,11 +42,11 @@ export function MultiSenseCsvPanel({ wordId, batchCount = 0, skills, guidanceHre
   const form = <>
     <form action={action} className="mt-3 flex flex-wrap items-end gap-3">
       <label className="grid min-w-0 gap-1 font-medium">Choose your completed CSV
-        <input type="file" name="multi_sense_csv" accept=".csv,text/csv" required
+        <input type="file" name="multi_sense_csv" accept=".csv,text/csv" required disabled={pending} onChange={() => setUploaded(false)}
           className="rounded border border-[var(--border)] px-3 py-2" />
       </label>
-      <button disabled={pending} className="rounded bg-[var(--scarlett)] px-3 py-2 font-semibold text-white disabled:opacity-50">
-        {pending ? "Checking words and lessons…" : "Upload and check lessons"}
+      <button disabled={pending || uploaded} className="rounded bg-[var(--scarlett)] px-3 py-2 font-semibold text-white disabled:opacity-50">
+        {pending ? "Checking words and lessons…" : uploaded ? "Uploaded" : "Upload and check lessons"}
       </button>
     </form>
     {state.error && <p role="alert" className="mt-2 text-rose-800">{state.error}</p>}
