@@ -7,6 +7,8 @@ import { inheritFamilyPartMeanings } from "@/lib/teaching-dictionary-manager/fam
 import { semanticJson } from "../inflection/semantic-json";
 import { loadCurrentPairDeassignments } from "../word-skill-relationships/pair-decision-veto";
 import { canonicalPairKey } from "../word-skill-relationships/pair-key";
+import { chooseBaseWordFamilyAnchor, loadBaseWordFamilyAnchors } from "./base-word-family-anchors";
+import { parseAdleRouteActivationEnvironment } from "../route-activation-environment";
 
 type CurrentSense = Extract<LessonSenseProjection, { status: "current" }>;
 type ApprovedWord = {
@@ -27,13 +29,16 @@ export function baseWordPartShape(parts: unknown[]) {
 
 export async function loadPublishedBaseFamilyWords(client: SupabaseClient, activation: ActivatedBaseWordReleaseAuthority) {
   const skill = activation.microSkillKey;
+  const environment = parseAdleRouteActivationEnvironment(activation.environmentKey);
+  if (!environment) throw new Error("Base Word release environment is invalid.");
   const ids = [...new Set(activation.family.families.flatMap(f => f.members.map(w => w.canonicalWordId)))];
   const result = new Map<string, ApprovedWord>();
   if (!ids.length) return result;
-  const [associations, deassigned] = await Promise.all([
-    loadPublishedWritingAssociations(client, "staging", ids),
-    loadCurrentPairDeassignments({ client, environmentKey: "staging",
+  const [associations, deassigned, anchors] = await Promise.all([
+    loadPublishedWritingAssociations(client, environment, ids),
+    loadCurrentPairDeassignments({ client, environmentKey: environment,
       pairs: ids.map(canonicalWordId => ({ canonicalWordId, microSkillKey: skill })) }),
+    loadBaseWordFamilyAnchors(client, activation.family.families.map(family => family.baseWordId)),
   ]);
   const published = [...new Set(associations.filter(row => row.microSkillKey === skill &&
     row.relationshipRole === "demonstrates" && row.rowStatus === "active").flatMap(row =>
@@ -60,13 +65,22 @@ export async function loadPublishedBaseFamilyWords(client: SupabaseClient, activ
     }
   }
   for (const family of activation.family.families) {
-    const baseSense = senses.get(`${family.baseWordId}:${skill}`);
-    if (baseSense?.status !== "current" || !baseSense.pronunciation || !baseSense.dictationAuthorityId) continue;
-    const anchor = (membershipsBySense.get(`${family.baseWordId}:${baseSense.senseId}`) ?? [])
-      .filter(link => link.relationship_kind === "free_base");
-    if (anchor.length !== 1) continue;
+    const memberFamilyKeys = family.members.flatMap(member => {
+      if (member.canonicalWordId === family.baseWordId) return [];
+      const sense = senses.get(`${member.canonicalWordId}:${skill}`);
+      return sense?.status === "current" ? (membershipsBySense.get(`${member.canonicalWordId}:${sense.senseId}`) ?? [])
+        .filter(link => link.relationship_kind === "derived" || link.relationship_kind === "regular_inflection")
+        .map(link => link.family_key) : [];
+    });
+    const anchor = chooseBaseWordFamilyAnchor(anchors, family, memberFamilyKeys);
+    if (!anchor) continue;
     const approvedMembers = new Map<string, ApprovedWord>();
     for (const member of family.members) {
+      if (member.canonicalWordId === family.baseWordId) {
+        if (baseWordPartShape(anchor.parts) === baseWordPartShape(member.morphologyParts))
+          approvedMembers.set(baseFamilyWordKey(family.baseFamilyKey, member.canonicalWordId), anchor);
+        continue;
+      }
       const sense = senses.get(`${member.canonicalWordId}:${skill}`);
       if (sense?.status !== "current" || !sense.pronunciation || !sense.dictationSentence ||
         !sense.dictationAuthorityId || sense.dictationTargetTokenIndex === null) continue;
@@ -76,7 +90,7 @@ export async function loadPublishedBaseFamilyWords(client: SupabaseClient, activ
         baseWordPartShape(analysis.morphology_parts) !== baseWordPartShape(member.morphologyParts)) continue;
       const parts = analysis.morphology_parts as CanonicalPart[];
       const membership = (membershipsBySense.get(senseKey) ?? []).filter(link =>
-        link.sense_morphology_id === analysis.id && link.family_key === anchor[0].family_key &&
+        link.sense_morphology_id === analysis.id && link.family_key === anchor.familyKey &&
         parts.some(part => part.kind === "base" && part.id === link.component_part_id));
       if (membership.length !== 1) continue;
       approvedMembers.set(baseFamilyWordKey(family.baseFamilyKey, member.canonicalWordId), {

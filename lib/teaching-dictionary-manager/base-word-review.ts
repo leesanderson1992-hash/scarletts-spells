@@ -99,7 +99,7 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
       : choices.length ? "Reviewed facts are ready. Choose the teaching meaning and publish."
         : !bundle ? "Review the meaning, pronunciation, dictation and word parts, then confirm the teaching family."
           : !inPool.has(family.baseWordId) && family.baseWordId !== id
-            ? `Publish the reviewed base “${base}” for this micro-skill first. Check this word’s meaning, parts and family link.`
+            ? `Review the base “${base}” in the Teaching Dictionary and approve its meaning, pronunciation, dictation and family. The base does not need a separate lesson assignment.`
             : "Check the reviewed meaning, dictation, word parts and link to the released teaching family.";
     return { id, word: word.displayWord, choices: generationSupported && environment === "staging" ? choices : [], note, base, bundle: includeBundles ? bundle ?? {
       wordId: id, displayWord: word.displayWord, sourceSenseReviewedAt: "",
