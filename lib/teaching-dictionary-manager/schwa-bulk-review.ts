@@ -1,3 +1,4 @@
+import { loadLessonDeassignments } from "./lesson-deassignments";
 import { loadSchwaSyllableAuthority, saveReviewedSchwaDivisions } from "./schwa-syllable-authority";
 import { resolveSchwaSyllables } from "./schwa-syllables";
 import { semanticJson } from "@/lib/adle/inflection/semantic-json";
@@ -175,12 +176,12 @@ export async function loadSchwaWorkbookQueue(db: Db, skill: string, wordIds?: st
   let query = db.from("teaching_dictionary_manager_drafts").select("id,canonical_word_id,payload,created_at")
     .eq("source_reference", SCHWA_WORKBOOK_SOURCE).contains("payload", { skillKeys: [skill] }).order("created_at", { ascending: false });
   if (wordIds) query = query.in("canonical_word_id", wordIds);
-  const drafts = await query;
+  const [drafts, deassigned] = await Promise.all([query, loadLessonDeassignments(db, ingReviewEnvironment()!, skill)]);
   if (drafts.error) throw new Error("Could not load saved Schwa reviews.");
   const seen = new Set<string>();
   const latest = drafts.data.filter(draft => {
     const payload = draft.payload as unknown as WordDraftPayload;
-    if (!payload.skillKeys.includes(skill) || seen.has(draft.canonical_word_id)) return false;
+    if (deassigned.has(draft.canonical_word_id) || !payload.skillKeys.includes(skill) || seen.has(draft.canonical_word_id)) return false;
     seen.add(draft.canonical_word_id); return true;
   });
   if (!latest.length) return [];
@@ -238,12 +239,14 @@ export async function publishSchwaWorkbookWord(db: Db, actor: string, skill: str
 /** The job preflight loads its small batch once. SQL publication rechecks fingerprints atomically. */
 export async function publishCheckedSchwaWorkbookWord(db: Db, actor: string, skill: string, row: Awaited<ReturnType<typeof loadSchwaWorkbookQueue>>[number]) {
   if (row.blockers.length) throw new Error(row.blockers.join(" "));
+  const deassigned = await loadLessonDeassignments(db, ingReviewEnvironment()!, skill);
+  if (deassigned.has(row.wordId)) throw new Error("This word was de-assigned from this lesson. Explicitly assign it again before publishing.");
   if (row.published) {
     const version = await db.from("teaching_dictionary_route_content_versions").select("id").eq("draft_id", row.id).eq("micro_skill_key", skill).single();
     if (version.error) throw new Error("Could not verify the published Schwa word.");
     return { wordId: row.wordId, contentVersionId: version.data.id };
   }
-  const approval = await saveBulkSkillApprovalsAsActor({ microSkillKey: skill, applyWordIds: [row.wordId], excludeWordIds: [], clearWordIds: [], deassignWordIds: [], senseIds: { [row.wordId]: row.payload.skillSenseIds![skill] }, requestId: randomUUID(), workbookReadback: true, sourceKind: "teaching_dictionary_import" }, actor);
+  const approval = await saveBulkSkillApprovalsAsActor({ microSkillKey: skill, applyWordIds: [row.wordId], excludeWordIds: [], clearWordIds: [], deassignWordIds: [], senseIds: { [row.wordId]: row.payload.skillSenseIds![skill] }, requestId: randomUUID(), workbookReadback: true, sourceKind: "teaching_dictionary_import", allowReassignment: false }, actor);
   if (!approval.ok) throw new Error(approval.blocked[0]?.reason ?? approval.error ?? "Could not approve the teaching meaning.");
   const route = row.payload.routeContents[0]; const facts = route.content.weakVowel as WeakVowelRouteFactsV1;
   const overview = await db.rpc("review_teaching_dictionary_overview", { p_draft: row.id, p_actor: actor });
@@ -266,15 +269,16 @@ export async function publishCheckedSchwaWorkbookWord(db: Db, actor: string, ski
 export async function loadSchwaBulkReview(db: Db, skill: string, includeBundles = false) {
   if (!isSchwaWorkbookSkill(skill)) throw new Error("Unsupported Schwa lesson.");
   const environment = ingReviewEnvironment()!;
-  const [requests, publications, queue, pool, syllableReviews] = await Promise.all([
+  const [requests, publications, queue, pool, syllableReviews, deassigned] = await Promise.all([
     loadLessonReviewRequests(db, skill),
     db.from("adle_weak_vowel_content_publications").select("canonical_word_id").eq("micro_skill_key", skill),
     loadSchwaWorkbookQueue(db, skill), loadWeakVowelSelectionPool({ client: db, environmentKey: environment }, skill),
     db.from("teaching_dictionary_schwa_syllable_reviews").select("canonical_word_id").eq("environment_key", environment).eq("micro_skill_key", skill).is("resolved_at", null),
+    loadLessonDeassignments(db, environment, skill),
   ]);
   if (publications.error || syllableReviews.error) throw new Error("Could not load the Schwa lesson pool and saved syllable reviews.");
   const assigned = pool.authority.relationships;
-  const ids = [...new Set([...assigned.map(row => row.canonicalWordId), ...requests.keys(), ...publications.data.map(row => row.canonical_word_id), ...queue.map(row => row.wordId), ...syllableReviews.data.map(row => row.canonical_word_id)])];
+  const ids = [...new Set([...assigned.map(row => row.canonicalWordId), ...requests.keys(), ...publications.data.map(row => row.canonical_word_id), ...queue.map(row => row.wordId), ...syllableReviews.data.map(row => row.canonical_word_id)])].filter(id => !deassigned.has(id));
   const current = pool.words.map(row => ({ canonicalWordId: row.canonicalWordId, word: row.spelling, base: "", meaning: row.definition, dictationSentence: row.sentence }));
   const words = ids.length ? await db.from("canonical_teaching_dictionary_words").select("id,display_word").in("id", ids).eq("row_status", "active") : { data: [], error: null };
   if (words.error) throw new Error("Could not load assigned Schwa words.");

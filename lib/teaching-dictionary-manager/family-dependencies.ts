@@ -1,3 +1,4 @@
+import { loadLessonDeassignments } from "./lesson-deassignments";
 import { isSchwaWorkbookSkill, type SchwaWorkbookFacts } from "./weak-vowel-workbook";
 import { stageSchwaWorkbookDraft } from "./schwa-bulk-review";
 import "server-only";
@@ -183,5 +184,6 @@ export async function loadSavedFamilyReviews(db: Db, environment: string, skill?
   if (skill) query = query.eq("micro_skill_key", skill);
   const result = await query;
   if (result.error) throw new Error("Could not load saved family reviews.");
-  return result.data as FamilyDependency[];
+  const deassigned = skill ? await loadLessonDeassignments(db, environment, skill) : new Set<string>();
+  return result.data.filter(row => !deassigned.has(row.canonical_word_id)) as FamilyDependency[];
 }

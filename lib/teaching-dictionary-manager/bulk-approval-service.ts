@@ -50,6 +50,8 @@ export async function saveBulkSkillApprovalsAsActor(input: {
   senseIds: Record<string, string>;
   requestId: string;
   workbookReadback?: boolean;
+  /** Publishing an old draft must never act as an explicit reassignment. */
+  allowReassignment?: boolean;
   queueForReview?: boolean;
   sourceKind?: "teaching_dictionary_bulk" | "teaching_dictionary_word" | "teaching_dictionary_import";
 }, actorId: string): Promise<BulkApprovalResult> {
@@ -203,7 +205,9 @@ export async function saveBulkSkillApprovalsAsActor(input: {
     if (decisions.error) return failed("Could not check saved de-assignments. Please retry.");
     const suppressed = new Set((decisions.data ?? []).filter((row) => row.action === "deassign")
       .map((row) => row.canonical_word_id));
-    let restoreIds = applyWordIds.filter((id) => suppressed.has(id));
+    if (input.allowReassignment === false && applyWordIds.some(id => suppressed.has(id)))
+      return failed("This word was de-assigned from this lesson. Explicitly assign it again before publishing.");
+    let restoreIds = input.allowReassignment === false ? [] : applyWordIds.filter((id) => suppressed.has(id));
     const activeReviewedPairs = new Set(existing.filter((row) => row.microSkillKey === input.microSkillKey
       && row.relationshipRole === "demonstrates" && row.rowStatus === "active")
       .map((row) => row.canonicalWordId));
