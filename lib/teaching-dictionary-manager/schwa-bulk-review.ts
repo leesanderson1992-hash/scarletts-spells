@@ -19,6 +19,7 @@ import { randomUUID } from "node:crypto";
 import { reviewedAudioBlockers } from "@/lib/adle/weak-vowel/reviewed-audio";
 import { normaliseWrittenSyllableBreakdown } from "./authoring";
 import { chooseLessonFamily } from "./lesson-family-choice";
+import { retainedSchwaSyllableReviewEpoch } from "./schwa-syllable-review-retention";
 type Db = ReturnType<typeof createServiceRoleClient>;
 export const SCHWA_WORKBOOK_SOURCE = "Schwa Bulk review workbook v1";
 const hash = (value: string) => createHash("sha256").update(value).digest("hex");
@@ -73,7 +74,8 @@ export async function stageSchwaWorkbookDraft(db: Db, actor: string, bundle: Mul
   const authorityMap = await loadSchwaSyllableAuthority(db, [bundle.wordId], ingReviewEnvironment()!);
   const syllables = authorityMap.get(`${bundle.wordId}:${skill}`) ?? authorityMap.get(`${bundle.wordId}:`)!;
   const resolution = resolveSchwaSyllables(bundle.displayWord, syllables.divisions, fields.activity_syllables, fields.activity_cut_source);
-  fields = { ...fields, written_syllable_breakdown: syllables.divisions, syllable_review_epoch: options.reviewWrittenDivisions && fields.written_syllable_breakdown?.trim() ? syllables.resetAt ?? "" : fields.syllable_review_epoch ?? "",
+  const explicitSyllableReview = Boolean(options.reviewWrittenDivisions && fields.written_syllable_breakdown?.trim());
+  fields = { ...fields, written_syllable_breakdown: syllables.divisions,
     activity_cut_source: resolution.errors.length && resolution.conflict ? "Review conflict" : fields.activity_cut_source || "Use dictionary" };
   const [approved] = await loadReviewedMeaningBundles(db, [bundle.wordId]);
   if (!approved) throw new Error("Approve the current Dictionary meaning and parts first.");
@@ -94,6 +96,24 @@ export async function stageSchwaWorkbookDraft(db: Db, actor: string, bundle: Mul
   ]);
   if (saved.error) throw new Error("Could not load the saved lesson family choice.");
   if (word.error || versions.error || fingerprint.error || !fingerprint.data || oldSentence.error || oldPronunciation.error) throw new Error("Could not check the current Dictionary facts.");
+  const retainReview = (previous: WordDraftPayload | null | undefined) => retainedSchwaSyllableReviewEpoch({
+    previous, word: bundle.displayWord, skill, senseId, pronunciation,
+    divisions: syllables.divisions, resetAt: syllables.resetAt,
+  });
+  let reviewEpoch = explicitSyllableReview ? syllables.resetAt ?? "" : retainReview(saved.data?.payload as WordDraftPayload | undefined);
+  // Recover the proof if an older family recheck already replaced the latest
+  // draft with one that dropped its token. This is a single bounded read, and
+  // the witness must still match the current sense, pronunciation and cuts.
+  if (!explicitSyllableReview && !reviewEpoch && syllables.pending && syllables.resetAt) {
+    const witness = await db.from("teaching_dictionary_manager_drafts").select("payload")
+      .eq("canonical_word_id", bundle.wordId).eq("source_reference", SCHWA_WORKBOOK_SOURCE)
+      .contains("payload", { skillKeys: [skill], routeContents: [{ microSkillKey: skill,
+        content: { schwaWorkbookFields: { syllable_review_epoch: syllables.resetAt } } }] })
+      .order("created_at", { ascending: false }).limit(1).maybeSingle();
+    if (witness.error) throw new Error("Could not verify the saved syllable review.");
+    reviewEpoch = retainReview(witness.data?.payload as WordDraftPayload | undefined);
+  }
+  fields = { ...fields, syllable_review_epoch: reviewEpoch };
   const prior = (versions.data[0]?.content as unknown as RouteContentDraft | undefined)?.content?.weakVowel as WeakVowelRouteFactsV1 | undefined;
   const parsed = parseSchwaWorkbookFacts(bundle.displayWord, fields);
   const speech = (text: string) => { const src = deviceSpeechSource(text); return { src, sha256: hash(src) }; };
