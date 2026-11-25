@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { familyDisplayName } from "@/lib/teaching-dictionary-manager/family-display-name";
 import { useState, useTransition } from "react";
 import { getWorkbookFamilyChoices } from "../multi-sense-actions";
 import type { WorkbookFamilyDecision, WorkbookFamilyTask } from "@/lib/teaching-dictionary-manager/review-workbook";
@@ -29,7 +30,7 @@ function FamilyDecision({ task, skill, saving, onResolve, savedWordId }: {
   const family = choices?.families.find(row => row.key === familyKey);
   const base = choices?.bases.find(row => row.senseId === baseSense);
   const matches = choices?.families.filter(row =>
-    row.kind === (task.baseKind ?? "free_base") && `${row.base} ${row.meaning}`.toLowerCase().includes(search.trim().toLowerCase())) ?? [];
+    row.kind === (task.baseKind ?? "free_base") && familyDisplayName(row).toLowerCase().includes(search.trim().toLowerCase())) ?? [];
 
   return <section className="space-y-3 rounded-xl border border-[var(--border)] p-4">
     <h3 className="text-lg font-semibold">{savedWordId ? <Link className="underline" href={`/admin/teaching-dictionary/${savedWordId}`} target="_blank">{task.word} · Open word page</Link> : task.word}</h3>
@@ -52,14 +53,14 @@ function FamilyDecision({ task, skill, saving, onResolve, savedWordId }: {
         <label className="grid gap-1">Word family
           <select className={control} value={familyKey} onChange={event => setFamilyKey(event.target.value)}>
             <option value="">{matches.length ? "Choose an approved family" : "No approved family matches"}</option>
-            {matches.map(row => <option key={row.key} value={row.key}>{row.base} · {row.meaning}</option>)}
+            {matches.map(row => <option key={row.key} value={row.key}>{familyDisplayName(row)}</option>)}
           </select>
         </label>
       </div> : <div className="grid gap-2">
         <label className="grid gap-1">Reviewed base meaning
           <select className={control} value={baseSense} onChange={event => setBaseSense(event.target.value)}>
             <option value="">{choices.bases.length ? "Choose a reviewed meaning" : `No reviewed ${choices.basePartOfSpeech ? choices.basePartOfSpeech + " " : ""}base is available`}</option>
-            {choices.bases.map(row => <option key={row.senseId} value={row.senseId}>{task.base} · {row.meaning}</option>)}
+            {choices.bases.map(row => <option key={row.senseId} value={row.senseId}>{familyDisplayName({ base: task.base, meaning: row.meaning, partOfSpeech: row.partOfSpeech })}</option>)}
           </select>
         </label>
         {!choices.bases.length && <p>Review the base word and its {choices.basePartOfSpeech ? choices.basePartOfSpeech + " " : ""}meaning first. {choices.baseWordId &&

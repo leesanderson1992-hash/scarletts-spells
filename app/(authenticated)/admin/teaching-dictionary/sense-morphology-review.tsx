@@ -1,5 +1,6 @@
 "use client";
 
+import { lexicalFamilyDisplayName } from "@/lib/teaching-dictionary-manager/family-display-name";
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,7 +14,7 @@ import { createSenseFreeBaseFamily, findReviewedFamilyBase, findSenseFamilies, r
 type Suggestion = { label: string; parts: unknown[]; joins: unknown[]; transformations: unknown[] };
 type Analysis = { id: string; sense_id: string; morphology_parts: unknown[];
   morphology_joins: unknown[]; morphology_transformations: unknown[]; word_sum: string };
-type Family = { family_key: string; base_lemma: string; base_kind: string; base_meaning: string;
+type Family = { base_part_of_speech?: string; family_key: string; base_lemma: string; base_kind: string; base_meaning: string;
   canonical_base_word_id: string | null; canonical_base_sense_id?: string | null };
 type Link = { id: string; sense_id: string; sense_morphology_id: string;
   family_key: string; component_part_id: string; relationship_kind: string; base_meaning?: string };
@@ -49,7 +50,7 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
       && part.id && String(part.sourceText).toLowerCase() === family.base_lemma).map(part => ({ family, part })));
   const chosen = matches.find(row => `${row.family.family_key}:${row.part.id}` === familyChoice);
   const visibleMatches = matches.filter(({ family }) => family === chosen?.family ||
-    `${family.base_lemma} ${family.base_meaning}`.toLowerCase().includes(familySearch.trim().toLowerCase()));
+    lexicalFamilyDisplayName(family).toLowerCase().includes(familySearch.trim().toLowerCase()));
   const firstPart = typedParts[0];
   const baseParts = typedParts.filter(part => part.kind === "base" && part.id && part.sourceText);
   const basePart = baseParts.find(part => part.id === basePartId) ?? (baseParts.length === 1 ? baseParts[0] : undefined);
@@ -204,7 +205,7 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
       </span>
     </div>
     {currentLinks.map(link => <div key={link.id} className="flex flex-wrap items-center gap-2 text-sm">
-      <span><strong>{typedParts.find(part => part.id === link.component_part_id)?.sourceText}</strong> · {link.base_meaning ?? families.get(link.family_key)?.base_meaning ?? link.family_key} · {link.relationship_kind.replaceAll("_", " ")}</span>
+      <span><strong>{families.has(link.family_key) ? lexicalFamilyDisplayName(families.get(link.family_key)!) : `${typedParts.find(part => part.id === link.component_part_id)?.sourceText ?? "Family"} — ${link.base_meaning ?? ""}`}</strong> · {link.relationship_kind.replaceAll("_", " ")}</span>
       <button type="button" className="underline disabled:opacity-50" disabled={pending}
         onClick={() => submitLink("withdraw", link)}>Remove link</button>
     </div>)}
@@ -272,7 +273,7 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
             setRelationship(match?.family.canonical_base_word_id === props.wordId ? "free_base" : "derived"); }}>
           <option value="">Choose family and part</option>{visibleMatches.map(row =>
             <option key={`${row.family.family_key}:${row.part.id}`} value={`${row.family.family_key}:${row.part.id}`}>
-              {row.family.base_lemma} · {row.family.base_meaning} · {row.part.id}
+              {lexicalFamilyDisplayName(row.family)} · {row.part.sourceText}
             </option>)}
         </select></label>
         <label className="text-sm">Relationship <select className={field} value={relationship}

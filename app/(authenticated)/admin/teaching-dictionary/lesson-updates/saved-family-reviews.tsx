@@ -8,6 +8,7 @@ import { isSchwaWorkbookSkill, SCHWA_WORKBOOK_FIELDS } from "@/lib/teaching-dict
 import { loadSchwaWorkbookQueue } from "@/lib/teaching-dictionary-manager/schwa-bulk-review";
 import { saveSchwaWorkbookDetails } from "./schwa-actions";
 import { ActionSubmitButton } from "../action-submit-button";
+import { familyDisplayName, lexicalFamilyDisplayName } from "@/lib/teaching-dictionary-manager/family-display-name";
 
 export async function SavedFamilyReviews({ db, environment, skill }: {
   db: ReturnType<typeof createServiceRoleClient>; environment: string; skill: string;
@@ -20,6 +21,15 @@ export async function SavedFamilyReviews({ db, environment, skill }: {
     ? await loadSchwaWorkbookQueue(db, skill, multiple.map(bundle => bundle.wordId), false) : [];
   const pending = rows.filter(row => !row.family_resolved);
   const resolved = rows.filter(row => row.family_resolved);
+  const familyKeys = [...new Set(rows.flatMap(row => row.confirmed_family_key ? [row.confirmed_family_key] : []))];
+  const familyNames = new Map<string, string>();
+  if (familyKeys.length) {
+    const families = await db.from("teaching_dictionary_families_with_current_meaning")
+      .select("family_key,revision,base_lemma,base_meaning,base_part_of_speech,base_kind")
+      .in("family_key", familyKeys).order("revision", { ascending: false });
+    if (families.error) throw new Error("Could not load reviewed family names.");
+    for (const family of families.data) if (!familyNames.has(family.family_key)) familyNames.set(family.family_key, lexicalFamilyDisplayName(family));
+  }
   const tasks: SavedFamilyTask[] = pending.map((row, index) => {
     const bundle = bundles.find(bundle => bundle.wordId === row.canonical_word_id);
     const sense = bundle?.senseSet.senses.find(sense => sense.id === row.sense_id);
@@ -44,7 +54,7 @@ export async function SavedFamilyReviews({ db, environment, skill }: {
         {SCHWA_WORKBOOK_FIELDS.map(key => <input key={key} type="hidden" name={key} value={key === "family_exploration" ? "Use approved family" : lesson.fields[key]} />)}
         <label className="grid gap-1">Lesson family<select className="rounded border p-2" name="lesson_family_key" required defaultValue={lesson.fields.lesson_family_key ?? ""}>
           <option value="">Choose a linked family</option>
-          {analysis?.familyLinks?.map(link => { const part = analysis.parts.find(part => part.id === link.componentPartId); return <option key={`${link.familyKey}:${link.componentPartId}`} value={link.familyKey}>{part?.sourceText} · {part?.gloss}</option>; })}
+          {analysis?.familyLinks?.map(link => { const part = analysis.parts.find(part => part.id === link.componentPartId); return <option key={`${link.familyKey}:${link.componentPartId}`} value={link.familyKey}>{familyNames.get(link.familyKey) ?? familyDisplayName({ base: part?.sourceText ?? "Family", meaning: part?.gloss, kind: part?.kind === "root" ? "bound_root" : "free_base" })}</option>; })}
         </select></label>
         <ActionSubmitButton pendingLabel="Saving lesson family…" className="rounded border px-3 py-2">Save lesson family and recheck</ActionSubmitButton>
       </form>;
@@ -53,7 +63,7 @@ export async function SavedFamilyReviews({ db, environment, skill }: {
       <summary className="cursor-pointer font-semibold">Family resolved ({resolved.length})</summary>
       <ul className="mt-3 divide-y">{resolved.map(row => <li key={row.id} className="py-2">
         <Link className="font-semibold underline" href={`/admin/teaching-dictionary/${row.canonical_word_id}`}>
-          {bundles.find(bundle => bundle.wordId === row.canonical_word_id)?.displayWord ?? row.base_form} · {row.base_form}</Link>
+          {bundles.find(bundle => bundle.wordId === row.canonical_word_id)?.displayWord ?? row.base_form} · {familyNames.get(row.confirmed_family_key ?? "") ?? familyDisplayName({ base: row.base_form, meaning: row.expected_meaning, kind: row.base_kind })}</Link>
         <p className="text-sm">{row.detail}</p>
       </li>)}</ul>
     </details>

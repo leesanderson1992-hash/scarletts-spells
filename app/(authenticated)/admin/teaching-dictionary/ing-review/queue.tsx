@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { familyDisplayName } from "@/lib/teaching-dictionary-manager/family-display-name";
 import { useState, useTransition } from "react";
 import { ING_REVIEW_COLUMNS, type IngInput } from "@/lib/teaching-dictionary-manager/ing-bulk-review";
 import { applyIngReviewWord, editIngReview, openIngReview, previewIngReview, type ReviewBatchView } from "./actions";
@@ -191,7 +192,7 @@ export function IngReviewQueue({ recent }: { recent: { id: string; filename: str
                 Base family for {row.input.word}
                 <select className={control} value={row.familyKey ?? ""} disabled={busy} onChange={event => edit([{ number: row.number, familyKey: event.target.value }])}>
                   <option value="" disabled>Choose the meaning of {row.base}</option>
-                  {row.families.map(family => <option key={family.key} value={family.key}>{row.base} · {family.meaning}</option>)}
+                  {row.families.map(family => <option key={family.key} value={family.key}>{familyDisplayName({ base: row.base, meaning: family.meaning, partOfSpeech: "verb" })}</option>)}
                 </select>
                 {row.families.length === 1 ? <span>Suggested family: {row.base} · {row.families[0].meaning}</span> : null}
               </label> : null}

@@ -2,8 +2,9 @@ import "server-only";
 /* eslint-disable @typescript-eslint/no-explicit-any -- reviewed overlay tables precede generated client types */
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
+import { familyDisplayName, lexicalFamilyDisplayName, legacyFamilyBase } from "./family-display-name";
 
-export type FamilySummary = { name: string; meaning?: string; pronunciation?: string;
+export type FamilySummary = { name: string; displayName?: string; meaning?: string; pronunciation?: string;
   words: { id: string; word: string }[] };
 
 /** The latest approved lexical revision owns shared family facts. Registry and
@@ -22,7 +23,7 @@ export function mergeWordFamilySummaries(
 export async function loadWordBaseFamilies(
   db: SupabaseClient,
   wordId: string,
-): Promise<{ name: string; meaning?: string; pronunciation?: string; words: { id: string; word: string }[] }[]> {
+): Promise<FamilySummary[]> {
   const read = async (query: PromiseLike<any>): Promise<any[]> => {
     const result = await query;
     if (result.error) throw new Error("TEACHING_FAMILY_SUMMARY_READ_FAILED");
@@ -37,7 +38,7 @@ export async function loadWordBaseFamilies(
     const familyIds = [...new Set(canonicalLinks.map((row) => String(row.canonical_family_id)))];
     const [families, members, rootAliases] = await Promise.all([
       read(db.from("canonical_teaching_dictionary_base_family_registry")
-        .select("id,family_key,base_kind,meaning_variants").in("id", familyIds)),
+        .select("id,family_key,base_lemma,base_kind,meaning_variants").in("id", familyIds)),
       read(db.from("canonical_teaching_dictionary_base_family_registry_members")
         .select("canonical_family_id,canonical_word_id").in("canonical_family_id", familyIds)),
       read(db.from("canonical_teaching_dictionary_base_family_registry_aliases")
@@ -64,6 +65,8 @@ export async function loadWordBaseFamilies(
     const display = new Map(words.map((row) => [String(row.id), String(row.display_word)]));
     registryFamilies = families.map((family) => ({
       name: String(family.family_key),
+      displayName: familyDisplayName({ base: String(family.base_lemma), kind: String(family.base_kind),
+        meaning: Array.isArray(family.meaning_variants) ? family.meaning_variants.map(String).join("; ") : "" }),
       meaning: Array.isArray(family.meaning_variants)
         ? family.meaning_variants.map(String).join("; ") : "",
       pronunciation: pronunciation.get(String(family.id)),
@@ -90,8 +93,8 @@ export async function loadWordBaseFamilies(
   if (lexicalMatches.length) {
     const keys = [...new Set(lexicalMatches.map((row) => String(row.family_key)))];
     const revisions = await read(
-      db.from("canonical_teaching_dictionary_lexical_base_families")
-        .select("family_key,revision,base_lemma,base_kind,base_meaning")
+      db.from("teaching_dictionary_families_with_current_meaning")
+        .select("family_key,revision,base_lemma,base_kind,base_part_of_speech,base_meaning")
         .in("family_key", keys).eq("review_status", "approved")
         .order("revision", { ascending: false }),
     );
@@ -132,6 +135,7 @@ export async function loadWordBaseFamilies(
         const display = new Map(lexicalWords.map((row) => [row.id, String(row.display_word)]));
         lexicalFamilies = activeKeys.map((key) => ({
           name: key,
+          displayName: lexicalFamilyDisplayName(latest.get(key)),
           meaning: String(latest.get(key)?.base_meaning ?? ""),
           pronunciation: rootPronunciation.get(key),
           words: currentMembers.filter((row) => row.family_key === key)
@@ -227,14 +231,14 @@ export async function loadWordBaseFamilies(
     read(
       db
         .from("canonical_teaching_dictionary_base_word_families")
-        .select("id,base_family_key")
+        .select("id,base_family_key,base_meaning")
         .in("id", familyIds)
         .eq("row_status", "active"),
     ),
     read(
       db
         .from("teaching_dictionary_base_family_definitions")
-        .select("id,family_key")
+        .select("id,family_key,base_meaning")
         .in("id", familyIds),
     ),
     read(
@@ -250,6 +254,7 @@ export async function loadWordBaseFamilies(
   const wordById = new Map(words.map((word) => [word.id, word.display_word]));
   const adleFamilies = [...new Map([...legacy, ...definitions].map(family => [family.base_family_key ?? family.family_key, family])).values()].map((family) => ({
     name: family.base_family_key ?? family.family_key,
+    displayName: familyDisplayName({ base: legacyFamilyBase(family.base_family_key ?? family.family_key), meaning: family.base_meaning }),
     words: [...members.get(family.id)!]
       .flatMap((id) =>
         wordById.has(id) ? [{ id, word: String(wordById.get(id)) }] : [],

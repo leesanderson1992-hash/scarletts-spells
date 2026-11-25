@@ -72,6 +72,7 @@ import { WeakVowelRouteEditor } from "./weak-vowel-route-editor";
 import { SenseEditor } from "./sense-editor";
 import { DictationListen } from "./dictation-listen";
 import { SenseMorphologyReview } from "./sense-morphology-review";
+import { familyDisplayName, legacyFamilyBase } from "@/lib/teaching-dictionary-manager/family-display-name";
 import { MultiSenseCsvPanel } from "./multi-sense-csv-panel";
 import { prefillDictionaryMeanings } from "@/lib/teaching-dictionary-manager/meaning-prefill";
 import { normaliseWordPronunciations } from "@/lib/teaching-dictionary-manager/pronunciation-authority";
@@ -107,7 +108,7 @@ type Skill = {
   skill_family_key: string;
   skill_cluster_key: string;
 };
-type Family = { name: string; meaning?: string; pronunciation?: string; words: { id: string; word: string }[] };
+type Family = { name: string; displayName?: string; meaning?: string; pronunciation?: string; words: { id: string; word: string }[] };
 type Field = {
   key: string;
   label: string;
@@ -1154,8 +1155,8 @@ export function WordWorkspace(props: {
                   key={item.name}
                   className="mt-2 flex flex-wrap items-center gap-2 text-sm"
                 >
-                  <strong>Base Family: {item.name}</strong>
-                  {item.meaning ? <span className="text-[color:var(--mid)]">{item.meaning}</span> : null}
+                  <strong>Family: {item.displayName ?? item.name}</strong>
+                  {!item.displayName && item.meaning ? <span className="text-[color:var(--mid)]">{item.meaning}</span> : null}
                   {item.pronunciation ? <span className="text-[color:var(--mid)]">{item.pronunciation}</span> : null}
                   {item.words.map((word) => (
                     <Link
@@ -2247,9 +2248,9 @@ export function WordWorkspace(props: {
                     { familyKey: event.target.value })}>
                   <option value="">Choose this lesson’s family</option>
                   {selectedFamily && !lessonFamilies.some((family) => family.name === selectedFamily)
-                    && <option value={selectedFamily} disabled>{selectedFamily} · review this old selection</option>}
+                    && <option value={selectedFamily} disabled>{familyDisplayName({ base: legacyFamilyBase(selectedFamily) })} · review this old selection</option>}
                   {lessonFamilies.map((family) => <option key={family.name} value={family.name}>
-                    {family.name}{family.meaning ? ` · ${family.meaning}` : ""}
+                    {family.displayName ?? `${family.name}${family.meaning ? ` · ${family.meaning}` : ""}`}
                   </option>)}
                 </select>
               </label>}
@@ -2510,7 +2511,6 @@ export function WordWorkspace(props: {
                     void showFamilyReview(match.id);
                   }}>
                   <strong>{match.name}</strong> · {match.baseKind === "bound_root" ? "root family" : "base family"}
-                  {match.meaning ? ` · ${match.meaning}` : ""}
                 </button>
               </li>)}
             </ul>}
