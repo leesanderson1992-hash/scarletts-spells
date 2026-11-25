@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useOptimistic, useState, useTransition, type ReactNode } from "react";
+import { startTransition, useActionState, useOptimistic, useState, useTransition, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { importReviewedMultiSenseCsv, type MultiSenseImportState } from "../multi-sense-actions";
@@ -43,6 +43,9 @@ export function BulkReviewFlow({ families, clusters, skills, selected, initialFa
   const [family, setFamily] = useOptimistic(selectedSkill?.family ?? selectedCluster?.family ?? initialFamily);
   const [cluster, setCluster] = useOptimistic(selectedSkill?.cluster ?? initialCluster);
   const [uploadedSkill, setUploadedSkill] = useState<string | null>(null);
+  const [fileName, setFileName] = useState("");
+  const [fileChanged, setFileChanged] = useState(false);
+  const [resultSkill, setResultSkill] = useState<string | null>(null);
   const uploaded = uploadedSkill === selected;
   const [workbookStep, setWorkbookStep] = useState(1);
   const [navigating, navigate] = useTransition();
@@ -52,6 +55,8 @@ export function BulkReviewFlow({ families, clusters, skills, selected, initialFa
   const step = view === "export" ? 0 : view === "preview" ? 3 : view === "families" ? 2 : workbookStep;
   const [result, upload, pending] = useActionState(async (previous: MultiSenseImportState, form: FormData) => {
     const response = await importReviewedMultiSenseCsv(previous, form);
+    setFileChanged(false);
+    setResultSkill(selected);
     setUploadedSkill(response.uploadComplete ? selected : null);
     if (response.familyTasks?.length) {
       setWorkbookStep(2);
@@ -59,6 +64,7 @@ export function BulkReviewFlow({ families, clusters, skills, selected, initialFa
     } else if (response.words) router.refresh();
     return response;
   }, {});
+  const showResult = !pending && !fileChanged && resultSkill === selected;
   function openStep(index: number) {
     const nextView = index === 0 ? "export" : index === 3 ? "preview" : index === 2 ? "families" : "workbook";
     if (nextView === "workbook") setWorkbookStep(index);
@@ -67,7 +73,8 @@ export function BulkReviewFlow({ families, clusters, skills, selected, initialFa
       navigate(() => router.push(`?${query}`, { scroll: false }));
     }
   }
-  const results = result.words !== undefined && <div role="status" className="space-y-2">
+  const results = showResult && result.words !== undefined && <div role="status" className="space-y-2">
+    {result.workbookSummary && <p><strong>{result.workbookSummary.fileName}</strong> · {result.workbookSummary.selectedMeanings} Yes selections · {result.workbookSummary.selectedWords} words selected</p>}
     <p>{result.words} saved · {result.approved} newly approved · {result.alreadyApproved} already approved</p>
     {Boolean(result.conflicts?.length) && <details className="rounded-lg border border-amber-300 bg-amber-50 p-3" open>
       <summary className="font-semibold">Conflicts resolved using your workbook</summary>
@@ -153,25 +160,34 @@ export function BulkReviewFlow({ families, clusters, skills, selected, initialFa
       {step === 1 && <section className="space-y-3 rounded-2xl border border-[var(--border)] bg-white p-5">
         <h2 className="text-xl font-semibold">Edit and upload the workbook</h2>
         <p>Choose Yes on the meaning you want to teach and fix the flagged fields. {familyRequired ? "Leave any family you need to look up blank." : "Existing meanings and approved lesson examples are prefilled for review."}</p>
-        <form action={upload} className="flex flex-wrap items-end gap-3">
+        <form onSubmit={event => {
+          event.preventDefault();
+          const form = new FormData(event.currentTarget);
+          startTransition(() => upload(form));
+        }} className="flex flex-wrap items-end gap-3">
           <input type="hidden" name="workbook_skill" value={selected} />
           <label className="grid gap-1 font-medium">Corrected workbook
-            <input type="file" name="review_workbook" accept=".xlsx" required disabled={pending} onChange={() => setUploadedSkill(null)} className="rounded-lg border border-[var(--border)] p-2" />
+            <input type="file" name="review_workbook" accept=".xlsx" required disabled={pending} onChange={event => {
+              setUploadedSkill(null);
+              setFileName(event.target.files?.[0]?.name ?? "");
+              setFileChanged(true);
+            }} className="rounded-lg border border-[var(--border)] p-2" />
           </label>
           <button disabled={pending || uploaded} className={actionClass}>{pending ? "Checking workbook…" : uploaded ? "Uploaded" : "Check workbook"}</button>
         </form>
-        {result.error && <p role="alert" className="text-rose-800">{result.error}</p>}
+        {pending && <p role="status">Checking {fileName || "the workbook"} and saving reviewed facts. Please wait for the result.</p>}
+        {showResult && result.error && <p role="alert" className="text-rose-800">{result.error} Your file is still selected; correct it or retry.</p>}
         {results}
-        {Boolean(result.issues?.length) && <ul className="list-disc space-y-1 pl-5 text-rose-900">
+        {showResult && Boolean(result.issues?.length) && <ul className="list-disc space-y-1 pl-5 text-rose-900">
           {result.issues?.map((issue, index) => <li key={index}><strong>{issue.word}</strong> · {issue.reason}</li>)}
         </ul>}
-        {Boolean(result.words || result.approved || result.alreadyApproved) && <button type="button" className={actionClass}
+        {showResult && Boolean(result.words || result.approved || result.alreadyApproved) && <button type="button" className={actionClass}
           disabled={navigating || pending} onClick={() => openStep(3)}>Preview lesson update</button>}
       </section>}
       {step === 2 && <section className="space-y-3 rounded-2xl border border-[var(--border)] bg-white p-5">
         <h2 className="text-xl font-semibold">Resolve word families</h2>
-        {result.error && <p role="alert" className="text-rose-800">{result.error}</p>}
-        {result.issues?.map((issue, index) => <p key={index} className="text-rose-800">{issue.word} · {issue.reason}</p>)}
+        {showResult && result.error && <p role="alert" className="text-rose-800">{result.error}</p>}
+        {showResult && result.issues?.map((issue, index) => <p key={index} className="text-rose-800">{issue.word} · {issue.reason}</p>)}
         {savedReviews}
         {results}
         <button type="button" className={actionClass} disabled={pending || navigating} onClick={() => openStep(3)}>Preview lesson update</button>

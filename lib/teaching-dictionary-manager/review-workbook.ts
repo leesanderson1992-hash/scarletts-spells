@@ -321,7 +321,11 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
   const decisions = new Map(options?.decisions.map(decision => [decision.row, decision]));
   const selected = [...groups.values()].filter(group => group.some(row => row.use_in_lesson === "Yes"
     && (!options?.targetRow || Number(row.workbook_row) === options.targetRow)));
-  if (!selected.length) throw new Error("Choose Yes under Use in lesson for at least one meaning.");
+  if (!groups.size) throw new Error("No word rows were found below the workbook headings. Keep the Words to review sheet and its rows.");
+  if (!selected.length) {
+    if (options?.targetRow) throw new Error(`Workbook row ${options.targetRow} is not marked Yes. Choose a meaning marked Yes to resolve its family.`);
+    throw new Error("Choose Yes under Use in lesson for at least one meaning. No Yes selections were found in the uploaded file.");
+  }
   for (const group of selected) {
     if (isSchwaWorkbookSkill(skill) && group.filter(row => row.use_in_lesson === "Yes").length > 1)
       throw new Error(`Choose one teaching meaning under Use in lesson for ${group[0].display_word}. Other meanings stay in the Dictionary.`);
@@ -385,8 +389,17 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
         continue;
       }
       const family = options ? await options.resolve(base, decision) : null;
-      if (options && (!family || family.base !== base || (row[`part_${part}_kind`] === "root") !== (family.kind === "bound_root")))
-        throw new Error(`Row ${rowNumber}: choose an approved family with the base “${base}”.`);
+      if (options && (!family || family.base !== base || (row[`part_${part}_kind`] === "root") !== (family.kind === "bound_root"))) {
+        // Historical/exported keys can cease to match the current approved family.
+        // Save reviewed facts as a partial review, without approving the bad link.
+        // A new, explicit family decision still needs to be correct before saving.
+        if (decisions.has(rowNumber)) throw new Error(`Row ${rowNumber}: choose an approved family with the base “${base}”.`);
+        tasks.push({ row: rowNumber, word: row.display_word, meaning: row.definition, base, sentence: row.dictation_sentence,
+          senseId: row.sense_id, componentPartId: row[`part_${part}_id`] || `part_${part}`,
+          baseKind: row[`part_${part}_kind`] === "root" ? "bound_root" : "free_base", baseMeaning: row[`part_${part}_meaning`] });
+        row.family_key = "";
+        continue;
+      }
       if (family) {
         row.family_key = family.key;
         row[`part_${part}_meaning`] ||= family.meaning;
@@ -419,6 +432,8 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
   const prefixMeanings = new Map<number, string>();
   if (hasPrefixChoice) for (const row of requestedRows)
     prefixMeanings.set(Number(row.workbook_row), row[prefixMeaningKey]);
-  return { schwaFacts: new Map(requestedRows.map(row => [Number(row.workbook_row), Object.fromEntries([...SCHWA_WORKBOOK_FIELDS, ...SCHWA_SYLLABLE_FIELDS.filter(key => !legacySchwa || row[key] !== undefined)].map(key => [key, row[key] ?? ""])) as SchwaWorkbookFacts])), compoundFacts, prefixMeanings, suffixFacts: new Map(requestedRows.map(row => [Number(row.workbook_row),
+  return { reviewSummary: { meaningRows: [...groups.values()].reduce((count, rows) => count + rows.length, 0),
+    selectedMeanings: requestedRows.length, selectedWords: selected.length },
+    schwaFacts: new Map(requestedRows.map(row => [Number(row.workbook_row), Object.fromEntries([...SCHWA_WORKBOOK_FIELDS, ...SCHWA_SYLLABLE_FIELDS.filter(key => !legacySchwa || row[key] !== undefined)].map(key => [key, row[key] ?? ""])) as SchwaWorkbookFacts])), compoundFacts, prefixMeanings, suffixFacts: new Map(requestedRows.map(row => [Number(row.workbook_row),
     { age_band: row.age_band ?? "", frequency_band: row.frequency_band ?? "", complexity_band: row.complexity_band ?? "", has_schwa: row.has_schwa ?? "" } satisfies SuffixWorkbookFacts])), csv, rowNumbers: records.map(row => Number(row.workbook_row)), pendingFamilies };
 }
