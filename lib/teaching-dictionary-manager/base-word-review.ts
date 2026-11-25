@@ -3,7 +3,9 @@ import "server-only";
 import { loadLessonReviewRequests } from "./lesson-review-requests";
 
 import { loadEnabledBaseWordReleaseAuthorities } from "@/lib/adle/loaders/curriculum-release-authority";
-import { projectPublishedBaseWordRelease, baseWordPartShape } from "@/lib/adle/loaders/published-base-family-words";
+import { projectPublishedBaseWordRelease } from "@/lib/adle/loaders/published-base-family-words";
+import { canonicalBaseWordAnalysis } from "@/lib/adle/base-word-canonical-analysis";
+import { canonicalBaseWordWorkflowEnabled } from "@/lib/adle/base-word-canonical-workflow";
 import { baseWordFamilyMemberAppliesToMicroSkill } from "@/lib/adle/curriculum-release-activation";
 import { baseWordMemberSelectable } from "@/lib/adle/base-word-regularity";
 import { loadReviewedMeaningBundles } from "./multi-sense-export";
@@ -20,6 +22,7 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
   const environment = ingReviewEnvironment();
   if (!environment) throw new Error("Bulk review is unavailable.");
   const generationSupported = skill === IDENTIFY_BASE_SKILL;
+  const canonicalEnabled = canonicalBaseWordWorkflowEnabled(environment);
   const [[release], requests] = await Promise.all([
     loadEnabledBaseWordReleaseAuthorities({
       client: db, environmentKey: environment, microSkillKeys: [skill], includePaused: !generationSupported,
@@ -40,7 +43,7 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
     const bundles = includeBundles ? await readBundles(db, requestRows.map(row => row.id)) : [];
     return { current: [], rows: requestRows.map(row => ({ ...row, bundle: bundles.find(bundle => bundle.wordId === row.id) ?? row.bundle })) };
   }
-  const active = environment === "staging" && process.env.ADLE_BASE_WORD_DICTIONARY_ONLY === "enabled"
+  const active = canonicalEnabled
     ? await projectPublishedBaseWordRelease(db, release) : release;
   const pool = generationSupported ? await loadBaseWordSelectionPool(db, active) : null;
   const paired = new Set(pool?.eligibleFamilyPairs.flat());
@@ -70,19 +73,27 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
     const [{ word, member, family }] = records;
     const bundle = byWord.get(id);
     const eligible = records.filter(({ member }) => baseWordMemberSelectable(release.family, member));
+    const missingFacts = new Set<string>();
     const choices = bundle?.senseSet.senses.filter(sense => {
       const analysis = bundle.analyses.find(item => item.senseId === sense.id);
-      if (!analysis?.familyKey || evaluateLessonCandidate({
+      if (!analysis?.familyKey) return false;
+      const check = evaluateLessonCandidate({
         wordId: id, displayWord: word.displayWord, skillKey: IDENTIFY_BASE_SKILL, senseId: sense.id, senseSet: bundle.senseSet,
         morphology: { parts: analysis.parts, joins: analysis.joins, wordSum: analysis.wordSum,
           analysisStatus: "approved", reviewStatus: "approved_for_first_exposure" },
         familyLinks: [{ family_key: analysis.familyKey, sense_id: sense.id,
           component_part_id: analysis.componentPartId, relationship_kind: analysis.relationshipKind }],
-      }).status !== "ready") return false;
-      return eligible.some(({ member, family }) => {
-        if (baseWordPartShape(analysis.parts) !== baseWordPartShape(member.morphologyParts)) return false;
+      });
+      if (check.status !== "ready") {
+        check.issues.forEach(issue => missingFacts.add(issue.message));
+        return false;
+      }
+      return eligible.some(({ family }) => {
         const basePart = analysis.parts.find(part => part.id === analysis.componentPartId && part.kind === "base");
-        if (!basePart) return false;
+        if (!basePart || !canonicalBaseWordAnalysis({ displayWord: bundle.displayWord, parts: analysis.parts,
+          joins: analysis.joins, transformations: analysis.transformations, wordSum: analysis.wordSum,
+          componentPartId: analysis.componentPartId, baseSource: basePart.sourceText,
+          relationshipKind: analysis.relationshipKind })) return false;
         if (family.baseWordId === id) return analysis.relationshipKind === "free_base";
         const baseBundle = byWord.get(family.baseWordId);
         // Use the actual published anchor, including its chosen meaning.
@@ -95,13 +106,14 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
       });
     }).map(sense => ({ id: sense.id, definition: sense.definition })) ?? [];
     const base = words.get(family.baseWordId)?.displayWord ?? "";
-    const note = !generationSupported ? "This historical lesson needs a supported release before any word can become Active." : environment === "production" ? "This word is outside the current selectable family pool. Check its family and the lesson release." : !eligible.length ? "The teaching release excludes this form. Review the family’s regularity before it can be published."
+    const note = !generationSupported ? "This historical lesson needs a supported release before any word can become Active." : !canonicalEnabled ? "Canonical Base Word publishing has not been enabled for this environment." : !eligible.length ? "The teaching release excludes this form. Review the family’s regularity before it can be published."
       : choices.length ? "Reviewed facts are ready. Choose the teaching meaning and publish."
+        : missingFacts.size ? [...missingFacts].join(" ")
         : !bundle ? "Review the meaning, pronunciation, dictation and word parts, then confirm the teaching family."
           : !inPool.has(family.baseWordId) && family.baseWordId !== id
             ? `Review the base “${base}” in the Teaching Dictionary and approve its meaning, pronunciation, dictation and family. The base does not need a separate lesson assignment.`
             : "Check the reviewed meaning, dictation, word parts and link to the released teaching family.";
-    return { id, word: word.displayWord, choices: generationSupported && environment === "staging" ? choices : [], note, base, bundle: includeBundles ? bundle ?? {
+    return { id, word: word.displayWord, choices: generationSupported && canonicalEnabled ? choices : [], note, base, bundle: includeBundles ? bundle ?? {
       wordId: id, displayWord: word.displayWord, sourceSenseReviewedAt: "",
       senseSet: { senses: [{ id: "review", definition: member.childFriendlyMeaning, partOfSpeech: "", pronunciationId: null,
         dictationSentence: word.dictationSentence, dictationTargetTokenIndex: word.dictationTargetTokenIndex }], pronunciations: [] },

@@ -80,6 +80,10 @@ export function projectReleasedBaseWordMorphology(
     const transformation = raw as Record<string, unknown>;
     if (transformation.type === "change_final_y_to_i" && transformation.transformationKey === "change_final_y_to_i") {
       transformations.push(transformation as unknown as BaseWordFamilySnapshotWord["transformations"][number]);
+    } else if (["change_final_y_to_i", "drop_final_e", "double_final_consonant"].includes(String(transformation.type)) &&
+        typeof transformation.sourcePartId === "string" && typeof transformation.sourceText === "string" &&
+        typeof transformation.surfaceText === "string" && typeof transformation.explanation === "string") {
+      transformations.push({ ...transformation, transformationKey: transformation.type } as unknown as BaseWordFamilySnapshotWord["transformations"][number]);
     } else if (!(["drop_final_e", "double_final_consonant", "editorial_alignment_candidate"].includes(String(transformation.kind)) &&
         typeof transformation.kind === "string")) return null;
   }

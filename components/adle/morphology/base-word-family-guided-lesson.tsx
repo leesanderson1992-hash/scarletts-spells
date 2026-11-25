@@ -15,7 +15,7 @@ import { SplitHandle } from "@/components/adle/activities/shared/split-handle";
 import { deterministicOrderedBuildOrder } from "@/components/adle/activities/shared/ordered-build-engine";
 import type { GuideBeatV1 } from "@/lib/adle/morphology/payload";
 import { extractAuthoredTargetToken } from "@/lib/adle/morphology/payload";
-import { finalYRestorationForBasePart, type BaseWordFamilyLessonSnapshotV1, type BaseWordFamilySnapshotWord } from "@/lib/adle/morphology/base-word-family-payload";
+import { baseSpellingRestorationForPart, finalYRestorationForBasePart, type BaseWordFamilyLessonSnapshotV1, type BaseWordFamilySnapshotWord } from "@/lib/adle/morphology/base-word-family-payload";
 import { baseWordFamilyResumeKey, normaliseBaseWordFamilyResume, type BaseWordFamilyResumeState } from "@/lib/adle/morphology/base-word-family-resume";
 import { isAttemptCorrect } from "@/lib/adle/session-correctness";
 import {
@@ -214,6 +214,12 @@ function Cleave(props: { word: BaseWordFamilySnapshotWord | undefined; cuts: Rec
 
   if (splitComplete && transformation) {
     return <SpellingTransformationReveal surfaceText={transformation.surfaceText} sourceText={transformation.sourceText} explanation={transformation.explanation} actionLabel="Change i to y" continueLabel="Build words from meanings" onContinue={props.onNext} />;
+  }
+  const baseRestoration = baseSpellingRestorationForPart(basePart, word!.transformations ?? []);
+  if (splitComplete && baseRestoration) {
+    return <SpellingTransformationReveal surfaceText={baseRestoration.surfaceText} sourceText={baseRestoration.sourceText}
+      explanation={baseRestoration.explanation} actionLabel={baseRestoration.type === "drop_final_e" ? "Restore final e" : "Restore the base spelling"}
+      continueLabel="Build words from meanings" onContinue={props.onNext} />;
   }
 
   return <SplitHandle
