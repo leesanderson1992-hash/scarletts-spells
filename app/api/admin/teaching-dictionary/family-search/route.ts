@@ -14,8 +14,8 @@ export async function GET(request: Request) {
     { headers: { "Cache-Control": "private, no-store" } });
   const db = createServiceRoleClient();
   const pattern = `%${term}%`;
-  const lexical = await db.from("canonical_teaching_dictionary_lexical_base_families")
-    .select("family_key,revision,base_lemma,base_meaning,base_kind")
+  const lexical = await db.from("teaching_dictionary_families_with_current_meaning")
+    .select("family_key,revision,base_lemma,base_meaning,base_kind,base_part_of_speech")
     .eq("review_status", "approved").ilike("base_lemma", pattern)
     .order("base_lemma").order("revision", { ascending: false }).limit(500);
   if (lexical.error) return NextResponse.json({ error: "FAMILY_SEARCH_FAILED" }, { status: 503,

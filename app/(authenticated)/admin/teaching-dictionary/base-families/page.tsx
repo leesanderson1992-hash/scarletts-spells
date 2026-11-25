@@ -5,6 +5,7 @@ import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activati
 import { loadEnabledBaseWordReleaseAuthorities } from "@/lib/adle/loaders/curriculum-release-authority";
 import { indexedEligibleBaseFamilyCounts, shortlistBaseFamilyPairs } from "@/lib/adle/base-word-family-counts";
 import { BASE_WORD_SKILLS } from "@/lib/teaching-dictionary-manager/base-family-candidates";
+import { familyDisplayName, legacyFamilyBase, lexicalFamilyDisplayName } from "@/lib/teaching-dictionary-manager/family-display-name";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,17 @@ export default async function BaseFamiliesPage({ searchParams }: {
     return { release, counts: counts.filter((family) => family.eligibleCount > greaterThan), exclusions: counts.flatMap((family) => family.regularityExclusions.map((excluded) => ({ familyKey: family.baseFamilyKey, ...excluded }))),
       pairs: shortlistBaseFamilyPairs(counts, greaterThan) };
   });
+  const familyKeys = [...new Set([...candidates.map(row => row.family_key),
+    ...views.flatMap(view => view.counts.map(family => family.baseFamilyKey))])];
+  const names = new Map<string, string>();
+  for (let offset = 0; offset < familyKeys.length; offset += 100) {
+    const rows = await client.from("teaching_dictionary_families_with_current_meaning")
+      .select("family_key,revision,base_lemma,base_part_of_speech,base_kind,base_meaning")
+      .in("family_key", familyKeys.slice(offset, offset + 100)).order("revision", { ascending: false });
+    if (rows.error) throw new Error("Could not load family display names.");
+    for (const row of rows.data) if (!names.has(row.family_key)) names.set(row.family_key, lexicalFamilyDisplayName(row));
+  }
+  const familyName = (key: string) => names.get(key) ?? familyDisplayName({ base: legacyFamilyBase(key) });
   return <main className="mx-auto grid max-w-6xl gap-5 p-6 text-[color:var(--ink)]">
     <nav className="text-sm"><Link href="/admin/teaching-dictionary" className="underline">← Teaching Dictionary</Link></nav>
     <header><h1 className="text-2xl font-semibold">Released Base Word families</h1>
@@ -47,11 +59,11 @@ export default async function BaseFamiliesPage({ searchParams }: {
       <p className="text-xs">Release {release.releaseKey} · {counts.length} families above x · {pairs.length} pairs with at least six distinct words</p>
       <table className="w-full text-left text-sm"><thead><tr><th className="py-1">Family</th><th>Eligible words</th><th>Six-word pair</th></tr></thead>
         <tbody>{counts.map((family) => <tr key={family.baseFamilyKey} className="border-t border-[var(--border)]">
-          <td className="py-1">{family.baseFamilyKey}</td><td>{family.eligibleCount}</td>
+          <td className="py-1">{familyName(family.baseFamilyKey)}</td><td>{family.eligibleCount}</td>
           <td>{pairs.some((pair) => pair.includes(family.baseFamilyKey)) ? "Possible" : "No"}</td>
         </tr>)}</tbody></table>
       {exclusions.length > 0 && <details className="text-sm"><summary className="cursor-pointer font-semibold">{exclusions.length} regularity exclusions</summary>
-        <ul className="mt-2 grid gap-1">{exclusions.map((entry) => <li key={`${entry.familyKey}:${entry.canonicalWordId}`}>{entry.familyKey} · {entry.canonicalWordId} · {entry.status} · {entry.source} · {entry.reason}</li>)}</ul>
+        <ul className="mt-2 grid gap-1">{exclusions.map((entry) => <li key={`${entry.familyKey}:${entry.canonicalWordId}`}>{familyName(entry.familyKey)} · {entry.canonicalWordId} · {entry.status} · {entry.source} · {entry.reason}</li>)}</ul>
       </details>}
     </section>)}
     <section className="grid gap-2 rounded border border-[var(--border)] bg-white p-4">
@@ -59,7 +71,7 @@ export default async function BaseFamiliesPage({ searchParams }: {
       <p className="text-sm">{candidates.length} approved lexical family revisions may supply Base Word lesson candidates. This authorisation does not approve a word–skill relationship, lesson content, or a route release.</p>
       <table className="w-full text-left text-sm"><thead><tr><th className="py-1">Family</th><th>Revision</th><th>Active release</th></tr></thead>
         <tbody>{candidates.map((candidate) => <tr key={`${candidate.family_key}:${candidate.revision}`} className="border-t border-[var(--border)]">
-          <td className="py-1">{candidate.family_key}</td><td>{candidate.revision}</td>
+          <td className="py-1">{familyName(candidate.family_key)}</td><td>{candidate.revision}</td>
           <td>{releasedKeys.has(candidate.family_key) ? "Included" : "Needs word and content review"}</td>
         </tr>)}</tbody></table>
     </section>

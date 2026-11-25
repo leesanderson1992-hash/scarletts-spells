@@ -1,3 +1,5 @@
+import { lexicalFamilyDisplayName } from "./family-display-name";
+
 /** Search approved family lemmas, not the common `_base_family` key suffix. */
 export type FamilySearchRow = {
   family_key: string;
@@ -5,6 +7,7 @@ export type FamilySearchRow = {
   base_lemma: string;
   base_meaning: string;
   base_kind: "free_base" | "bound_root";
+  base_part_of_speech?: string;
 };
 
 export function familySearchTerm(raw: string): string {
@@ -20,7 +23,7 @@ export function familySearchResults(rows: readonly FamilySearchRow[], term: stri
     if (!previous || row.revision > previous.revision) latest.set(row.family_key, row);
   }
   return [...latest.values()].map((row) => ({
-    kind: "lexical" as const, id: row.family_key, name: row.family_key,
+    kind: "lexical" as const, id: row.family_key, name: lexicalFamilyDisplayName(row),
     meaning: row.base_meaning, baseLemma: row.base_lemma, baseKind: row.base_kind,
   })).sort((a, b) =>
     Number(b.baseLemma.toLocaleLowerCase("en-GB") === term) -

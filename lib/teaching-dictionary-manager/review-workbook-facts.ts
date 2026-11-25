@@ -1,4 +1,5 @@
 import "server-only";
+import { lexicalFamilyDisplayName } from "./family-display-name";
 import { isSchwaWorkbookSkill } from "./weak-vowel-workbook";
 import { prefillWorkbookParts, type WorkbookPartPrefill } from "./review-workbook-part-prefill";
 
@@ -140,7 +141,7 @@ export async function prefillReviewWorkbookFacts(db: Db, bundles: MultiSenseCsvB
       if (seen.has(row.family_key)) continue;
       seen.add(row.family_key);
       if (row.review_status !== "approved") continue;
-      const label = `${row.base_lemma} · ${row.base_part_of_speech} · ${row.base_meaning} | ${row.family_key}`;
+      const label = `${lexicalFamilyDisplayName(row)} | ${row.family_key}`;
       families.set(row.base_lemma, [...(families.get(row.base_lemma) ?? []), label]);
     }
   }
@@ -158,7 +159,7 @@ export async function prefillReviewWorkbookFacts(db: Db, bundles: MultiSenseCsvB
       for (const root of data ?? []) {
         if (rootsSeen.has(root.family_key)) continue;
         rootsSeen.add(root.family_key);
-        if (root.review_status === "approved") rootFamilyOptions.push(`${root.base_lemma} · ${root.base_part_of_speech} · ${root.base_meaning} | ${root.family_key}`);
+        if (root.review_status === "approved") rootFamilyOptions.push(`${lexicalFamilyDisplayName({ ...root, base_kind: "bound_root" })} | ${root.family_key}`);
       }
       if ((data?.length ?? 0) < 250) break;
     }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { lexicalFamilyDisplayName } from "@/lib/teaching-dictionary-manager/family-display-name";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { normaliseWord } from "@/lib/teaching-dictionary-manager/contracts";
 import { approvedLexicalBaseTexts, lexicalMorphologyReady } from "@/lib/teaching-dictionary-manager/lexical-family-candidates";
@@ -36,8 +37,8 @@ export async function BaseFamilyReview({ word, morphology, error, lexicalFamilyK
     parts.some((part) => ["base", "free_base"].includes(String(part.kind ?? part.type ?? part.partType)) &&
       normaliseWord(String(part.sourceText ?? part.text ?? "")) === base.normalised_word));
   const [familiesResult, baseMorphologyResult, baseSensesResult] = await Promise.all([
-    db.from("canonical_teaching_dictionary_lexical_base_families")
-      .select("family_key,revision,base_lemma,base_kind,base_meaning,review_status")
+    db.from("teaching_dictionary_families_with_current_meaning")
+      .select("family_key,revision,base_lemma,base_kind,base_part_of_speech,base_meaning,review_status")
       .in("base_lemma", [...new Set([...baseTexts, ...candidateBases.map((base) => base.normalised_word)])])
       .order("revision", { ascending: false }),
     candidateBases.length ? db.from("canonical_teaching_dictionary_word_morphology")
@@ -55,8 +56,8 @@ export async function BaseFamilyReview({ word, morphology, error, lexicalFamilyK
   const latest = new Map<string, NonNullable<typeof familiesResult.data>[number]>();
   for (const family of familiesResult.data ?? []) if (!latest.has(family.family_key)) latest.set(family.family_key, family);
   if (lexicalFamilyKey && !latest.has(lexicalFamilyKey)) {
-    const selected = await db.from("canonical_teaching_dictionary_lexical_base_families")
-      .select("family_key,revision,base_lemma,base_kind,base_meaning,review_status")
+    const selected = await db.from("teaching_dictionary_families_with_current_meaning")
+      .select("family_key,revision,base_lemma,base_kind,base_part_of_speech,base_meaning,review_status")
       .eq("family_key", lexicalFamilyKey).order("revision", { ascending: false }).limit(1).maybeSingle();
     if (selected.error) throw new Error("LEXICAL_FAMILY_SELECTED_READ_FAILED");
     if (selected.data) latest.set(selected.data.family_key, selected.data);
@@ -89,7 +90,7 @@ export async function BaseFamilyReview({ word, morphology, error, lexicalFamilyK
       const currentLinks = senseLinks.filter(link => link.family_key === family.family_key);
       const eligibleSenses = senses.filter(sense => sense.partOfSpeech === memberPos.get(family.family_key));
       return <div key={family.family_key} className="grid gap-2 rounded border p-3 text-sm">
-        <strong>{family.family_key} · {family.base_kind === "bound_root" ? "root" : "base"} · {family.base_meaning}</strong>
+        <strong>{lexicalFamilyDisplayName(family)}</strong>
         <p>{member ? "This word is a member." : ready ? "Reviewed morphology supports this family." :
           "Review the matching base or root and word parts in Overview before joining."}</p>
         {!member && ready && (!senses.length || !componentParts.length) &&
