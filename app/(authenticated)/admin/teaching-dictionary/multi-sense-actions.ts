@@ -39,6 +39,7 @@ type ImportIssue = { word: string; rows: number[]; wordId?: string; reason: stri
 type LessonResult = { word: string; wordId: string; meaning: string; skillKey: string;
   approval: "Approved" | "Already approved" | "Needs review" | "Ready to publish"; release?: string; routeId?: string; draftId?: string };
 export type MultiSenseImportState = {
+  workbookSummary?: { fileName: string; meaningRows: number; selectedMeanings: number; selectedWords: number };
   lessons?: LessonResult[];
   familyTasks?: WorkbookFamilyTask[];
   conflicts?: ImportIssue[];
@@ -86,6 +87,7 @@ export async function importReviewedMultiSenseCsv(
   let prefixMeanings = new Map<number, string>();
   let suffixFacts = new Map<number, SuffixWorkbookFacts>();
   let entries: ReturnType<typeof prepareReviewedCsv>;
+  let workbookSummary: MultiSenseImportState["workbookSummary"];
   try {
     if (workbook && supportsReviewWorkbook(skill)) {
       const rawTarget = form.get("family_target_row");
@@ -98,12 +100,13 @@ export async function importReviewedMultiSenseCsv(
           (typeof item.familyKey === "string") === (typeof item.createSenseId === "string") ||
           (item.familyKey?.length ?? 0) > 200 || (item.createSenseId?.length ?? 0) > 200))
         throw new Error("Choose a valid family decision.");
-      const { csv, rowNumbers, pendingFamilies, schwaFacts: workbookSchwaFacts, compoundFacts: workbookCompoundFacts, suffixFacts: workbookSuffixFacts, prefixMeanings: workbookPrefixMeanings } = await readReviewWorkbook(await file.arrayBuffer(), skill, {
+      const { csv, rowNumbers, pendingFamilies, reviewSummary, schwaFacts: workbookSchwaFacts, compoundFacts: workbookCompoundFacts, suffixFacts: workbookSuffixFacts, prefixMeanings: workbookPrefixMeanings } = await readReviewWorkbook(await file.arrayBuffer(), skill, {
         targetRow, decisions,
         resolve: (base, decision) => decision.createSenseId
           ? createWorkbookFamily(db, actor.id, base, decision.createSenseId, workbookBasePartOfSpeech(skill))
           : approvedWorkbookFamily(db, decision.familyKey ?? "", true),
       });
+      workbookSummary = { fileName: file.name.slice(0, 120), ...reviewSummary };
       schwaFacts = workbookSchwaFacts;
       compoundFacts = workbookCompoundFacts;
       suffixFacts = workbookSuffixFacts;
@@ -302,7 +305,7 @@ export async function importReviewedMultiSenseCsv(
       for (const row of results) row.release = "Check current lesson readiness";
     }
   }));
-  return { words, approved, alreadyApproved, issues, lessons, familyTasks, conflicts,
+  return { words, approved, alreadyApproved, issues, lessons, familyTasks, conflicts, workbookSummary,
     uploadComplete: entries.length > 0 && completedWords === entries.length };
 }
 
