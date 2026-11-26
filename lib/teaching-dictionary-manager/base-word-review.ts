@@ -83,44 +83,46 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
     const missingFacts = new Set<string>();
     const choices = bundle?.senseSet.senses.filter(sense => {
       const analysis = bundle.analyses.find(item => item.senseId === sense.id);
-      if (!analysis?.familyKey) return false;
+      if (!analysis || !analysis.familyLinks?.length && !analysis.familyKey) return false;
       const check = evaluateLessonCandidate({
         wordId: id, displayWord: word.displayWord, skillKey: IDENTIFY_BASE_SKILL, senseId: sense.id, senseSet: bundle.senseSet,
         morphology: { parts: analysis.parts, joins: analysis.joins, transformations: analysis.transformations, wordSum: analysis.wordSum,
           analysisStatus: "approved", reviewStatus: "approved_for_first_exposure" },
-        familyLinks: [{ family_key: analysis.familyKey, sense_id: sense.id,
-          component_part_id: analysis.componentPartId, relationship_kind: analysis.relationshipKind }],
+        familyLinks: (analysis.familyLinks?.length ? analysis.familyLinks : [{ familyKey: analysis.familyKey, componentPartId: analysis.componentPartId, relationshipKind: analysis.relationshipKind }]).map(link => ({ family_key: link.familyKey, sense_id: sense.id, component_part_id: link.componentPartId, relationship_kind: link.relationshipKind })),
       });
       if (check.status !== "ready") {
         check.issues.forEach(issue => missingFacts.add(issue.message));
         return false;
       }
       return eligible.some(({ family }) => {
-        const basePart = analysis.parts.find(part => part.id === analysis.componentPartId && part.kind === "base");
-        if (analysis.relationshipKind === "free_base" && family.baseWordId !== id) {
+        const links = analysis.familyLinks?.length ? analysis.familyLinks : [{ familyKey: analysis.familyKey, componentPartId: analysis.componentPartId, relationshipKind: analysis.relationshipKind }];
+        const link = links.find(link => family.baseWordId === id ? link.relationshipKind === "free_base" : anchors.some(anchor => anchor.wordId === family.baseWordId && anchor.familyKey === link.familyKey));
+        if (!link) return false;
+        const basePart = analysis.parts.find(part => part.id === link.componentPartId && part.kind === "base");
+        if (link.relationshipKind === "free_base" && family.baseWordId !== id) {
           missingFacts.add(`Reviewed parts treat this word as a whole base. The current lesson release groups it under “${words.get(family.baseWordId)?.displayWord ?? "a different base"}”; a matching released family is required.`);
           return false;
         }
         if (!basePart || !canonicalBaseWordAnalysis({ displayWord: bundle.displayWord, parts: analysis.parts,
           joins: analysis.joins, transformations: analysis.transformations, wordSum: analysis.wordSum,
-          componentPartId: analysis.componentPartId, baseSource: basePart.sourceText,
-          relationshipKind: analysis.relationshipKind })) {
+          componentPartId: link.componentPartId, baseSource: basePart.sourceText,
+          relationshipKind: link.relationshipKind })) {
           const regularity = reviewedBaseWordRegularity({ relationshipKind: analysis.relationshipKind, transformations: analysis.transformations, parts: analysis.parts, reviewed: true });
           missingFacts.add(regularity.status === "needs_review"
             ? "The reviewed word parts are saved. This family-specific spelling change needs a lesson regularity decision before publishing."
             : "Review the word sum and saved spelling changes: they must reproduce the reviewed word parts.");
           return false;
         }
-        if (family.baseWordId === id) return analysis.relationshipKind === "free_base";
+        if (family.baseWordId === id) return link.relationshipKind === "free_base";
         // The approved dictionary base is support, not a prerequisite lesson
         // publication. Match the exact family sense before offering Publish.
         return Boolean(anchors.some(anchor => anchor.wordId === family.baseWordId &&
-          anchor.familyKey === analysis.familyKey && anchor.parts[0].sourceText === basePart.sourceText) &&
-          ["derived", "regular_inflection", "irregular_inflection"].includes(analysis.relationshipKind));
+          anchor.familyKey === link.familyKey && anchor.parts[0].sourceText === basePart.sourceText) &&
+          ["derived", "regular_inflection", "irregular_inflection"].includes(link.relationshipKind));
       });
     }).map(sense => ({ id: sense.id, definition: sense.definition })) ?? [];
     const supportOnly = choices.length > 0 && choices.every(choice =>
-      bundle?.analyses.find(analysis => analysis.senseId === choice.id)?.relationshipKind === "free_base");
+      bundle?.analyses.find(analysis => analysis.senseId === choice.id)?.parts.length === 1);
     const base = words.get(family.baseWordId)?.displayWord ?? "";
     const note = !generationSupported ? "This historical lesson needs a supported release before any word can become Active." : !canonicalEnabled ? "Canonical Base Word publishing has not been enabled for this environment." : !eligible.length ? "The teaching release excludes this form. Review the family’s regularity before it can be published."
       : supportOnly ? "This base is approved dictionary support. Publish an eligible derived member in its family; the base becomes Active automatically when the two-family lesson has enough words."

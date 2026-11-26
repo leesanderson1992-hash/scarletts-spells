@@ -4,6 +4,24 @@ import { deterministicOrderedBuildOrder } from "@/components/adle/activities/sha
 type Part = { id: string; sourceText: string; surfaceText: string; gloss?: string; kind?: string };
 export function parts(word: BaseWordFamilySnapshotWord): Part[] { return word.parts.filter((part): part is Part => !!part && typeof part === "object" && typeof (part as Part).id === "string" && typeof (part as Part).sourceText === "string" && typeof (part as Part).surfaceText === "string"); }
 
+/** Keep punctuation visible while isolating the exact family component. */
+export function baseWordCleaveModel(word: BaseWordFamilySnapshotWord) {
+  const wordParts = parts(word);
+  const bases = wordParts.filter(part => part.kind === 'base');
+  const baseIndex = wordParts.findIndex(part => part.kind === 'base' &&
+    (word.teachingBasePartId ? part.id === word.teachingBasePartId : bases.length === 1));
+  const text = wordParts.map(part => part.surfaceText);
+  for (let i = 1; i < text.length; i++) {
+    const join = word.joins[i - 1] as { joinType?: string };
+    const separator = join?.joinType === 'hyphen' ? '-' : join?.joinType === 'space' ? ' ' : '';
+    if (i === baseIndex) text[i - 1] += separator;
+    else text[i] = separator + text[i];
+  }
+  let cursor = 0;
+  const boundaries = text.slice(0, -1).map(part => cursor += part.length);
+  return { baseIndex, wordParts, components: text, boundaries };
+}
+
 export function baseWordDefinitionBuild(words: BaseWordFamilySnapshotWord[], index: number) {
   const word = words[index];
   const allParts = [...new Map(words.flatMap(parts).map((part) => [part.surfaceText, part])).values()];

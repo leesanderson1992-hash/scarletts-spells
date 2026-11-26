@@ -65,8 +65,7 @@ export function projectReleasedBaseWordMorphology(
     return { ...part, id: typeof part.id === "string" && part.id.trim() ? part.id : `part_${index + 1}` };
   });
   if (new Set(parts.map((part) => part.id)).size !== parts.length ||
-      parts.some((part) => typeof part.kind !== "string" || typeof part.sourceText !== "string" || typeof part.surfaceText !== "string") ||
-      parts.map((part) => part.surfaceText).join("").toLocaleLowerCase("en-GB") !== displayWord.toLocaleLowerCase("en-GB")) return null;
+      parts.some((part) => typeof part.kind !== "string" || typeof part.sourceText !== "string" || typeof part.surfaceText !== "string")) return null;
   const explicitJoins = rawJoins.every((join) => join && typeof join === "object" && !Array.isArray(join) &&
     typeof (join as Record<string, unknown>).afterPartId === "string" &&
     typeof (join as Record<string, unknown>).beforePartId === "string" &&
@@ -75,6 +74,12 @@ export function projectReleasedBaseWordMorphology(
   const joins = explicitJoins ? rawJoins : parts.slice(1).map((part, index) => ({
     afterPartId: parts[index].id, beforePartId: part.id, joinType: "none",
   }));
+  if (joins.length !== parts.length - 1) return null;
+  const spelling = parts.map((part, index) => {
+    const join = index ? joins[index - 1] as { joinType: string } : null;
+    return (join?.joinType === 'hyphen' ? '-' : join?.joinType === 'space' ? ' ' : '') + part.surfaceText;
+  }).join('');
+  if (spelling.toLocaleLowerCase('en-GB') !== displayWord.toLocaleLowerCase('en-GB')) return null;
   const transformations: BaseWordFamilySnapshotWord["transformations"] = [];
   for (const raw of rawTransformations) {
     if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
@@ -163,6 +168,7 @@ export async function loadBaseWordFamilyLessonReadModel(
           canonicalWordId,
           displayWord: closure.displayWord,
           wordSum: member.wordSum,
+          ...(member.teachingBasePartId ? { teachingBasePartId: member.teachingBasePartId } : {}),
           ...morphology,
           transformationNotes: member.transformationNotes,
           childFriendlyMeaning: member.childFriendlyMeaning,

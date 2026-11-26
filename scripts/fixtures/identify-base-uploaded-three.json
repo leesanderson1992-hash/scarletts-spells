@@ -1,0 +1,163 @@
+[
+  {
+    "word": "possibility",
+    "analysis": {
+      "senseId": "review",
+      "parts": [
+        {
+          "id": "part_1",
+          "kind": "base",
+          "gloss": "able to happen",
+          "sourceText": "possible",
+          "surfaceText": "possibil",
+          "displayRange": {
+            "end": 8,
+            "start": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "suffix",
+          "gloss": "the state or quality of being",
+          "sourceText": "ity",
+          "surfaceText": "ity",
+          "displayRange": {
+            "end": 11,
+            "start": 8
+          }
+        }
+      ],
+      "joins": [
+        {
+          "joinType": "none",
+          "afterPartId": "part_1",
+          "beforePartId": "part_2"
+        }
+      ],
+      "transformations": [
+        {
+          "type": "other_reviewed_change",
+          "sourceText": "possible",
+          "explanation": "Possible has the family form possibil- before -ity. The -le/-il variation is not a general suffix rule.",
+          "surfaceText": "possibil",
+          "sourcePartId": "part_1"
+        }
+      ],
+      "wordSum": "possible + ity → possibility",
+      "familyKey": "possible_adjective_legacy_sense_e1208a26_fb47_5c50_8fee_30e78313b0d5_base_family",
+      "componentPartId": "part_1",
+      "relationshipKind": "derived",
+      "familyLinks": [
+        {
+          "familyKey": "possible_adjective_legacy_sense_e1208a26_fb47_5c50_8fee_30e78313b0d5_base_family",
+          "componentPartId": "part_1",
+          "relationshipKind": "derived"
+        }
+      ],
+      "requestedSkillKeys": []
+    },
+    "meaning": "something that may happen or be true"
+  },
+  {
+    "word": "photograph",
+    "analysis": {
+      "senseId": "review",
+      "parts": [
+        {
+          "id": "part_1",
+          "kind": "base",
+          "gloss": "A picture taken using a camera.",
+          "sourceText": "photo",
+          "surfaceText": "photo",
+          "displayRange": {
+            "end": 5,
+            "start": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "root",
+          "gloss": "write, draw or record",
+          "sourceText": "graph",
+          "surfaceText": "graph",
+          "displayRange": {
+            "end": 10,
+            "start": 5
+          }
+        }
+      ],
+      "joins": [
+        {
+          "joinType": "none",
+          "afterPartId": "part_1",
+          "beforePartId": "part_2"
+        }
+      ],
+      "transformations": [],
+      "wordSum": "photo + graph → photograph",
+      "familyKey": "photo_noun_legacy_sense_b8b1e8a8_7890_52e0_af65_0c76dfeddc88_base_family",
+      "componentPartId": "part_1",
+      "relationshipKind": "derived",
+      "familyLinks": [
+        {
+          "familyKey": "photo_noun_legacy_sense_b8b1e8a8_7890_52e0_af65_0c76dfeddc88_base_family",
+          "componentPartId": "part_1",
+          "relationshipKind": "derived"
+        }
+      ],
+      "requestedSkillKeys": []
+    },
+    "meaning": "a picture made using light and a camera"
+  },
+  {
+    "word": "twenty-one",
+    "analysis": {
+      "senseId": "review",
+      "parts": [
+        {
+          "id": "part_1",
+          "kind": "base",
+          "gloss": "the number twenty",
+          "sourceText": "twenty",
+          "surfaceText": "twenty",
+          "displayRange": {
+            "end": 6,
+            "start": 0
+          }
+        },
+        {
+          "id": "part_2",
+          "kind": "base",
+          "gloss": "the number one",
+          "sourceText": "one",
+          "surfaceText": "one",
+          "displayRange": {
+            "end": 10,
+            "start": 7
+          }
+        }
+      ],
+      "joins": [
+        {
+          "joinType": "hyphen",
+          "afterPartId": "part_1",
+          "beforePartId": "part_2"
+        }
+      ],
+      "transformations": [],
+      "wordSum": "twenty + one → twenty-one",
+      "familyKey": "twenty_numeral_base_family",
+      "componentPartId": "part_1",
+      "relationshipKind": "derived",
+      "familyLinks": [
+        {
+          "familyKey": "twenty_numeral_base_family",
+          "componentPartId": "part_1",
+          "relationshipKind": "derived"
+        }
+      ],
+      "requestedSkillKeys": []
+    },
+    "meaning": "twenty and one more: the number 21"
+  }
+]
