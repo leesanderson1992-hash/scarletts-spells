@@ -243,7 +243,7 @@ function Cleave(props: { word: BaseWordFamilySnapshotWord | undefined; cuts: Rec
     missMessage="Try again. Look for the edge of a meaningful word part."
     repeatedMissMessage="Choose one of the glowing gaps beside the base word."
     correctHeading={`Yes — ${basePart.sourceText} is the base word.`}
-    correctExplanation="The extra word parts have moved aside, leaving the governed base."
+    correctExplanation="The extra word parts have moved aside, leaving the family’s base word."
     continueLabel="Build words from meanings"
     onSelectedBoundariesChange={(cuts) => props.onCutsChange(word!.canonicalWordId, cuts)}
     onMiss={(misses) => props.onMiss(key, misses)}

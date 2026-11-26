@@ -21,5 +21,5 @@ assert(historical);
 assert.deepEqual(historical.teaching.pages.map((page) => page.id), ["base-word-strategy", "base-word-model"]);
 assert.equal(historical.teaching.meetWords.title, undefined);
 assert.equal(validateBaseWordFamilyLessonSnapshot({ ...current, teachingPresentationVersion: "unknown" }), null);
-assert.equal(LESSON_ACTIVITY_COPY.baseCleaver, "Move the cleaver and cut off the affixes to reveal the base word!");
+assert.equal(LESSON_ACTIVITY_COPY.baseCleaver, "Move the cleaver and move aside the other word parts to reveal the base word!");
 console.log("adle-base-word-teaching-release-regression: ok");
