@@ -7,7 +7,7 @@ import { projectPublishedBaseWordRelease } from "@/lib/adle/loaders/published-ba
 import { canonicalBaseWordAnalysis } from "@/lib/adle/base-word-canonical-analysis";
 import { canonicalBaseWordWorkflowEnabled } from "@/lib/adle/base-word-canonical-workflow";
 import { baseWordFamilyMemberAppliesToMicroSkill } from "@/lib/adle/curriculum-release-activation";
-import { baseWordMemberSelectable } from "@/lib/adle/base-word-regularity";
+import { baseWordMemberSelectable, reviewedBaseWordRegularity } from "@/lib/adle/base-word-regularity";
 import { loadReviewedMeaningBundles } from "./multi-sense-export";
 import { evaluateLessonCandidate } from "./lesson-candidate";
 import { IDENTIFY_BASE_SKILL } from "./bulk-review-scope";
@@ -93,10 +93,20 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
       }
       return eligible.some(({ family }) => {
         const basePart = analysis.parts.find(part => part.id === analysis.componentPartId && part.kind === "base");
+        if (analysis.relationshipKind === "free_base" && family.baseWordId !== id) {
+          missingFacts.add(`Reviewed parts treat this word as a whole base. The current lesson release groups it under “${words.get(family.baseWordId)?.displayWord ?? "a different base"}”; a matching released family is required.`);
+          return false;
+        }
         if (!basePart || !canonicalBaseWordAnalysis({ displayWord: bundle.displayWord, parts: analysis.parts,
           joins: analysis.joins, transformations: analysis.transformations, wordSum: analysis.wordSum,
           componentPartId: analysis.componentPartId, baseSource: basePart.sourceText,
-          relationshipKind: analysis.relationshipKind })) return false;
+          relationshipKind: analysis.relationshipKind })) {
+          const regularity = reviewedBaseWordRegularity({ relationshipKind: analysis.relationshipKind, transformations: analysis.transformations, reviewed: true });
+          missingFacts.add(regularity.status === "needs_review"
+            ? "The reviewed word parts are saved. This family-specific spelling change needs a lesson regularity decision before publishing."
+            : "Review the word sum and saved spelling changes: they must reproduce the reviewed word parts.");
+          return false;
+        }
         if (family.baseWordId === id) return analysis.relationshipKind === "free_base";
         // The approved dictionary base is support, not a prerequisite lesson
         // publication. Match the exact family sense before offering Publish.

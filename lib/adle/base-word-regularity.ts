@@ -5,6 +5,7 @@ export type BaseWordRegularityDecision = NonNullable<BaseWordFamilyAuthorityMemb
 const GOVERNED_NON_IRREGULAR_TRANSFORMS = new Set([
   "spelling_change", "y_to_i", "drop_final_e", "double_final_consonant",
   "insert_t_at_suffix_boundary", "join", "change_final_y_to_i",
+  "change_final_ie_to_y",
   "remove_letter", "replace_final", "base_spelling_change",
 ]);
 
