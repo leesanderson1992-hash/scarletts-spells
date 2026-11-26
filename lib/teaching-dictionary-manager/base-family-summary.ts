@@ -5,6 +5,7 @@ import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activati
 import { familyDisplayName, lexicalFamilyDisplayName, legacyFamilyBase } from "./family-display-name";
 
 export type FamilySummary = { name: string; displayName?: string; meaning?: string; pronunciation?: string;
+  baseWordId?: string; baseKind?: string;
   words: { id: string; word: string }[] };
 
 /** The latest approved lexical revision owns shared family facts. Registry and
@@ -14,7 +15,16 @@ export function mergeWordFamilySummaries(
   lexicalSuccessorKeys: ReadonlySet<string>,
 ): FamilySummary[] {
   const current = new Map<string, FamilySummary>();
-  for (const family of adle) if (!lexicalSuccessorKeys.has(family.name)) current.set(family.name, family);
+  for (const family of adle) {
+    const canonicalMatches = family.baseWordId && family.meaning && family.words.length
+      ? lexical.filter(candidate => candidate.baseKind === "free_base" && candidate.baseWordId === family.baseWordId &&
+        candidate.meaning === family.meaning && family.words.every(word => candidate.words.some(member => member.id === word.id)))
+      : [];
+    // A lesson's compatibility record is not a second Dictionary family.
+    // Prefer one exact canonical base/meaning with all of those members;
+    // preserve ambiguous or differently reviewed family connections.
+    if (!lexicalSuccessorKeys.has(family.name) && canonicalMatches.length !== 1) current.set(family.name, family);
+  }
   for (const family of registry) if (!lexicalSuccessorKeys.has(family.name)) current.set(family.name, family);
   for (const family of lexical) current.set(family.name, family);
   return [...current.values()].sort((a, b) => a.name.localeCompare(b.name, "en-GB"));
@@ -94,7 +104,7 @@ export async function loadWordBaseFamilies(
     const keys = [...new Set(lexicalMatches.map((row) => String(row.family_key)))];
     const revisions = await read(
       db.from("teaching_dictionary_families_with_current_meaning")
-        .select("family_key,revision,base_lemma,base_kind,base_part_of_speech,base_meaning")
+        .select("family_key,revision,base_lemma,base_kind,base_part_of_speech,base_meaning,canonical_base_word_id")
         .in("family_key", keys).eq("review_status", "approved")
         .order("revision", { ascending: false }),
     );
@@ -137,6 +147,8 @@ export async function loadWordBaseFamilies(
           name: key,
           displayName: lexicalFamilyDisplayName(latest.get(key)),
           meaning: String(latest.get(key)?.base_meaning ?? ""),
+          baseWordId: latest.get(key)?.canonical_base_word_id ?? undefined,
+          baseKind: latest.get(key)?.base_kind,
           pronunciation: rootPronunciation.get(key),
           words: currentMembers.filter((row) => row.family_key === key)
             .flatMap((row) => display.has(row.canonical_word_id)
@@ -231,14 +243,14 @@ export async function loadWordBaseFamilies(
     read(
       db
         .from("canonical_teaching_dictionary_base_word_families")
-        .select("id,base_family_key,base_meaning")
+        .select("id,base_family_key,base_meaning,base_word_id")
         .in("id", familyIds)
         .eq("row_status", "active"),
     ),
     read(
       db
         .from("teaching_dictionary_base_family_definitions")
-        .select("id,family_key,base_meaning")
+        .select("id,family_key,base_meaning,base_word_id")
         .in("id", familyIds),
     ),
     read(
@@ -255,6 +267,9 @@ export async function loadWordBaseFamilies(
   const adleFamilies = [...new Map([...legacy, ...definitions].map(family => [family.base_family_key ?? family.family_key, family])).values()].map((family) => ({
     name: family.base_family_key ?? family.family_key,
     displayName: familyDisplayName({ base: legacyFamilyBase(family.base_family_key ?? family.family_key), meaning: family.base_meaning }),
+    meaning: family.base_meaning,
+    baseWordId: family.base_word_id,
+    baseKind: "free_base",
     words: [...members.get(family.id)!]
       .flatMap((id) =>
         wordById.has(id) ? [{ id, word: String(wordById.get(id)) }] : [],
