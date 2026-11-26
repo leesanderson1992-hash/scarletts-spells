@@ -202,7 +202,7 @@ export async function loadBaseWordFamilyLessonReadModel(
   if (!families || families.length !== familyKeys.length || families.some((family) => family.etymology_route === null)) return null;
   const familyIds = families.map((family) => family.id);
   const members = await readRows<MemberRow>(
-    client.from("canonical_teaching_dictionary_base_word_family_members")
+    client.from("teaching_dictionary_spelling_legacy_members")
       .select("base_word_family_id, canonical_word_id, member_role, word_sum, morphology_parts, morphology_joins, morphology_transformations, transformation_notes, child_friendly_meaning")
       .eq("row_status", "active")
       .eq("review_status", "approved_for_first_exposure")

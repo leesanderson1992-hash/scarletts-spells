@@ -1,3 +1,4 @@
+import { hasUsefulSpellingConnection } from "./spelling-family-connection";
 import type { BaseWordFamilyAuthorityMember, BaseWordFamilyAuthorityProjection } from "./curriculum-release-activation";
 
 export type BaseWordRegularityDecision = NonNullable<BaseWordFamilyAuthorityMember["lessonRegularity"]>;
@@ -5,7 +6,7 @@ export type BaseWordRegularityDecision = NonNullable<BaseWordFamilyAuthorityMemb
 const GOVERNED_NON_IRREGULAR_TRANSFORMS = new Set([
   "spelling_change", "y_to_i", "drop_final_e", "double_final_consonant",
   "insert_t_at_suffix_boundary", "join", "change_final_y_to_i",
-  "change_final_ie_to_y",
+  "change_final_ie_to_y", "change_final_f_to_v", "change_final_fe_to_v",
   "remove_letter", "replace_final", "base_spelling_change",
 ]);
 
@@ -14,12 +15,16 @@ export function reviewedBaseWordRegularity(input: {
   relationshipKind?: string | null;
   transformations: readonly unknown[];
   reviewed: boolean;
+  parts?: readonly unknown[];
 }): BaseWordRegularityDecision {
   if (!input.reviewed) return { status: "needs_review", source: "canonical_morphology", reason: "morphology_not_reviewed" };
   const kinds = input.transformations.map((value) => value && typeof value === "object"
     ? String("kind" in value ? value.kind : "type" in value ? value.type : "unknown") : "unknown");
   if (kinds.some((kind) => kind !== "irregular_form" && !GOVERNED_NON_IRREGULAR_TRANSFORMS.has(kind)))
     return { status: "needs_review", source: "canonical_morphology", reason: "transformation_kind_unclassified" };
+  if (input.relationshipKind === "irregular_inflection" && input.parts &&
+    hasUsefulSpellingConnection(input.parts, input.transformations) && !kinds.includes("irregular_form"))
+    return { status: "regular", source: "approved_lexical_relationship", reason: "reviewed_spelling_connection" };
   if (kinds.includes("irregular_form") && input.relationshipKind && input.relationshipKind !== "irregular_inflection")
     return { status: "needs_review", source: "conflicting_reviewed_sources", reason: "relationship_morphology_conflict" };
   if (input.relationshipKind === "irregular_inflection" || kinds.includes("irregular_form"))
@@ -40,10 +45,13 @@ export function regularityReviewedRelease<T extends Extract<BaseWordFamilyAuthor
   return { ...authority, selectionPolicyVersion: "base_word_regularity_v1", families: authority.families.map((family) => ({
     ...family, members: family.members.map((member) => {
       const base = member.canonicalWordId === family.baseWordId;
-      const lessonRegularity = member.lessonRegularity ?? reviewedBaseWordRegularity({
+      const existing = member.lessonRegularity;
+      const lessonRegularity = existing?.status === "irregular" && hasUsefulSpellingConnection(member.morphologyParts, member.morphologyTransformations)
+        ? reviewedBaseWordRegularity({ relationshipKind: "irregular_inflection", transformations: member.morphologyTransformations,
+          parts: member.morphologyParts, reviewed: true }) : existing ?? reviewedBaseWordRegularity({
         relationshipKind: base ? "free_base" : null,
         transformations: member.morphologyTransformations,
-        reviewed: true,
+        parts: member.morphologyParts, reviewed: true,
       });
       return { ...member, lessonRegularity };
     }),

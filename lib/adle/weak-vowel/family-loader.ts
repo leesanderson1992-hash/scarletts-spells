@@ -37,7 +37,7 @@ export async function loadWeakVowelFamilies(input: { client: SupabaseClient;
   if (aliases?.error) throw new Error(`WEAK_VOWEL_CANONICAL_FAMILY_READ:${aliases.error.message}`);
   const canonicalIds = [...new Set((aliases?.data ?? []).map((alias) => alias.canonical_family_id))];
   const canonicalMembers = canonicalIds.length ? await input.client
-    .from("canonical_teaching_dictionary_base_family_registry_members")
+    .from("teaching_dictionary_spelling_registry_members")
     .select("canonical_family_id,canonical_word_id")
     .in("canonical_family_id", canonicalIds)
     .in("canonical_word_id", [...new Set([...chosen.map((entry) => entry.word.canonicalWordId),
@@ -45,7 +45,7 @@ export async function loadWeakVowelFamilies(input: { client: SupabaseClient;
   if (canonicalMembers?.error) throw new Error(`WEAK_VOWEL_CANONICAL_FAMILY_MEMBERS_READ:${canonicalMembers.error.message}`);
   const canonicalMembership = new Set((canonicalMembers?.data ?? []).map((row) =>
     `${row.canonical_family_id}:${row.canonical_word_id}`));
-  const members = await input.client.from("canonical_teaching_dictionary_base_word_family_members")
+  const members = await input.client.from("teaching_dictionary_spelling_legacy_members")
     .select("base_word_family_id,canonical_word_id,assignment_eligible,row_status,review_status,word_sum")
     .in("base_word_family_id", ids).eq("row_status", "active")
     .eq("review_status", "approved_for_first_exposure").eq("assignment_eligible", true);

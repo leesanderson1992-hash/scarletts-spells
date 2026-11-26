@@ -67,7 +67,7 @@ export function appendReviewedLexicalFamilies(input: {
     const members: BaseWordFamilyAuthorityMemberV2[] = eligible.map((member) => {
       const base = member.canonicalWordId === family.baseWordId;
       const lessonRegularity = reviewedBaseWordRegularity({ relationshipKind: member.relationshipKind,
-        transformations: member.morphologyTransformations, reviewed: true });
+        transformations: member.morphologyTransformations, parts: member.morphologyParts, reviewed: true });
       return {
         memberId: stableId(`${sourceKey}:${member.canonicalWordId}:${member.wordPartOfSpeech}`),
         canonicalWordId: member.canonicalWordId,

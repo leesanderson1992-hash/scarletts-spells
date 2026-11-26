@@ -23,6 +23,6 @@ export function canonicalBaseWordAnalysis(input: {
     // be present and refer to these exact reviewed part forms.
     if (changes.length !== input.transformations.length || changes.some(change => !parts.some(part =>
       part.id === change.sourcePartId && part.sourceText === change.sourceText && part.surfaceText === change.surfaceText))) return false;
-    return reviewedBaseWordRegularity({ relationshipKind: input.relationshipKind, transformations: changes, reviewed: true }).status === 'regular';
+    return reviewedBaseWordRegularity({ relationshipKind: input.relationshipKind, transformations: changes, parts, reviewed: true }).status === 'regular';
   } catch { return false; }
 }

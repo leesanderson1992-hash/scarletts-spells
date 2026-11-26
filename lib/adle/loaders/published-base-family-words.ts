@@ -1,3 +1,4 @@
+import { hasUsefulSpellingConnection } from "../spelling-family-connection";
 import { loadPublishedWritingAssociations } from "@/lib/writing-engine/whole-writing/knowledge-repository";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ActivatedBaseWordReleaseAuthority } from "../curriculum-release-activation";
@@ -71,7 +72,7 @@ export async function loadPublishedBaseFamilyWords(client: SupabaseClient, activ
       if (member.canonicalWordId === family.baseWordId) return [];
       const sense = senses.get(`${member.canonicalWordId}:${skill}`);
       return sense?.status === "current" ? (membershipsBySense.get(`${member.canonicalWordId}:${sense.senseId}`) ?? [])
-        .filter(link => link.relationship_kind === "derived" || link.relationship_kind === "regular_inflection")
+        .filter(link => link.relationship_kind === "derived" || link.relationship_kind === "regular_inflection" || link.relationship_kind === "irregular_inflection")
         .map(link => link.family_key) : [];
     });
     // A reviewed lesson choice for the base is an explicit sense decision,
@@ -130,7 +131,7 @@ export async function projectPublishedBaseWordRelease(client: SupabaseClient, ac
       const facts = approved.get(baseFamilyWordKey(entry.baseFamilyKey, member.canonicalWordId));
       if (!facts) return [];
       factsByWord.set(member.canonicalWordId, facts.sense);
-      return [{ ...member, morphologyParts: facts.parts, morphologyJoins: facts.joins,
+      return [{ ...member, lessonRegularity: member.lessonRegularity?.status === "irregular" && hasUsefulSpellingConnection(facts.parts, facts.transformations) ? { status: "regular" as const, source: "canonical_morphology", reason: "reviewed_spelling_connection" } : member.lessonRegularity, morphologyParts: facts.parts, morphologyJoins: facts.joins,
         morphologyTransformations: facts.transformations,
         transformationNotes: facts.transformations.map(change => (change as { explanation: string }).explanation).join(" "),
         dictionarySenseId: facts.sense.senseId, wordSum: facts.wordSum, childFriendlyMeaning: facts.sense.meaning }];

@@ -8,6 +8,7 @@ export type CandidateAnalysisRow = {
   sense_id: string;
   morphology_parts: unknown;
   morphology_joins: unknown;
+  morphology_transformations?: unknown[];
   word_sum: string | null;
 };
 export type CandidateLinkRow = CandidateFamilyLink & {
@@ -43,7 +44,7 @@ export function candidateFactsForSense(input: {
       source: "sense", morphologyId: selected.id,
       morphology: { parts: Array.isArray(selected.morphology_parts)
         ? inheritFamilyPartMeanings(selected.morphology_parts, links) : selected.morphology_parts, joins: selected.morphology_joins,
-        wordSum: selected.word_sum, analysisStatus: "approved",
+        transformations: selected.morphology_transformations ?? [], wordSum: selected.word_sum, analysisStatus: "approved",
         reviewStatus: "approved_for_first_exposure" },
       familyLinks: links, familyLinkIds: links.map(row => row.id).sort(),
     };
