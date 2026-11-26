@@ -14,7 +14,8 @@ assert(!canonicalBaseWordAnalysis({ ...input, wordSum: 'late + r → later' }), 
 assert(!canonicalBaseWordAnalysis({ ...input, displayWord: 'latter' }), 'The visible parts must spell the actual word');
 assert(!canonicalBaseWordAnalysis({ ...input, relationshipKind: 'irregular_inflection' }));
 assert(!canonicalBaseWordAnalysis({ ...input, parts: parts.map(part => ({ ...part, gloss: '' })) }), 'Missing glosses remain blocked');
-assert(!canonicalBaseWordAnalysis({ ...input, transformations: [{ ...input.transformations[0], type: 'other_reviewed_change' }] }), 'Unclassified regularity must be reviewed');
+assert(canonicalBaseWordAnalysis({ ...input, transformations: [{ ...input.transformations[0], type: 'other_reviewed_change' }] }), 'Explicitly reviewed close family variants can be reused');
+assert(!canonicalBaseWordAnalysis({ ...input, transformations: [{ ...input.transformations[0], type: 'other_reviewed_change', explanation: '' }] }), 'Reviewed variants still require an explanation');
 const dying = { ...input, displayWord: 'dying', baseSource: 'die', wordSum: 'die + ing → dying', relationshipKind: 'regular_inflection',
   parts: [{ ...parts[0], sourceText: 'die', surfaceText: 'dy', displayRange: { start: 0, end: 2 } },
     { ...parts[1], sourceText: 'ing', surfaceText: 'ing', displayRange: { start: 2, end: 5 } }],

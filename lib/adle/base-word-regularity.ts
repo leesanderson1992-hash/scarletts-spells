@@ -1,4 +1,4 @@
-import { hasUsefulSpellingConnection, hasReviewedBaseExtension } from "./spelling-family-connection";
+import { hasUsefulSpellingConnection, hasReviewedBaseExtension, hasReviewedFamilyVariation } from "./spelling-family-connection";
 import type { BaseWordFamilyAuthorityMember, BaseWordFamilyAuthorityProjection } from "./curriculum-release-activation";
 
 export type BaseWordRegularityDecision = NonNullable<BaseWordFamilyAuthorityMember["lessonRegularity"]>;
@@ -24,6 +24,10 @@ export function reviewedBaseWordRegularity(input: {
     hasUsefulSpellingConnection(input.parts, input.transformations) && !kinds.includes("irregular_form") &&
     (kinds.every(kind => GOVERNED_NON_IRREGULAR_TRANSFORMS.has(kind)) || hasReviewedBaseExtension(input.parts, input.transformations)))
     return { status: "regular", source: "approved_lexical_relationship", reason: "reviewed_spelling_connection" };
+  if (["derived", "regular_inflection"].includes(input.relationshipKind ?? "") && input.parts
+    && hasReviewedFamilyVariation(input.parts, input.transformations)
+    && kinds.every(kind => kind === "other_reviewed_change" || GOVERNED_NON_IRREGULAR_TRANSFORMS.has(kind)))
+    return { status: "regular", source: "canonical_morphology", reason: "reviewed_family_spelling_variation" };
   if (kinds.some((kind) => kind !== "irregular_form" && !GOVERNED_NON_IRREGULAR_TRANSFORMS.has(kind)))
     return { status: "needs_review", source: "canonical_morphology", reason: "transformation_kind_unclassified" };
   if (kinds.includes("irregular_form") && input.relationshipKind && input.relationshipKind !== "irregular_inflection")

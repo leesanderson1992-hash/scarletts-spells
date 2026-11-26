@@ -15,7 +15,7 @@ import { SplitHandle } from "@/components/adle/activities/shared/split-handle";
 import { baseWordDefinitionBuild, parts } from "./base-word-definition-build";
 import type { GuideBeatV1 } from "@/lib/adle/morphology/payload";
 import { extractAuthoredTargetToken } from "@/lib/adle/morphology/payload";
-import { baseSpellingRestorationForPart, finalYRestorationForBasePart, type BaseWordFamilyLessonSnapshotV1, type BaseWordFamilySnapshotWord } from "@/lib/adle/morphology/base-word-family-payload";
+import { baseSpellingRestorationForPart, type BaseWordFamilySnapshotTransformation, type BaseWordFamilyLessonSnapshotV1, type BaseWordFamilySnapshotWord } from "@/lib/adle/morphology/base-word-family-payload";
 import { baseWordFamilyResumeKey, normaliseBaseWordFamilyResume, type BaseWordFamilyResumeState } from "@/lib/adle/morphology/base-word-family-resume";
 import { isAttemptCorrect } from "@/lib/adle/session-correctness";
 import {
@@ -196,28 +196,38 @@ function FamilyReveal(props: { section: BaseWordFamilyLessonSnapshotV1["familySe
   </section>;
 }
 
+function SpellingRestorationSteps(props: { changes: Array<BaseWordFamilySnapshotTransformation & { partKind?: string }>; onNext: () => void }) {
+  const [step, setStep] = useState(0);
+  const change = props.changes[step];
+  const more = step + 1 < props.changes.length;
+  return <SpellingTransformationReveal key={`${change.sourcePartId}:${step}`} surfaceText={change.surfaceText}
+    sourceText={change.sourceText} explanation={change.explanation}
+    heading={change.partKind === "base" ? "Now restore the base word." : "Now restore the ending’s spelling."}
+    eyebrow={change.partKind === "base" ? "Find the base" : "Notice the ending"}
+    actionLabel={change.type === "change_final_y_to_i" ? "Change i to y" : change.type === "drop_final_e" ? "Restore final e" : "Restore the source spelling"}
+    continueLabel={more ? "Review the next spelling change" : "Build words from meanings"}
+    onContinue={() => more ? setStep(step + 1) : props.onNext()} />;
+}
+
 function Cleave(props: { word: BaseWordFamilySnapshotWord | undefined; cuts: Record<string, number[]>; misses: Record<string, number>; onCutsChange: (wordId: string, cuts: number[]) => void; onMiss: (id: string, misses: number) => void; onNext: () => void }) {
   const word = props.word;
   const wordParts = word ? parts(word) : [];
   const baseIndex = wordParts.findIndex((part) => part.kind === "base");
-  const valid = !!word && baseIndex >= 0 && wordParts.filter((part) => part.kind === "base").length === 1 && wordParts.length > 1;
+  const valid = !!word && baseIndex >= 0 && wordParts.filter((part) => part.kind === "base").length === 1 && (wordParts.length > 1 || Boolean(baseSpellingRestorationForPart(wordParts[baseIndex], word.transformations ?? [])));
   if (!valid) return <section className="grid gap-5 text-center"><p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Find the word parts</p><h2 className="text-3xl font-black text-white">This word needs a different way to explore its parts.</h2><p className="text-cyan-50">Let’s carry on with the rest of the Word Lab.</p><button type="button" onClick={props.onNext} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Build words from meanings</button></section>;
   const key = `${word!.canonicalWordId}:base`;
   const basePart = wordParts[baseIndex];
-  const transformation = finalYRestorationForBasePart(basePart, word!.transformations ?? []);
   const boundaries = wordParts.slice(0, -1).map((_, index) => wordParts.slice(0, index + 1).reduce((total, part) => total + part.surfaceText.length, 0));
   const requiredBoundaries = [baseIndex > 0 ? boundaries[baseIndex - 1] : null, baseIndex < wordParts.length - 1 ? boundaries[baseIndex] : null].filter((point): point is number => point !== null);
   const selectedBoundaries = [...new Set(props.cuts[word!.canonicalWordId] ?? [])].filter((point) => requiredBoundaries.includes(point)).sort((left, right) => left - right);
   const splitComplete = requiredBoundaries.every((point) => selectedBoundaries.includes(point));
 
-  if (splitComplete && transformation) {
-    return <SpellingTransformationReveal surfaceText={transformation.surfaceText} sourceText={transformation.sourceText} explanation={transformation.explanation} actionLabel="Change i to y" continueLabel="Build words from meanings" onContinue={props.onNext} />;
-  }
-  const baseRestoration = baseSpellingRestorationForPart(basePart, word!.transformations ?? []);
-  if (splitComplete && baseRestoration) {
-    return <SpellingTransformationReveal surfaceText={baseRestoration.surfaceText} sourceText={baseRestoration.sourceText}
-      explanation={baseRestoration.explanation} actionLabel={baseRestoration.type === "drop_final_e" ? "Restore final e" : "Restore the base spelling"}
-      continueLabel="Build words from meanings" onContinue={props.onNext} />;
+  const restorations = wordParts.flatMap(part => {
+    const change = baseSpellingRestorationForPart(part, word!.transformations ?? []);
+    return change ? [{ ...change, partKind: part.kind }] : [];
+  });
+  if (splitComplete && restorations.length) {
+    return <SpellingRestorationSteps key={word!.canonicalWordId} changes={restorations} onNext={props.onNext} />;
   }
 
   return <SplitHandle

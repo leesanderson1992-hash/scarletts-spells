@@ -13,6 +13,8 @@ type SourceRevealProps = {
   sourceText: string;
   explanation: string;
   actionLabel?: string;
+  heading?: string;
+  eyebrow?: string;
   continueLabel?: string;
   muted?: boolean;
   onContinue: () => void;
@@ -123,9 +125,9 @@ function SourceReveal(props: SourceRevealProps) {
       data-transformation-state={revealed ? "revealed" : "surface"}
       data-transformation-kind="surface_to_source"
     >
-      <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Notice the source form</p>
+      <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">{props.eyebrow ?? "Notice the source form"}</p>
       <h2 id="spelling-transformation-heading" className="text-3xl font-black text-white">
-        The split is complete. Now restore the base word.
+        {props.heading ?? "The split is complete. Now restore the base word."}
       </h2>
       <div className="mx-auto flex min-h-28 w-full max-w-md items-center justify-center gap-4 rounded-3xl border border-cyan-200/25 bg-slate-950/30 p-6 text-3xl font-black">
         <span className={revealed ? "text-cyan-100 opacity-55 line-through" : "rounded-2xl bg-amber-100 px-5 py-4 text-amber-950"}>{props.surfaceText}</span>
