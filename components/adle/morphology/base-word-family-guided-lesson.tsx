@@ -12,7 +12,7 @@ import {
 } from "@/components/adle/first-impression/first-impression-lesson";
 import { SpellingTransformationReveal } from "@/components/adle/activities/shared/spelling-transformation-reveal";
 import { SplitHandle } from "@/components/adle/activities/shared/split-handle";
-import { baseWordDefinitionBuild, parts } from "./base-word-definition-build";
+import { baseWordCleaveModel, baseWordDefinitionBuild } from "./base-word-definition-build";
 import type { GuideBeatV1 } from "@/lib/adle/morphology/payload";
 import { extractAuthoredTargetToken } from "@/lib/adle/morphology/payload";
 import { baseSpellingRestorationForPart, type BaseWordFamilySnapshotTransformation, type BaseWordFamilyLessonSnapshotV1, type BaseWordFamilySnapshotWord } from "@/lib/adle/morphology/base-word-family-payload";
@@ -211,13 +211,14 @@ function SpellingRestorationSteps(props: { changes: Array<BaseWordFamilySnapshot
 
 function Cleave(props: { word: BaseWordFamilySnapshotWord | undefined; cuts: Record<string, number[]>; misses: Record<string, number>; onCutsChange: (wordId: string, cuts: number[]) => void; onMiss: (id: string, misses: number) => void; onNext: () => void }) {
   const word = props.word;
-  const wordParts = word ? parts(word) : [];
-  const baseIndex = wordParts.findIndex((part) => part.kind === "base");
-  const valid = !!word && baseIndex >= 0 && wordParts.filter((part) => part.kind === "base").length === 1 && (wordParts.length > 1 || Boolean(baseSpellingRestorationForPart(wordParts[baseIndex], word.transformations ?? [])));
+  const model = word ? baseWordCleaveModel(word) : null;
+  const wordParts = model?.wordParts ?? [];
+  const baseIndex = model?.baseIndex ?? -1;
+  const valid = !!word && baseIndex >= 0 && (wordParts.length > 1 || Boolean(baseSpellingRestorationForPart(wordParts[baseIndex], word.transformations ?? [])));
   if (!valid) return <section className="grid gap-5 text-center"><p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Find the word parts</p><h2 className="text-3xl font-black text-white">This word needs a different way to explore its parts.</h2><p className="text-cyan-50">Let’s carry on with the rest of the Word Lab.</p><button type="button" onClick={props.onNext} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Build words from meanings</button></section>;
   const key = `${word!.canonicalWordId}:base`;
   const basePart = wordParts[baseIndex];
-  const boundaries = wordParts.slice(0, -1).map((_, index) => wordParts.slice(0, index + 1).reduce((total, part) => total + part.surfaceText.length, 0));
+  const boundaries = model!.boundaries;
   const requiredBoundaries = [baseIndex > 0 ? boundaries[baseIndex - 1] : null, baseIndex < wordParts.length - 1 ? boundaries[baseIndex] : null].filter((point): point is number => point !== null);
   const selectedBoundaries = [...new Set(props.cuts[word!.canonicalWordId] ?? [])].filter((point) => requiredBoundaries.includes(point)).sort((left, right) => left - right);
   const splitComplete = requiredBoundaries.every((point) => selectedBoundaries.includes(point));
@@ -233,7 +234,7 @@ function Cleave(props: { word: BaseWordFamilySnapshotWord | undefined; cuts: Rec
   return <SplitHandle
     word={word!.displayWord}
     splitPoints={requiredBoundaries}
-    components={wordParts.map((part) => part.surfaceText)}
+    components={model!.components}
     selectedBoundaries={selectedBoundaries}
     isolatedComponentIndex={baseIndex}
     misses={props.misses[key] ?? 0}

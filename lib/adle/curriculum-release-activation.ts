@@ -15,6 +15,7 @@ interface BaseWordFamilyAuthorityMemberCommon {
   complexityLevel: number | null;
   wordSum: string;
   dictionarySenseId?: string;
+  teachingBasePartId?: string;
   morphologyParts: unknown[];
   morphologyJoins: unknown[];
   morphologyTransformations: unknown[];

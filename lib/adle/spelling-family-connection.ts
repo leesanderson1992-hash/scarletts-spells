@@ -43,6 +43,7 @@ export function hasUsefulSpellingConnection(parts: readonly unknown[], transform
  * written stem. This does not admit unrelated grammatical forms such as be/are. */
 export function isCloseFamilySpellingVariant(source: string, surface: string): boolean {
   if (!/^[a-z]+$/i.test(source) || !/^[a-z]+$/i.test(surface) || source === surface) return false;
+  if (source.endsWith('le') && surface === source.slice(0, -2) + 'il') return true;
   let common = 0;
   while (common < Math.min(source.length, surface.length) && source[common] === surface[common]) common++;
   return common >= 3 && common >= Math.min(source.length, surface.length) - 1;
@@ -54,6 +55,8 @@ export function hasReviewedFamilyVariation(parts: readonly unknown[], transforma
   if (bases.length !== 1 || !records.some(p => p.kind === "prefix" || p.kind === "suffix")) return false;
   const base = bases[0];
   return typeof base.sourceText === "string" && typeof base.surfaceText === "string"
+    && (!(base.sourceText.endsWith('le') && base.surfaceText === base.sourceText.slice(0, -2) + 'il')
+      || records.some(part => part.kind === 'suffix' && part.sourceText === 'ity'))
     && isCloseFamilySpellingVariant(base.sourceText, base.surfaceText)
     && transformations.some(raw => {
       if (!raw || typeof raw !== "object") return false;

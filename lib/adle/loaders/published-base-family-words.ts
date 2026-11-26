@@ -19,6 +19,7 @@ type ApprovedWord = {
   joins: unknown[];
   transformations: unknown[];
   wordSum: string;
+  teachingBasePartId: string;
 };
 
 export const baseFamilyWordKey = (family: string, wordId: string) => `${family}:${wordId}`;
@@ -86,7 +87,7 @@ export async function loadPublishedBaseFamilyWords(client: SupabaseClient, activ
     const approvedMembers = new Map<string, ApprovedWord>();
     for (const member of family.members) {
       if (member.canonicalWordId === family.baseWordId) {
-        approvedMembers.set(baseFamilyWordKey(family.baseFamilyKey, member.canonicalWordId), { ...anchor, transformations: [] });
+        approvedMembers.set(baseFamilyWordKey(family.baseFamilyKey, member.canonicalWordId), { ...anchor, teachingBasePartId: anchor.parts[0].id, transformations: [] });
         continue;
       }
       const sense = senses.get(`${member.canonicalWordId}:${skill}`);
@@ -108,6 +109,7 @@ export async function loadPublishedBaseFamilyWords(client: SupabaseClient, activ
         baseSource: anchor.parts[0].sourceText, relationshipKind: membership[0].relationship_kind })) continue;
       approvedMembers.set(baseFamilyWordKey(family.baseFamilyKey, member.canonicalWordId), {
         sense, parts: inheritFamilyPartMeanings(parts, membership),
+        teachingBasePartId: membership[0].component_part_id,
         joins: analysis.morphology_joins, transformations: analysis.morphology_transformations, wordSum: analysis.word_sum,
       });
     }
@@ -134,7 +136,7 @@ export async function projectPublishedBaseWordRelease(client: SupabaseClient, ac
       return [{ ...member, lessonRegularity: member.lessonRegularity?.status === "irregular" && hasUsefulSpellingConnection(facts.parts, facts.transformations) ? { status: "regular" as const, source: "canonical_morphology", reason: "reviewed_spelling_connection" } : member.lessonRegularity, morphologyParts: facts.parts, morphologyJoins: facts.joins,
         morphologyTransformations: facts.transformations,
         transformationNotes: facts.transformations.map(change => (change as { explanation: string }).explanation).join(" "),
-        dictionarySenseId: facts.sense.senseId, wordSum: facts.wordSum, childFriendlyMeaning: facts.sense.meaning }];
+        dictionarySenseId: facts.sense.senseId, teachingBasePartId: facts.teachingBasePartId, wordSum: facts.wordSum, childFriendlyMeaning: facts.sense.meaning }];
     });
   }
   const dictionaryWords = activation.dictionaryWords.flatMap(word => {
