@@ -74,6 +74,12 @@ export async function loadPublishedBaseFamilyWords(client: SupabaseClient, activ
         .filter(link => link.relationship_kind === "derived" || link.relationship_kind === "regular_inflection")
         .map(link => link.family_key) : [];
     });
+    // A reviewed lesson choice for the base is an explicit sense decision,
+    // including when its wording differs from the historical release.
+    const baseSense = senses.get(`${family.baseWordId}:${skill}`);
+    if (baseSense?.status === "current") memberFamilyKeys.push(...
+      (membershipsBySense.get(`${family.baseWordId}:${baseSense.senseId}`) ?? [])
+        .filter(link => link.relationship_kind === "free_base").map(link => link.family_key));
     const anchor = chooseBaseWordFamilyAnchor(anchors, family, memberFamilyKeys);
     if (!anchor) continue;
     const approvedMembers = new Map<string, ApprovedWord>();

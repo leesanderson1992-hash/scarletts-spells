@@ -151,8 +151,13 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
     if (!selectedSense?.dictationSentence) add("DICTATION", "Approve a dictation sentence for this meaning.", "td-dictation");
     const base = parts.find(part => part.kind === "base" && input.familyLinks.some(link =>
       link.sense_id === input.senseId && link.component_part_id === part.id &&
-      ["free_base", "regular_inflection", "derived"].includes(link.relationship_kind)));
+      ["free_base", "regular_inflection", "derived", "irregular_inflection"].includes(link.relationship_kind)));
     if (!base) add("FAMILY_LINK", "Link the base part to its reviewed free-base family.", "td-base-family");
+    else if (input.familyLinks.some(link => link.sense_id === input.senseId && link.component_part_id === base.id
+      && link.relationship_kind === "irregular_inflection")) {
+      add("IRREGULAR_FORM", "The family is linked. Identify the Base currently excludes irregular inflections; keep this reviewed relationship unchanged.", "td-canonical-parts");
+      return done("not_match");
+    }
     return done(issues.length ? "needs_facts" : "ready");
   }
   const suffix = acceptedPrefixes ? undefined : parts.at(-1);

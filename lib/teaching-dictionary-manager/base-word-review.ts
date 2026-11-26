@@ -13,6 +13,7 @@ import { evaluateLessonCandidate } from "./lesson-candidate";
 import { IDENTIFY_BASE_SKILL } from "./bulk-review-scope";
 import { ingReviewEnvironment } from "./ing-staging-scope";
 import { loadBaseWordSelectionPool } from "@/lib/adle/loaders/base-word-family-pilot-loader";
+import { loadBaseWordFamilyAnchors } from "@/lib/adle/loaders/base-word-family-anchors";
 import type { MultiSenseCsvBundle } from "./multi-sense-csv";
 import type { createServiceRoleClient } from "@/lib/supabase/service-role";
 
@@ -68,6 +69,8 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
   const extra = requestRows.filter(row => !inPool.has(row.id) && !ids.includes(row.id));
   const bundles = await readBundles(db, [...new Set([...ids, ...extra.map(row => row.id), ...legacy.map(({ family }) => family.baseWordId)])]);
   const byWord = new Map(bundles.map(bundle => [bundle.wordId, bundle]));
+  const anchors = canonicalEnabled ? await loadBaseWordFamilyAnchors(db,
+    legacy.map(({ family }) => family.baseWordId)) : [];
   const rows = ids.map(id => {
     const records = legacy.filter(({ word }) => word.canonicalWordId === id);
     const [{ word, member, family }] = records;
@@ -95,13 +98,10 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
           componentPartId: analysis.componentPartId, baseSource: basePart.sourceText,
           relationshipKind: analysis.relationshipKind })) return false;
         if (family.baseWordId === id) return analysis.relationshipKind === "free_base";
-        const baseBundle = byWord.get(family.baseWordId);
-        // Use the actual published anchor, including its chosen meaning.
-        const activeAnchor = active.family.families.find(item => item.baseFamilyKey === family.baseFamilyKey)
-          ?.members.find(item => item.canonicalWordId === family.baseWordId);
-        return Boolean(activeAnchor && baseBundle?.analyses.some(base => base.familyKey === analysis.familyKey &&
-          base.relationshipKind === "free_base" && base.parts.find(part => part.id === base.componentPartId)?.sourceText === basePart.sourceText &&
-          base.senseId === activeAnchor.dictionarySenseId) &&
+        // The approved dictionary base is support, not a prerequisite lesson
+        // publication. Match the exact family sense before offering Publish.
+        return Boolean(anchors.some(anchor => anchor.wordId === family.baseWordId &&
+          anchor.familyKey === analysis.familyKey && anchor.parts[0].sourceText === basePart.sourceText) &&
           ["derived", "regular_inflection"].includes(analysis.relationshipKind));
       });
     }).map(sense => ({ id: sense.id, definition: sense.definition })) ?? [];
