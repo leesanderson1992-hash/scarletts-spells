@@ -15,6 +15,8 @@ interface BaseWordFamilyAuthorityMemberCommon {
   complexityLevel: number | null;
   wordSum: string;
   dictionarySenseId?: string;
+  /** Current approved sentence for this family's exact meaning; runtime only. */
+  dictionaryDictation?: { sentence: string; targetTokenIndex: number; audioText: string };
   teachingBasePartId?: string;
   morphologyParts: unknown[];
   morphologyJoins: unknown[];

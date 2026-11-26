@@ -146,7 +146,9 @@ export async function projectPublishedBaseWordRelease(client: SupabaseClient, ac
       return [{ ...member, lessonRegularity: member.lessonRegularity?.status === "irregular" && hasUsefulSpellingConnection(facts.parts, facts.transformations) ? { status: "regular" as const, source: "canonical_morphology", reason: "reviewed_spelling_connection" } : member.lessonRegularity, morphologyParts: facts.parts, morphologyJoins: facts.joins,
         morphologyTransformations: facts.transformations,
         transformationNotes: facts.transformations.map(change => (change as { explanation: string }).explanation).join(" "),
-        dictionarySenseId: facts.sense.senseId, teachingBasePartId: facts.teachingBasePartId, wordSum: facts.wordSum, childFriendlyMeaning: facts.sense.meaning }];
+        dictionarySenseId: facts.sense.senseId,
+        dictionaryDictation: { sentence: facts.sense.dictationSentence!, targetTokenIndex: facts.sense.dictationTargetTokenIndex!, audioText: facts.sense.dictationSentence! },
+        teachingBasePartId: facts.teachingBasePartId, wordSum: facts.wordSum, childFriendlyMeaning: facts.sense.meaning }];
     });
   }
   const dictionaryWords = activation.dictionaryWords.flatMap(word => {

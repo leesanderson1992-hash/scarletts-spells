@@ -158,8 +158,9 @@ export async function loadBaseWordFamilyLessonReadModel(
         if (!member || !closure || !baseWordMemberSelectable(authority.family, member) ||
             !baseWordFamilyMemberAppliesToMicroSkill(authority.family, member, request.microSkillKey) || !member.wordSum.trim() ||
             member.morphologyParts.length === 0 || !member.childFriendlyMeaning.trim()) return null;
-        const variant=closure.dictationVariants ? selectDictationVariant(closure.dictationVariants, `${request.dictationSeed ?? "preflight"}:${canonicalWordId}:${closure.dictationSetFingerprint}`) : null;
-        if(closure.dictationVariants && dictationVariantBlockers(closure.displayWord,closure.dictationVariants).length)return null;
+        const canonicalDictation = member.dictionaryDictation;
+        const variant=!canonicalDictation && closure.dictationVariants ? selectDictationVariant(closure.dictationVariants, `${request.dictationSeed ?? "preflight"}:${canonicalWordId}:${closure.dictationSetFingerprint}`) : null;
+        if(!canonicalDictation && closure.dictationVariants && dictationVariantBlockers(closure.displayWord,closure.dictationVariants).length)return null;
         const morphology = projectReleasedBaseWordMorphology(closure.displayWord, member.morphologyParts,
           member.morphologyJoins, member.morphologyTransformations, member.lessonRegularity?.status);
         if (!morphology) return null;
@@ -172,9 +173,9 @@ export async function loadBaseWordFamilyLessonReadModel(
           ...morphology,
           transformationNotes: member.transformationNotes,
           childFriendlyMeaning: member.childFriendlyMeaning,
-          dictationSentence: variant?.sentence ?? closure.dictationSentence,
-          dictationTargetTokenIndex: variant?.targetTokenIndex ?? closure.dictationTargetTokenIndex,
-          audioText: variant?.audioText ?? closure.audioText,
+          dictationSentence: canonicalDictation?.sentence ?? variant?.sentence ?? closure.dictationSentence,
+          dictationTargetTokenIndex: canonicalDictation?.targetTokenIndex ?? variant?.targetTokenIndex ?? closure.dictationTargetTokenIndex,
+          audioText: canonicalDictation?.audioText ?? variant?.audioText ?? closure.audioText,
         };
       };
       const baseWord = word(family.baseWordId);
