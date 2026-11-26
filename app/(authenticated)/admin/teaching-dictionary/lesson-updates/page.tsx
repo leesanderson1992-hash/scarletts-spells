@@ -115,6 +115,8 @@ export default async function LessonUpdates({ searchParams }: {
   const activeWords = specialist?.current ?? base?.current ?? suffix?.current ?? update?.current ?? [];
   const wordsToReview = view === "export" ? await includeActiveWorkbookReview(db, selected, activeWords, initialReview,
     specialistRoute !== "weak_vowel_word_lab") : initialReview;
+  const baseReady = base?.rows.filter(row => row.choices.length) ?? [];
+  const baseNeedsInformation = base?.rows.filter(row => !row.choices.length) ?? [];
   const reviewIds = new Set(wordsToReview.map(row => row.id));
   const resolvedWords = activeWords.filter(word => !reviewIds.has(word.canonicalWordId))
     .sort((a, b) => a.word.localeCompare(b.word, "en-GB"));
@@ -144,10 +146,11 @@ export default async function LessonUpdates({ searchParams }: {
       blankWorkbookHref={blankWorkbookSkill ? `/admin/teaching-dictionary/export/review-workbook?skill=${blankWorkbookSkill}&scope=blank` : undefined}
       review={view === "export" ? <>
         {wordsToReview.length > 0 && <section className={card}>
-          <h2 className="text-xl font-semibold">{wordsToReview.length} {wordsToReview.length === 1 ? "word to review or publish" : "words to review or publish"}</h2>
+          <h2 className="text-xl font-semibold">{base ? `${baseNeedsInformation.length} need information · ${baseReady.length} ready to publish`
+            : `${wordsToReview.length} ${wordsToReview.length === 1 ? 'word to review or publish' : 'words to review or publish'}`}</h2>
           <ul className="divide-y divide-[var(--border)]">{wordsToReview.map(row => <li key={row.id} className="py-2">
             <Link prefetch={false} className="font-semibold underline" href={row.href}>{row.word}</Link>
-            <p className="text-sm">{row.note}</p>
+            <p className="text-sm">{base && <strong>{baseReady.some(ready => ready.id === row.id) ? 'Ready to publish: ' : 'Needs information: '}</strong>}{row.note}</p>
           </li>)}</ul>
         </section>}
         <details className={card}>
@@ -308,10 +311,25 @@ export default async function LessonUpdates({ searchParams }: {
         <p className="text-sm">{row.note}</p>
       </li>)}</ul>
     </section>}
+    {base && base.support.length > 0 && <details className={card}>
+      <summary className="cursor-pointer font-semibold">Supporting bases ({base.support.length})</summary>
+      <p className="text-sm">Approved dictionary bases support their families. They do not need a separate Publish action here.</p>
+      <ul className="divide-y">{base.support.map(row => <li key={row.id} className="py-2">
+        <Link prefetch={false} className="underline" href={`/admin/teaching-dictionary/${row.id}`}>{row.word}</Link>
+        <p className="text-sm">{row.note}</p>
+      </li>)}</ul>
+    </details>}
     {base && view === "preview" && <section className={card}>
       <h2 className="text-xl font-semibold">Publish words for Identify the Base</h2>
       {params.published && <p role="status">The word is Active in Identify the Base.</p>}
-      <p>{base.current.length} active words · {base.rows.length} waiting for review</p>
+      <p>{base.current.length} Active · {baseNeedsInformation.length} need information · {baseReady.length} ready to publish</p>
+      {baseNeedsInformation.length > 0 && <details className="rounded-lg border p-3" open>
+        <summary className="cursor-pointer font-semibold">Needs information ({baseNeedsInformation.length})</summary>
+        <ul className="divide-y">{baseNeedsInformation.map(row => <li key={row.id} className="py-2">
+          <Link prefetch={false} className="font-semibold underline" href={`/admin/teaching-dictionary/${row.id}`}>{row.word}</Link>
+          <p className="text-sm">{row.note}</p>
+        </li>)}</ul>
+      </details>}
       {base.rows.length > 0 && !base.rows.some(row => row.choices.length) &&
         <Link className="font-semibold underline" href="/admin/adle-lesson-readiness?route=base_word_lab&skill=D4_MOR_BASE_WORDS_IDENTIFY_BASE">Open lesson readiness</Link>}
       {base.rows.filter(row => row.choices.length).map(row => <form key={row.id} action={publishIdentifyBaseWord}

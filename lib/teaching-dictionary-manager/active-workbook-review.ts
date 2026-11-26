@@ -1,3 +1,4 @@
+import { IDENTIFY_BASE_SKILL } from "./lesson-candidate";
 import { isHomophoneReviewSkill } from "./homophone-review-contract";
 import "server-only";
 
@@ -15,7 +16,7 @@ type ActiveWord = { canonicalWordId: string; word: string; base?: string; senseI
 export async function includeActiveWorkbookReview(db: Db, skill: string, current: readonly ActiveWord[],
   rows: ReviewRow[], requiresFamily = true): Promise<ReviewRow[]> {
   const environment = ingReviewEnvironment();
-  if (!environment || !current.length || isPrefixWorkbookSkill(skill) || isHomophoneReviewSkill(skill)) return rows;
+  if (skill === IDENTIFY_BASE_SKILL || !environment || !current.length || isPrefixWorkbookSkill(skill) || isHomophoneReviewSkill(skill)) return rows;
   const byId = new Map(rows.map(row => [row.id, row]));
   const active = [...new Map(current.map(word => [word.canonicalWordId, word])).values()];
   for (let offset = 0; offset < active.length; offset += 75) {
@@ -55,7 +56,7 @@ export async function includeActiveWorkbookReview(db: Db, skill: string, current
             issues.push("Approve a dictation sentence for the teaching meaning.");
         }
         if (!analysis?.parts.length) issues.push("Approve the word parts for the teaching meaning.");
-        if (requiresFamily && !analysis?.familyKey) issues.push("Confirm the teaching family for this meaning.");
+        if (requiresFamily && !analysis?.familyKey && !analysis?.familyLinks?.length) issues.push("Confirm the teaching family for this meaning.");
       }
       if (!issues.length) continue;
       const existing = byId.get(id);

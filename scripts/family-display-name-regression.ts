@@ -4,7 +4,7 @@ import { familySearchResults } from "../lib/teaching-dictionary-manager/family-s
 import { mergeWordFamilySummaries } from "../lib/teaching-dictionary-manager/base-family-summary";
 
 assert.equal(familyDisplayName({ base: "clean", partOfSpeech: "verb", meaning: "To remove dirt." }), "clean (base) — To remove dirt");
-assert.equal(familyDisplayName({ base: "popul", partOfSpeech: "bound_root", kind: "bound_root", meaning: "people" }), "popul (root) — people");
+assert.equal(familyDisplayName({ base: "popul", partOfSpeech: "bound_root", kind: "bound_root", meaning: "people" }), "popul (bound root) — people");
 assert.equal(familyDisplayName({ base: "of", partOfSpeech: "preposition", meaning: "belonging to" }), "of (base) — belonging to");
 assert.equal(familyDisplayName({ base: "smile", partOfSpeech: "noun", meaning: "Show happiness." }),
   familyDisplayName({ base: "smile", partOfSpeech: "verb", meaning: "Show happiness." }),

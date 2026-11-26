@@ -5,7 +5,7 @@ import { loadLessonReviewRequests } from "./lesson-review-requests";
 
 import { loadEnabledBaseWordReleaseAuthorities } from "@/lib/adle/loaders/curriculum-release-authority";
 import { projectPublishedBaseWordRelease } from "@/lib/adle/loaders/published-base-family-words";
-import { canonicalBaseWordAnalysis } from "@/lib/adle/base-word-canonical-analysis";
+import { canonicalBaseWordFamilyMembership } from "@/lib/adle/base-word-canonical-analysis";
 import { canonicalBaseWordWorkflowEnabled } from "@/lib/adle/base-word-canonical-workflow";
 import { baseWordFamilyMemberAppliesToMicroSkill } from "@/lib/adle/curriculum-release-activation";
 import { baseWordMemberSelectable, reviewedBaseWordRegularity } from "@/lib/adle/base-word-regularity";
@@ -14,9 +14,12 @@ import { evaluateLessonCandidate } from "./lesson-candidate";
 import { IDENTIFY_BASE_SKILL } from "./bulk-review-scope";
 import { ingReviewEnvironment } from "./ing-staging-scope";
 import { loadBaseWordSelectionPool } from "@/lib/adle/loaders/base-word-family-pilot-loader";
-import { loadBaseWordFamilyAnchors } from "@/lib/adle/loaders/base-word-family-anchors";
+import { loadBaseWordFamilyAnchors, chooseBaseWordFamilyAnchor } from "@/lib/adle/loaders/base-word-family-anchors";
 import type { MultiSenseCsvBundle } from "./multi-sense-csv";
 import type { createServiceRoleClient } from "@/lib/supabase/service-role";
+
+import { loadCurrentPairDeassignments } from '@/lib/adle/word-skill-relationships/pair-decision-veto';
+import { canonicalPairKey } from '@/lib/adle/word-skill-relationships/pair-key';
 
 type Db = ReturnType<typeof createServiceRoleClient>;
 
@@ -43,7 +46,7 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
   }));
   if (!release) {
     const bundles = includeBundles ? await readBundles(db, requestRows.map(row => row.id)) : [];
-    return { current: [], rows: requestRows.map(row => ({ ...row, bundle: bundles.find(bundle => bundle.wordId === row.id) ?? row.bundle })) };
+    return { current: [], support: [], rows: requestRows.map(row => ({ ...row, bundle: bundles.find(bundle => bundle.wordId === row.id) ?? row.bundle })) };
   }
   const active = canonicalEnabled
     ? await projectPublishedBaseWordRelease(db, release) : release;
@@ -56,14 +59,16 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
     const word = active.dictionaryWords.find(row => row.canonicalWordId === member.canonicalWordId);
     return word && paired.has(family.baseFamilyKey) && familyPool.get(family.baseFamilyKey)?.has(member.canonicalWordId) ? [{
         canonicalWordId: word.canonicalWordId, word: word.displayWord, base: words.get(family.baseWordId)?.displayWord ?? "",
-        meaning: member.childFriendlyMeaning, dictationSentence: word.dictationSentence,
+        senseId: member.dictionarySenseId, meaning: member.childFriendlyMeaning, dictationSentence: word.dictationSentence,
       }] : [];
   }));
   const current = [...new Map(currentRows.map(word => [word.canonicalWordId, word])).values()];
   const inPool = new Set(current.map(word => word.canonicalWordId));
+  const deassigned = await loadCurrentPairDeassignments({ client: db, environmentKey: environment,
+    pairs: release.dictionaryWords.map(word => ({ canonicalWordId: word.canonicalWordId, microSkillKey: skill })) });
   const legacy = release.family.families.flatMap(family => family.members.flatMap(member => {
     const word = words.get(member.canonicalWordId);
-    return word && baseWordFamilyMemberAppliesToMicroSkill(release.family, member, skill)
+    return word && member.assignmentEligible && !deassigned.has(canonicalPairKey(word.canonicalWordId, skill)) && baseWordFamilyMemberAppliesToMicroSkill(release.family, member, skill)
       ? [{ family, member, word }] : [];
   }));
   const ids = [...new Set(legacy.filter(({ word }) => !inPool.has(word.canonicalWordId)).map(({ word }) => word.canonicalWordId))];
@@ -96,33 +101,36 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
       }
       return eligible.some(({ family }) => {
         const links = analysis.familyLinks?.length ? analysis.familyLinks : [{ familyKey: analysis.familyKey, componentPartId: analysis.componentPartId, relationshipKind: analysis.relationshipKind }];
-        const link = links.find(link => family.baseWordId === id ? link.relationshipKind === "free_base" : anchors.some(anchor => anchor.wordId === family.baseWordId && anchor.familyKey === link.familyKey));
-        if (!link) return false;
-        const basePart = analysis.parts.find(part => part.id === link.componentPartId && part.kind === "base");
-        if (link.relationshipKind === "free_base" && family.baseWordId !== id) {
-          missingFacts.add(`Reviewed parts treat this word as a whole base. The current lesson release groups it under “${words.get(family.baseWordId)?.displayWord ?? "a different base"}”; a matching released family is required.`);
+        const activeBase = active.family.families.find(item => item.baseFamilyKey === family.baseFamilyKey)
+          ?.members.find(item => item.canonicalWordId === family.baseWordId);
+        const familyAnchors = activeBase?.dictionarySenseId ? anchors.filter(anchor =>
+          anchor.wordId !== family.baseWordId || anchor.sense.senseId === activeBase.dictionarySenseId) : anchors;
+        const anchor = chooseBaseWordFamilyAnchor(familyAnchors, family, links.map(link => link.familyKey));
+        if (!anchor) {
+          missingFacts.add('Link this meaning to the same approved base meaning used by the teaching family.');
           return false;
         }
-        if (!basePart || !canonicalBaseWordAnalysis({ displayWord: bundle.displayWord, parts: analysis.parts,
-          joins: analysis.joins, transformations: analysis.transformations, wordSum: analysis.wordSum,
-          componentPartId: link.componentPartId, baseSource: basePart.sourceText,
-          relationshipKind: link.relationshipKind })) {
+        const membership = canonicalBaseWordFamilyMembership({ displayWord: bundle.displayWord,
+          parts: analysis.parts, joins: analysis.joins, transformations: analysis.transformations,
+          wordSum: analysis.wordSum, anchor, links });
+        if (!membership) {
           const regularity = reviewedBaseWordRegularity({ relationshipKind: analysis.relationshipKind, transformations: analysis.transformations, parts: analysis.parts, reviewed: true });
-          missingFacts.add(regularity.status === "needs_review"
-            ? "The reviewed word parts are saved. This family-specific spelling change needs a lesson regularity decision before publishing."
-            : "Review the word sum and saved spelling changes: they must reproduce the reviewed word parts.");
+          missingFacts.add(regularity.status === 'needs_review'
+            ? 'The reviewed word parts are saved. This family-specific spelling change needs a lesson regularity decision before publishing.'
+            : 'Review the word sum, spelling changes and teaching base: they must match the approved family.');
           return false;
         }
-        if (family.baseWordId === id) return link.relationshipKind === "free_base";
-        // The approved dictionary base is support, not a prerequisite lesson
-        // publication. Match the exact family sense before offering Publish.
-        return Boolean(anchors.some(anchor => anchor.wordId === family.baseWordId &&
-          anchor.familyKey === link.familyKey && anchor.parts[0].sourceText === basePart.sourceText) &&
-          ["derived", "regular_inflection", "irregular_inflection"].includes(link.relationshipKind));
+        return family.baseWordId === id ? membership.relationshipKind === 'free_base'
+          : ['derived', 'regular_inflection', 'irregular_inflection'].includes(membership.relationshipKind);
       });
     }).map(sense => ({ id: sense.id, definition: sense.definition })) ?? [];
-    const supportOnly = choices.length > 0 && choices.every(choice =>
-      bundle?.analyses.find(analysis => analysis.senseId === choice.id)?.parts.length === 1);
+    const supportOnly = choices.length > 0 && choices.every(choice => {
+      const analysis = bundle?.analyses.find(item => item.senseId === choice.id);
+      const part = analysis?.parts[0];
+      return analysis?.parts.length === 1 && part?.kind === 'base' &&
+        part.sourceText.toLowerCase() === word.displayWord.toLowerCase() && part.surfaceText === word.displayWord &&
+        (analysis.familyLinks?.some(link => link.relationshipKind === 'free_base') || analysis.relationshipKind === 'free_base');
+    });
     const base = words.get(family.baseWordId)?.displayWord ?? "";
     const note = !generationSupported ? "This historical lesson needs a supported release before any word can become Active." : !canonicalEnabled ? "Canonical Base Word publishing has not been enabled for this environment." : !eligible.length ? "The teaching release excludes this form. Review the family’s regularity before it can be published."
       : supportOnly ? "This base is approved dictionary support. Publish an eligible derived member in its family; the base becomes Active automatically when the two-family lesson has enough words."
@@ -132,14 +140,17 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
           : !inPool.has(family.baseWordId) && family.baseWordId !== id
             ? `Review the base “${base}” in the Teaching Dictionary and approve its meaning, pronunciation, dictation and family. The base does not need a separate lesson assignment.`
             : "Check the reviewed meaning, dictation, word parts and link to the released teaching family.";
-    return { id, word: word.displayWord, choices: generationSupported && canonicalEnabled && !supportOnly ? choices : [], note, base, bundle: includeBundles ? bundle ?? {
+    return { id, word: word.displayWord, supportOnly, status: supportOnly ? "support" as const : choices.length ? "ready" as const : "needs_information" as const, choices: generationSupported && canonicalEnabled && !supportOnly ? choices : [], note, base, bundle: includeBundles ? bundle ?? {
       wordId: id, displayWord: word.displayWord, sourceSenseReviewedAt: "",
       senseSet: { senses: [{ id: "review", definition: member.childFriendlyMeaning, partOfSpeech: "", pronunciationId: null,
         dictationSentence: word.dictationSentence, dictationTargetTokenIndex: word.dictationTargetTokenIndex }], pronunciations: [] },
       analyses: [],
     } satisfies MultiSenseCsvBundle : undefined };
   });
-  return { current, rows: [...rows, ...extra.map(row => ({ ...row, bundle: byWord.get(row.id) ?? row.bundle }))].sort((a, b) => a.word.localeCompare(b.word, "en-GB")) };
+  return { current, support: rows.filter(row => row.supportOnly),
+    rows: [...rows.filter(row => !row.supportOnly), ...extra.map(row => ({ ...row, status: 'needs_information' as const, bundle: byWord.get(row.id) ?? row.bundle }))]
+      .sort((a, b) => a.word.localeCompare(b.word, 'en-GB')) };
+
 }
 
 async function readBundles(db: Db, ids: string[]) {

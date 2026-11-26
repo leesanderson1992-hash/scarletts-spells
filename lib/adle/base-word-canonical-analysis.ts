@@ -28,3 +28,19 @@ export function canonicalBaseWordAnalysis(input: {
     return reviewedBaseWordRegularity({ relationshipKind: input.relationshipKind, transformations: changes, parts, reviewed: true }).status === 'regular';
   } catch { return false; }
 }
+
+/** Shared by Bulk review and the selectable ADLE projection. Multiple family
+ * keys are acceptable only when the anchor identifies the same approved sense. */
+export function canonicalBaseWordFamilyMembership(input: {
+  displayWord: string; parts: CanonicalPart[]; joins: unknown[]; transformations: unknown[]; wordSum: string;
+  anchor: { familyKey: string; equivalentFamilyKeys?: string[]; parts: CanonicalPart[] };
+  links: readonly { familyKey: string; componentPartId: string; relationshipKind: string }[];
+}) {
+  const keys = new Set([input.anchor.familyKey, ...input.anchor.equivalentFamilyKeys ?? []]);
+  const links = input.links.filter(link => keys.has(link.familyKey) &&
+    input.parts.some(part => part.id === link.componentPartId && part.kind === 'base'));
+  if (!links.length || new Set(links.map(link => link.componentPartId)).size !== 1) return null;
+  const link = links[0];
+  return canonicalBaseWordAnalysis({ ...input, componentPartId: link.componentPartId,
+    baseSource: input.anchor.parts[0].sourceText, relationshipKind: link.relationshipKind }) ? link : null;
+}

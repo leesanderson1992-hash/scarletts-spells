@@ -10,7 +10,7 @@ import { loadCurrentPairDeassignments } from "../word-skill-relationships/pair-d
 import { canonicalPairKey } from "../word-skill-relationships/pair-key";
 import { chooseBaseWordFamilyAnchor, loadBaseWordFamilyAnchors } from "./base-word-family-anchors";
 import { parseAdleRouteActivationEnvironment } from "../route-activation-environment";
-import { canonicalBaseWordAnalysis } from "../base-word-canonical-analysis";
+import { canonicalBaseWordFamilyMembership } from "../base-word-canonical-analysis";
 
 type CurrentSense = Extract<LessonSenseProjection, { status: "current" }>;
 type ApprovedWord = {
@@ -105,21 +105,18 @@ export async function loadPublishedBaseFamilyWords(client: SupabaseClient, activ
       if (!analysis || !Array.isArray(analysis.morphology_parts) || !Array.isArray(analysis.morphology_joins) ||
         !Array.isArray(analysis.morphology_transformations)) continue;
       const parts = analysis.morphology_parts as CanonicalPart[];
-      const membership = (membershipsBySense.get(senseKey) ?? []).filter(link =>
-        link.sense_morphology_id === analysis.id &&
-        (link.family_key === anchor.familyKey || anchor.equivalentFamilyKeys?.includes(link.family_key)) &&
-        parts.some(part => part.kind === "base" && part.id === link.component_part_id));
-      // Historical duplicate keys for the same approved base sense are aliases.
-      // Several different components still require an explicit teaching choice.
-      if (!membership.length || new Set(membership.map(link => link.component_part_id)).size !== 1) continue;
       const displayWord = activation.dictionaryWords.find(word => word.canonicalWordId === member.canonicalWordId)?.displayWord;
-      if (!displayWord || !canonicalBaseWordAnalysis({ displayWord, parts,
+      if (!displayWord) continue;
+      const currentLinks = (membershipsBySense.get(senseKey) ?? []).filter(link => link.sense_morphology_id === analysis.id);
+      const membership = canonicalBaseWordFamilyMembership({ displayWord, parts,
         joins: analysis.morphology_joins, transformations: analysis.morphology_transformations,
-        wordSum: analysis.word_sum, componentPartId: membership[0].component_part_id,
-        baseSource: anchor.parts[0].sourceText, relationshipKind: membership[0].relationship_kind })) continue;
+        wordSum: analysis.word_sum, anchor, links: currentLinks.map(link => ({
+          familyKey: link.family_key, componentPartId: link.component_part_id, relationshipKind: link.relationship_kind,
+        })) });
+      if (!membership) continue;
       approvedMembers.set(baseFamilyWordKey(family.baseFamilyKey, member.canonicalWordId), {
-        sense, parts: inheritFamilyPartMeanings(parts, membership),
-        teachingBasePartId: membership[0].component_part_id,
+        sense, parts: inheritFamilyPartMeanings(parts, currentLinks.filter(link => link.component_part_id === membership.componentPartId && (link.family_key === anchor.familyKey || anchor.equivalentFamilyKeys?.includes(link.family_key)))),
+        teachingBasePartId: membership.componentPartId,
         joins: analysis.morphology_joins, transformations: analysis.morphology_transformations, wordSum: analysis.word_sum,
       });
     }
