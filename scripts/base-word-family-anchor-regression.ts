@@ -37,6 +37,15 @@ async function main() {
   assert.equal(chooseBaseWordFamilyAnchor([anchor, noun], family, ['work-noun']), noun);
   assert.equal(chooseBaseWordFamilyAnchor([anchor, noun], family, ['work-noun', anchor.familyKey]), null);
   const saved = structuredClone(tables);
+  tables.teaching_dictionary_families_with_current_meaning[0].canonical_base_sense_id = null;
+  assert.equal((await loadBaseWordFamilyAnchors(db(), ['work']))[0]?.sense.senseId, sense.id,
+    'An explicitly reviewed whole-base link supplies a legacy family anchor without renaming it');
+  tables.teaching_dictionary_current_sense_family_memberships.push({
+    ...tables.teaching_dictionary_current_sense_family_memberships[0], sense_id: 'work-noun',
+  });
+  assert.equal((await loadBaseWordFamilyAnchors(db(), ['work'])).length, 0,
+    'Ambiguous legacy base meanings cannot be silently selected');
+  Object.assign(tables, structuredClone(saved));
   tables.teaching_dictionary_current_sense_family_memberships = [];
   assert.equal((await loadBaseWordFamilyAnchors(db(), ['work'])).length, 0, 'Unlinked bases do not silently form a family');
   Object.assign(tables, structuredClone(saved));

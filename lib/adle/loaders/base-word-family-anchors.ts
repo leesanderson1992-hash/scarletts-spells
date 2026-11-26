@@ -34,10 +34,17 @@ export async function loadBaseWordFamilyAnchors(db: SupabaseClient, wordIds: rea
     for (const family of families.data ?? []) {
       if (latest.has(family.family_key)) continue;
       latest.add(family.family_key);
-      if (family.review_status !== "approved" || family.base_kind !== "free_base" || !family.canonical_base_sense_id) continue;
+      if (family.review_status !== "approved" || family.base_kind !== "free_base") continue;
       const word = words.data?.find(row => row.id === family.canonical_base_word_id);
       const set = sets.data?.find(row => row.canonical_word_id === word?.id)?.sense_set as DictionarySenseSet | undefined;
-      const sense = set?.senses.find(row => row.id === family.canonical_base_sense_id);
+      // Historical family keys have no sense column. An explicit, current
+      // whole-base approval can supply that identity without renaming the
+      // family or guessing between meanings from its display wording.
+      const linkedSenseIds = [...new Set((links.data ?? []).filter(link =>
+        link.canonical_word_id === family.canonical_base_word_id && link.family_key === family.family_key &&
+        link.relationship_kind === "free_base").map(link => link.sense_id))];
+      const senseId = family.canonical_base_sense_id ?? (linkedSenseIds.length === 1 ? linkedSenseIds[0] : null);
+      const sense = set?.senses.find(row => row.id === senseId);
       if (!word || !set || !sense || sense.partOfSpeech === "root") continue;
       const pronunciation = set.pronunciations.find(row => row.id === sense.pronunciationId);
       if (!pronunciation || senseSetErrors({ senses: [sense], pronunciations: [pronunciation] }).length) continue;
