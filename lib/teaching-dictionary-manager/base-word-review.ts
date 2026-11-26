@@ -46,7 +46,7 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
   }));
   if (!release) {
     const bundles = includeBundles ? await readBundles(db, requestRows.map(row => row.id)) : [];
-    return { current: [], support: [], rows: requestRows.map(row => ({ ...row, bundle: bundles.find(bundle => bundle.wordId === row.id) ?? row.bundle })) };
+    return { current: [], support: [], excluded: [], rows: requestRows.map(row => ({ ...row, bundle: bundles.find(bundle => bundle.wordId === row.id) ?? row.bundle })) };
   }
   const active = canonicalEnabled
     ? await projectPublishedBaseWordRelease(db, release) : release;
@@ -85,6 +85,7 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
       || (canonicalEnabled && member.assignmentEligible && member.lessonRegularity?.status === "irregular"
         && bundle?.analyses.some(analysis => analysis.familyKey && analysis.relationshipKind === "irregular_inflection"
           && hasUsefulSpellingConnection(analysis.parts, analysis.transformations))));
+    const policyExcluded = eligible.length === 0 && records.every(({ member }) => member.lessonRegularity?.status === 'irregular');
     const missingFacts = new Set<string>();
     const choices = bundle?.senseSet.senses.filter(sense => {
       const analysis = bundle.analyses.find(item => item.senseId === sense.id);
@@ -140,15 +141,15 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
           : !inPool.has(family.baseWordId) && family.baseWordId !== id
             ? `Review the base “${base}” in the Teaching Dictionary and approve its meaning, pronunciation, dictation and family. The base does not need a separate lesson assignment.`
             : "Check the reviewed meaning, dictation, word parts and link to the released teaching family.";
-    return { id, word: word.displayWord, supportOnly, status: supportOnly ? "support" as const : choices.length ? "ready" as const : "needs_information" as const, choices: generationSupported && canonicalEnabled && !supportOnly ? choices : [], note, base, bundle: includeBundles ? bundle ?? {
+    return { id, word: word.displayWord, supportOnly, policyExcluded, status: policyExcluded ? "excluded" as const : supportOnly ? "support" as const : choices.length ? "ready" as const : "needs_information" as const, choices: generationSupported && canonicalEnabled && !supportOnly ? choices : [], note, base, bundle: includeBundles ? bundle ?? {
       wordId: id, displayWord: word.displayWord, sourceSenseReviewedAt: "",
       senseSet: { senses: [{ id: "review", definition: member.childFriendlyMeaning, partOfSpeech: "", pronunciationId: null,
         dictationSentence: word.dictationSentence, dictationTargetTokenIndex: word.dictationTargetTokenIndex }], pronunciations: [] },
       analyses: [],
     } satisfies MultiSenseCsvBundle : undefined };
   });
-  return { current, support: rows.filter(row => row.supportOnly),
-    rows: [...rows.filter(row => !row.supportOnly), ...extra.map(row => ({ ...row, status: 'needs_information' as const, bundle: byWord.get(row.id) ?? row.bundle }))]
+  return { current, support: rows.filter(row => row.supportOnly), excluded: rows.filter(row => row.policyExcluded),
+    rows: [...rows.filter(row => !row.supportOnly && !row.policyExcluded), ...extra.map(row => ({ ...row, status: 'needs_information' as const, bundle: byWord.get(row.id) ?? row.bundle }))]
       .sort((a, b) => a.word.localeCompare(b.word, 'en-GB')) };
 
 }

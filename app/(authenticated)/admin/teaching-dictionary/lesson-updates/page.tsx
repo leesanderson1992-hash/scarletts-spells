@@ -311,6 +311,13 @@ export default async function LessonUpdates({ searchParams }: {
         <p className="text-sm">{row.note}</p>
       </li>)}</ul>
     </section>}
+    {base && base.excluded.length > 0 && <details className={card}>
+      <summary className="cursor-pointer font-semibold">Not eligible for this lesson ({base.excluded.length})</summary>
+      <p className="text-sm">These historical forms are excluded by the lesson’s spelling-family rules. They are not waiting for approval.</p>
+      <ul>{base.excluded.map(row => <li key={row.id}>
+        <Link prefetch={false} className="underline" href={`/admin/teaching-dictionary/${row.id}`}>{row.word}</Link>
+      </li>)}</ul>
+    </details>}
     {base && base.support.length > 0 && <details className={card}>
       <summary className="cursor-pointer font-semibold">Supporting bases ({base.support.length})</summary>
       <p className="text-sm">Approved dictionary bases support their families. They do not need a separate Publish action here.</p>
