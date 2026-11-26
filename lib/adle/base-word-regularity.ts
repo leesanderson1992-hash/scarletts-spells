@@ -1,4 +1,4 @@
-import { hasUsefulSpellingConnection } from "./spelling-family-connection";
+import { hasUsefulSpellingConnection, hasReviewedBaseExtension } from "./spelling-family-connection";
 import type { BaseWordFamilyAuthorityMember, BaseWordFamilyAuthorityProjection } from "./curriculum-release-activation";
 
 export type BaseWordRegularityDecision = NonNullable<BaseWordFamilyAuthorityMember["lessonRegularity"]>;
@@ -20,11 +20,12 @@ export function reviewedBaseWordRegularity(input: {
   if (!input.reviewed) return { status: "needs_review", source: "canonical_morphology", reason: "morphology_not_reviewed" };
   const kinds = input.transformations.map((value) => value && typeof value === "object"
     ? String("kind" in value ? value.kind : "type" in value ? value.type : "unknown") : "unknown");
+  if (input.relationshipKind === "irregular_inflection" && input.parts &&
+    hasUsefulSpellingConnection(input.parts, input.transformations) && !kinds.includes("irregular_form") &&
+    (kinds.every(kind => GOVERNED_NON_IRREGULAR_TRANSFORMS.has(kind)) || hasReviewedBaseExtension(input.parts, input.transformations)))
+    return { status: "regular", source: "approved_lexical_relationship", reason: "reviewed_spelling_connection" };
   if (kinds.some((kind) => kind !== "irregular_form" && !GOVERNED_NON_IRREGULAR_TRANSFORMS.has(kind)))
     return { status: "needs_review", source: "canonical_morphology", reason: "transformation_kind_unclassified" };
-  if (input.relationshipKind === "irregular_inflection" && input.parts &&
-    hasUsefulSpellingConnection(input.parts, input.transformations) && !kinds.includes("irregular_form"))
-    return { status: "regular", source: "approved_lexical_relationship", reason: "reviewed_spelling_connection" };
   if (kinds.includes("irregular_form") && input.relationshipKind && input.relationshipKind !== "irregular_inflection")
     return { status: "needs_review", source: "conflicting_reviewed_sources", reason: "relationship_morphology_conflict" };
   if (input.relationshipKind === "irregular_inflection" || kinds.includes("irregular_form"))
