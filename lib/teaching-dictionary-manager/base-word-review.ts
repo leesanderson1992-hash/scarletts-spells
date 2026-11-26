@@ -115,15 +115,18 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
           ["derived", "regular_inflection"].includes(analysis.relationshipKind));
       });
     }).map(sense => ({ id: sense.id, definition: sense.definition })) ?? [];
+    const supportOnly = choices.length > 0 && choices.every(choice =>
+      bundle?.analyses.find(analysis => analysis.senseId === choice.id)?.relationshipKind === "free_base");
     const base = words.get(family.baseWordId)?.displayWord ?? "";
     const note = !generationSupported ? "This historical lesson needs a supported release before any word can become Active." : !canonicalEnabled ? "Canonical Base Word publishing has not been enabled for this environment." : !eligible.length ? "The teaching release excludes this form. Review the family’s regularity before it can be published."
+      : supportOnly ? "This base is approved dictionary support. Publish an eligible derived member in its family; the base becomes Active automatically when the two-family lesson has enough words."
       : choices.length ? "Reviewed facts are ready. Choose the teaching meaning and publish."
         : missingFacts.size ? [...missingFacts].join(" ")
         : !bundle ? "Review the meaning, pronunciation, dictation and word parts, then confirm the teaching family."
           : !inPool.has(family.baseWordId) && family.baseWordId !== id
             ? `Review the base “${base}” in the Teaching Dictionary and approve its meaning, pronunciation, dictation and family. The base does not need a separate lesson assignment.`
             : "Check the reviewed meaning, dictation, word parts and link to the released teaching family.";
-    return { id, word: word.displayWord, choices: generationSupported && canonicalEnabled ? choices : [], note, base, bundle: includeBundles ? bundle ?? {
+    return { id, word: word.displayWord, choices: generationSupported && canonicalEnabled && !supportOnly ? choices : [], note, base, bundle: includeBundles ? bundle ?? {
       wordId: id, displayWord: word.displayWord, sourceSenseReviewedAt: "",
       senseSet: { senses: [{ id: "review", definition: member.childFriendlyMeaning, partOfSpeech: "", pronunciationId: null,
         dictationSentence: word.dictationSentence, dictationTargetTokenIndex: word.dictationTargetTokenIndex }], pronunciations: [] },
