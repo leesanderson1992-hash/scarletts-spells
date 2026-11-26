@@ -378,7 +378,7 @@ export async function TeachingDictionaryDetail({
     .filter(part => ["base", "root"].includes(String(part.kind ?? "")))
     .map(part => String(part.sourceText ?? "").toLowerCase()).filter(Boolean))];
   const matchingFamilies = familySourceTexts.length ? await db.from("teaching_dictionary_families_with_current_meaning")
-    .select("family_key,revision,base_lemma,base_kind,base_part_of_speech,base_meaning,canonical_base_word_id,canonical_base_sense_id,review_status")
+    .select("family_key,revision,base_lemma,base_kind,base_part_of_speech,base_meaning,canonical_base_word_id,canonical_base_sense_id,review_status").eq("is_current_family", true)
     .in("base_lemma", familySourceTexts).order("revision", { ascending: false })
     : { data: [], error: null };
   if (matchingFamilies.error) throw new Error("TEACHING_SENSE_FAMILY_OPTIONS_READ_FAILED");

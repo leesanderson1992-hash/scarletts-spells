@@ -8,7 +8,7 @@ const tables: Record<string, Record<string, unknown>[]> = {
   canonical_teaching_dictionary_words: [{ id: 'work', display_word: 'work', row_status: 'active', review_status: 'approved_for_first_exposure' }],
   teaching_dictionary_reviewed_sense_sets: [{ canonical_word_id: 'work', sense_set: { senses: [sense], pronunciations: [{ id: 'spoken', ipa: '/wɜːk/', spokenSyllableCount: 1, stressPattern: 'primary' }] } }],
   teaching_dictionary_current_sense_morphology: [{ id: 'parts', canonical_word_id: 'work', sense_id: sense.id, morphology_parts: [{ id: 'base', kind: 'base', sourceText: 'work', surfaceText: 'work', gloss: 'old wording', displayRange: { start: 0, end: 4 } }], morphology_joins: [], word_sum: 'work → work' }],
-  teaching_dictionary_families_with_current_meaning: [{ family_key: 'work-verb-family', revision: 1, review_status: 'approved', base_kind: 'free_base', canonical_base_word_id: 'work', canonical_base_sense_id: sense.id }],
+  teaching_dictionary_families_with_current_meaning: [{ family_key: 'work-verb-family', revision: 1, is_current_family: true, review_status: 'approved', base_kind: 'free_base', canonical_base_word_id: 'work', canonical_base_sense_id: sense.id }],
   teaching_dictionary_current_sense_family_memberships: [{ canonical_word_id: 'work', sense_id: sense.id, sense_morphology_id: 'parts', family_key: 'work-verb-family', component_part_id: 'base', relationship_kind: 'free_base' }],
   teaching_dictionary_reviewed_sense_sentences: [{ id: 'sentence', canonical_word_id: 'work', sense_id: sense.id, sentence: sense.dictationSentence, target_token_index: 1, source_row_hash: 'a'.repeat(64) }],
 };

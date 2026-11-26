@@ -5,7 +5,7 @@ import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activati
 import { familyDisplayName, lexicalFamilyDisplayName, legacyFamilyBase } from "./family-display-name";
 
 export type FamilySummary = { name: string; displayName?: string; meaning?: string; pronunciation?: string;
-  baseWordId?: string; baseKind?: string; aliases?: string[];
+  baseWordId?: string; baseKind?: string; aliases?: string[]; compatibilityMeanings?: string[];
   words: { id: string; word: string }[] };
 
 /** The latest approved lexical revision owns shared family facts. Registry and
@@ -17,7 +17,10 @@ export function mergeWordFamilySummaries(
   const current = new Map<string, FamilySummary>();
   const canonical = lexical.map(family => ({ ...family, words: [...family.words] }));
   const compatibility = [...adle, ...registry].filter(family => {
-    const matches = canonical.filter(candidate => candidate.aliases?.includes(family.name));
+    const matches = canonical.filter(candidate => candidate.aliases?.includes(family.name) ||
+      candidate.baseKind === 'free_base' && candidate.baseWordId === family.baseWordId &&
+      family.meaning && candidate.compatibilityMeanings?.includes(family.meaning) && family.words.length > 0 &&
+      family.words.every(word => candidate.words.some(member => member.id === word.id)));
     if (matches.length !== 1) return true;
     const target = matches[0];
     target.words = [...new Map([...family.words, ...target.words].map(word => [word.id, word])).values()]
@@ -110,27 +113,32 @@ export async function loadWordBaseFamilies(
   const lexicalSuccessorKeys = new Set<string>();
   if (lexicalMatches.length) {
     const keys = [...new Set(lexicalMatches.map((row) => String(row.family_key)))];
-    const revisions = await read(
-      db.from("teaching_dictionary_families_with_current_meaning")
-        .select("family_key,revision,base_lemma,base_kind,base_part_of_speech,base_meaning,canonical_base_word_id")
-        .in("family_key", keys).eq("review_status", "approved")
-        .order("revision", { ascending: false }),
-    );
-    const latest = new Map<string, any>();
-    for (const row of revisions) if (!latest.has(row.family_key)) latest.set(row.family_key, row);
-    for (const key of latest.keys()) lexicalSuccessorKeys.add(key);
+    const matches = await read(db.from("teaching_dictionary_families_with_current_meaning")
+      .select("family_key,canonical_family_key").in("family_key", keys));
+    const canonicalKeys = [...new Set(matches.map(row => String(row.canonical_family_key)))];
+    const revisions = await read(db.from("teaching_dictionary_families_with_current_meaning")
+      .select("family_key,canonical_family_key,revision,base_lemma,base_kind,base_part_of_speech,base_meaning,canonical_base_word_id")
+      .in("canonical_family_key", canonicalKeys).eq("review_status", "approved")
+      .order("revision", { ascending: false }));
+    const bySource = new Map<string, any>();
+    for (const row of revisions) if (!bySource.has(row.family_key)) bySource.set(row.family_key, row);
+    const latest = new Map([...bySource].filter(([key, row]) => key === row.canonical_family_key));
+    for (const key of bySource.keys()) lexicalSuccessorKeys.add(key);
     if (latest.size) {
       const historicalMembers = (await read(
         db.from("teaching_dictionary_spelling_lexical_members")
-          .select("family_key,revision,canonical_word_id").in("family_key", [...latest.keys()]),
-      )).filter((row) => latest.get(row.family_key)?.revision === row.revision);
+          .select("family_key,revision,canonical_word_id").in("family_key", [...bySource.keys()]),
+      )).filter((row) => bySource.get(row.family_key)?.revision === row.revision);
       const reviewedSenseMembers = await read(db.from("teaching_dictionary_current_sense_family_memberships")
         .select("family_key,current_family_revision,canonical_word_id")
-        .in("family_key", [...latest.keys()]));
+        .in("family_key", [...bySource.keys()]));
       const currentMembers = [...new Map([...historicalMembers,
         ...reviewedSenseMembers.map(row => ({ family_key: row.family_key,
           revision: row.current_family_revision, canonical_word_id: row.canonical_word_id }))]
-        .map(row => [`${row.family_key}:${row.canonical_word_id}`, row])).values()];
+        .map(row => {
+          const key = bySource.get(row.family_key)?.canonical_family_key ?? row.family_key;
+          return [`${key}:${row.canonical_word_id}`, { ...row, family_key: key, revision: latest.get(key)?.revision ?? row.revision }];
+        })).values()];
       const activeKeys = [...latest.keys()].filter((key) =>
         currentMembers.some((row) => row.family_key === key && row.canonical_word_id === wordId));
       if (activeKeys.length) {
@@ -154,16 +162,23 @@ export async function loadWordBaseFamilies(
         // Recorded registry aliases establish identity even after wording edits.
         // Never infer identity just from a matching base or part of speech.
         const ownAliases = await read(db.from("canonical_teaching_dictionary_base_family_registry_aliases")
-          .select("source_key,canonical_family_id").in("source_key", activeKeys));
+          .select("source_key,canonical_family_id").in("source_key", [...bySource.keys()]));
         const groupIds = [...new Set(ownAliases.map(row => row.canonical_family_id))];
         const [allAliases, groups] = groupIds.length ? await Promise.all([
           read(db.from("canonical_teaching_dictionary_base_family_registry_aliases").select("source_key,canonical_family_id").in("canonical_family_id", groupIds)),
           read(db.from("canonical_teaching_dictionary_base_family_registry").select("id,family_key").in("id", groupIds)),
         ]) : [[], []];
         lexicalFamilies = activeKeys.map((key) => ({
-          aliases: ownAliases.filter(row => row.source_key === key && ownAliases.filter(other => other.canonical_family_id === row.canonical_family_id).length === 1)
-            .flatMap(row => [...allAliases.filter(alias => alias.canonical_family_id === row.canonical_family_id).map(alias => String(alias.source_key)),
-              ...groups.filter(group => group.id === row.canonical_family_id).map(group => String(group.family_key))]),
+          aliases: [...new Set([
+            ...[...bySource.values()].filter(row => row.canonical_family_key === key).map(row => String(row.family_key)),
+            ...ownAliases.filter(row => (bySource.get(row.source_key)?.canonical_family_key ?? row.source_key) === key &&
+              new Set(ownAliases.filter(other => other.canonical_family_id === row.canonical_family_id)
+                .map(other => bySource.get(other.source_key)?.canonical_family_key ?? other.source_key)).size === 1)
+              .flatMap(row => [...allAliases.filter(alias => alias.canonical_family_id === row.canonical_family_id).map(alias => String(alias.source_key)),
+                ...groups.filter(group => group.id === row.canonical_family_id).map(group => String(group.family_key))]),
+          ])],
+          compatibilityMeanings: [...bySource.values()].filter(row => row.canonical_family_key === key && row.family_key !== key)
+            .map(row => String(row.base_meaning)),
           name: key,
           displayName: lexicalFamilyDisplayName(latest.get(key)),
           meaning: String(latest.get(key)?.base_meaning ?? ""),

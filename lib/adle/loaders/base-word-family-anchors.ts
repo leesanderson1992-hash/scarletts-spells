@@ -23,7 +23,7 @@ export async function loadBaseWordFamilyAnchors(db: SupabaseClient, wordIds: rea
         .in("id", batch).eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
       db.from("teaching_dictionary_reviewed_sense_sets").select("canonical_word_id,sense_set").in("canonical_word_id", batch),
       db.from("teaching_dictionary_current_sense_morphology").select("id,canonical_word_id,sense_id,morphology_parts,morphology_joins,word_sum").in("canonical_word_id", batch),
-      db.from("teaching_dictionary_families_with_current_meaning").select("family_key,revision,review_status,base_kind,canonical_base_word_id,canonical_base_sense_id")
+      db.from("teaching_dictionary_families_with_current_meaning").select("family_key,revision,review_status,base_kind,canonical_base_word_id,canonical_base_sense_id").eq("is_current_family", true)
         .in("canonical_base_word_id", batch).order("revision", { ascending: false }),
       db.from("teaching_dictionary_current_sense_family_memberships")
         .select("canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind").in("canonical_word_id", batch),

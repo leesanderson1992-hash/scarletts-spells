@@ -3,6 +3,7 @@ import { lexicalFamilyDisplayName } from "./family-display-name";
 /** Search approved family lemmas, not the common `_base_family` key suffix. */
 export type FamilySearchRow = {
   family_key: string;
+  is_current_family?: boolean;
   revision: number;
   base_lemma: string;
   base_meaning: string;
@@ -18,6 +19,7 @@ export function familySearchTerm(raw: string): string {
 export function familySearchResults(rows: readonly FamilySearchRow[], term: string) {
   const latest = new Map<string, FamilySearchRow>();
   for (const row of rows) {
+    if (row.is_current_family === false) continue;
     if (!row.base_lemma.toLocaleLowerCase("en-GB").includes(term)) continue;
     const previous = latest.get(row.family_key);
     if (!previous || row.revision > previous.revision) latest.set(row.family_key, row);

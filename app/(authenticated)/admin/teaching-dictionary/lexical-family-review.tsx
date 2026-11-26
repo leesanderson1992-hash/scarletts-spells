@@ -38,7 +38,7 @@ export async function BaseFamilyReview({ word, morphology, error, lexicalFamilyK
       normaliseWord(String(part.sourceText ?? part.text ?? "")) === base.normalised_word));
   const [familiesResult, baseMorphologyResult, baseSensesResult] = await Promise.all([
     db.from("teaching_dictionary_families_with_current_meaning")
-      .select("family_key,revision,base_lemma,base_kind,base_part_of_speech,base_meaning,review_status")
+      .select("family_key,revision,base_lemma,base_kind,base_part_of_speech,base_meaning,review_status").eq("is_current_family", true)
       .in("base_lemma", [...new Set([...baseTexts, ...candidateBases.map((base) => base.normalised_word)])])
       .order("revision", { ascending: false }),
     candidateBases.length ? db.from("canonical_teaching_dictionary_word_morphology")
@@ -57,7 +57,7 @@ export async function BaseFamilyReview({ word, morphology, error, lexicalFamilyK
   for (const family of familiesResult.data ?? []) if (!latest.has(family.family_key)) latest.set(family.family_key, family);
   if (lexicalFamilyKey && !latest.has(lexicalFamilyKey)) {
     const selected = await db.from("teaching_dictionary_families_with_current_meaning")
-      .select("family_key,revision,base_lemma,base_kind,base_part_of_speech,base_meaning,review_status")
+      .select("family_key,revision,base_lemma,base_kind,base_part_of_speech,base_meaning,review_status").eq("is_current_family", true)
       .eq("family_key", lexicalFamilyKey).order("revision", { ascending: false }).limit(1).maybeSingle();
     if (selected.error) throw new Error("LEXICAL_FAMILY_SELECTED_READ_FAILED");
     if (selected.data) latest.set(selected.data.family_key, selected.data);

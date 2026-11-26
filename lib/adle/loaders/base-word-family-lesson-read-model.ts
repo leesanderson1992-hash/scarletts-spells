@@ -1,5 +1,6 @@
 import { hasReviewedBaseExtension, hasReviewedFamilyVariation } from "../spelling-family-connection";
 import { dictationVariantBlockers, selectDictationVariant } from "@/lib/teaching-dictionary-manager/authoring";
+import { resolveTransformationType, reviewedTransformation, type Transformation } from "@/lib/teaching-dictionary-manager/transformations";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type {
@@ -83,7 +84,19 @@ export function projectReleasedBaseWordMorphology(
   const transformations: BaseWordFamilySnapshotWord["transformations"] = [];
   for (const raw of rawTransformations) {
     if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
-    const transformation = raw as Record<string, unknown>;
+    let transformation = raw as Record<string, unknown>;
+    // Compatibility labels describe an already approved source/surface change.
+    // Translate that exact decision; never suggest or approve a missing change.
+    if (typeof transformation.type === 'string' && typeof transformation.sourceText === 'string' &&
+        typeof transformation.surfaceText === 'string') {
+      const type = resolveTransformationType(transformation.type, transformation.sourceText, transformation.surfaceText);
+      if (type && type !== transformation.type) {
+        if (!parts.some(part => part.id === transformation.sourcePartId && part.sourceText === transformation.sourceText &&
+          part.surfaceText === transformation.surfaceText)) return null;
+        try { transformation = reviewedTransformation(transformation as Transformation); }
+        catch { return null; }
+      }
+    }
     if (transformation.type === "change_final_y_to_i" && transformation.transformationKey === "change_final_y_to_i") {
       transformations.push(transformation as unknown as BaseWordFamilySnapshotWord["transformations"][number]);
     } else if (hasReviewedBaseExtension(parts, rawTransformations) && transformation.type === "other_reviewed_change") {

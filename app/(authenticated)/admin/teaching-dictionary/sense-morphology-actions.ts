@@ -15,7 +15,7 @@ export async function findSenseFamilies(forms: string[]) {
   const bases = [...new Set(forms.map(form => form.trim().toLocaleLowerCase("en-GB")).filter(Boolean))];
   if (!bases.length || bases.length > 12 || bases.some(base => base.length > 120)) return [];
   const result = await createServiceRoleClient().from("teaching_dictionary_families_with_current_meaning")
-    .select("family_key,revision,base_lemma,base_kind,base_part_of_speech,base_meaning,canonical_base_word_id,canonical_base_sense_id,review_status")
+    .select("family_key,revision,base_lemma,base_kind,base_part_of_speech,base_meaning,canonical_base_word_id,canonical_base_sense_id,review_status").eq("is_current_family", true)
     .in("base_lemma", bases).order("revision", { ascending: false });
   if (result.error) throw new Error("Could not load matching families.");
   const seen = new Set<string>();
@@ -174,7 +174,7 @@ export async function createSenseFreeBaseFamily(input: { wordId: string; senseId
   }
   // Repeated clicks and retries should link the same reviewed family.
   const existing = await db.from("teaching_dictionary_families_with_current_meaning")
-    .select("family_key,review_status").eq("canonical_base_word_id", baseWordId).eq("canonical_base_sense_id", baseSenseId)
+    .select("family_key,review_status").eq("is_current_family", true).eq("canonical_base_word_id", baseWordId).eq("canonical_base_sense_id", baseSenseId)
     .order("revision", { ascending: false }).limit(1).maybeSingle();
   if (existing.error) return { ok: false, error: "Could not check existing families. Try again." };
   if (existing.data?.review_status === "approved") {

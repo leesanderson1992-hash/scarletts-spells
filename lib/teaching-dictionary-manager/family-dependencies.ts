@@ -23,13 +23,15 @@ export type FamilyDependency = { id: string; canonical_word_id: string; sense_id
   expected_reviewed_at: string; reviewed_by: string; updated_at: string; confirmed_family_key: string | null;
   status: string; detail: string; family_resolved: boolean; context: { schwaFacts?: SchwaWorkbookFacts; prefixMeaning?: string; suffixFacts?: SuffixWorkbookFacts; compoundFacts?: CompoundWorkbookFacts } };
 export const familyMeaningKey = (value: string) => value.normalize("NFC").trim().toLocaleLowerCase("en-GB").replace(/\s+/gu, " ").replace(/[.!]$/u, "");
-type Family = { family_key: string; base_lemma: string; base_kind: string; base_meaning: string; review_status: string; revision?: number };
+type Family = { family_key: string; base_lemma: string; base_kind: string; base_meaning: string; review_status: string; revision?: number; canonical_family_key?: string };
 export function matchingDependencyFamily(dependency: Pick<FamilyDependency, "confirmed_family_key" | "expected_meaning" | "base_form" | "base_kind">, families: Family[]) {
   const eligible = families.filter(family => family.review_status === "approved" && family.base_lemma === dependency.base_form
     && family.base_kind === dependency.base_kind);
   const matching = dependency.confirmed_family_key ? eligible.filter(family => family.family_key === dependency.confirmed_family_key)
     : eligible.filter(family => familyMeaningKey(family.base_meaning) === familyMeaningKey(dependency.expected_meaning));
-  return matching.length === 1 ? matching[0] : null;
+  const keys = new Set(matching.map(family => family.canonical_family_key ?? family.family_key));
+  if (keys.size !== 1) return null;
+  return eligible.find(family => family.family_key === [...keys][0]) ?? null;
 }
 
 /** A bounded, leased worker. It links and rechecks reviewed facts; it never publishes. */
@@ -94,7 +96,7 @@ export async function recheckWaitingFamilyWords(db: Db, environment: "staging" |
         await finish("needs_review", "This is a root support entry. Use dedicated root-family review, not an ordinary spelling target."); continue;
       }
       const families = await db.from("teaching_dictionary_families_with_current_meaning")
-        .select("family_key,base_lemma,base_kind,base_meaning,review_status,revision").eq("base_lemma", row.base_form).order("revision", { ascending: false });
+        .select("family_key,canonical_family_key,base_lemma,base_kind,base_meaning,review_status,revision").eq("base_lemma", row.base_form).order("revision", { ascending: false });
       if (families.error) throw new Error("Could not read the approved families.");
       const latest = [...new Map([...families.data].reverse().map(family => [family.family_key, family])).values()];
       const family = matchingDependencyFamily(row, latest);

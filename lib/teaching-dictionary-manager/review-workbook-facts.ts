@@ -134,7 +134,7 @@ export async function prefillReviewWorkbookFacts(db: Db, bundles: MultiSenseCsvB
   const seen = new Set<string>();
   for (let offset = 0; offset < bases.length; offset += 50) {
     const { data, error } = await db.from("teaching_dictionary_families_with_current_meaning")
-      .select("family_key,base_lemma,base_meaning,base_part_of_speech,review_status,base_kind")
+      .select("family_key,base_lemma,base_meaning,base_part_of_speech,review_status,base_kind").eq("is_current_family", true)
       .in("base_lemma", bases.slice(offset, offset + 50)).in("base_kind", (skill === ABLE_IBLE_SKILL || isSchwaWorkbookSkill(skill)) ? ["free_base", "bound_root"] : ["free_base"]).order("revision", { ascending: false });
     if (error) throw new Error("Could not load family choices for the review workbook.");
     for (const row of data ?? []) {
@@ -152,7 +152,7 @@ export async function prefillReviewWorkbookFacts(db: Db, bundles: MultiSenseCsvB
     const rootsSeen = new Set<string>();
     for (let offset = 0; ; offset += 250) {
       const { data, error } = await db.from("teaching_dictionary_families_with_current_meaning")
-        .select("family_key,base_lemma,base_meaning,base_part_of_speech,review_status")
+        .select("family_key,base_lemma,base_meaning,base_part_of_speech,review_status").eq("is_current_family", true)
         .eq("base_kind", "bound_root").order("revision", { ascending: false }).order("family_key")
         .range(offset, offset + 249);
       if (error) throw new Error("Could not load approved root families for the review workbook.");

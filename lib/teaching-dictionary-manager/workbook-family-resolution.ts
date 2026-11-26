@@ -12,10 +12,12 @@ export type WorkbookBaseChoice = { wordId: string; senseId: string; partId: stri
 
 export async function approvedWorkbookFamily(db: Db, key: string, includeRoots = false): Promise<WorkbookFamily | null> {
   const result = await db.from("teaching_dictionary_families_with_current_meaning")
-    .select("family_key,base_lemma,base_meaning,base_part_of_speech,base_kind,review_status")
+    .select("family_key,base_lemma,base_meaning,base_part_of_speech,base_kind,review_status,canonical_family_key")
     .eq("family_key", key).order("revision", { ascending: false }).limit(1).maybeSingle();
   if (result.error) throw new Error("Could not read the approved word family.");
   const row = result.data;
+  if (row?.canonical_family_key && row.canonical_family_key !== row.family_key)
+    return approvedWorkbookFamily(db, row.canonical_family_key, includeRoots);
   return row?.review_status === "approved" && (row.base_kind === "free_base" || (includeRoots && row.base_kind === "bound_root"))
     ? { key: row.family_key, base: row.base_lemma, meaning: row.base_meaning, partOfSpeech: row.base_part_of_speech, kind: row.base_kind } : null;
 }
@@ -51,7 +53,7 @@ export async function loadWorkbookFamilyChoices(db: Db, base: string, includeRoo
   basePartOfSpeech: WorkbookBasePartOfSpeech = "verb") {
   const [familyRows, reviewedBases] = await Promise.all([
     db.from("teaching_dictionary_families_with_current_meaning")
-      .select("family_key,base_lemma,base_meaning,base_part_of_speech,review_status,base_kind")
+      .select("family_key,base_lemma,base_meaning,base_part_of_speech,review_status,base_kind").eq("is_current_family", true)
       .eq("base_lemma", base).order("revision", { ascending: false }),
     loadWorkbookBases(db, base, basePartOfSpeech),
   ]);
@@ -83,7 +85,7 @@ export async function createWorkbookFamily(db: Db, actor: string, base: string, 
     if (approved.error) throw new Error("The reviewed whole-base parts could not be approved.");
   }
   const existing = async () => {
-    const result = await db.from("teaching_dictionary_families_with_current_meaning").select("family_key")
+    const result = await db.from("teaching_dictionary_families_with_current_meaning").select("family_key").eq("is_current_family", true)
       .eq("canonical_base_word_id", choice.wordId).eq("canonical_base_sense_id", choice.senseId)
       .order("revision", { ascending: false }).limit(1).maybeSingle();
     if (result.error) throw new Error("Could not check whether this family already exists.");

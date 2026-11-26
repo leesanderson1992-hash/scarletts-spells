@@ -56,7 +56,7 @@ export async function loadIngReviewWorkbook(skill: IngMicroSkill, batch: number)
     db.from("teaching_dictionary_definition_versions").select("canonical_word_id,definition")
       .in("canonical_word_id", ids).is("route_id", null).order("published_at", { ascending: false }),
     bases.length ? db.from("teaching_dictionary_families_with_current_meaning")
-      .select("family_key,revision,base_lemma,base_meaning,base_part_of_speech,base_kind,review_status").in("base_lemma", bases)
+      .select("family_key,revision,base_lemma,base_meaning,base_part_of_speech,base_kind,review_status").eq("is_current_family", true).in("base_lemma", bases)
       .order("revision", { ascending: false }) : { data: [], error: null },
     db.from("canonical_teaching_dictionary_dictation_sentences")
       .select("canonical_word_id,dictation_sentence").in("canonical_word_id", ids)
