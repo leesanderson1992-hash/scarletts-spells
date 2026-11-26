@@ -30,7 +30,7 @@ export async function loadWordBaseFamilies(
     return result.data ?? [];
   };
   const canonicalLinks = await read(
-    db.from("canonical_teaching_dictionary_base_family_registry_members")
+    db.from("teaching_dictionary_spelling_registry_members")
       .select("canonical_family_id").eq("canonical_word_id", wordId),
   );
   let registryFamilies: FamilySummary[] = [];
@@ -39,7 +39,7 @@ export async function loadWordBaseFamilies(
     const [families, members, rootAliases] = await Promise.all([
       read(db.from("canonical_teaching_dictionary_base_family_registry")
         .select("id,family_key,base_lemma,base_kind,meaning_variants").in("id", familyIds)),
-      read(db.from("canonical_teaching_dictionary_base_family_registry_members")
+      read(db.from("teaching_dictionary_spelling_registry_members")
         .select("canonical_family_id,canonical_word_id").in("canonical_family_id", familyIds)),
       read(db.from("canonical_teaching_dictionary_base_family_registry_aliases")
         .select("canonical_family_id,source_key,source_revision")
@@ -81,7 +81,7 @@ export async function loadWordBaseFamilies(
   // touching this word, then resolve their latest approved revision so older
   // immutable revisions do not appear as duplicate memberships.
   const [legacyLexicalMatches, senseLexicalMatches] = await Promise.all([
-    read(db.from("canonical_teaching_dictionary_lexical_base_family_members")
+    read(db.from("teaching_dictionary_spelling_lexical_members")
       .select("family_key,revision").eq("canonical_word_id", wordId)),
     read(db.from("teaching_dictionary_current_sense_family_memberships")
       .select("family_key,current_family_revision").eq("canonical_word_id", wordId)),
@@ -103,7 +103,7 @@ export async function loadWordBaseFamilies(
     for (const key of latest.keys()) lexicalSuccessorKeys.add(key);
     if (latest.size) {
       const historicalMembers = (await read(
-        db.from("canonical_teaching_dictionary_lexical_base_family_members")
+        db.from("teaching_dictionary_spelling_lexical_members")
           .select("family_key,revision,canonical_word_id").in("family_key", [...latest.keys()]),
       )).filter((row) => latest.get(row.family_key)?.revision === row.revision);
       const reviewedSenseMembers = await read(db.from("teaching_dictionary_current_sense_family_memberships")
@@ -150,7 +150,7 @@ export async function loadWordBaseFamilies(
   // First find only families touching this word. The previous read fetched
   // every legacy membership, review and withdrawal on every word page.
   const [wordLegacy, wordReviews] = await Promise.all([
-    read(db.from("canonical_teaching_dictionary_base_word_family_members")
+    read(db.from("teaching_dictionary_spelling_legacy_members")
       .select("base_word_family_id,canonical_word_id")
       .eq("row_status", "active").eq("canonical_word_id", wordId)),
     environment ? read(db.from("teaching_dictionary_base_family_member_reviews")
@@ -187,7 +187,7 @@ export async function loadWordBaseFamilies(
     wordReviews.some((row) => row.legacy_family_id === id));
   const definitionIds = familyIds.filter((id) => !legacyIds.includes(id));
   const [legacyMembers, legacyReviews, definitionReviews] = await Promise.all([
-    legacyIds.length ? read(db.from("canonical_teaching_dictionary_base_word_family_members")
+    legacyIds.length ? read(db.from("teaching_dictionary_spelling_legacy_members")
       .select("base_word_family_id,canonical_word_id")
       .eq("row_status", "active").in("base_word_family_id", legacyIds)) : Promise.resolve([]),
     environment && legacyIds.length ? read(db.from("teaching_dictionary_base_family_member_reviews")

@@ -16,11 +16,11 @@ export async function teachingDictionaryOverviewExportRows(): Promise<Record<str
   for (let start = 0; start < ids.length; start += 100) {
     const slice = ids.slice(start, start + 100);
     const [lexical, legacy, registry] = await Promise.all([
-      db.from("canonical_teaching_dictionary_lexical_base_family_members")
+      db.from("teaching_dictionary_spelling_lexical_members")
         .select("canonical_word_id,family_key,revision").in("canonical_word_id", slice),
-      db.from("canonical_teaching_dictionary_base_word_family_members")
+      db.from("teaching_dictionary_spelling_legacy_members")
         .select("canonical_word_id").in("canonical_word_id", slice).eq("row_status", "active"),
-      db.from("canonical_teaching_dictionary_base_family_registry_members")
+      db.from("teaching_dictionary_spelling_registry_members")
         .select("canonical_word_id").in("canonical_word_id", slice),
     ]);
     if (lexical.error || legacy.error || registry.error

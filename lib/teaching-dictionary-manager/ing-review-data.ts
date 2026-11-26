@@ -61,7 +61,7 @@ export async function loadIngReviewWorkbook(skill: IngMicroSkill, batch: number)
     db.from("canonical_teaching_dictionary_dictation_sentences")
       .select("canonical_word_id,dictation_sentence").in("canonical_word_id", ids)
       .eq("row_status", "active").order("created_at", { ascending: false }),
-    db.from("canonical_teaching_dictionary_lexical_base_family_members")
+    db.from("teaching_dictionary_spelling_lexical_members")
       .select("canonical_word_id,family_key,revision").in("canonical_word_id", ids),
   ]);
   if (metadata.error || definitions.error || familyRows.error || dictation.error || memberships.error)

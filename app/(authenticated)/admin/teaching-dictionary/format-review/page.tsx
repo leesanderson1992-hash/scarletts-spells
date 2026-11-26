@@ -45,7 +45,7 @@ export default async function DictionaryFormatReviewPage({ searchParams }: {
   const rows = morphology.data ?? [];
   const morphologyIds = rows.map((row) => row.id);
   const [memberships, definitions, metadata, dictations, routes] = await Promise.all([
-    morphologyIds.length ? db.from("canonical_teaching_dictionary_lexical_base_family_members")
+    morphologyIds.length ? db.from("teaching_dictionary_spelling_lexical_members")
       .select("canonical_morphology_id").in("canonical_morphology_id", morphologyIds)
       : Promise.resolve({ data: [], error: null }),
     wordIds.length ? db.from("teaching_dictionary_definition_versions")

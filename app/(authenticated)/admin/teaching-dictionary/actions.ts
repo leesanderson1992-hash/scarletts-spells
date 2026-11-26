@@ -507,7 +507,7 @@ async function performWorkspaceSave(form: FormData) {
       const skill = reviewSection.slice(7);
       const route = payload.routeContents.find((entry) => entry.routeId === "base_word_lab" && entry.microSkillKey === skill);
       if (route) {
-        const memberships = await db.from("canonical_teaching_dictionary_lexical_base_family_members")
+        const memberships = await db.from("teaching_dictionary_spelling_lexical_members")
           .select("family_key,revision,word_sum,morphology_parts,morphology_joins")
           .eq("canonical_word_id", wordId);
         if (memberships.error) throw new Error("BASE_FAMILY_LEXICAL_READ_FAILED");
@@ -818,7 +818,7 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
         db.from("teaching_dictionary_definition_versions").select("canonical_word_id,definition,published_at").in("canonical_word_id", ids).is("route_id", null).order("published_at", { ascending: false }),
         db.from("canonical_teaching_dictionary_word_morphology").select("*").in("canonical_word_id", ids)
           .eq("row_status", "active").order("created_at", { ascending: false }),
-        db.from("canonical_teaching_dictionary_lexical_base_family_members")
+        db.from("teaching_dictionary_spelling_lexical_members")
           .select("canonical_word_id,family_key,revision").in("canonical_word_id", ids),
       ]);
       if (metadata.error || dictation.error || definitions.error || morphology.error || lexicalMembers.error)

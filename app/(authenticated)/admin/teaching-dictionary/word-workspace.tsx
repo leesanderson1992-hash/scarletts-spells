@@ -1,4 +1,5 @@
 "use client";
+import type { GrammaticalLink } from "@/lib/teaching-dictionary-manager/grammatical-links";
 import { normaliseWrittenSyllableBreakdown } from "@/lib/teaching-dictionary-manager/authoring";
 import { TransformationEditor } from "./transformation-editor";
 
@@ -347,6 +348,7 @@ export function WordWorkspace(props: {
     choices: string[];
   }[];
   baseFamilies: Family[];
+  grammaticalLinks?: GrammaticalLink[];
   familyReviewContext: { error?: string };
   advanced: ReactNode;
   recordingSettings: ReactNode;
@@ -1146,6 +1148,16 @@ export function WordWorkspace(props: {
             </div>
           ))}
           <div data-overview-view="family" hidden={overviewView !== "family"}>
+          {!!props.grammaticalLinks?.length && <details className="mt-4 rounded-lg border border-[var(--border)] p-3">
+            <summary className="cursor-pointer font-semibold">Grammatical relationships</summary>
+            <p className="mt-2 text-sm text-[color:var(--mid)]">Related forms are preserved here. These links are separate from spelling families and are not used as spelling clues.</p>
+            <ul className="mt-2 space-y-2 text-sm">{props.grammaticalLinks.map(link => <li key={`${link.family_key}:${link.canonical_word_id}`}>
+              {link.canonical_base_word_id ? <Link className="underline" href={`/admin/teaching-dictionary/${link.canonical_base_word_id}`}>{link.base_lemma}</Link> : link.base_lemma}
+              {" → "}<Link className="underline" href={`/admin/teaching-dictionary/${link.canonical_word_id}`}>{link.display_word}</Link>
+              {" · "}{link.relation_kind === "contraction" ? "Contraction" : "Grammatical form"}
+            </li>)}</ul>
+          </details>}
+
           <details id="td-base-family" className="mt-4 border-t border-[var(--border)] pt-3">
             <summary className="cursor-pointer font-semibold">{activeSenseFamilies.length ? "Family members" : "More family options"}</summary>
             <div className="mt-2">

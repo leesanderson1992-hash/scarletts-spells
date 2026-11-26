@@ -63,7 +63,7 @@ export async function BaseFamilyReview({ word, morphology, error, lexicalFamilyK
     if (selected.data) latest.set(selected.data.family_key, selected.data);
   }
   const families = [...latest.values()];
-  const memberships = families.length ? await db.from("canonical_teaching_dictionary_lexical_base_family_members")
+  const memberships = families.length ? await db.from("teaching_dictionary_spelling_lexical_members")
     .select("family_key,revision,word_part_of_speech").eq("canonical_word_id", word.id)
     .in("family_key", families.map((family) => family.family_key)) : { data: [], error: null };
   if (memberships.error) throw new Error("LEXICAL_FAMILY_MEMBERSHIP_READ_FAILED");

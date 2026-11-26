@@ -10,7 +10,7 @@ const baseId = "33333333-3333-4333-8333-333333333333";
 const targetId = "44444444-4444-4444-8444-444444444444";
 const hash = "a".repeat(64);
 const tables: Record<string, Record<string, unknown>[]> = {
-  canonical_teaching_dictionary_base_word_family_members: [baseId, targetId].map((id) => ({
+  teaching_dictionary_spelling_legacy_members: [baseId, targetId].map((id) => ({
     base_word_family_id: sourceId, canonical_word_id: id, assignment_eligible: true,
     row_status: "active", review_status: "approved_for_first_exposure", word_sum: null,
   })),
@@ -22,7 +22,7 @@ const tables: Record<string, Record<string, unknown>[]> = {
   ].map((word) => ({ ...word, row_status: "active", review_status: "approved_for_first_exposure", dialect_code: "en-GB" })),
   canonical_teaching_dictionary_base_family_registry_aliases: [{ source_type: "legacy_base",
     source_key: "nature_base_family", canonical_family_id: canonicalId, source_record_ids: [sourceId] }],
-  canonical_teaching_dictionary_base_family_registry_members: [baseId, targetId].map((id) => ({
+  teaching_dictionary_spelling_registry_members: [baseId, targetId].map((id) => ({
     canonical_family_id: canonicalId, canonical_word_id: id,
   })),
 };

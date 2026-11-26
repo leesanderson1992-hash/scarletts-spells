@@ -1,3 +1,4 @@
+import { loadWordGrammaticalLinks } from "@/lib/teaching-dictionary-manager/grammatical-links";
 import "./word-workspace.css";
 import { createHash } from "node:crypto";
 import { normaliseWrittenSyllableBreakdown } from "@/lib/teaching-dictionary-manager/authoring";
@@ -81,6 +82,7 @@ export async function TeachingDictionaryDetail({
     overviewReview,
     submissions,
     baseFamilies,
+    grammaticalLinks,
     weakFamilyPrefill,
     morphologyFamilyLinks,
   ] = await Promise.all([
@@ -202,8 +204,9 @@ export async function TeachingDictionaryDetail({
           .limit(50)
       : null,
     wordId ? loadWordBaseFamilies(db, wordId) : Promise.resolve([]),
+    wordId ? loadWordGrammaticalLinks(db, wordId) : Promise.resolve([]),
     wordId ? loadWeakVowelFamilyPrefill(db, wordId) : Promise.resolve({ status: "none" as const, authorityId: null, members: [] }),
-    wordId ? db.from("canonical_teaching_dictionary_lexical_base_family_members")
+    wordId ? db.from("teaching_dictionary_spelling_lexical_members")
       .select("canonical_morphology_id").eq("canonical_word_id", wordId)
       : Promise.resolve({ data: [], error: null }),
   ]);
@@ -410,7 +413,7 @@ export async function TeachingDictionaryDetail({
     const facts = candidateFactsForSense({ wordId: wordId!, senseId: sense.id,
       senseSet: approvedSenseSet ?? null,
       legacyMorphology: morphology ? { id: morphology.id, parts: morphology.morphology_parts,
-        joins: morphology.morphology_joins, wordSum: morphology.word_sum,
+        joins: morphology.morphology_joins, transformations: morphology.morphology_transformations ?? [], wordSum: morphology.word_sum,
         analysisStatus: morphology.analysis_status, reviewStatus: morphology.review_status } : null,
       legacyLinks: (candidateFamilyLinks?.data ?? []) as CandidateLinkRow[],
       senseAnalyses: (senseAnalyses?.data ?? []) as CandidateAnalysisRow[],
@@ -605,7 +608,7 @@ export async function TeachingDictionaryDetail({
         meaningImportRequests={savedRequests.flatMap(row => row.sense_id ? [{ ...row, sense_id: row.sense_id }] : [])}
         lessonReviewSkillKeys={[...new Set(savedRequests.map(row => row.micro_skill_key))]}
         approvedCandidateMorphology={morphology ? { parts: morphology.morphology_parts,
-          joins: morphology.morphology_joins, analysisStatus: morphology.analysis_status,
+          joins: morphology.morphology_joins, transformations: morphology.morphology_transformations ?? [], analysisStatus: morphology.analysis_status,
           reviewStatus: morphology.review_status, wordSum: morphology.word_sum } : null}
         approvedMorphologyTransformations={morphology?.morphology_transformations ?? []}
         approvedCandidateFamilyLinks={(candidateFamilyLinks?.data ?? []) as CandidateFamilyLink[]}
@@ -649,6 +652,7 @@ export async function TeachingDictionaryDetail({
         }}
         partSuggestions={partSuggestions}
         baseFamilies={baseFamilies}
+        grammaticalLinks={grammaticalLinks}
         familyReviewContext={{ error: params.family_error }}
         overviewReviewed={
           publicationBlockers(initial, word?.normalised_word ?? draft?.normalised_word ?? "").length === 0 &&

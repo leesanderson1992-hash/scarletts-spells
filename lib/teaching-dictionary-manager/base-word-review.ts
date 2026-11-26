@@ -1,3 +1,4 @@
+import { hasUsefulSpellingConnection } from "@/lib/adle/spelling-family-connection";
 import "server-only";
 
 import { loadLessonReviewRequests } from "./lesson-review-requests";
@@ -75,14 +76,17 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
     const records = legacy.filter(({ word }) => word.canonicalWordId === id);
     const [{ word, member, family }] = records;
     const bundle = byWord.get(id);
-    const eligible = records.filter(({ member }) => baseWordMemberSelectable(release.family, member));
+    const eligible = records.filter(({ member }) => baseWordMemberSelectable(release.family, member)
+      || (canonicalEnabled && member.assignmentEligible && member.lessonRegularity?.status === "irregular"
+        && bundle?.analyses.some(analysis => analysis.familyKey && analysis.relationshipKind === "irregular_inflection"
+          && hasUsefulSpellingConnection(analysis.parts, analysis.transformations))));
     const missingFacts = new Set<string>();
     const choices = bundle?.senseSet.senses.filter(sense => {
       const analysis = bundle.analyses.find(item => item.senseId === sense.id);
       if (!analysis?.familyKey) return false;
       const check = evaluateLessonCandidate({
         wordId: id, displayWord: word.displayWord, skillKey: IDENTIFY_BASE_SKILL, senseId: sense.id, senseSet: bundle.senseSet,
-        morphology: { parts: analysis.parts, joins: analysis.joins, wordSum: analysis.wordSum,
+        morphology: { parts: analysis.parts, joins: analysis.joins, transformations: analysis.transformations, wordSum: analysis.wordSum,
           analysisStatus: "approved", reviewStatus: "approved_for_first_exposure" },
         familyLinks: [{ family_key: analysis.familyKey, sense_id: sense.id,
           component_part_id: analysis.componentPartId, relationship_kind: analysis.relationshipKind }],
@@ -101,7 +105,7 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
           joins: analysis.joins, transformations: analysis.transformations, wordSum: analysis.wordSum,
           componentPartId: analysis.componentPartId, baseSource: basePart.sourceText,
           relationshipKind: analysis.relationshipKind })) {
-          const regularity = reviewedBaseWordRegularity({ relationshipKind: analysis.relationshipKind, transformations: analysis.transformations, reviewed: true });
+          const regularity = reviewedBaseWordRegularity({ relationshipKind: analysis.relationshipKind, transformations: analysis.transformations, parts: analysis.parts, reviewed: true });
           missingFacts.add(regularity.status === "needs_review"
             ? "The reviewed word parts are saved. This family-specific spelling change needs a lesson regularity decision before publishing."
             : "Review the word sum and saved spelling changes: they must reproduce the reviewed word parts.");

@@ -11,7 +11,7 @@ export type WeakVowelFamilyPrefill = WeakVowelFamilyChoice;
 export async function loadWeakVowelFamilyPrefill(db: SupabaseClient, wordId: string): Promise<WeakVowelFamilyPrefill> {
   const none: WeakVowelFamilyPrefill = { status: "none", authorityId: null, members: [] };
   const client = db as any;
-  const linked = await client.from("canonical_teaching_dictionary_base_word_family_members")
+  const linked = await client.from("teaching_dictionary_spelling_legacy_members")
     .select("base_word_family_id").eq("canonical_word_id", wordId)
     .eq("row_status", "active").eq("review_status", "approved_for_first_exposure")
     .eq("assignment_eligible", true);
@@ -22,7 +22,7 @@ export async function loadWeakVowelFamilyPrefill(db: SupabaseClient, wordId: str
     client.from("canonical_teaching_dictionary_base_word_families")
       .select("id,base_family_key,base_word_id,base_meaning,created_at,row_status,review_status")
       .in("id", ids).eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
-    client.from("canonical_teaching_dictionary_base_word_family_members")
+    client.from("teaching_dictionary_spelling_legacy_members")
       .select("base_word_family_id,canonical_word_id,assignment_eligible,row_status,review_status")
       .in("base_word_family_id", ids),
   ]);
@@ -55,7 +55,7 @@ export async function loadWeakVowelFamilyPrefill(db: SupabaseClient, wordId: str
     .eq("source_type", "legacy_base").eq("source_key", source.baseFamilyKey).maybeSingle();
   if (alias.error) throw new Error("WEAK_VOWEL_CANONICAL_FAMILY_ALIAS_READ_FAILED");
   if (!alias.data || !alias.data.source_record_ids.includes(source.id)) return choice;
-  const canonicalMembers = await client.from("canonical_teaching_dictionary_base_family_registry_members")
+  const canonicalMembers = await client.from("teaching_dictionary_spelling_registry_members")
     .select("canonical_word_id")
     .eq("canonical_family_id", alias.data.canonical_family_id)
     .in("canonical_word_id", [wordId, source.baseWordId]);

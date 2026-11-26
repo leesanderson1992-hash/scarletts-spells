@@ -110,14 +110,14 @@ export async function saveBulkSkillApprovalsAsActor(input: {
       db.from("teaching_dictionary_reviewed_sense_sets")
         .select("canonical_word_id,sense_set").in("canonical_word_id", applyWordIds),
       snapshotFacts ? db.from("canonical_teaching_dictionary_word_morphology")
-        .select("id,canonical_word_id,morphology_parts,morphology_joins,analysis_status,review_status,word_sum,created_at")
+        .select("id,canonical_word_id,morphology_parts,morphology_joins,morphology_transformations,analysis_status,review_status,word_sum,created_at")
         .in("canonical_word_id", applyWordIds).eq("row_status", "active")
         .order("created_at", { ascending: false }) : Promise.resolve({ data: [], error: null }),
       snapshotFacts ? db.from("teaching_dictionary_current_sense_family_links")
         .select("id,canonical_word_id,sense_id,family_key,component_part_id,relationship_kind")
         .in("canonical_word_id", applyWordIds) : Promise.resolve({ data: [], error: null }),
       snapshotFacts ? db.from("teaching_dictionary_current_sense_morphology")
-        .select("id,canonical_word_id,sense_id,morphology_parts,morphology_joins,word_sum")
+        .select("id,canonical_word_id,sense_id,morphology_parts,morphology_joins,morphology_transformations,word_sum")
         .in("canonical_word_id", applyWordIds) : Promise.resolve({ data: [], error: null }),
       snapshotFacts ? db.from("teaching_dictionary_current_sense_family_memberships")
         .select("id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind,base_meaning")
@@ -148,7 +148,7 @@ export async function saveBulkSkillApprovalsAsActor(input: {
       const facts = candidateFactsForSense({ wordId: id, senseId: senseIds[id],
         senseSet: byWord.get(id) ?? null,
         legacyMorphology: selected ? { id: selected.id, parts: selected.morphology_parts,
-          joins: selected.morphology_joins, analysisStatus: selected.analysis_status,
+          joins: selected.morphology_joins, transformations: selected.morphology_transformations ?? [], analysisStatus: selected.analysis_status,
           reviewStatus: selected.review_status, wordSum: selected.word_sum } : null,
         legacyLinks: (familyLinks.data ?? []) as CandidateLinkRow[],
         senseAnalyses: (senseAnalyses.data ?? []) as CandidateAnalysisRow[],

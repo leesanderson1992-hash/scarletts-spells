@@ -1,3 +1,4 @@
+import { hasUsefulSpellingConnection } from "@/lib/adle/spelling-family-connection";
 import { isHomophoneReviewSkill, homophoneReviewWords } from "./homophone-review-contract";
 import { isCompoundWorkbookSkill } from "./compound-workbook";
 import { COMPARATIVE_MICRO_SKILLS, degreeRuleForSkill, type ComparativeMicroSkill } from "@/lib/adle/inflection/contracts";
@@ -25,6 +26,7 @@ export type CandidateMorphology = {
   parts: unknown;
   joins: unknown;
   wordSum: string | null;
+  transformations?: readonly unknown[];
 };
 export type CandidateFamilyLink = { sense_id: string; family_key: string; component_part_id: string;
   relationship_kind: string };
@@ -154,8 +156,8 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
       ["free_base", "regular_inflection", "derived", "irregular_inflection"].includes(link.relationship_kind)));
     if (!base) add("FAMILY_LINK", "Link the base part to its reviewed free-base family.", "td-base-family");
     else if (input.familyLinks.some(link => link.sense_id === input.senseId && link.component_part_id === base.id
-      && link.relationship_kind === "irregular_inflection")) {
-      add("IRREGULAR_FORM", "The family is linked. Identify the Base currently excludes irregular inflections; keep this reviewed relationship unchanged.", "td-canonical-parts");
+      && link.relationship_kind === "irregular_inflection") && !hasUsefulSpellingConnection(parts, input.morphology?.transformations ?? [])) {
+      add("IRREGULAR_FORM", "This grammatical relationship does not yet have a reviewed spelling connection for Identify the Base.", "td-canonical-parts");
       return done("not_match");
     }
     return done(issues.length ? "needs_facts" : "ready");
