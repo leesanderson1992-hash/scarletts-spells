@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { loadBaseWordFamilyAnchors, chooseBaseWordFamilyAnchor } from '../lib/adle/loaders/base-word-family-anchors';
+import { baseWordAnchorFamilyKeys } from '../lib/adle/loaders/published-base-family-words';
 
 const sense = { id: 'work-verb', definition: 'To do a job or task.', partOfSpeech: 'verb', pronunciationId: 'spoken', dictationSentence: 'We work together.', dictationTargetTokenIndex: 1 };
 const tables: Record<string, Record<string, unknown>[]> = {
@@ -35,7 +36,20 @@ async function main() {
   const noun = { ...anchor, familyKey: 'work-noun', sense: { ...anchor.sense, senseId: 'work-noun', meaning: 'A job or task.' } };
   assert.equal(chooseBaseWordFamilyAnchor([anchor, noun], { ...family, baseMeaning: 'unclear' }, []), null);
   assert.equal(chooseBaseWordFamilyAnchor([anchor, noun], family, ['work-noun']), noun);
-  assert.equal(chooseBaseWordFamilyAnchor([anchor, noun], family, ['work-noun', anchor.familyKey]), null);
+  assert.equal(chooseBaseWordFamilyAnchor([anchor, noun], family, ['work-noun', anchor.familyKey]), anchor,
+    'An exact reviewed release meaning disambiguates families sharing one spelling');
+  assert.equal(chooseBaseWordFamilyAnchor([anchor, noun], {...family,baseMeaning:'unclear'}, ['work-noun', anchor.familyKey]), null);
+  assert.equal(chooseBaseWordFamilyAnchor([anchor, noun], {...family,baseMeaning:'historical wording'}, ['work-noun', anchor.familyKey], [anchor.familyKey]), anchor,
+    'An explicit current base lesson meaning preserves a historical family when another sense is added');
+  const alias = {...anchor,familyKey:'work-verb-old-key'};
+  assert.deepEqual(chooseBaseWordFamilyAnchor([anchor,alias],family,[anchor.familyKey,alias.familyKey])?.equivalentFamilyKeys,
+    [anchor.familyKey,alias.familyKey], 'Duplicate family keys for one reviewed sense do not block its members');
+  assert.deepEqual(baseWordAnchorFamilyKeys(['play-recording', 'play-recording'], ['play-game']), ['play-recording'],
+    'The base spelling lesson choice must not override the derived recording family');
+  assert.deepEqual(baseWordAnchorFamilyKeys([], ['play-game']), ['play-game'],
+    'A base lesson choice remains the fallback when no derived member has selected a family');
+  assert.deepEqual(baseWordAnchorFamilyKeys(['play-game', 'play-recording'], []), ['play-game', 'play-recording'],
+    'A genuinely mixed derived family remains ambiguous and cannot silently pass');
   const saved = structuredClone(tables);
   tables.teaching_dictionary_families_with_current_meaning[0].canonical_base_sense_id = null;
   assert.equal((await loadBaseWordFamilyAnchors(db(), ['work']))[0]?.sense.senseId, sense.id,

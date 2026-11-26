@@ -24,6 +24,12 @@ type ApprovedWord = {
 
 export const baseFamilyWordKey = (family: string, wordId: string) => `${family}:${wordId}`;
 
+/** A base spelling may support several sense families. Its own lesson meaning
+ * is only a fallback when no published derived member has selected a family. */
+export function baseWordAnchorFamilyKeys(memberKeys: string[], baseKeys: string[]) {
+  return [...new Set(memberKeys.length ? memberKeys : baseKeys)];
+}
+
 export function baseWordPartShape(parts: unknown[]) {
   return semanticJson(parts.map(raw => {
     const part = raw as Partial<CanonicalPart>;
@@ -76,13 +82,14 @@ export async function loadPublishedBaseFamilyWords(client: SupabaseClient, activ
         .filter(link => link.relationship_kind === "derived" || link.relationship_kind === "regular_inflection" || link.relationship_kind === "irregular_inflection")
         .map(link => link.family_key) : [];
     });
-    // A reviewed lesson choice for the base is an explicit sense decision,
-    // including when its wording differs from the historical release.
+    // Do not mix the base spelling's separate lesson choice into a family
+    // already selected by its derived words (for example, play a game/music).
     const baseSense = senses.get(`${family.baseWordId}:${skill}`);
-    if (baseSense?.status === "current") memberFamilyKeys.push(...
+    const baseFamilyKeys = baseSense?.status === "current" ?
       (membershipsBySense.get(`${family.baseWordId}:${baseSense.senseId}`) ?? [])
-        .filter(link => link.relationship_kind === "free_base").map(link => link.family_key));
-    const anchor = chooseBaseWordFamilyAnchor(anchors, family, memberFamilyKeys);
+        .filter(link => link.relationship_kind === "free_base").map(link => link.family_key) : [];
+    const anchor = chooseBaseWordFamilyAnchor(anchors, family,
+      baseWordAnchorFamilyKeys(memberFamilyKeys, baseFamilyKeys), baseFamilyKeys);
     if (!anchor) continue;
     const approvedMembers = new Map<string, ApprovedWord>();
     for (const member of family.members) {
@@ -99,9 +106,12 @@ export async function loadPublishedBaseFamilyWords(client: SupabaseClient, activ
         !Array.isArray(analysis.morphology_transformations)) continue;
       const parts = analysis.morphology_parts as CanonicalPart[];
       const membership = (membershipsBySense.get(senseKey) ?? []).filter(link =>
-        link.sense_morphology_id === analysis.id && link.family_key === anchor.familyKey &&
+        link.sense_morphology_id === analysis.id &&
+        (link.family_key === anchor.familyKey || anchor.equivalentFamilyKeys?.includes(link.family_key)) &&
         parts.some(part => part.kind === "base" && part.id === link.component_part_id));
-      if (membership.length !== 1) continue;
+      // Historical duplicate keys for the same approved base sense are aliases.
+      // Several different components still require an explicit teaching choice.
+      if (!membership.length || new Set(membership.map(link => link.component_part_id)).size !== 1) continue;
       const displayWord = activation.dictionaryWords.find(word => word.canonicalWordId === member.canonicalWordId)?.displayWord;
       if (!displayWord || !canonicalBaseWordAnalysis({ displayWord, parts,
         joins: analysis.morphology_joins, transformations: analysis.morphology_transformations,

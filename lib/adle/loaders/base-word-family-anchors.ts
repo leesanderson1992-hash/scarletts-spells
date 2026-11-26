@@ -7,6 +7,7 @@ import type { LessonSenseProjection } from "@/lib/teaching-dictionary-manager/le
 type CurrentSense = Extract<LessonSenseProjection, { status: "current" }>;
 export type BaseWordFamilyAnchor = {
   familyKey: string; wordId: string; sense: CurrentSense;
+  equivalentFamilyKeys?: string[];
   parts: CanonicalPart[]; joins: unknown[]; wordSum: string;
 };
 
@@ -73,10 +74,21 @@ const normaliseMeaning = (value: string) => value.toLowerCase().replace(/[\s.!]+
 /** Prefer an exact family identity; never silently choose one of two senses. */
 export function chooseBaseWordFamilyAnchor(anchors: readonly BaseWordFamilyAnchor[], family: {
   baseWordId: string; baseFamilyKey: string; baseMeaning: string;
-}, memberFamilyKeys: readonly string[]) {
+}, memberFamilyKeys: readonly string[], baseLessonFamilyKeys: readonly string[] = []) {
   const choices = anchors.filter(anchor => anchor.wordId === family.baseWordId);
   const linked = choices.filter(anchor => memberFamilyKeys.includes(anchor.familyKey));
-  if (linked.length) return linked.length === 1 ? linked[0] : null;
+  if (linked.length === 1) return linked[0];
+  if (linked.length > 1) {
+    if (new Set(linked.map(anchor => anchor.sense.senseId)).size === 1) {
+      const preferred = linked.find(anchor => anchor.familyKey === family.baseFamilyKey) ?? linked[0];
+      return { ...preferred, equivalentFamilyKeys: linked.map(anchor => anchor.familyKey) };
+    }
+    const matchingRelease = linked.filter(anchor => anchor.familyKey === family.baseFamilyKey ||
+      normaliseMeaning(anchor.sense.meaning) === normaliseMeaning(family.baseMeaning));
+    if (matchingRelease.length === 1) return matchingRelease[0];
+    const explicitBase = linked.filter(anchor => baseLessonFamilyKeys.includes(anchor.familyKey));
+    return explicitBase.length === 1 ? explicitBase[0] : null;
+  }
   const exact = choices.filter(anchor => anchor.familyKey === family.baseFamilyKey ||
     normaliseMeaning(anchor.sense.meaning) === normaliseMeaning(family.baseMeaning));
   return exact.length === 1 ? exact[0] : null;
