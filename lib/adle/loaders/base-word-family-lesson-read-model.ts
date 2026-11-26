@@ -1,3 +1,4 @@
+import { hasReviewedBaseExtension } from "../spelling-family-connection";
 import { dictationVariantBlockers, selectDictationVariant } from "@/lib/teaching-dictionary-manager/authoring";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -80,7 +81,9 @@ export function projectReleasedBaseWordMorphology(
     const transformation = raw as Record<string, unknown>;
     if (transformation.type === "change_final_y_to_i" && transformation.transformationKey === "change_final_y_to_i") {
       transformations.push(transformation as unknown as BaseWordFamilySnapshotWord["transformations"][number]);
-    } else if (["change_final_y_to_i", "drop_final_e", "double_final_consonant"].includes(String(transformation.type)) &&
+    } else if (hasReviewedBaseExtension(parts, rawTransformations) && transformation.type === "other_reviewed_change") {
+      transformations.push({ ...transformation, type: "reviewed_base_extension", transformationKey: "reviewed_base_extension" } as unknown as BaseWordFamilySnapshotWord["transformations"][number]);
+    } else if (["change_final_y_to_i", "drop_final_e", "double_final_consonant", "change_final_f_to_v", "change_final_fe_to_v"].includes(String(transformation.type)) &&
         typeof transformation.sourcePartId === "string" && typeof transformation.sourceText === "string" &&
         typeof transformation.surfaceText === "string" && typeof transformation.explanation === "string") {
       transformations.push({ ...transformation, transformationKey: transformation.type } as unknown as BaseWordFamilySnapshotWord["transformations"][number]);

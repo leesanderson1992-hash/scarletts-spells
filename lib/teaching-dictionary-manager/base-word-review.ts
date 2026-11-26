@@ -116,7 +116,7 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
         // publication. Match the exact family sense before offering Publish.
         return Boolean(anchors.some(anchor => anchor.wordId === family.baseWordId &&
           anchor.familyKey === analysis.familyKey && anchor.parts[0].sourceText === basePart.sourceText) &&
-          ["derived", "regular_inflection"].includes(analysis.relationshipKind));
+          ["derived", "regular_inflection", "irregular_inflection"].includes(analysis.relationshipKind));
       });
     }).map(sense => ({ id: sense.id, definition: sense.definition })) ?? [];
     const supportOnly = choices.length > 0 && choices.every(choice =>

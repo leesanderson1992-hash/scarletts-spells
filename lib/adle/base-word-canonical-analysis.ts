@@ -1,3 +1,4 @@
+import { hasReviewedBaseExtension } from "./spelling-family-connection";
 import { auditCanonicalMorphology, type CanonicalPart } from '@/lib/teaching-dictionary-manager/canonical-morphology';
 import { generatedWordSum } from '@/lib/teaching-dictionary-manager/authoring';
 import { standardiseTransformations } from '@/lib/teaching-dictionary-manager/transformations';
@@ -16,7 +17,7 @@ export function canonicalBaseWordAnalysis(input: {
   const bases = parts.filter(part => part.kind === 'base');
   if (bases.length !== 1 || bases[0].id !== input.componentPartId || bases[0].sourceText.toLowerCase() !== input.baseSource.toLowerCase()) return false;
   if (input.wordSum !== generatedWordSum(parts, input.displayWord)) return false;
-  if (input.relationshipKind === 'free_base' ? parts.length !== 1 : !parts.some(part => part.kind === 'prefix' || part.kind === 'suffix')) return false;
+  if (input.relationshipKind === 'free_base' ? parts.length !== 1 : !parts.some(part => part.kind === 'prefix' || part.kind === 'suffix') && !hasReviewedBaseExtension(parts, input.transformations)) return false;
   try {
     const changes = standardiseTransformations(parts, input.transformations as ReviewedTransformation[]);
     // A suggestion is not a saved approval. Every actual change must already

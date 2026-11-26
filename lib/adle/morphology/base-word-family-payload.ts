@@ -9,8 +9,8 @@ export const BASE_WORD_FAMILY_GUIDED_LIMIT = 8;
 export const BASE_WORD_FAMILY_INDEPENDENT_LIMIT = 6;
 
 export interface BaseWordFamilySnapshotTransformation {
-  transformationKey: "change_final_y_to_i" | "drop_final_e" | "double_final_consonant";
-  type: "change_final_y_to_i" | "drop_final_e" | "double_final_consonant";
+  transformationKey: "change_final_y_to_i" | "drop_final_e" | "double_final_consonant" | "change_final_f_to_v" | "change_final_fe_to_v" | "reviewed_base_extension";
+  type: "change_final_y_to_i" | "drop_final_e" | "double_final_consonant" | "change_final_f_to_v" | "change_final_fe_to_v" | "reviewed_base_extension";
   sourcePartId: string;
   sourceText: string;
   surfaceText: string;
@@ -164,11 +164,15 @@ function isFinalYToITransformation(value: unknown, parts: unknown[]): value is B
 function isBaseSpellingTransformation(value: unknown, parts: unknown[]): value is BaseWordFamilySnapshotTransformation {
   if (isFinalYToITransformation(value, parts)) return true;
   if (!isRecord(value) || value.transformationKey !== value.type ||
-      !["drop_final_e", "double_final_consonant"].includes(String(value.type)) ||
+      !["drop_final_e", "double_final_consonant", "change_final_f_to_v", "change_final_fe_to_v", "reviewed_base_extension"].includes(String(value.type)) ||
       typeof value.sourceText !== "string" || typeof value.surfaceText !== "string" ||
       typeof value.explanation !== "string" || !value.explanation.trim()) return false;
   const part = parts.find((part): part is Record<string, unknown> => isRecord(part) && part.id === value.sourcePartId);
   if (!part || part.sourceText !== value.sourceText || part.surfaceText !== value.surfaceText) return false;
+  if (value.type === "reviewed_base_extension") return value.sourceText.length > 0
+    && value.surfaceText.length > value.sourceText.length && value.surfaceText.startsWith(value.sourceText);
+  if (value.type === "change_final_f_to_v") return value.sourceText.endsWith("f") && value.surfaceText === value.sourceText.slice(0, -1) + "v";
+  if (value.type === "change_final_fe_to_v") return value.sourceText.endsWith("fe") && value.surfaceText === value.sourceText.slice(0, -2) + "v";
   return value.type === "drop_final_e"
     ? value.sourceText.endsWith("e") && value.sourceText.slice(0, -1) === value.surfaceText
     : /[bcdfghjklmnpqrstvwxyz]$/i.test(value.sourceText) && value.sourceText + value.sourceText.at(-1) === value.surfaceText;
