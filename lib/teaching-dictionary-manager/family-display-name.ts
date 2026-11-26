@@ -3,8 +3,7 @@ export function familyDisplayName(family: {
   base: string; meaning?: string | null; partOfSpeech?: string | null; kind?: string | null;
 }): string {
   const base = family.base.trim();
-  const role = family.kind === "bound_root" ? "root"
-    : family.partOfSpeech?.trim().replaceAll("_", " ") || "base";
+  const role = family.kind === "bound_root" ? "root" : "base";
   const meaning = family.meaning?.trim().replace(/[.!]$/u, "");
   return `${base} (${role})${meaning ? ` — ${meaning}` : ""}`;
 }

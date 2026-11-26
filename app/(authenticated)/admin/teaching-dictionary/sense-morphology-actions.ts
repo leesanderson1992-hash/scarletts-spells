@@ -70,7 +70,11 @@ export async function reviewSenseFamilyMembership(input: { wordId: string; sense
     || !["free_base", "regular_inflection", "irregular_inflection", "derived",
       "contraction", "historical_relative"].includes(input.relationshipKind))
     return { ok: false, error: "Choose the matching family, part and relationship." };
-  const result = await createServiceRoleClient().rpc("review_teaching_dictionary_sense_family_membership", {
+  const db = createServiceRoleClient();
+  const result = input.action === "approve" ? await db.rpc("approve_teaching_dictionary_spelling_family_member", {
+    p_request: randomUUID(), p_word: input.wordId, p_sense: input.senseId, p_morphology: input.morphologyId,
+    p_family: input.familyKey, p_part: input.componentPartId, p_relationship: input.relationshipKind, p_actor: actor.id,
+  }) : await db.rpc("review_teaching_dictionary_sense_family_membership", {
     p_request_id: randomUUID(), p_word_id: input.wordId, p_sense_id: input.senseId,
     p_sense_morphology_id: input.morphologyId, p_family_key: input.familyKey,
     p_component_part_id: input.componentPartId, p_relationship_kind: input.relationshipKind,
@@ -81,6 +85,24 @@ export async function reviewSenseFamilyMembership(input: { wordId: string; sense
     ?.replaceAll("_", " ").toLowerCase() ?? "The family link could not be approved." };
   updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   revalidatePath(`/admin/teaching-dictionary/${input.wordId}`);
+  revalidatePath("/admin/teaching-dictionary/lesson-updates");
+  scheduleFamilyDependencyRecheck(undefined, input.wordId);
+  return { ok: true };
+}
+
+export async function removeSpellingFamilyMember(input: { wordId: string; familyKey: string }): Promise<{ ok: boolean; error?: string }> {
+  const actor = await requireAdminUser();
+  if (!isUuid(input.wordId) || !/^[a-z0-9_]{1,240}$/.test(input.familyKey))
+    return { ok: false, error: "Choose the word and its current family." };
+  const result = await createServiceRoleClient().rpc("remove_teaching_dictionary_spelling_family_member", {
+    p_request: randomUUID(), p_word: input.wordId, p_family: input.familyKey, p_actor: actor.id,
+  });
+  if (result.error) return { ok: false, error: result.error.message.includes("FAMILY_REMOVE_BASE_ANCHOR")
+    ? "This word is the family base. Remove individual members instead."
+    : "The family link could not be removed. Reload the word and try again." };
+  updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
+  revalidatePath(`/admin/teaching-dictionary/${input.wordId}`);
+  revalidatePath("/admin/teaching-dictionary/lesson-updates");
   scheduleFamilyDependencyRecheck(undefined, input.wordId);
   return { ok: true };
 }

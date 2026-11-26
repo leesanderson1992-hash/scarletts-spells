@@ -5,7 +5,7 @@ import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activati
 import { familyDisplayName, lexicalFamilyDisplayName, legacyFamilyBase } from "./family-display-name";
 
 export type FamilySummary = { name: string; displayName?: string; meaning?: string; pronunciation?: string;
-  baseWordId?: string; baseKind?: string;
+  baseWordId?: string; baseKind?: string; aliases?: string[];
   words: { id: string; word: string }[] };
 
 /** The latest approved lexical revision owns shared family facts. Registry and
@@ -15,7 +15,16 @@ export function mergeWordFamilySummaries(
   lexicalSuccessorKeys: ReadonlySet<string>,
 ): FamilySummary[] {
   const current = new Map<string, FamilySummary>();
-  for (const family of adle) {
+  const canonical = lexical.map(family => ({ ...family, words: [...family.words] }));
+  const compatibility = [...adle, ...registry].filter(family => {
+    const matches = canonical.filter(candidate => candidate.aliases?.includes(family.name));
+    if (matches.length !== 1) return true;
+    const target = matches[0];
+    target.words = [...new Map([...family.words, ...target.words].map(word => [word.id, word])).values()]
+      .sort((a, b) => a.word.localeCompare(b.word, "en-GB"));
+    return false;
+  });
+  for (const family of compatibility) {
     const canonicalMatches = family.baseWordId && family.meaning && family.words.length
       ? lexical.filter(candidate => candidate.baseKind === "free_base" && candidate.baseWordId === family.baseWordId &&
         candidate.meaning === family.meaning && family.words.every(word => candidate.words.some(member => member.id === word.id)))
@@ -25,8 +34,7 @@ export function mergeWordFamilySummaries(
     // preserve ambiguous or differently reviewed family connections.
     if (!lexicalSuccessorKeys.has(family.name) && canonicalMatches.length !== 1) current.set(family.name, family);
   }
-  for (const family of registry) if (!lexicalSuccessorKeys.has(family.name)) current.set(family.name, family);
-  for (const family of lexical) current.set(family.name, family);
+  for (const family of canonical) current.set(family.name, family);
   return [...current.values()].sort((a, b) => a.name.localeCompare(b.name, "en-GB"));
 }
 
@@ -143,7 +151,19 @@ export async function loadWordBaseFamilies(
             .in("id", ids).eq("row_status", "active"),
         );
         const display = new Map(lexicalWords.map((row) => [row.id, String(row.display_word)]));
+        // Recorded registry aliases establish identity even after wording edits.
+        // Never infer identity just from a matching base or part of speech.
+        const ownAliases = await read(db.from("canonical_teaching_dictionary_base_family_registry_aliases")
+          .select("source_key,canonical_family_id").in("source_key", activeKeys));
+        const groupIds = [...new Set(ownAliases.map(row => row.canonical_family_id))];
+        const [allAliases, groups] = groupIds.length ? await Promise.all([
+          read(db.from("canonical_teaching_dictionary_base_family_registry_aliases").select("source_key,canonical_family_id").in("canonical_family_id", groupIds)),
+          read(db.from("canonical_teaching_dictionary_base_family_registry").select("id,family_key").in("id", groupIds)),
+        ]) : [[], []];
         lexicalFamilies = activeKeys.map((key) => ({
+          aliases: ownAliases.filter(row => row.source_key === key && ownAliases.filter(other => other.canonical_family_id === row.canonical_family_id).length === 1)
+            .flatMap(row => [...allAliases.filter(alias => alias.canonical_family_id === row.canonical_family_id).map(alias => String(alias.source_key)),
+              ...groups.filter(group => group.id === row.canonical_family_id).map(group => String(group.family_key))]),
           name: key,
           displayName: lexicalFamilyDisplayName(latest.get(key)),
           meaning: String(latest.get(key)?.base_meaning ?? ""),

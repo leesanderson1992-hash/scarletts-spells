@@ -3,9 +3,12 @@ import { familyDisplayName, lexicalFamilyDisplayName, legacyFamilyBase } from ".
 import { familySearchResults } from "../lib/teaching-dictionary-manager/family-search";
 import { mergeWordFamilySummaries } from "../lib/teaching-dictionary-manager/base-family-summary";
 
-assert.equal(familyDisplayName({ base: "clean", partOfSpeech: "verb", meaning: "To remove dirt." }), "clean (verb) — To remove dirt");
+assert.equal(familyDisplayName({ base: "clean", partOfSpeech: "verb", meaning: "To remove dirt." }), "clean (base) — To remove dirt");
 assert.equal(familyDisplayName({ base: "popul", partOfSpeech: "bound_root", kind: "bound_root", meaning: "people" }), "popul (root) — people");
-assert.equal(familyDisplayName({ base: "of", partOfSpeech: "preposition", meaning: "belonging to" }), "of (preposition) — belonging to");
+assert.equal(familyDisplayName({ base: "of", partOfSpeech: "preposition", meaning: "belonging to" }), "of (base) — belonging to");
+assert.equal(familyDisplayName({ base: "smile", partOfSpeech: "noun", meaning: "Show happiness." }),
+  familyDisplayName({ base: "smile", partOfSpeech: "verb", meaning: "Show happiness." }),
+  "Shared spelling-family meaning is not split by noun/verb role");
 assert.equal(familyDisplayName({ base: "joy", meaning: "" }), "joy (base)");
 assert.equal(legacyFamilyBase("mother_in_law_noun_legacy_sense_123_base_family"), "mother in law");
 const families = [
@@ -25,3 +28,8 @@ assert.deepEqual(merged.map(f => f.words), summaries.map(f => f.words), "display
 const workbookOptions = families.map(f => `${lexicalFamilyDisplayName(f)} | ${f.family_key}`);
 assert.deepEqual(workbookOptions.map(label => label.split(" | ").at(-1)), families.map(f => f.family_key), "workbook labels round-trip exact IDs");
 console.log("PASS: sense-specific family names, root labels, stable links, current wording and workbook ID round-trip");
+const aliased = mergeWordFamilySummaries([], [{ name: 'smile_current', aliases: ['smile_old'], meaning: 'Show happiness', words: [{id:'smile',word:'smile'}] }], [{name:'smile_old',meaning:'Make a happy face',words:[{id:'smiled',word:'smiled'}]}], new Set(['smile_current']));
+assert.equal(aliased.length,1);
+assert.equal(aliased[0].meaning,'Show happiness');
+assert.deepEqual(aliased[0].words.map(word=>word.word),['smile','smiled']);
+console.log('PASS: recorded legacy aliases use current meaning and preserve all members');

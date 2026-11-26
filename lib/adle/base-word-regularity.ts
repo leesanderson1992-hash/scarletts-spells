@@ -20,6 +20,8 @@ export function reviewedBaseWordRegularity(input: {
   if (!input.reviewed) return { status: "needs_review", source: "canonical_morphology", reason: "morphology_not_reviewed" };
   const kinds = input.transformations.map((value) => value && typeof value === "object"
     ? String("kind" in value ? value.kind : "type" in value ? value.type : "unknown") : "unknown");
+  if (input.relationshipKind === "derived" && input.parts && hasReviewedBaseExtension(input.parts, input.transformations))
+    return { status: "regular", source: "canonical_morphology", reason: "reviewed_base_spelling_extension" };
   if (input.relationshipKind === "irregular_inflection" && input.parts &&
     hasUsefulSpellingConnection(input.parts, input.transformations) && !kinds.includes("irregular_form") &&
     (kinds.every(kind => GOVERNED_NON_IRREGULAR_TRANSFORMS.has(kind)) || hasReviewedBaseExtension(input.parts, input.transformations)))

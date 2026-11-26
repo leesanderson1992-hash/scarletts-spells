@@ -8,6 +8,11 @@ const input={displayWord:'children',parts:[child],joins:[],transformations:[chan
 assert(canonicalBaseWordAnalysis(input));
 assert(!canonicalBaseWordAnalysis({...input,transformations:[]}));
 const projected=projectReleasedBaseWordMorphology('children',[child],[],[change],'regular');assert(projected);
+const weightPart={...child,sourceText:'weigh',surfaceText:'weight',gloss:'To have a particular heaviness.',displayRange:{start:0,end:6}};
+const weightChange={...change,sourceText:'weigh',surfaceText:'weight',explanation:'Reviewed spelling-family connection: the spelling weigh is retained in weight.'};
+assert(canonicalBaseWordAnalysis({...input,displayWord:'weight',parts:[weightPart],transformations:[weightChange],wordSum:'weigh → weight',baseSource:'weigh',relationshipKind:'derived'}));
+assert(!canonicalBaseWordAnalysis({...input,displayWord:'weight',parts:[weightPart],transformations:[],wordSum:'weigh → weight',baseSource:'weigh',relationshipKind:'derived'}));
+const weight=projectReleasedBaseWordMorphology('weight',[weightPart],[],[weightChange],'regular');assert(weight);
 assert.equal(projected.parts.length,1,'Do not invent a general suffix or change approved parts');
 assert.equal(baseSpellingRestorationForPart(child,projected.transformations)?.sourceText,'child');
 for(const [sourceText,surfaceText] of [['be','are'],['go','went']]) assert(!canonicalBaseWordAnalysis({...input,displayWord:surfaceText,baseSource:sourceText,wordSum:`${sourceText} → ${surfaceText}`,parts:[{...child,sourceText,surfaceText,displayRange:{start:0,end:surfaceText.length}}],transformations:[{...change,sourceText,surfaceText}]}));
@@ -22,7 +27,7 @@ console.log('PASS: actual children and knives analyses restore their approved ba
 // Compile each real analysis in a complete six-word, two-family lesson.
 import {compileBaseWordFamilyLessonSnapshot,validateBaseWordFamilyLessonSnapshot,type BaseWordFamilySnapshotWord} from '../lib/adle/morphology/base-word-family-payload';
 import {baseWordDefinitionBuild} from '../components/adle/morphology/base-word-definition-build';
-for (const [name,base,projection,sum] of [['children','child',projected,'child → children'],['knives','knife',knives,'knife + es → knives']] as const) {
+for (const [name,base,projection,sum] of [['children','child',projected,'child → children'],['knives','knife',knives,'knife + es → knives'],['weight','weigh',weight,'weigh → weight']] as const) {
  const word=(text:string,root:string):BaseWordFamilySnapshotWord=>{const ending=text.slice(root.length);return {canonicalWordId:text,displayWord:text,wordSum:ending?`${root} + ${ending} → ${text}`:`${root} → ${root}`,parts:[{id:'base',kind:'base',sourceText:root,surfaceText:root,gloss:'Reviewed base meaning'},...ending?[{id:'suffix',kind:'suffix',sourceText:ending,surfaceText:ending,gloss:'Reviewed ending'}]:[]],joins:ending?[{afterPartId:'base',beforePartId:'suffix',joinType:'none'}]:[],transformations:[],transformationNotes:'',childFriendlyMeaning:'Reviewed word meaning',dictationSentence:`The word is ${text}.`,dictationTargetTokenIndex:3,audioText:`The word is ${text}.`};};
  const exceptional={...word(name,base),...projection,wordSum:sum,transformationNotes:projection.transformations.map(t=>t.explanation).join(' ')};
  const support=word(base,base),regular=['clean','cleaned','cleaning','cleans'].map(w=>word(w,'clean'));
