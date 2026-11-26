@@ -2,6 +2,7 @@
 import type { GrammaticalLink } from "@/lib/teaching-dictionary-manager/grammatical-links";
 import { normaliseWrittenSyllableBreakdown } from "@/lib/teaching-dictionary-manager/authoring";
 import { TransformationEditor } from "./transformation-editor";
+import { FamilyRemoveButton } from "./family-remove-button";
 
 import {
   activityTransformationText,
@@ -109,7 +110,7 @@ type Skill = {
   skill_family_key: string;
   skill_cluster_key: string;
 };
-type Family = { name: string; displayName?: string; meaning?: string; pronunciation?: string; words: { id: string; word: string }[] };
+type Family = { name: string; displayName?: string; meaning?: string; pronunciation?: string; baseWordId?: string; words: { id: string; word: string }[] };
 type Field = {
   key: string;
   label: string;
@@ -1171,13 +1172,11 @@ export function WordWorkspace(props: {
                   {!item.displayName && item.meaning ? <span className="text-[color:var(--mid)]">{item.meaning}</span> : null}
                   {item.pronunciation ? <span className="text-[color:var(--mid)]">{item.pronunciation}</span> : null}
                   {item.words.map((word) => (
-                    <Link
-                      key={word.id}
-                      href={`/admin/teaching-dictionary/${word.id}`}
-                      className="rounded-full bg-[var(--paper)] px-3 py-1 hover:underline"
-                    >
-                      {word.word}
-                    </Link>
+                    <span key={word.id} className="inline-flex items-center rounded-full bg-[var(--paper)] pl-3 pr-1 py-1">
+                      <Link href={`/admin/teaching-dictionary/${word.id}`} className="hover:underline">{word.word}</Link>
+                      <FamilyRemoveButton wordId={word.id} word={word.word} familyKey={item.name}
+                        familyName={item.displayName ?? item.name} isBase={item.baseWordId === word.id} />
+                    </span>
                   ))}
                 </div>
               ))

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { generatedWordSum } from "@/lib/teaching-dictionary-manager/authoring";
 import { PartSequenceEditor, asParts } from "./part-sequence-editor";
 import { RootFamilyReview } from "./root-family-review";
+import { FamilyRemoveButton } from "./family-remove-button";
 import { TransformationEditor } from "./transformation-editor";
 import type { AffixCatalog } from "./affix-picker";
 import { createSenseFreeBaseFamily, findReviewedFamilyBase, findSenseFamilies, reviewSenseFamilyMembership, reviewSenseMorphology } from "./sense-morphology-actions";
@@ -206,8 +207,9 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
     </div>
     {currentLinks.map(link => <div key={link.id} className="flex flex-wrap items-center gap-2 text-sm">
       <span><strong>{families.has(link.family_key) ? lexicalFamilyDisplayName(families.get(link.family_key)!) : `${typedParts.find(part => part.id === link.component_part_id)?.sourceText ?? "Family"} — ${link.base_meaning ?? ""}`}</strong> · {link.relationship_kind.replaceAll("_", " ")}</span>
-      <button type="button" className="underline disabled:opacity-50" disabled={pending}
-        onClick={() => submitLink("withdraw", link)}>Remove link</button>
+      <FamilyRemoveButton wordId={props.wordId} word={props.displayWord} familyKey={link.family_key}
+        familyName={families.has(link.family_key) ? lexicalFamilyDisplayName(families.get(link.family_key)!) : link.family_key}
+        isBase={families.get(link.family_key)?.canonical_base_word_id === props.wordId} />
     </div>)}
     <div className="flex flex-wrap gap-2">
       <button type="button" className={familyButton} aria-expanded={familyMode === "find"} disabled={pending}
