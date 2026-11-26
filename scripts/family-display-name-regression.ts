@@ -28,3 +28,8 @@ assert.deepEqual(merged.map(f => f.words), summaries.map(f => f.words), "display
 const workbookOptions = families.map(f => `${lexicalFamilyDisplayName(f)} | ${f.family_key}`);
 assert.deepEqual(workbookOptions.map(label => label.split(" | ").at(-1)), families.map(f => f.family_key), "workbook labels round-trip exact IDs");
 console.log("PASS: sense-specific family names, root labels, stable links, current wording and workbook ID round-trip");
+const aliased = mergeWordFamilySummaries([], [{ name: 'smile_current', aliases: ['smile_old'], meaning: 'Show happiness', words: [{id:'smile',word:'smile'}] }], [{name:'smile_old',meaning:'Make a happy face',words:[{id:'smiled',word:'smiled'}]}], new Set(['smile_current']));
+assert.equal(aliased.length,1);
+assert.equal(aliased[0].meaning,'Show happiness');
+assert.deepEqual(aliased[0].words.map(word=>word.word),['smile','smiled']);
+console.log('PASS: recorded legacy aliases use current meaning and preserve all members');
