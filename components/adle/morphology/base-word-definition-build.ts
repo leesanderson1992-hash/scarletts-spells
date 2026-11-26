@@ -9,7 +9,7 @@ export function baseWordDefinitionBuild(words: BaseWordFamilySnapshotWord[], ind
   const allParts = [...new Map(words.flatMap(parts).map((part) => [part.surfaceText, part])).values()];
   const expectedParts = parts(word);
   const distractors = allParts.filter((part) => !expectedParts.some((expected) => expected.surfaceText === part.surfaceText)).slice(0, 3);
-  const toTile = (id: string, part: Part) => ({ id, text: part.surfaceText, role: part.kind === "prefix" ? "prefix" as const : part.kind === "suffix" ? "suffix" as const : "base" as const, gloss: part.gloss });
+  const toTile = (id: string, part: Part) => ({ id, text: part.surfaceText, role: part.kind === "connector" ? "connector" as const : part.kind === "root" ? "root" as const : part.kind === "prefix" ? "prefix" as const : part.kind === "suffix" ? "suffix" as const : "base" as const, gloss: part.gloss });
   const expectedIds = expectedParts.map((part) => `${word.canonicalWordId}:required:${part.id}`);
   const sourceTiles = [...expectedParts.map((part) => toTile(`${word.canonicalWordId}:required:${part.id}`, part)), ...distractors.map((part) => toTile(`${word.canonicalWordId}:distractor:${encodeURIComponent(part.surfaceText)}`, part))];
   const tiles = deterministicOrderedBuildOrder(sourceTiles, `${word.canonicalWordId}:definition-word-builder`);

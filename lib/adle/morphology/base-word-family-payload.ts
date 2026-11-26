@@ -1,3 +1,4 @@
+import { isCloseFamilySpellingVariant } from "../spelling-family-connection";
 /**
  * Versioned, renderer-neutral snapshot for the two-family base-word pilot.
  * It is not consumed by the current D4_MOR_PREFIXES_UN renderer or composer.
@@ -9,8 +10,8 @@ export const BASE_WORD_FAMILY_GUIDED_LIMIT = 8;
 export const BASE_WORD_FAMILY_INDEPENDENT_LIMIT = 6;
 
 export interface BaseWordFamilySnapshotTransformation {
-  transformationKey: "change_final_y_to_i" | "drop_final_e" | "double_final_consonant" | "change_final_f_to_v" | "change_final_fe_to_v" | "reviewed_base_extension";
-  type: "change_final_y_to_i" | "drop_final_e" | "double_final_consonant" | "change_final_f_to_v" | "change_final_fe_to_v" | "reviewed_base_extension";
+  transformationKey: "change_final_y_to_i" | "drop_final_e" | "double_final_consonant" | "change_final_f_to_v" | "change_final_fe_to_v" | "reviewed_base_extension" | "reviewed_family_variation";
+  type: "change_final_y_to_i" | "drop_final_e" | "double_final_consonant" | "change_final_f_to_v" | "change_final_fe_to_v" | "reviewed_base_extension" | "reviewed_family_variation";
   sourcePartId: string;
   sourceText: string;
   surfaceText: string;
@@ -164,11 +165,12 @@ function isFinalYToITransformation(value: unknown, parts: unknown[]): value is B
 function isBaseSpellingTransformation(value: unknown, parts: unknown[]): value is BaseWordFamilySnapshotTransformation {
   if (isFinalYToITransformation(value, parts)) return true;
   if (!isRecord(value) || value.transformationKey !== value.type ||
-      !["drop_final_e", "double_final_consonant", "change_final_f_to_v", "change_final_fe_to_v", "reviewed_base_extension"].includes(String(value.type)) ||
+      !["drop_final_e", "double_final_consonant", "change_final_f_to_v", "change_final_fe_to_v", "reviewed_base_extension", "reviewed_family_variation"].includes(String(value.type)) ||
       typeof value.sourceText !== "string" || typeof value.surfaceText !== "string" ||
       typeof value.explanation !== "string" || !value.explanation.trim()) return false;
   const part = parts.find((part): part is Record<string, unknown> => isRecord(part) && part.id === value.sourcePartId);
   if (!part || part.sourceText !== value.sourceText || part.surfaceText !== value.surfaceText) return false;
+  if (value.type === "reviewed_family_variation") return isCloseFamilySpellingVariant(value.sourceText, value.surfaceText);
   if (value.type === "reviewed_base_extension") return value.sourceText.length > 0
     && value.surfaceText.length > value.sourceText.length && value.surfaceText.startsWith(value.sourceText);
   if (value.type === "change_final_f_to_v") return value.sourceText.endsWith("f") && value.surfaceText === value.sourceText.slice(0, -1) + "v";
@@ -182,7 +184,7 @@ function isWord(value: unknown): value is BaseWordFamilySnapshotWord {
   if (!isRecord(value) || typeof value.canonicalWordId !== "string" || typeof value.displayWord !== "string" || typeof value.wordSum !== "string" || !Array.isArray(value.parts) || value.parts.length === 0 || !Array.isArray(value.joins) || (value.transformations !== undefined && !Array.isArray(value.transformations)) || typeof value.transformationNotes !== "string" || typeof value.childFriendlyMeaning !== "string" || !value.childFriendlyMeaning.trim() || typeof value.dictationSentence !== "string" || !Number.isInteger(value.dictationTargetTokenIndex) || Number(value.dictationTargetTokenIndex) < 0 || typeof value.audioText !== "string") return false;
   if (!value.parts.every((part) => isRecord(part) && typeof part.id === "string" && typeof part.kind === "string" && typeof part.sourceText === "string" && typeof part.surfaceText === "string") || !value.joins.every((join) => isRecord(join) && typeof join.afterPartId === "string" && typeof join.beforePartId === "string" && ["none", "space", "hyphen"].includes(String(join.joinType)))) return false;
   const transformations = Array.isArray(value.transformations) ? value.transformations : [];
-  if (!transformations.every((transformation) => isBaseSpellingTransformation(transformation, value.parts as unknown[])) || transformations.length > 1) return false;
+  if (!transformations.every((transformation) => isBaseSpellingTransformation(transformation, value.parts as unknown[])) || transformations.length > value.parts.length || new Set(transformations.map(t => t.sourcePartId)).size !== transformations.length) return false;
   const tokens = value.dictationSentence.trim().split(/\s+/).map((token) => token.toLocaleLowerCase("en-GB").replace(/[^a-z'-]/g, "")).filter(Boolean);
   return tokens[Number(value.dictationTargetTokenIndex)] === value.displayWord.toLocaleLowerCase("en-GB");
 }

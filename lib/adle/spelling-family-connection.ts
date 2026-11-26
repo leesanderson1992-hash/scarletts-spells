@@ -38,3 +38,28 @@ export function hasUsefulSpellingConnection(parts: readonly unknown[], transform
       && change.sourceText === base.sourceText && change.surfaceText === base.surfaceText;
   });
 }
+
+/** A reviewed family-specific stem variation must retain almost all of the
+ * written stem. This does not admit unrelated grammatical forms such as be/are. */
+export function isCloseFamilySpellingVariant(source: string, surface: string): boolean {
+  if (!/^[a-z]+$/i.test(source) || !/^[a-z]+$/i.test(surface) || source === surface) return false;
+  let common = 0;
+  while (common < Math.min(source.length, surface.length) && source[common] === surface[common]) common++;
+  return common >= 3 && common >= Math.min(source.length, surface.length) - 1;
+}
+
+export function hasReviewedFamilyVariation(parts: readonly unknown[], transformations: readonly unknown[]): boolean {
+  const records = parts.filter((p): p is Record<string, unknown> => !!p && typeof p === "object");
+  const bases = records.filter(p => p.kind === "base");
+  if (bases.length !== 1 || !records.some(p => p.kind === "prefix" || p.kind === "suffix")) return false;
+  const base = bases[0];
+  return typeof base.sourceText === "string" && typeof base.surfaceText === "string"
+    && isCloseFamilySpellingVariant(base.sourceText, base.surfaceText)
+    && transformations.some(raw => {
+      if (!raw || typeof raw !== "object") return false;
+      const change = raw as Record<string, unknown>;
+      return (change.type ?? change.kind) === "other_reviewed_change" && change.sourcePartId === base.id
+        && change.sourceText === base.sourceText && change.surfaceText === base.surfaceText
+        && typeof change.explanation === "string" && !!change.explanation.trim();
+    });
+}
