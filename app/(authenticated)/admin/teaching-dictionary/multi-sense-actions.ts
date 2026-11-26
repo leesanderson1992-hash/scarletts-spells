@@ -65,7 +65,7 @@ function importIssue(message: string) {
 }
 
 function workbookBasePartOfSpeech(skill: string) {
-  if (isSchwaWorkbookSkill(skill) || isCompoundWorkbookSkill(skill) || isSuffixWorkbookPilot(skill) || isComparativeReviewSkill(skill) || skill === SUB_INTER_SUPER_PREFIX_SKILL) return null;
+  if (isIdentifyBaseReview(skill) || isSchwaWorkbookSkill(skill) || isCompoundWorkbookSkill(skill) || isSuffixWorkbookPilot(skill) || isComparativeReviewSkill(skill) || skill === SUB_INTER_SUPER_PREFIX_SKILL) return null;
   return skill === NEGATIVE_PREFIX_SKILL ? "adjective" : "verb";
 }
 

@@ -9,8 +9,8 @@ export const BASE_WORD_FAMILY_GUIDED_LIMIT = 8;
 export const BASE_WORD_FAMILY_INDEPENDENT_LIMIT = 6;
 
 export interface BaseWordFamilySnapshotTransformation {
-  transformationKey: "change_final_y_to_i";
-  type: "change_final_y_to_i";
+  transformationKey: "change_final_y_to_i" | "drop_final_e" | "double_final_consonant";
+  type: "change_final_y_to_i" | "drop_final_e" | "double_final_consonant";
   sourcePartId: string;
   sourceText: string;
   surfaceText: string;
@@ -31,6 +31,15 @@ export function finalYRestorationForBasePart(
     && transformation.sourceText.slice(0, -1) === transformation.surfaceText.slice(0, -1)
     ? transformation
     : null;
+}
+
+export function baseSpellingRestorationForPart(
+  part: { id: string; sourceText: string; surfaceText: string },
+  transformations: readonly BaseWordFamilySnapshotTransformation[],
+): BaseWordFamilySnapshotTransformation | null {
+  return transformations.find(change => change.sourcePartId === part.id &&
+    change.sourceText === part.sourceText && change.surfaceText === part.surfaceText &&
+    isBaseSpellingTransformation(change, [part])) ?? null;
 }
 
 export interface BaseWordFamilySnapshotWord {
@@ -152,11 +161,24 @@ function isFinalYToITransformation(value: unknown, parts: unknown[]): value is B
     && value.sourceText.slice(0, -1) === value.surfaceText.slice(0, -1);
 }
 
+function isBaseSpellingTransformation(value: unknown, parts: unknown[]): value is BaseWordFamilySnapshotTransformation {
+  if (isFinalYToITransformation(value, parts)) return true;
+  if (!isRecord(value) || value.transformationKey !== value.type ||
+      !["drop_final_e", "double_final_consonant"].includes(String(value.type)) ||
+      typeof value.sourceText !== "string" || typeof value.surfaceText !== "string" ||
+      typeof value.explanation !== "string" || !value.explanation.trim()) return false;
+  const part = parts.find((part): part is Record<string, unknown> => isRecord(part) && part.id === value.sourcePartId);
+  if (!part || part.sourceText !== value.sourceText || part.surfaceText !== value.surfaceText) return false;
+  return value.type === "drop_final_e"
+    ? value.sourceText.endsWith("e") && value.sourceText.slice(0, -1) === value.surfaceText
+    : /[bcdfghjklmnpqrstvwxyz]$/i.test(value.sourceText) && value.sourceText + value.sourceText.at(-1) === value.surfaceText;
+}
+
 function isWord(value: unknown): value is BaseWordFamilySnapshotWord {
   if (!isRecord(value) || typeof value.canonicalWordId !== "string" || typeof value.displayWord !== "string" || typeof value.wordSum !== "string" || !Array.isArray(value.parts) || value.parts.length === 0 || !Array.isArray(value.joins) || (value.transformations !== undefined && !Array.isArray(value.transformations)) || typeof value.transformationNotes !== "string" || typeof value.childFriendlyMeaning !== "string" || !value.childFriendlyMeaning.trim() || typeof value.dictationSentence !== "string" || !Number.isInteger(value.dictationTargetTokenIndex) || Number(value.dictationTargetTokenIndex) < 0 || typeof value.audioText !== "string") return false;
   if (!value.parts.every((part) => isRecord(part) && typeof part.id === "string" && typeof part.kind === "string" && typeof part.sourceText === "string" && typeof part.surfaceText === "string") || !value.joins.every((join) => isRecord(join) && typeof join.afterPartId === "string" && typeof join.beforePartId === "string" && ["none", "space", "hyphen"].includes(String(join.joinType)))) return false;
   const transformations = Array.isArray(value.transformations) ? value.transformations : [];
-  if (!transformations.every((transformation) => isFinalYToITransformation(transformation, value.parts as unknown[])) || transformations.length > 1) return false;
+  if (!transformations.every((transformation) => isBaseSpellingTransformation(transformation, value.parts as unknown[])) || transformations.length > 1) return false;
   const tokens = value.dictationSentence.trim().split(/\s+/).map((token) => token.toLocaleLowerCase("en-GB").replace(/[^a-z'-]/g, "")).filter(Boolean);
   return tokens[Number(value.dictationTargetTokenIndex)] === value.displayWord.toLocaleLowerCase("en-GB");
 }

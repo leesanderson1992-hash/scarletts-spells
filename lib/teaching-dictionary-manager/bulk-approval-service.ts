@@ -1,5 +1,6 @@
 import "server-only";
 import { isSchwaWorkbookSkill } from "./weak-vowel-workbook";
+import { canonicalBaseWordWorkflowEnabled } from "@/lib/adle/base-word-canonical-workflow";
 
 import { ING_RULE_FOR_SKILL } from "@/lib/adle/ing/contracts";
 import { generateIngWordFromOverview } from "@/lib/teaching-dictionary-manager/ing-overview-recipe";
@@ -98,7 +99,8 @@ export async function saveBulkSkillApprovalsAsActor(input: {
     || applyWordIds.some(id => typeof input.senseIds[id] !== "string"))
     return failed("Choose a reviewed meaning for every word being applied.");
   const hasRule = hasCandidateRule(input.microSkillKey)
-    || environment === "staging" && input.microSkillKey === IDENTIFY_BASE_SKILL;
+    || input.microSkillKey === IDENTIFY_BASE_SKILL &&
+      (environment === "staging" || canonicalBaseWordWorkflowEnabled(environment));
   const schwaReapproval = isSchwaWorkbookSkill(input.microSkillKey);
   const snapshotFacts = hasRule || schwaReapproval;
   const expectedFacts: Record<string, { senseId: string; senseSet: DictionarySenseSet;

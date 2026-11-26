@@ -1,5 +1,6 @@
 import type { AdleRouteActivationEnvironment } from "../route-activation-environment";
 import { projectPublishedBaseWordRelease } from "./published-base-family-words";
+import { canonicalBaseWordWorkflowEnabled } from "../base-word-canonical-workflow";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { BaseWordFamilyLessonSnapshotV1 } from "../morphology/base-word-family-payload";
 import { validateBaseWordFamilyLessonSnapshot } from "../morphology/base-word-family-payload";
@@ -99,7 +100,7 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
   const candidates: Array<{ activation: ActivatedBaseWordReleaseAuthority; microSkillKey: string; selection: ReturnType<typeof selectBaseWordFamilyLesson> }> = [];
   const reasons: string[] = [];
   for (const original of enabledActivations) {
-    const activation = activationEnvironment === "staging" && process.env.ADLE_BASE_WORD_DICTIONARY_ONLY === "enabled"
+    const activation = canonicalBaseWordWorkflowEnabled(activationEnvironment)
       ? await projectPublishedBaseWordRelease(params.client, original)
       : original;
     const { closureWordIds, excludedWordIds, eligibleFamilyPairs } =
