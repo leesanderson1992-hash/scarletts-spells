@@ -96,6 +96,23 @@ function queryError(context: string, error: { message?: string } | null | undefi
  * dependency is checked against the release binding and its immutable
  * semantic fingerprint. Missing rows and network failures fail closed.
  */
+/** Frozen closures can collectively exceed PostgREST's response cap. Read
+ * each authority in stable bounded pages instead of silently losing words. */
+export async function loadBaseWordClosureRows(client: SupabaseClient, authorityIds: readonly string[]) {
+  const results = await Promise.all([...new Set(authorityIds)].map(async authorityId => {
+    const rows: any[] = [];
+    for (let offset = 0; ; offset += 500) {
+      const page = await client.from("adle_teaching_dictionary_closure_words")
+        .select("authority_id,canonical_word_id,word_key,normalised_word,display_word,dialect_code,dictation_sentence,dictation_target_token_index,audio_text,dictation_variants,dictation_variants_fingerprint")
+        .eq("authority_id", authorityId).order("word_key").range(offset, offset + 499);
+      if (page.error) queryError("Base Word Teaching Dictionary closure", page.error);
+      rows.push(...page.data ?? []);
+      if ((page.data?.length ?? 0) < 500) return rows;
+    }
+  }));
+  return results.flat();
+}
+
 export async function loadEnabledBaseWordReleaseAuthorities(params: {
   client: SupabaseClient;
   environmentKey: "local" | "staging" | "production";
@@ -152,12 +169,7 @@ export async function loadEnabledBaseWordReleaseAuthorities(params: {
   const closureAuthorityIds = (authorityRows ?? [])
     .filter((row: any) => row.authority_type === "teaching_dictionary_closure")
     .map((row: any) => row.id as string);
-  const { data: closureRows, error: closureError } = closureAuthorityIds.length
-    ? await params.client.from("adle_teaching_dictionary_closure_words")
-        .select("authority_id,canonical_word_id,word_key,normalised_word,display_word,dialect_code,dictation_sentence,dictation_target_token_index,audio_text,dictation_variants,dictation_variants_fingerprint")
-        .in("authority_id", closureAuthorityIds)
-    : { data: [], error: null };
-  if (closureError) queryError("Base Word Teaching Dictionary closure", closureError);
+  const closureRows = await loadBaseWordClosureRows(params.client, closureAuthorityIds);
 
   const resolved: ActivatedBaseWordReleaseAuthority[] = [];
   for (const revision of enabledRevisions) {

@@ -82,7 +82,7 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
   }
   const enabledActivations = await loadEnabledBaseWordReleaseAuthorities({
     client: params.client,
-    microSkillKeys: BASE_WORD_PILOT_MICRO_SKILLS,
+    microSkillKeys: params.requiredMicroSkillKey ? [params.requiredMicroSkillKey] : BASE_WORD_PILOT_MICRO_SKILLS,
     environmentKey: activationEnvironment,
   }).then((activations) => activations.filter(
     (activation) =>
