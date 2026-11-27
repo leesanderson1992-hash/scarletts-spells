@@ -1,6 +1,17 @@
 # ADLE Current State and Lesson Release Registry
 
-Updated: 2026-10-27
+Updated: 2026-11-27
+
+## 2026-11-27 Common Latin roots bulk review
+
+Common Latin roots uses the shared Teaching Dictionary workbook for existing
+ordinary dictionary words. Review saves and validates the chosen meaning,
+pronunciation, sentence, explicit root analysis and approved Latin family.
+Preview publishes an immutable reviewed subset with current source and sense
+bindings, preserving rollout scope and existing assignments. Root-only entries,
+Greek families, exclusions and deassignments remain guarded. The initial
+seven-word Production pool is unchanged by connecting this workflow.
+See [the release receipt](adle-latin-root-bulk-review-release-2026-11-27.md).
 
 ## 2026-10-27 active-route readiness release
 
