@@ -22,8 +22,10 @@ export function buildLatinRootReleasePackage(input: {
 }) {
   if (!input.releaseKey || !input.approvalRefs.length || input.approvalRefs.some(ref => !ref.trim())) throw new Error("latin_root_release_approval_missing");
   const dictionary = latinRootDictionaryProjection(input);
-  if (!dictionary.families.length || dictionary.families.some(family => dictionary.words.filter(word =>
-    word.familyKey === family.familyKey && !latinRootWordBlocker(word, family)).length < 5) ||
+  const familySizes = dictionary.families.map(family => dictionary.words.filter(word => word.familyKey === family.familyKey).length);
+  const combinedCapacity = familySizes.sort((a, b) => b - a).slice(0, 2).reduce((sum, count) => sum + count, 0);
+  if (!dictionary.families.length || combinedCapacity < 5 || dictionary.families.some(family => dictionary.words.filter(word =>
+    word.familyKey === family.familyKey && !latinRootWordBlocker(word, family)).length < 2) ||
     dictionary.words.some(word => {
       const family = dictionary.families.find(f => f.familyKey === word.familyKey);
       return !family || latinRootWordBlocker(word, family);

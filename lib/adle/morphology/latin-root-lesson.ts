@@ -27,7 +27,7 @@ export function validateLatinRootLesson(content: LatinRootLessonContent): void {
   const words = content.families.flatMap(family => family.words);
   if (![1, 2].includes(content.families.length) || ![5, 6].includes(words.length)) throw new Error("Latin Roots needs five or six words across one or two families.");
   if (new Set(content.families.map(f => f.id)).size !== content.families.length || new Set(content.families.map(f => f.root.toLowerCase())).size !== content.families.length || new Set(words.map(w => w.id)).size !== words.length || new Set(words.map(w => w.word.toLowerCase())).size !== words.length) throw new Error("Duplicate Latin Roots family or word.");
-  if (content.families.length === 2 && content.families.some(family => family.words.length < 2 || family.words.length > 3)) throw new Error("Two root families use three plus two or three plus three words.");
+  if (content.families.length === 2 && content.families.some(family => family.words.length < 2 || family.words.length > words.length - 2)) throw new Error("Two root families each need at least two words, with six words at most in total.");
   for (const family of content.families) {
     if (!family.root.trim() || !family.meaning.trim() || !["Latin", "Latin-derived"].includes(family.origin) || family.words.length < 2 || !family.words.some(w => w.target)) throw new Error("Each Latin root family needs a meaning, origin and target word.");
     const preceding = new Set<string>();

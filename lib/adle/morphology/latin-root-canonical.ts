@@ -86,26 +86,37 @@ export function prepareCanonicalLatinRootLesson(input: {
   const selectedKeys = [first.candidates[0].familyKey];
   const second = matched.find(m => m.candidates.length === 1 && m.candidates[0].familyKey !== selectedKeys[0]);
   if (second) selectedKeys.push(second.candidates[0].familyKey);
-  const desired = input.desiredWordCount ?? 5;
-  const selected: CanonicalLatinRootWord[] = [];
+  const maximum = input.desiredWordCount ?? 6;
   const targetByWord = new Map<string, LearningItemFact>();
-  for (const [familyIndex, key] of selectedKeys.entries()) {
+  const familyWords = selectedKeys.map(key => {
     const family = familyByKey.get(key);
-    if (!family) return blocked("*", "selected_family_missing");
-    const limit = selectedKeys.length === 1 ? desired : familyIndex === 0 ? 3 : desired - 3;
+    if (!family) return { key, family, demand: [], pool: [], blocker: "selected_family_missing" };
     const relevant = matched.filter(m => m.candidates.some(w => w.familyKey === key));
-    if (relevant.some(m => m.candidates.length !== 1)) return blocked(relevant.find(m => m.candidates.length !== 1)!.target.canonicalWordId, "ambiguous_target_meaning");
-    const demand = relevant.slice(0, limit).map(m => { targetByWord.set(m.target.canonicalWordId, m.target); return m.candidates[0]; });
-    for (const word of demand) {
-      const reason = latinRootWordBlocker(word, family);
-      if (reason) return blocked(word.canonicalWordId, reason);
-    }
-    const pool = input.words.filter(word => word.familyKey === key && !targetByWord.has(word.canonicalWordId) && !latinRootWordBlocker(word, family))
+    if (relevant.some(m => m.candidates.length !== 1)) return { key, family, demand: [], pool: [], blocker: "ambiguous_target_meaning" };
+    const demand = relevant.map(m => m.candidates[0]);
+    const invalid = demand.find(word => latinRootWordBlocker(word, family));
+    if (invalid) return { key, family, demand, pool: [], blocker: latinRootWordBlocker(invalid, family) };
+    const pool = input.words.filter(word => word.familyKey === key && !demand.some(target => target.canonicalWordId === word.canonicalWordId) && !latinRootWordBlocker(word, family))
       .sort((a, b) => a.parts.length - b.parts.length || a.spelling.localeCompare(b.spelling));
-    const remaining = pool.filter(word => pool.filter(other => other.canonicalWordId === word.canonicalWordId).length === 1);
-    const words = [...demand, ...remaining.slice(0, limit - demand.length)];
-    if (words.length !== limit) return blocked(family.rootWordId, "not_enough_reviewed_family_words");
-    selected.push(...words);
+    return { key, family, demand, pool: pool.filter(word => pool.filter(other => other.canonicalWordId === word.canonicalWordId).length === 1), blocker: null };
+  });
+  const invalid = familyWords.find(group => group.blocker);
+  if (invalid) return blocked(invalid.family?.rootWordId ?? "*", invalid.blocker!);
+  const available = familyWords.map(group => group.demand.length + group.pool.length);
+  const desired = Math.min(maximum, available.reduce((sum, count) => sum + count, 0));
+  if (desired < 5 || available.some(count => count < 2)) return blocked("*", "not_enough_reviewed_family_words");
+  // Keep the two families balanced where possible, then use spare capacity in
+  // either family. A family needs two examples, rather than five of its own.
+  const limits = familyWords.length === 1 ? [desired] : [Math.min(Math.ceil(desired / 2), available[0]), 0];
+  if (limits.length === 2) {
+    limits[1] = Math.min(desired - limits[0], available[1]);
+    limits[0] += desired - limits[0] - limits[1];
+  }
+  const selected: CanonicalLatinRootWord[] = [];
+  for (const [index, group] of familyWords.entries()) {
+    const demand = group.demand.slice(0, limits[index]);
+    for (const word of demand) targetByWord.set(word.canonicalWordId, matched.find(m => m.target.canonicalWordId === word.canonicalWordId)!.target);
+    selected.push(...demand, ...group.pool.slice(0, limits[index] - demand.length));
   }
   const content: LatinRootLessonContent = { id: input.assignmentKey, families: selectedKeys.map(key => {
     const family = familyByKey.get(key)!;

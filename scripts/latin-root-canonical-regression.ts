@@ -40,6 +40,23 @@ assert.equal(prepareCanonicalLatinRootLesson({...input,learningItems:[{...target
 assert.equal(latinRootWordBlocker({...words[0],partOfSpeech:"root"},family),"root_support_is_not_a_spelling_target");
 assert.equal(latinRootWordBlocker({...words[0],targetTokenIndex:999},family),"meaning_sentence_target_invalid");
 assert.equal(latinRootWordBlocker({...words[0],parts:words[0].parts.map(part=>part.kind==="prefix"?{...part,gloss:""}:part)},family),"unsupported_or_incomplete_reviewed_word_parts");
+// A family with two reviewed words can share a complete lesson with another.
+const secondFamily: CanonicalLatinRootFamily = { ...family, familyKey: "struct-test", root: "struct", meaning: "Build", rootWordId: uuid(190) };
+const secondPreview = latinRootPreviewContent(2,6).families[1];
+const secondWords: CanonicalLatinRootWord[] = secondPreview.words.map((word,index) => ({ ...words[index], canonicalWordId: uuid(101+index), familyKey: secondFamily.familyKey, spelling: word.word, definition: word.meaning, sentence: word.sentence,
+  targetTokenIndex: (word.sentence.match(/[\p{L}]+/gu)??[]).findIndex(token=>token.toLowerCase()===word.word),
+  wordSum: word.parts.map(part=>part.text).join(" + ")+" → "+word.word,
+  parts: word.parts.map((part,index)=>({id:part.role==="root"?"root":`affix-${index}`,kind:part.role,sourceText:part.text,surfaceText:part.text,gloss:part.meaning})),
+  joins:word.parts.slice(1).map(()=>({joinType:"none"})), transformations:[] }));
+const secondTarget={...target,learningItemId:uuid(180),canonicalWordId:secondWords[0].canonicalWordId};
+const combinedInput={...input,families:[family,secondFamily],words:[...words,...secondWords],learningItems:[target,secondTarget],allowedFamilyKeys:new Set([family.familyKey,secondFamily.familyKey])};
+for(const [firstCount,secondCount,expected] of [[5,3,[3,3]],[5,2,[4,2]],[2,5,[2,3]],[3,2,[3,2]]] as const){
+  const result=prepareCanonicalLatinRootLesson({...combinedInput,words:[...words.slice(0,firstCount),...secondWords.slice(0,secondCount)]});
+  assert.equal(result.status,"ready");if(result.status!=="ready")throw Error("Combined family capacity failed");
+  assert.deepEqual(result.lesson.content.families.map(f=>f.words.length),expected);
+  assert.equal(result.lesson.words.filter(w=>w.learningItemId).length,2);
+  buildLatinRootReleasePackage({releaseKey:`combined-${firstCount}-${secondCount}`,approvalRefs:["Synthetic test only"],families:combinedInput.families,words:[...words.slice(0,firstCount),...secondWords.slice(0,secondCount)]});
+}
 const tampered=structuredClone(ready.lesson);tampered.content.families[0].meaning="See";assert(!validateCanonicalLatinRootLesson(tampered));
 
 const pkg=buildLatinRootReleasePackage({releaseKey:"synthetic-port",approvalRefs:["Synthetic test only"],families:[family],words});

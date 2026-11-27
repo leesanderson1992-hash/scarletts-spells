@@ -57,7 +57,7 @@ export async function prepareLatinRootAssignment(input: {
   if (fingerprintSnapshotValue(latinRootDictionaryProjection(facts)) !== projection.dictionaryFingerprint) return blocked("latin_root_reviewed_dictionary_changed");
   const prepared = prepareCanonicalLatinRootLesson({ childId: input.childId,
     assignmentKey: `latin-root:${input.childId}:${input.date}`, ...facts, learningItems: input.learningItems,
-    allowedFamilyKeys: new Set(projection.dictionary.families.map(f => f.familyKey)), desiredWordCount: 5 });
+    allowedFamilyKeys: new Set(projection.dictionary.families.map(f => f.familyKey)), desiredWordCount: 6 });
   if (prepared.status !== "ready") return blocked(prepared.blockers.map(b => `${b.wordId}:${b.reason}`).join(";"));
   const compiled = compileLatinRootSnapshotV3({ lesson: prepared.lesson, childId: input.childId, parentUserId: input.parentUserId, date: input.date,
     release: { activationRevisionId: revision.data.id, releaseManifestId: release.data.id, releaseKey: release.data.release_key,
