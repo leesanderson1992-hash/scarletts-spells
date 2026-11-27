@@ -121,7 +121,7 @@ export async function loadWordBaseFamilies(
       .select("family_key,canonical_family_key").in("family_key", keys));
     const canonicalKeys = [...new Set(matches.map(row => String(row.canonical_family_key)))];
     const revisions = await read(db.from("teaching_dictionary_families_with_current_meaning")
-      .select("family_key,canonical_family_key,revision,base_lemma,base_kind,base_part_of_speech,base_meaning,canonical_base_word_id")
+      .select("family_key,canonical_family_key,revision,base_lemma,base_kind,base_part_of_speech,base_meaning,canonical_base_word_id,canonical_base_sense_id")
       .in("canonical_family_key", canonicalKeys).eq("review_status", "approved")
       .order("revision", { ascending: false }));
     const bySource = new Map<string, any>();
