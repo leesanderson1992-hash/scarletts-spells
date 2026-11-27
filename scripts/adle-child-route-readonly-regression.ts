@@ -25,7 +25,7 @@ assert(
   "QA date override should be sourced only from the explicit adleDate search parameter",
 );
 assert(
-  page.includes("Today&apos;s spelling plan has not been set up yet"),
+  page.includes("<AdleEmptyPlan />") && readFileSync("components/adle/adle-plan-presentation.tsx", "utf8").includes("Today&apos;s spelling plan has not been set up yet"),
   "empty state should explain that generation is explicit, not a rest-day composer result",
 );
 
