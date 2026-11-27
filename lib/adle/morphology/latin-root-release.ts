@@ -19,10 +19,11 @@ export function latinRootTeachingAuthority() {
 export function buildLatinRootReleasePackage(input: {
   releaseKey: string; approvalRefs: string[]; families: readonly CanonicalLatinRootFamily[];
   words: readonly CanonicalLatinRootWord[];
+  selectionMode?: "reviewed_subset"; reviewEnvironment?: "staging"|"production"; teachingSenseBindings?: Record<string, string>;
 }) {
   if (!input.releaseKey || !input.approvalRefs.length || input.approvalRefs.some(ref => !ref.trim())) throw new Error("latin_root_release_approval_missing");
   const dictionary = latinRootDictionaryProjection(input);
-  const familySizes = dictionary.families.map(family => dictionary.words.filter(word => word.familyKey === family.familyKey).length);
+  const familySizes = dictionary.families.map(family => new Set(dictionary.words.filter(word => word.familyKey === family.familyKey).map(word => word.canonicalWordId)).size);
   const combinedCapacity = familySizes.sort((a, b) => b - a).slice(0, 2).reduce((sum, count) => sum + count, 0);
   if (!dictionary.families.length || combinedCapacity < 5 || dictionary.families.some(family => dictionary.words.filter(word =>
     word.familyKey === family.familyKey && !latinRootWordBlocker(word, family)).length < 2) ||
@@ -34,7 +35,7 @@ export function buildLatinRootReleasePackage(input: {
   const projections = [
     { type: "family_membership" as const, projection: { ...common, families: dictionary.families } },
     { type: "teaching_content" as const, projection: { ...common, teaching: latinRootTeachingAuthority() } },
-    { type: "teaching_dictionary_closure" as const, projection: { ...common, dictionary, dictionaryFingerprint: fingerprintSnapshotValue(dictionary) } },
+    { type: "teaching_dictionary_closure" as const, projection: { ...common, dictionary, dictionaryFingerprint: fingerprintSnapshotValue(dictionary), ...(input.selectionMode ? {selectionMode:input.selectionMode,reviewEnvironment:input.reviewEnvironment??"staging",teachingSenseBindings:input.teachingSenseBindings??{}} : {}) } },
   ];
   const authorities = projections.map(({ type, projection }) => ({
     authorityKey: `${input.releaseKey}:${LATIN_ROOT_SKILL}:${type}`, authorityType: type,
@@ -56,4 +57,5 @@ export type LatinRootReleasePackage = ReturnType<typeof buildLatinRootReleasePac
 export interface LatinRootDictionaryClosure {
   schemaVersion: 1; microSkillKey: typeof LATIN_ROOT_SKILL; routeId: "latin_root_word_lab";
   dictionary: ReturnType<typeof latinRootDictionaryProjection>; dictionaryFingerprint: string;
+  selectionMode?: "reviewed_subset"; reviewEnvironment?: "staging"|"production"; teachingSenseBindings?: Record<string, string>;
 }

@@ -471,7 +471,8 @@
     "adle:teaching-dictionary-workspace-regression": "tsx scripts/teaching-dictionary-workspace-regression.ts",
     "adle:teaching-dictionary-governed-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/teaching-dictionary-governed-regression.ts",
     "adle:teaching-dictionary-workspace-sql-regression": "npx --yes --package=@electric-sql/pglite@0.5.8 -c 'node scripts/teaching-dictionary-workspace-sql-regression.mjs'",
-    "adle:latin-root-canonical-regression": "tsx scripts/latin-root-canonical-regression.ts"
+    "adle:latin-root-canonical-regression": "tsx scripts/latin-root-canonical-regression.ts",
+    "adle:latin-root-bulk-review-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/latin-root-bulk-review-regression.mts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.2",

@@ -53,10 +53,19 @@ export async function prepareLatinRootAssignment(input: {
     fingerprintSnapshotValue(authority.data.semantic_projection) !== authority.data.semantic_fingerprint) return blocked("latin_root_release_authority_invalid");
   const projection = authority.data.semantic_projection as LatinRootDictionaryClosure;
   if (projection.schemaVersion !== 1 || projection.microSkillKey !== LATIN_ROOT_SKILL) return blocked("latin_root_teaching_template_changed");
+  if(projection.selectionMode==="reviewed_subset"&&projection.reviewEnvironment!==input.environmentKey)return blocked("latin_root_review_environment_mismatch");
+  if(projection.selectionMode==="reviewed_subset"){
+    const current=await input.client.rpc("adle_latin_root_reviewed_subset_current_v1",{p:projection});
+    if(current.error||current.data!==true)return blocked("latin_root_reviewed_subset_changed");
+  }
   const facts = await loadCanonicalLatinRootFacts(input.client, projection.dictionary.families.map(f => f.familyKey));
-  if (fingerprintSnapshotValue(latinRootDictionaryProjection(facts)) !== projection.dictionaryFingerprint) return blocked("latin_root_reviewed_dictionary_changed");
+  const currentFacts = projection.selectionMode === "reviewed_subset" ? {
+    families:facts.families, words:facts.words.filter(word=>projection.dictionary.words.some(selected=>selected.canonicalWordId===word.canonicalWordId&&selected.senseId===word.senseId))
+  }:facts;
+  if (fingerprintSnapshotValue(latinRootDictionaryProjection(currentFacts)) !== projection.dictionaryFingerprint) return blocked("latin_root_reviewed_dictionary_changed");
   const prepared = prepareCanonicalLatinRootLesson({ childId: input.childId,
-    assignmentKey: `latin-root:${input.childId}:${input.date}`, ...facts, learningItems: input.learningItems,
+    assignmentKey: `latin-root:${input.childId}:${input.date}`, ...currentFacts, learningItems: input.learningItems,
+    teachingSenseIds: projection.teachingSenseBindings ? new Map(Object.entries(projection.teachingSenseBindings)) : undefined,
     allowedFamilyKeys: new Set(projection.dictionary.families.map(f => f.familyKey)), desiredWordCount: 6 });
   if (prepared.status !== "ready") return blocked(prepared.blockers.map(b => `${b.wordId}:${b.reason}`).join(";"));
   const compiled = compileLatinRootSnapshotV3({ lesson: prepared.lesson, childId: input.childId, parentUserId: input.parentUserId, date: input.date,

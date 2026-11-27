@@ -1,3 +1,4 @@
+import {isLatinRootReviewSkill} from "./latin-root-review";
 import { CUT_SOURCES } from "./schwa-syllables";
 import type { WorkbookPartPrefill } from "./review-workbook-part-prefill";
 import { isSchwaWorkbookSkill, SCHWA_WORKBOOK_FIELDS, SCHWA_SYLLABLE_FIELDS, type SchwaWorkbookFacts } from "./weak-vowel-workbook";
@@ -32,11 +33,12 @@ const prefixMeaningKey = "prefix_meaning_group";
 const partIndexes = Array.from({ length: FLAT_IMPORT_PART_LIMIT }, (_, index) => index + 1);
 const workbookPrefixParts = (row: Record<string, string>, allowed: readonly string[]) => partIndexes.filter(index =>
   row[`part_${index}_kind`] === "prefix" && allowed.includes(row[`part_${index}_underlying_form`]?.toLowerCase()));
-const workbookKeys = (skill: string) => isSchwaWorkbookSkill(skill) ? [...reviewKeys.slice(0, 3), "written_syllable_breakdown", ...reviewKeys.slice(3), ...SCHWA_WORKBOOK_FIELDS, "activity_cut_source"] : isCompoundWorkbookSkill(skill) ? [...reviewKeys, ...suffixFields, "component_to_whole_relationship"]
+const workbookKeys = (skill: string) => isLatinRootReviewSkill(skill) ? [...reviewKeys.slice(0,4), "root_family_root", "root_family_origin", "root_family_meaning", ...reviewKeys.slice(4)] : isSchwaWorkbookSkill(skill) ? [...reviewKeys.slice(0, 3), "written_syllable_breakdown", ...reviewKeys.slice(3), ...SCHWA_WORKBOOK_FIELDS, "activity_cut_source"] : isCompoundWorkbookSkill(skill) ? [...reviewKeys, ...suffixFields, "component_to_whole_relationship"]
   : isSuffixReviewSkill(skill) ? [...reviewKeys, ...suffixFields]
   : isPrefixWorkbookSkill(skill) ? [...reviewKeys.slice(0, 4), prefixMeaningKey, ...reviewKeys.slice(4)] : reviewKeys;
 const hidden = new Set(["canonical_word_id", "source_sense_reviewed_at", "sense_id", "pronunciation_id"]);
 const label = (key: string) => ({
+  root_family_root:"Associated root",root_family_origin:"Family origin (read only)",root_family_meaning:"Root meaning (read only)",
   written_syllable_breakdown: "Dictionary spoken syllable divisions", activity_cut_source: "Activity cut source", activity_syllables: "Alternative activity divisions (optional)", spoken_syllable_count: "Spoken syllable count",
   display_word: "Word", definition: "Meaning", family_key: "Word family",
   component_to_whole_relationship: "How the parts make the meaning", use_in_lesson: "Use in lesson", needs_review: "Needs review", ipa: "IPA",
@@ -44,7 +46,7 @@ const label = (key: string) => ({
 const workbookLabel = (skill: string, key: string) => key === prefixMeaningKey ? prefixWorkbookFieldLabel(skill) : label(key);
 
 export async function buildReviewWorkbook(input: { skill: string; title: string; bundles: MultiSenseCsvBundle[];
-  notes: ReadonlyMap<string, string>; families: ReadonlyMap<string, string[]>;
+  notes: ReadonlyMap<string, string>; rootReviewFacts?: ReadonlyMap<string,{root:string;origin:string;meaning:string}>; families: ReadonlyMap<string, string[]>;
   wordPartPrefills?: ReadonlyMap<string, WorkbookPartPrefill>; rootFamilyOptions?: readonly string[];
   schwaFacts?: ReadonlyMap<string, SchwaWorkbookFacts>; compoundFacts?: ReadonlyMap<string, CompoundWorkbookFacts>; suffixFacts?: ReadonlyMap<string, SuffixWorkbookFacts>; requestedSenses?: ReadonlyMap<string, string | null> }) {
   const keys = workbookKeys(input.skill);
@@ -57,7 +59,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   sheet.getCell("A2").value = input.skill;
   sheet.getRow(2).hidden = true;
   sheet.getRow(headerRow).values = keys.map(key => workbookLabel(input.skill, key));
-  sheet.getRow(headerRow).height = 44;
+  sheet.getRow(headerRow).height = isLatinRootReviewSkill(input.skill)?60:44;
   sheet.getRow(headerRow).alignment = { vertical: "middle", wrapText: true };
   sheet.getRow(headerRow).eachCell(cell => {
     cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
@@ -130,19 +132,26 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
         entry[prefixMeaningKey] = (choices.length === 1 ? choices[0] : choices.find(choice => choice.gloss === gloss))?.label ?? "";
       }
     }
-    const row = sheet.addRow({ ...entry, ...input.schwaFacts?.get(entry.canonical_word_id), ...input.suffixFacts?.get(entry.canonical_word_id), component_to_whole_relationship: input.compoundFacts?.get(entry.canonical_word_id)?.componentToWholeRelationship ?? "", use_in_lesson: input.requestedSenses?.get(entry.canonical_word_id) === entry.sense_id ? "Yes" : "Review", needs_review: notes });
-    row.height = 32;
+    const rootFacts=input.rootReviewFacts?.get(entry.canonical_word_id);
+    const row = sheet.addRow({ ...entry, root_family_root:rootFacts?.root??"",root_family_origin:rootFacts?.origin??"",root_family_meaning:rootFacts?.meaning??"", ...input.schwaFacts?.get(entry.canonical_word_id), ...input.suffixFacts?.get(entry.canonical_word_id), component_to_whole_relationship: input.compoundFacts?.get(entry.canonical_word_id)?.componentToWholeRelationship ?? "", use_in_lesson: input.requestedSenses?.get(entry.canonical_word_id) === entry.sense_id ? "Yes" : "Review", needs_review: notes });
+    row.height = isLatinRootReviewSkill(input.skill)?Math.max(64,Math.min(190,Math.ceil(notes.length/40)*14+12)):32;
     row.alignment = { vertical: "middle", wrapText: true };
     addDropdowns(row);
     for (const key of partPrefill?.missingFields ?? []) {
       row.getCell(key).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFDEDF7" } };
       row.getCell(key).note = partPrefill!.issues.join("\n");
     }
+    if(isLatinRootReviewSkill(input.skill)){
+      const required=["definition","part_of_speech","ipa","spoken_syllable_count","stress_pattern","dictation_sentence","dictation_target_token_index","family_key","component_part_id","relationship_kind"];
+      for(const index of partIndexes)if(entry[`part_${index}_underlying_form`]||index===1)required.push(...["kind","underlying_form","visible_letters","meaning"].map(field=>`part_${index}_${field}`),...(index>1?[`part_${index}_join_before`]:[]));
+      for(const key of required)if(!entry[key]){row.getCell(key).fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFFDEDF7"}};row.getCell(key).note="Complete this teaching fact before assigning the word to Common Latin roots.";}
+      if(!partIndexes.some(index=>entry[`part_${index}_kind`]==="root")){row.getCell("family_key").fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFFDEDF7"}};row.getCell("part_1_kind").fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFFDEDF7"}};}
+    }
     const familyPart = Array.from({ length: FLAT_IMPORT_PART_LIMIT }, (_, index) => index + 1)
       .find(index => (entry[`part_${index}_id`] || `part_${index}`) === entry.component_part_id
         || (!entry.component_part_id && ["base", "root"].includes(entry[`part_${index}_kind`])));
     const familyChoices = input.families.get(entry[`part_${familyPart}_underlying_form`]) ?? [];
-    const options = [...new Set([...familyChoices, ...(isSchwaWorkbookSkill(input.skill) ? input.rootFamilyOptions ?? [] : []), entry.family_key, "Needs family review"].filter(Boolean))];
+    const options = [...new Set([...familyChoices, ...((isSchwaWorkbookSkill(input.skill)||isLatinRootReviewSkill(input.skill)) ? input.rootFamilyOptions ?? [] : []), entry.family_key, "Needs family review"].filter(Boolean))];
     const start = familyOptions.rowCount + 1;
     for (const family of options) familyOptions.addRow([family]);
     const rangeName = `FamilyChoices${row.number}`;
@@ -154,7 +163,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     }
   }
   {
-    const rootOptions = isSchwaWorkbookSkill(input.skill) ? input.rootFamilyOptions ?? [] : [];
+    const rootOptions = (isSchwaWorkbookSkill(input.skill)||isLatinRootReviewSkill(input.skill)) ? input.rootFamilyOptions ?? [] : [];
     let blankFamilyValidation = list(["Needs family review"]);
     if (rootOptions.length) {
       const start = familyOptions.rowCount + 1;
@@ -193,7 +202,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   guide.addRows([
     ["Field", "How to fill it in"],
     ["Use in lesson", "Choose Yes on the intended meaning. Keep all existing meaning rows. Words with no Yes stay out of this upload."],
-    ["Word family", isHomophoneReviewSkill(input.skill) ? "Not required for this homophone lesson. Existing family links are retained; no new family approval is requested." : "Choose the approved family that matches the meaning. Leave the family blank or choose Needs family review to resolve it after uploading."],
+    ["Word family", isLatinRootReviewSkill(input.skill) ? "Choose a reviewed Latin or Latin-derived bound-root family. Origin and root meaning are read-only context, inherited from the family. Preserve existing Base analyses; alternate and nested root forms need separate review." : isHomophoneReviewSkill(input.skill) ? "Not required for this homophone lesson. Existing family links are retained; no new family approval is requested." : "Choose the approved family that matches the meaning. Leave the family blank or choose Needs family review to resolve it after uploading."],
     ["Meaning and pronunciation", "Confirm the definition, part of speech, IPA, syllable count and stress. Use the same pronunciation ID for identical pronunciations."],
     ["Word parts", `Keep the full base and its visible letters in separate fields. ${wordPartsExample} Use none for a join with no space.`],
     ["Spelling change", `Choose a standard rule from the dropdown, or leave blank / choose ${AUTO_TRANSFORMATION} to infer a clear change on upload. Standard explanations are filled automatically. Other reviewed change requires your explanation. ${spellingChangeExample} Keep the suffix separate: force → forc uses Drop final e; ible is a separate suffix part.`],
@@ -327,7 +336,7 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
     throw new Error("Choose Yes under Use in lesson for at least one meaning. No Yes selections were found in the uploaded file.");
   }
   for (const group of selected) {
-    if (isSchwaWorkbookSkill(skill) && group.filter(row => row.use_in_lesson === "Yes").length > 1)
+    if ((isSchwaWorkbookSkill(skill)||isLatinRootReviewSkill(skill)) && group.filter(row => row.use_in_lesson === "Yes").length > 1)
       throw new Error(`Choose one teaching meaning under Use in lesson for ${group[0].display_word}. Other meanings stay in the Dictionary.`);
     if (isCompoundWorkbookSkill(skill)) for (const row of group) compoundFacts.set(Number(row.workbook_row), { componentToWholeRelationship: row.component_to_whole_relationship ?? "" });
     const tasks: WorkbookFamilyTask[] = [];
@@ -405,6 +414,7 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
         row[`part_${part}_meaning`] ||= family.meaning;
       }
       row.component_part_id = row[`part_${part}_id`] || `part_${part}`;
+      if(!row.relationship_kind&&isLatinRootReviewSkill(skill))row.relationship_kind="derived";
       if (!row.relationship_kind && ING_RULE_FOR_SKILL[skill as IngMicroSkill]) row.relationship_kind = "regular_inflection";
       if (!row.relationship_kind && isComparativeReviewSkill(skill))
         row.relationship_kind = row.part_2_kind ? "regular_inflection" : "free_base";

@@ -1,4 +1,6 @@
 "use server";
+import {loadCanonicalLatinRootFacts} from "@/lib/adle/loaders/latin-root-canonical-loader";
+import {isLatinRootReviewSkill} from "@/lib/teaching-dictionary-manager/latin-root-review";
 import { saveReviewedSchwaDivisions } from "@/lib/teaching-dictionary-manager/schwa-syllable-authority";
 import { isSchwaWorkbookSkill, type SchwaWorkbookFacts } from "@/lib/teaching-dictionary-manager/weak-vowel-workbook";
 import { stageSchwaWorkbookDraft, loadSchwaWorkbookQueue } from "@/lib/teaching-dictionary-manager/schwa-bulk-review";
@@ -65,7 +67,7 @@ function importIssue(message: string) {
 }
 
 function workbookBasePartOfSpeech(skill: string) {
-  if (isIdentifyBaseReview(skill) || isSchwaWorkbookSkill(skill) || isCompoundWorkbookSkill(skill) || isSuffixWorkbookPilot(skill) || isComparativeReviewSkill(skill) || skill === SUB_INTER_SUPER_PREFIX_SKILL) return null;
+  if (isLatinRootReviewSkill(skill) || isIdentifyBaseReview(skill) || isSchwaWorkbookSkill(skill) || isCompoundWorkbookSkill(skill) || isSuffixWorkbookPilot(skill) || isComparativeReviewSkill(skill) || skill === SUB_INTER_SUPER_PREFIX_SKILL) return null;
   return skill === NEGATIVE_PREFIX_SKILL ? "adjective" : "verb";
 }
 
@@ -102,9 +104,9 @@ export async function importReviewedMultiSenseCsv(
         throw new Error("Choose a valid family decision.");
       const { csv, rowNumbers, pendingFamilies, reviewSummary, schwaFacts: workbookSchwaFacts, compoundFacts: workbookCompoundFacts, suffixFacts: workbookSuffixFacts, prefixMeanings: workbookPrefixMeanings } = await readReviewWorkbook(await file.arrayBuffer(), skill, {
         targetRow, decisions,
-        resolve: (base, decision) => decision.createSenseId
+        resolve: (base, decision) => { if(isLatinRootReviewSkill(skill)&&decision.createSenseId)throw new Error("Choose an existing approved Latin root family.");return decision.createSenseId
           ? createWorkbookFamily(db, actor.id, base, decision.createSenseId, workbookBasePartOfSpeech(skill))
-          : approvedWorkbookFamily(db, decision.familyKey ?? "", true),
+          : approvedWorkbookFamily(db, decision.familyKey ?? "", true); },
       });
       workbookSummary = { fileName: file.name.slice(0, 120), ...reviewSummary };
       schwaFacts = workbookSchwaFacts;
@@ -143,18 +145,20 @@ export async function importReviewedMultiSenseCsv(
         continue;
       }
     }
-    if (workbook && isCompoundWorkbookSkill(skill) && bundle.wordId) {
+    if (workbook && (isCompoundWorkbookSkill(skill) || isLatinRootReviewSkill(skill)) && bundle.wordId) {
       const [current] = await loadReviewedMeaningBundles(db, [bundle.wordId]);
       const links = await db.from("teaching_dictionary_current_sense_family_memberships")
         .select("sense_id,component_part_id").eq("canonical_word_id", bundle.wordId);
       if (links.error) { issues.push({ word, rows, reason: "Could not verify existing component family links." }); continue; }
       const changedMultipleFamilies = bundle.analyses.some(analysis => {
-        if (links.data.filter(link => link.sense_id === analysis.senseId).length < 2) return false;
-        const prior = current?.analyses.find(row => row.senseId === analysis.senseId);
+        const prior=current?.analyses.find(row=>row.senseId===analysis.senseId);
+        const count=links.data.filter(link=>link.sense_id===analysis.senseId).length;
+        if(count<2&&!(isLatinRootReviewSkill(skill)&&count>0&&prior?.parts.some(part=>part.kind==="base")))return false;
+
         return !prior || semanticJson(prior.parts) !== semanticJson(analysis.parts) || semanticJson(prior.joins) !== semanticJson(analysis.joins)
           || semanticJson(prior.transformations) !== semanticJson(analysis.transformations);
       });
-      if (changedMultipleFamilies) { issues.push({ word, rows, reason: "This compound has several reviewed component families. Review changed parts on its word page first so those links are preserved." }); continue; }
+      if (changedMultipleFamilies) { issues.push({ word, rows, reason: "This meaning already has reviewed family links. Review changed parts on its word page first so those links are preserved." }); continue; }
     }
     // The admin-reviewed workbook is the new authority. Rebase onto the current
     // revision, then let the transaction validate facts and catch concurrent edits.
@@ -249,11 +253,11 @@ export async function importReviewedMultiSenseCsv(
           lesson.release = "Saved Dictionary facts. Publish the complete adjective set from Preview.";
           continue;
         }
-        if (workbook && specialistWorkbookRoute(skillKey) && !hasCandidateRule(skillKey)) {
+        if (workbook && specialistWorkbookRoute(skillKey) && !hasCandidateRule(skillKey) && !isLatinRootReviewSkill(skillKey)) {
           lesson.release = "Review the lesson’s publication requirements in Preview";
           continue;
         }
-        if (!hasCandidateRule(skillKey)) {
+        if (!hasCandidateRule(skillKey) && !isLatinRootReviewSkill(skillKey)) {
           report("This lesson does not have automatic approval checks yet. Review it in the bulk assigner.");
           continue;
         }
@@ -269,6 +273,7 @@ export async function importReviewedMultiSenseCsv(
             }
             if (isHomophoneReviewSkill(skillKey)) lesson.release = "Dictionary facts approved. Check contrast-set alignment in Bulk review.";
             lesson.approval = result.approvedCount ? "Approved" : "Already approved";
+            if(isLatinRootReviewSkill(skillKey)){lesson.approval="Ready to publish";lesson.release="Reviewed Latin root facts saved. Preview family readiness and publish the update.";}
             approved += result.approvedCount;
             alreadyApproved += result.alreadyAssignedCount;
           } else report(result.blocked[0]?.reason ?? result.error ?? "Recheck this lesson request.");
@@ -314,6 +319,10 @@ export async function getWorkbookFamilyChoices(skill: string, base: string) {
   await requireAdminUser();
   if (!supportsReviewWorkbook(skill) || !/^[a-z][a-z'-]{0,119}$/u.test(base))
     throw new Error("Choose a workbook row with a base spelling.");
+  if(isLatinRootReviewSkill(skill)){
+    const db=createServiceRoleClient();const keys=await db.from("teaching_dictionary_root_skill_families").select("family_key").eq("root_text",base).eq("micro_skill_key",skill);if(keys.error)throw Error("Could not read Latin root choices.");const facts=await loadCanonicalLatinRootFacts(db,keys.data.map(r=>r.family_key));
+    return {families:facts.families.map(f=>({key:f.familyKey,base:f.root,meaning:f.meaning,partOfSpeech:"root",kind:"bound_root" as const})),bases:[],baseWordId:facts.families[0]?.rootWordId??null,basePartOfSpeech:null};
+  }
   return loadWorkbookFamilyChoices(createServiceRoleClient(), base, true,
     workbookBasePartOfSpeech(skill));
 }

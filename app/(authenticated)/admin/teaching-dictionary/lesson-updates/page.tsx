@@ -1,3 +1,6 @@
+import {isLatinRootReviewSkill} from "@/lib/teaching-dictionary-manager/latin-root-review";
+import {prepareLatinRootBulkPublication} from "@/lib/teaching-dictionary-manager/latin-root-bulk-review";
+import {publishLatinRootWorkbook} from "./latin-root-actions";
 import { isSchwaWorkbookSkill } from "@/lib/teaching-dictionary-manager/weak-vowel-workbook";
 import { loadSchwaWorkbookQueue } from "@/lib/teaching-dictionary-manager/schwa-bulk-review";
 import { SchwaPublishPanel } from "./schwa-publish-panel";
@@ -77,6 +80,8 @@ export default async function LessonUpdates({ searchParams }: {
   const compoundSkill = isCompoundWorkbookSkill(selected) ? selected : null;
   const compoundQueue = compoundSkill && view === "preview" ? await loadPendingCompoundWorkbookQueue(db, compoundSkill) : null;
   const readyCompounds = compoundQueue?.filter(row => !row.blockers.length).slice(0, 30) ?? [];
+  const latinRoots=isLatinRootReviewSkill(selected);
+  const latinPreview=latinRoots&&view==="preview"?await prepareLatinRootBulkPublication(db):null;
   const schwaSkill = isSchwaWorkbookSkill(selected) ? selected : null;
   const schwaQueue = schwaSkill && view === "preview" ? specialist && "queue" in specialist ? specialist.queue : await loadSchwaWorkbookQueue(db, schwaSkill) : null;
   const readySchwa = schwaQueue?.filter(row => !row.blockers.length && !row.published).slice(0, 200) ?? [];
@@ -187,10 +192,19 @@ export default async function LessonUpdates({ searchParams }: {
           </form>}
         </>}
       </div>}
-      <p>{new Set([...specialist.current.map(word => word.canonicalWordId), ...specialist.rows.map(word => word.id)]).size} words in this flow · {specialist.current.length} Active in ADLE · {specialist.rows.length} need review</p>
+      <p>{new Set([...specialist.current.map(word => word.canonicalWordId), ...specialist.rows.map(word => word.id)]).size} words in this flow · {specialist.current.length} Active in ADLE · {latinRoots?specialist.rows.filter(row=>"ready" in row&&!row.ready).length:specialist.rows.length} need information</p>
       {specialist.rows.some(row => specialist.current.some(word => word.canonicalWordId === row.id)) &&
         <p className="text-sm text-slate-600">{specialist.rows.filter(row => specialist.current.some(word => word.canonicalWordId === row.id)).length} Active words are also in review for missing facts or unpublished updates. Their existing lesson version stays available.</p>}
-      <Link className="font-semibold underline" href={`/admin/adle-lesson-readiness?route=${specialist.routeId}&skill=${selected}`}>Open lesson readiness</Link>
+      <Link className="font-semibold underline" href={latinRoots?"#latin-root-publish":`/admin/adle-lesson-readiness?route=${specialist.routeId}&skill=${selected}`}>Open lesson readiness</Link>
+      {latinPreview&&<section id="latin-root-publish" className="space-y-4 rounded-xl border p-4">
+        <h2 className="text-xl font-semibold">Common Latin roots · Publish preview</h2>
+        {params.published&&<p role="status">Published {params.published} reviewed words. New lessons use this reviewed pool.</p>}
+        {params.error&&<p role="alert">{params.error}</p>}
+        <p>Each root family needs at least two reviewed words. Lessons use five or six words across one or two families, with one tree page per family. Existing lessons keep their saved content.</p>
+        <table className="w-full text-left text-sm"><thead><tr><th>Root</th><th>Meaning</th><th>Ready words</th><th>Family status</th></tr></thead><tbody>{latinPreview.familySummary.map(f=><tr key={f.familyKey}><td>{f.root}</td><td>{f.meaning}</td><td>{f.ready} of {f.candidates}</td><td>{f.ready>=2?"Ready for combined lessons":"Needs at least two reviewed members"}</td></tr>)}</tbody></table>
+        <ul className="space-y-2">{latinPreview.rows.map(row=><li key={row.id}><Link className="underline font-semibold" href={row.href}>{row.word}</Link> · {row.root||"Choose root"} · {row.active?"Published":row.ready?"Reviewed":"Needs information"}<p className="text-sm">{row.note}</p></li>)}</ul>
+        {latinPreview.publication?<form action={publishLatinRootWorkbook}><input type="hidden" name="preview_hash" value={latinPreview.publication.previewHash}/><input type="hidden" name="head_id" value={latinPreview.headId??""}/><p>{latinPreview.publication.wordCount} ready words in {latinPreview.publication.familyCount} eligible families will be published.</p><ActionSubmitButton className={button} pendingLabel="Publishing reviewed roots…">Publish reviewed Latin root pool</ActionSubmitButton></form>:<p role="status">{latinPreview.publicationError}</p>}
+      </section>}
       {schwaSkill && schwaQueue && <div className="space-y-4">
         {params.published && <p role="status">{params.published} words published. Passing words are Active in ADLE.</p>}
         <p>Dictionary meanings, pronunciation and word parts are reused. Review the exact weak vowel and Dictionary spoken syllable divisions below. The spoken syllable count describes the pronunciation. Family exploration is optional and never holds up the core lesson. When selected, it is included automatically in new lessons once enough approved family members are available.</p>

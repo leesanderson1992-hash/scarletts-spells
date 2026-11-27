@@ -1,3 +1,4 @@
+import {isLatinRootReviewSkill} from "@/lib/teaching-dictionary-manager/latin-root-review";
 import Link from "next/link";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -38,7 +39,7 @@ export default async function TeachingDictionaryImportPage({ searchParams }: {
     </header>
     <div id="word-csv-import" className="scroll-mt-16">
       <MultiSenseCsvPanel batchCount={Math.ceil((reviewedSenseCount?.count ?? 0) / 100)}
-        skills={reviewSkills?.data?.filter(skill => hasCandidateRule(skill.micro_skill_key))}
+        skills={reviewSkills?.data?.filter(skill => hasCandidateRule(skill.micro_skill_key)||isLatinRootReviewSkill(skill.micro_skill_key))}
         guidanceHref={guidance ? undefined : "?tools=meanings#word-csv-import"} />
     </div>
     {overview

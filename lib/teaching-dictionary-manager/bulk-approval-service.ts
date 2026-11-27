@@ -1,4 +1,7 @@
 import "server-only";
+import {isLatinRootReviewSkill,latinRootReviewIssues} from "./latin-root-review";
+import {loadReviewedMeaningBundles} from "./multi-sense-export";
+import {loadCanonicalLatinRootFacts} from "@/lib/adle/loaders/latin-root-canonical-loader";
 import { isSchwaWorkbookSkill } from "./weak-vowel-workbook";
 import { canonicalBaseWordWorkflowEnabled } from "@/lib/adle/base-word-canonical-workflow";
 
@@ -102,7 +105,15 @@ export async function saveBulkSkillApprovalsAsActor(input: {
     || input.microSkillKey === IDENTIFY_BASE_SKILL &&
       (environment === "staging" || canonicalBaseWordWorkflowEnabled(environment));
   const schwaReapproval = isSchwaWorkbookSkill(input.microSkillKey);
-  const snapshotFacts = hasRule || schwaReapproval;
+  const rootReview=isLatinRootReviewSkill(input.microSkillKey);
+  const snapshotFacts = hasRule || schwaReapproval || rootReview;
+  if(rootReview&&applyWordIds.length){
+    const roots=await db.from("teaching_dictionary_root_skill_families").select("family_key").eq("micro_skill_key",input.microSkillKey);
+    if(roots.error)return failed("Could not check Latin root origins.");
+    const [facts,bundles]=await Promise.all([loadCanonicalLatinRootFacts(db,roots.data.map(r=>r.family_key)),loadReviewedMeaningBundles(db,applyWordIds)]);
+    const blocked=applyWordIds.flatMap(id=>{const issues=latinRootReviewIssues(bundles.find(b=>b.wordId===id),senseIds[id],facts.families);return issues.length?[{id,word:byId.get(id)?.display_word??id,reason:issues.join(" ")}]:[];});
+    if(blocked.length)return failed("Complete the reviewed Latin root facts before assigning these words.",blocked);
+  }
   const expectedFacts: Record<string, { senseId: string; senseSet: DictionarySenseSet;
     morphologyId: string; morphologySource: "legacy" | "sense"; familyLinkIds: string[] }> = {};
   if (applyWordIds.length) {
@@ -168,7 +179,7 @@ export async function saveBulkSkillApprovalsAsActor(input: {
           senseSet: byWord.get(id) ?? null, senseId: senseIds[id] });
       if (reason) return [{ id, word: word.display_word, reason }];
       if (schwaReapproval && !facts.morphologyId) return [{ id, word: word.display_word, reason: "Approve the selected meaning’s word parts before publishing." }];
-      if ((candidate || schwaReapproval) && facts.morphologyId && byWord.has(id)) expectedFacts[id] = {
+      if ((candidate || schwaReapproval || rootReview) && facts.morphologyId && byWord.has(id)) expectedFacts[id] = {
         senseId: senseIds[id], senseSet: byWord.get(id)!,
         morphologyId: facts.morphologyId, morphologySource: facts.source,
         familyLinkIds: facts.familyLinkIds,

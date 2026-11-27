@@ -17,6 +17,7 @@ export function isSuffixWorkbookPilot(skill: unknown): skill is SuffixReviewSkil
 }
 
 const specialistRoutes: Readonly<Record<string, string>> = {
+  D4_MOR_ROOTS_COMMON_LATIN_ROOTS: "latin_root_word_lab",
   D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX: "base_word_lab",
   D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX: "base_word_lab",
   D4_MOR_BASE_WORDS_PRESERVE_BASE: "base_word_lab",

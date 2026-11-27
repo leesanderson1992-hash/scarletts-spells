@@ -2,23 +2,13 @@ import { fingerprintSnapshotValue } from "../composable-lesson/canonical-fingerp
 import { selectableLearningItems, type LearningItemFact } from "../learning-items";
 import { validateLatinRootLesson, type LatinRootLessonContent, type LatinRootLessonWord } from "./latin-root-lesson";
 
+import { latinRootWordBlocker, type CanonicalLatinRootFamily, type CanonicalLatinRootWord } from "./latin-root-word-facts";
+export { latinRootWordBlocker, type CanonicalLatinRootFamily, type CanonicalLatinRootWord } from "./latin-root-word-facts";
+
 export const LATIN_ROOT_SKILL = "D4_MOR_ROOTS_COMMON_LATIN_ROOTS" as const;
 export const LATIN_ROOT_ROUTE = "latin_root_word_lab" as const;
 export const LATIN_ROOT_CONTENT_VERSION = "latin_root_word_lab:v1" as const;
 
-export interface CanonicalLatinRootFamily {
-  familyKey: string; revision: number; rootWordId: string; rootSenseId: string;
-  root: string; meaning: string; origin: string; reviewStatus: string;
-}
-export interface CanonicalLatinRootWord {
-  canonicalWordId: string; spelling: string; familyKey: string; senseId: string;
-  definition: string; partOfSpeech: string; ipa: string; sentence: string;
-  targetTokenIndex: number; reviewStatus: string; reviewedAt: string;
-  morphologyId: string; componentPartId: string; wordSum: string;
-  parts: { id: string; kind: string; sourceText: string; surfaceText: string; gloss: string }[];
-  joins: unknown[]; transformations: unknown[];
-  wordRecordingSrc?: string; sentenceRecordingSrc?: string;
-}
 export interface LatinRootCanonicalLessonV1 {
   schemaVersion: 1; routeId: typeof LATIN_ROOT_ROUTE; microSkillKey: typeof LATIN_ROOT_SKILL;
   assignmentKey: string; contentVersion: string; content: LatinRootLessonContent;
@@ -49,37 +39,19 @@ export function validateCanonicalLatinRootLesson(value: unknown): value is Latin
   } catch { return false; }
 }
 
-/** Sense-bound canonical facts only. A spelling in a root's example list is not a member. */
-export function latinRootWordBlocker(word: CanonicalLatinRootWord, family: CanonicalLatinRootFamily): string | null {
-  if (family.reviewStatus !== "approved" || !["Latin", "Latin-derived"].includes(family.origin)) return "root_family_not_approved_latin";
-  if (word.reviewStatus !== "approved_for_first_exposure" || !word.reviewedAt || !word.senseId || !word.morphologyId) return "word_meaning_or_parts_not_reviewed";
-  if (word.partOfSpeech === "root" || word.canonicalWordId === family.rootWordId && word.senseId === family.rootSenseId) return "root_support_is_not_a_spelling_target";
-  if (!word.definition.trim() || !word.ipa.trim() || !word.wordSum.trim()) return "word_definition_pronunciation_or_sum_missing";
-  const tokens = word.sentence.match(/[\p{L}]+(?:['’ʼ-][\p{L}]+)*/gu) ?? [];
-  if (!Number.isInteger(word.targetTokenIndex) || tokens[word.targetTokenIndex]?.toLowerCase() !== word.spelling.toLowerCase() ||
-    tokens.filter(token => token.toLowerCase() === word.spelling.toLowerCase()).length !== 1) return "meaning_sentence_target_invalid";
-  if (!word.parts.length || word.parts.some(part => !["prefix", "root", "suffix"].includes(part.kind) || !part.surfaceText || !part.sourceText || part.kind !== "root" && !part.gloss?.trim()) ||
-    word.parts.map(part => part.surfaceText).join("") !== word.spelling || word.transformations.length) return "unsupported_or_incomplete_reviewed_word_parts";
-  const root = word.parts.filter(part => part.kind === "root");
-  if (root.length !== 1 || root[0].id !== word.componentPartId || root[0].surfaceText !== family.root || root[0].sourceText !== family.root)
-    return "reviewed_root_component_mismatch";
-  if (word.joins.length !== word.parts.length - 1 || word.joins.some(join => !join || typeof join !== "object" || (join as { joinType?: string }).joinType !== "none"))
-    return "reviewed_word_joins_invalid";
-  return null;
-}
-
 /** One or two relevant root families; five/six words, without manufacturing learner lineage. */
 export function prepareCanonicalLatinRootLesson(input: {
   childId: string; assignmentKey: string; families: readonly CanonicalLatinRootFamily[];
   words: readonly CanonicalLatinRootWord[]; learningItems: readonly LearningItemFact[];
-  allowedFamilyKeys: ReadonlySet<string>; desiredWordCount?: 5 | 6;
+  allowedFamilyKeys: ReadonlySet<string>; teachingSenseIds?: ReadonlyMap<string, string>; desiredWordCount?: 5 | 6;
 }): LatinRootReadiness {
   const blocked = (wordId: string, reason: string): LatinRootReadiness => ({ status: "blocked", blockers: [{ wordId, reason }] });
   const familyByKey = new Map(input.families.map(f => [f.familyKey, f]));
   if (familyByKey.size !== input.families.length) return blocked("*", "ambiguous_current_root_family");
   const targets = selectableLearningItems(input.learningItems).filter(item => item.childId === input.childId && item.microSkillKey === LATIN_ROOT_SKILL && item.sourceKind !== "stretch_selection");
   if (!targets.length) return blocked("*", "no_authentic_root_target");
-  const matched = targets.map(target => ({ target, candidates: input.words.filter(word => word.canonicalWordId === target.canonicalWordId && input.allowedFamilyKeys.has(word.familyKey)) }));
+  const selectableWords = input.words.filter(word => !input.teachingSenseIds?.has(word.canonicalWordId) || input.teachingSenseIds.get(word.canonicalWordId) === word.senseId);
+  const matched = targets.map(target => ({ target, candidates: selectableWords.filter(word => word.canonicalWordId === target.canonicalWordId && input.allowedFamilyKeys.has(word.familyKey)) }));
   // Never replace the oldest chosen demand word with an easier content-complete word.
   const first = matched[0];
   if (first.candidates.length !== 1) return blocked(first.target.canonicalWordId, first.candidates.length ? "ambiguous_target_meaning" : "target_has_no_released_root_membership");
@@ -96,7 +68,7 @@ export function prepareCanonicalLatinRootLesson(input: {
     const demand = relevant.map(m => m.candidates[0]);
     const invalid = demand.find(word => latinRootWordBlocker(word, family));
     if (invalid) return { key, family, demand, pool: [], blocker: latinRootWordBlocker(invalid, family) };
-    const pool = input.words.filter(word => word.familyKey === key && !demand.some(target => target.canonicalWordId === word.canonicalWordId) && !latinRootWordBlocker(word, family))
+    const pool = selectableWords.filter(word => word.familyKey === key && !demand.some(target => target.canonicalWordId === word.canonicalWordId) && !latinRootWordBlocker(word, family))
       .sort((a, b) => a.parts.length - b.parts.length || a.spelling.localeCompare(b.spelling));
     return { key, family, demand, pool: pool.filter(word => pool.filter(other => other.canonicalWordId === word.canonicalWordId).length === 1), blocker: null };
   });

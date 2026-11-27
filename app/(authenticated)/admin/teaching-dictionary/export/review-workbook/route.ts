@@ -1,3 +1,5 @@
+import {isLatinRootReviewSkill} from "@/lib/teaching-dictionary-manager/latin-root-review";
+import {latinRootWorkbookData} from "@/lib/teaching-dictionary-manager/latin-root-bulk-review";
 import { isSchwaWorkbookSkill } from "@/lib/teaching-dictionary-manager/weak-vowel-workbook";
 import { loadSchwaWorkbookFacts } from "@/lib/teaching-dictionary-manager/schwa-bulk-review";
 import { isHomophoneReviewSkill } from "@/lib/teaching-dictionary-manager/homophone-review-contract";
@@ -52,6 +54,12 @@ export async function GET(request: Request) {
     return new Response("Choose a valid workbook batch.", { status: 400 });
 
   const db = createServiceRoleClient();
+  if(isLatinRootReviewSkill(skill)){
+    const review=await latinRootWorkbookData(db);
+    if(scope==="pool")return downloadWorkbook(await buildLessonPoolWorkbook(review.title,review.current),`teaching-dictionary-active-pool-${skill}.xlsx`);
+    const selected=review.rows.slice((batch-1)*100,batch*100);if(!selected.length)return new Response("No existing Latin root words in this batch.",{status:404});
+    return downloadWorkbook(await buildReviewWorkbook({...review,bundles:review.bundles.filter(b=>selected.some(r=>r.id===b.wordId))}),`teaching-dictionary-review-${skill}-${batch}.xlsx`);
+  }
   const requestedSenses = scope === "review"
     ? new Map([...await loadLessonReviewRequests(db, skill)].map(([id, row]) => [id, row.sense_id]))
     : undefined;
