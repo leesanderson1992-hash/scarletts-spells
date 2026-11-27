@@ -5,6 +5,8 @@ export interface NormalizedLessonReflectionMistake {
   id: string;
   attempt: string;
   correctSpelling: string;
+  /** Optional activity label supplied by the owning lesson. */
+  activityLabel?: string;
   /** Optional whole-sentence comparison retained by routes that already show it. */
   sentenceComparison?: {
     attempt: string;

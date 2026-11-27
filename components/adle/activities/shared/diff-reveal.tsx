@@ -25,7 +25,7 @@ export function DiffReveal(props: { attempt: string; expected: string; splitPoin
     const feedback = needsInitialCapital
       ? "Remember: a sentence starts with a capital letter."
       : allWordsMatch
-        ? "Your sentence matches."
+        ? props.attempt.trim() === props.expected.trim() ? "Your sentence matches." : "Check the capital letters and punctuation in the correct sentence."
         : "Look at the highlighted word in the correct sentence, then try that word again next time.";
     return <div className="rounded-2xl border border-emerald-300/30 bg-emerald-50 p-4 text-slate-950"><p className="text-xs font-bold uppercase tracking-wide text-emerald-800">Check the sentence</p><p className="mt-3 text-left text-sm font-bold">You wrote</p><p className="rounded-xl bg-white p-3 text-left text-lg">{props.attempt}</p><p className="mt-3 text-left text-sm font-bold">The correct sentence</p><p className="rounded-xl bg-emerald-100 p-3 text-left text-lg font-bold">{props.expected}</p><div className="mt-3 flex flex-wrap gap-2">{expectedTokens.map((token, index) => <span key={`${token}-${index}`} className={`rounded-lg px-2 py-1 font-bold ${matchedExpected.has(index) ? "bg-emerald-200" : "bg-amber-200"}`}>{token}</span>)}</div><p className="mt-3 text-center text-sm font-semibold">{feedback}</p></div>;
   }

@@ -1,3 +1,4 @@
+import { latinRootRouteSelectedForChild, prepareLatinRootAssignment } from "../loaders/latin-root-assignment-loader";
 import "server-only";
 import { prepareComparativeAssignment } from "../inflection/readiness-loader";
 import type { ComparativeMicroSkill } from "../inflection/contracts";
@@ -66,6 +67,7 @@ export async function resolveSpecialistRouteR6(input: {
   microSkillKey: string;
   environmentKey: "local" | "staging" | "production";
 }): Promise<string | null> {
+  if (await latinRootRouteSelectedForChild(input)) return "latin_root_word_lab";
   if (await contextualHomophoneRouteSelectedForChild(input)) return "homophone_contextual_choice";
   if (await weakVowelRouteSelectedForChild(input)) return "weak_vowel_word_lab";
   if (await homophoneRouteSelectedForChild(input)) return "homophone_word_lab";
@@ -108,7 +110,7 @@ async function append(input: {
     };
   }
   const routeId = (input.snapshot as { route?: { routeId?: string } })?.route?.routeId;
-  const rpc = routeId === "homophone_contextual_choice" ? "append_adle_homophone_contextual_stage_r6" : routeId === "comparative_superlative_word_lab" ? "append_adle_comparative_stage_r6" : routeId === "ing_endings_word_lab" ? "append_adle_ing_stage_r6" : routeId === "homophone_word_lab" ? "append_adle_homophone_stage_r6" : routeId === "weak_vowel_word_lab" ? "append_adle_weak_vowel_stage_r6" : "append_adle_specialist_stage_r6";
+  const rpc = routeId === "latin_root_word_lab" ? "append_adle_latin_root_stage_r6" : routeId === "homophone_contextual_choice" ? "append_adle_homophone_contextual_stage_r6" : routeId === "comparative_superlative_word_lab" ? "append_adle_comparative_stage_r6" : routeId === "ing_endings_word_lab" ? "append_adle_ing_stage_r6" : routeId === "homophone_word_lab" ? "append_adle_homophone_stage_r6" : routeId === "weak_vowel_word_lab" ? "append_adle_weak_vowel_stage_r6" : "append_adle_specialist_stage_r6";
   const result = await input.client.rpc(rpc, {
     p_daily_assignment_id: input.assignmentId,
     p_snapshot: input.snapshot,
@@ -232,6 +234,14 @@ async function ensureSpecialistStageR6Internal(input: {
     return append({ client: input.serviceClient, assignmentId: input.assignmentId,
       snapshot: prepared.snapshot, items: prepared.items,
       lessonRouteMetadata: prepared.header.lessonRouteMetadata });
+  }
+  if (routeId === "latin_root_word_lab") {
+    const prepared = await prepareLatinRootAssignment({ client: input.serviceClient,
+      childId: input.childId, parentUserId: input.parentUserId, date: input.assignmentDate,
+      microSkillKey: selectedMicroSkillKey, learningItems: facts.learningItems, environmentKey });
+    if (prepared.status !== "ready") return { outcome: "blocked", assignmentId: input.assignmentId, blockerCode: prepared.reason };
+    return append({ client: input.serviceClient, assignmentId: input.assignmentId, snapshot: prepared.snapshot,
+      items: prepared.items, lessonRouteMetadata: prepared.header.lessonRouteMetadata });
   }
   if (routeId === "weak_vowel_word_lab") {
     const prepared = weakVowelFallback ?? await prepareWeakVowelAssignment({ client: input.serviceClient,

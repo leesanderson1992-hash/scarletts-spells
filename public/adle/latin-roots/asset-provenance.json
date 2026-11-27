@@ -1,0 +1,34 @@
+{
+  "mode": "Built-in image_gen",
+  "treeAsset": "magical-tree.webp",
+  "treeSource": "/Users/katiesanderson/.codex/generated_images/01a20f0b-7809-7a40-ab18-2414cf6d56b5/exec-5c11f302-7878-42a6-9404-fcdd23084b77.png",
+  "treePrompt": "Edit the reference to create a reusable single-tree background asset for a coded educational lesson. Preserve its illustrated magical botanical style: warm plum wood, lilac small leaves, blush pink background, tiny gold sparkles, cyan glowing roots. Output a PORTRAIT composition with exactly ONE tree centered, complete uncropped tree from canopy to visible roots. Trunk at horizontal center, branches curve to both sides. Essential: REMOVE ALL TEXT, LETTERS, WORD BOXES, SIGNS AND LABELS entirely. No writing anywhere. Keep generous uncluttered spaces around upper and middle branches for coded word buttons to be added later. Tree roots visible at the bottom. Do not depict the second tree. This is a text-free background, no UI controls.",
+  "conversion": "Resized to 900px wide and encoded as WebP quality85. No image content modifications.",
+  "guideAsset": "adie-wizard.webp",
+  "guideSource": "docs/design/latin-roots-magic/adie-wizard-concept.webp; prior generated and approved visual concept.",
+  "branchAsset": {
+    "file": "magical-tree-branches.webp",
+    "mode": "Built-in image_gen edit",
+    "source": "/Users/katiesanderson/.codex/generated_images/01a20f0b-7809-7a40-ab18-2414cf6d56b5/exec-397f22d0-382e-4298-957e-d117203d7c0b.png",
+    "prompt": "Edit this magical educational tree illustration into a LANDSCAPE 3:2 single-tree background for interactive word building. Preserve the hand-painted warm plum wood, lilac foliage, blush pink, tiny gold glows and cyan roots. Exactly ONE centered broad tree, uncropped, on a simple blush background. The tree must have SIX DISTINCT LARGE WOODEN BRANCHES, three on each side of the center trunk, on three evenly spaced horizontal levels. Their curved horizontal outer sections should sit at about 22%, 44%, 66% of image height. On each level the left branch has a long uncluttered thick section centered at x=24%, and the right branch centered at x=76%. Leave space directly ABOVE those six thick branch sections for the application to overlay rectangular word-building boxes; do not draw the boxes yourself. Keep light foliage around outer branch tips, away from these six box areas. Exposed roots and trunk base at bottom center near x=50%, y=90%, with clear space for coded root label. Small bright botanical foliage, airy clean composition, quiet background and generous empty spaces, readable and calm for a child. Essential: NO TEXT, NO LETTERS, NO LABELS, NO WORD BOXES, NO SIGNS. The existing branches must be visible from the start; no artificial flowchart or straight connector lines.",
+    "conversion": "Resized to 1400px wide, WebP quality85."
+  },
+  "classroomAsset": {
+    "file": "wizard-classroom.webp",
+    "mode": "Built-in image_gen generation",
+    "source": "/Users/katiesanderson/.codex/generated_images/01a20f0b-7809-7a40-ab18-2414cf6d56b5/exec-126a4fba-b442-44d8-baf1-d47f8fce0882.png",
+    "prompt": "Use case: illustration-story. Asset: landscape background for the ADLE children's spelling lesson Spell Class. Create a friendly magical wizard classroom, wide landscape 3:2 composition, sophisticated softly dimensional storybook illustration. ADLE palette: blush pink, lilac, plum, pale cyan and small warm gold details. An inviting curved classroom with arched windows, soft daylight, rounded bookshelves of colourful spell books, star-shaped hanging ornaments, a small wooden teacher desk, a tall rounded classroom door to the far right. Spacious clear central foreground with a low practice table and an empty floor, so coded animated objects can move through that space. Warm kind atmosphere, uncluttered, calm, child-friendly, no people or characters. Keep outer edges rich in gentle classroom details, center quiet for an interface overlay. No writing, text, labels, letters, numbers, logos, watermarks or UI panels. No franchise references. Artwork must show a wizard classroom clearly, not a forest or generic abstract magic background.",
+    "conversion": "Resized to 1500px wide, WebP quality85."
+  },
+  "wandCursor": {
+    "file": "wand-cursor.svg",
+    "method": "Native SVG asset, 32x32, hotspot5/5; stars and effect objects are coded CSS animations."
+  },
+  "darkClassroomAsset": {
+    "file": "wizard-classroom-dark.webp",
+    "mode": "Built-in image_gen edit of the light classroom",
+    "source": "/Users/katiesanderson/.codex/generated_images/01a20f0b-7809-7a40-ab18-2414cf6d56b5/exec-85398851-541d-4996-80f0-cc98253366f3.png",
+    "prompt": "Edit this classroom into its DARK EDITION: a cinematic Harry Potter-esque Gothic wizard-school classroom at night. Preserve the landscape 3:2 framing and practical composition: tall arched windows across back wall, bookshelves at left and right, teacher desk on left, tall rounded classroom door at far right, small foreground practice table on left, spacious empty central foreground floor for coded animated spell objects. Replace the sugary pastel daytime look with ancient charcoal stone walls, carved dark oak, midnight navy and deep forest-green fabrics, muted burgundy accents, brass fittings, parchment and amber gold highlights. Stars and moonlight through the windows, many softly glowing suspended candles overhead and candle lanterns on shelves. Magical academic atmosphere, mysterious and cosy, detailed storybook/cinematic illustration, richly textured and polished. Keep enough blue moonlight and warm candlelight to make the room and floor clearly visible; avoid crushing shadows to black. Child-friendly, welcoming, no frightening objects. The central floor remains uncluttered and usable behind animation. No people, no characters, no writing, no text, no logos, no watermarks, no UI panels. This must be an actual separately painted night classroom, not merely a dark filter over the pink illustration.",
+    "conversion": "Resized to 1500px wide, WebP quality87."
+  }
+}

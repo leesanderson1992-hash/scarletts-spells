@@ -25,6 +25,7 @@ export const ADLE_NEW_ASSIGNMENT_ROUTE_IDS = [
   "homophone_word_lab",
   "homophone_contextual_choice",
   "weak_vowel_word_lab",
+  "latin_root_word_lab",
 ] as const satisfies readonly LessonRouteId[];
 
 export type PersistedRouteMetadataParseResult =
@@ -155,7 +156,7 @@ export function createPersistedRouteMetadataV2(
 export function createPersistedRouteMetadata(
   routeId: (typeof ADLE_NEW_ASSIGNMENT_ROUTE_IDS)[number],
 ): PersistedLessonRouteMetadataV1 {
-  if (routeId === "comparative_superlative_word_lab" || routeId === "ing_endings_word_lab" || routeId === "homophone_word_lab" || routeId === "homophone_contextual_choice" || routeId === "weak_vowel_word_lab") throw new Error("This lesson requires curriculum release metadata v2.");
+  if (routeId === "comparative_superlative_word_lab" || routeId === "ing_endings_word_lab" || routeId === "homophone_word_lab" || routeId === "homophone_contextual_choice" || routeId === "weak_vowel_word_lab" || routeId === "latin_root_word_lab") throw new Error("This lesson requires curriculum release metadata v2.");
   return buildRouteMetadataShape(routeId);
 }
 

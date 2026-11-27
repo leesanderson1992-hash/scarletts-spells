@@ -42,7 +42,7 @@ export interface TeachingPageConfig {
   model?: { first: string; second: string; result: string };
   examples?: readonly TeachingPageExample[];
   baseWordFeature?:
-    | { kind: "maths_table"; columns: readonly string[]; rows: readonly (readonly string[])[] }
+    | { kind: "maths_table"; columns: readonly string[]; rows: readonly (readonly string[])[]; label?: string }
     | { kind: "long_word_tiles"; word: string; parts: readonly { text: string; role: string }[] };
   sections?: readonly TeachingPageSection[];
   homophoneStandardIntro?: boolean;
@@ -100,12 +100,14 @@ export function TeachingPages(props: {
   onPageChange?: (pageIndex: number) => void;
   onComplete: () => void;
   completionLabel?: string;
+  /** Root lessons finish after their reading slides; existing lessons retain Meet words. */
+  includeMeetWords?: boolean;
 }) {
   const oneWordPerPage = props.config.meetWords.presentation === "one_word_per_page";
   const homophone = props.config.homophone;
   const homophoneWords = homophone?.groups.flatMap(group => group.words) ?? [];
   const homophoneComparisonPages = homophone?.presentation === "pair_pages" ? Math.ceil(homophone.groups.length / 2) : homophoneWords.length;
-  const total = props.config.pages.length + (homophone ? homophoneComparisonPages + 1 : oneWordPerPage ? props.config.meetWords.words.length : 1);
+  const total = props.config.pages.length + (props.includeMeetWords === false ? 0 : homophone ? homophoneComparisonPages + 1 : oneWordPerPage ? props.config.meetWords.words.length : 1);
   const initialPageIndex = Math.min(Math.max(props.initialPageIndex ?? 0, 0), total - 1);
   const [pageIndex, setPageIndex] = useState(initialPageIndex);
   const focusRef = useRef<HTMLDivElement>(null);
@@ -265,7 +267,7 @@ function TeachingPage(props: { page: TeachingPageConfig; pageNumber: number; pag
         </div>
       ) : null}
       {page.examples?.length ? <ExampleGrid examples={page.examples} /> : null}
-      {page.baseWordFeature?.kind === "maths_table" ? <BaseWordMathsTable columns={page.baseWordFeature.columns} rows={page.baseWordFeature.rows} /> : null}
+      {page.baseWordFeature?.kind === "maths_table" ? <BaseWordMathsTable columns={page.baseWordFeature.columns} rows={page.baseWordFeature.rows} label={page.baseWordFeature.label} /> : null}
       {page.baseWordFeature?.kind === "long_word_tiles" ? <BaseWordLongWordTiles word={page.baseWordFeature.word} parts={page.baseWordFeature.parts} /> : null}
       {page.sections?.map((section, index) => (
         <section key={section.heading ?? index} className={section.tone === "gold" ? "teaching-gold-clue grid gap-3 rounded-3xl border-2 border-amber-300 bg-gradient-to-br from-amber-100 via-yellow-50 to-amber-200 p-5 text-amber-950 shadow-[0_8px_0_rgba(180,83,9,.42)]" : "grid gap-3 rounded-3xl border border-cyan-300/30 bg-slate-950/35 p-5"}>
@@ -278,9 +280,9 @@ function TeachingPage(props: { page: TeachingPageConfig; pageNumber: number; pag
   );
 }
 
-function BaseWordMathsTable(props: { columns: readonly string[]; rows: readonly (readonly string[])[] }) {
+function BaseWordMathsTable(props: { columns: readonly string[]; rows: readonly (readonly string[])[]; label?: string }) {
   return <div className="base-word-maths-panel overflow-x-auto rounded-3xl border border-cyan-200/50 bg-cyan-950/40 p-2 sm:p-4">
-    <table className="w-full table-fixed border-separate border-spacing-1 text-left text-slate-950 sm:border-spacing-2" aria-label="Base-word spelling maths">
+    <table className="w-full table-fixed border-separate border-spacing-1 text-left text-slate-950 sm:border-spacing-2" aria-label={props.label ?? "Base-word spelling maths"}>
       <thead><tr>{props.columns.map((heading) => <th key={heading} scope="col" className="break-words rounded-xl bg-cyan-200 p-1 text-xs font-black sm:p-3 sm:text-sm">{heading}</th>)}</tr></thead>
       <tbody>{props.rows.map((row) => <tr key={row[0]}>{row.map((word, index) => <td key={word} className={`break-words rounded-xl p-1 text-xs font-black sm:p-3 sm:text-lg ${index === 0 ? "bg-amber-100 text-amber-950" : "bg-white text-slate-950"}`}>{word}</td>)}</tr>)}</tbody>
     </table>

@@ -7,7 +7,7 @@ import { LessonGuide } from "./lesson-guide";
 const PHASES = ["Learn", "Discover", "Split", "Match", "Build", "Remember"] as const;
 const PHASE_CUES = ["Learn the idea", "Explore the meaning", "Find the word parts", "Match the meaning", "Build a word", "Remember and reflect"] as const;
 
-export function WordLabScene(props: { beat: GuideBeatV1; phase: number; muted: boolean; onMutedChange: (muted: boolean) => void; silent?: boolean; help?: string; onHelp?: () => void; guideName?: string; phases?: readonly string[]; phaseCues?: readonly string[]; toolbar?: ReactNode; className?: string; children: ReactNode }) {
+export function WordLabScene(props: { beat: GuideBeatV1; phase: number; muted: boolean; onMutedChange: (muted: boolean) => void; silent?: boolean; help?: string; onHelp?: () => void; guideName?: string; guidePortrait?: { src: string; alt: string }; phases?: readonly string[]; phaseCues?: readonly string[]; toolbar?: ReactNode; className?: string; children: ReactNode }) {
   const phases = props.phases ?? PHASES;
   const phaseCues = props.phaseCues ?? PHASE_CUES;
   return <section className={`adle-presentation word-lab-scene w-full max-w-full min-w-0 overflow-hidden rounded-[2rem] p-3 md:p-4 ${props.className ?? ""}`}>
@@ -15,7 +15,7 @@ export function WordLabScene(props: { beat: GuideBeatV1; phase: number; muted: b
       {phases.map((label, index) => <span key={`${label}-${index}`} aria-current={index === props.phase ? "step" : undefined} className={`word-lab-step shrink-0 rounded-full px-3 py-2 ${index <= props.phase ? "is-reached" : ""}`}>{label}</span>)}
     </nav>
     <div className="word-lab-layout grid min-w-0 gap-3">
-      <LessonGuide beat={props.beat} phaseCue={phaseCues[props.phase] ?? phaseCues[0]} muted={props.muted} onMutedChange={props.onMutedChange} silent={props.silent} help={props.help} guideName={props.guideName} />
+      <LessonGuide beat={props.beat} phaseCue={phaseCues[props.phase] ?? phaseCues[0]} muted={props.muted} onMutedChange={props.onMutedChange} silent={props.silent} help={props.help} guideName={props.guideName} portrait={props.guidePortrait} />
       <main className="word-lab-workspace min-w-0 rounded-3xl p-4 md:p-6">
         {props.toolbar || props.onHelp ? <div className="word-lab-tools flex flex-wrap items-center justify-between gap-2">
           <div>{props.toolbar}</div>

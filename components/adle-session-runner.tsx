@@ -68,6 +68,40 @@ import { weakVowelProgressValid, type WeakVowelProgressV1 } from "@/lib/adle/wea
 import type { WeakVowelLessonV1 } from "@/lib/adle/weak-vowel/lesson";
 import { completeWeakVowelLessonAction } from "@/app/learn/week/adle/weak-vowel-completion-actions";
 
+import { LatinRootLessonTemplate } from "@/components/adle/morphology/latin-root-lesson-template";
+import { latinRootProgressValid, type LatinRootProgressV1 } from "@/lib/adle/morphology/latin-root-progress";
+import type { LatinRootCanonicalLessonV1 } from "@/lib/adle/morphology/latin-root-canonical";
+import { completeLatinRootLessonAction } from "@/app/learn/week/adle/latin-root-completion-actions";
+
+function LatinRootPart({ session, lesson }: { session: AdleSessionRunnerProps; lesson: LatinRootCanonicalLessonV1 }) {
+  const version = useRef(session.r6SpecialistCheckpoint?.stateVersion ?? 0);
+  const chain = useRef<Promise<void>>(Promise.resolve());
+  const timer = useRef<number | null>(null);
+  useEffect(() => () => { if (timer.current !== null) window.clearTimeout(timer.current); }, []);
+  function save(progress: LatinRootProgressV1) {
+    if (timer.current !== null) { window.clearTimeout(timer.current); timer.current = null; }
+    const next = chain.current.catch(() => undefined).then(async () => {
+      const result = await persistAdleSpecialistCheckpointR6Action({ assignmentId: session.assignmentId,
+        adapterKey: "latin_root_v1", checkpointSchemaVersion: "latin_root_progress_v1",
+        lessonSnapshotFingerprint: session.snapshotFingerprint,
+        checkpointPayload: { state: progress }, expectedStateVersion: version.current });
+      version.current = result.stateVersion;
+    });
+    chain.current = next;
+    return next;
+  }
+  const restored = session.r6SpecialistCheckpoint?.checkpointPayload.state;
+  return <LatinRootLessonTemplate content={lesson.content}
+    initialProgress={latinRootProgressValid(restored, lesson.content) ? restored : undefined}
+    onProgress={progress => { if (progress.finished) return; if (timer.current !== null) window.clearTimeout(timer.current);
+      timer.current = window.setTimeout(() => { void save(progress).catch(() => console.error("[adle-latin-root] progress save failed")); }, 350); }}
+    onCheckpoint={save} onFinish={async progress => {
+      await save({ ...progress, finished: false });
+      await completeLatinRootLessonAction({ assignmentId: session.assignmentId,
+        snapshotFingerprint: session.snapshotFingerprint, progress });
+    }} />;
+}
+
 function WeakVowelPart({ session, lesson }: { session: AdleSessionRunnerProps; lesson: WeakVowelLessonV1 }) {
   const version = useRef(session.r6SpecialistCheckpoint?.stateVersion ?? 0);
   const chain = useRef<Promise<void>>(Promise.resolve());
@@ -904,7 +938,7 @@ export function AdleSessionRunner(props: AdleSessionRunnerProps) {
       ) : null}
 
       {partTwo.present && (partOne.complete || !partOne.present) && !partTwo.complete ? (
-        runtime.adapterKey === "weak_vowel_v1" ? <WeakVowelPart key={props.assignmentId} session={props} lesson={runtime.payload} /> : runtime.adapterKey === "homophone_v2" ? <HomophonePart key={props.assignmentId} session={props} snapshot={runtime.payload} /> : runtime.adapterKey === "homophone_contextual_v1" ? <ContextualChoiceLesson key={props.assignmentId} assignmentId={props.assignmentId} childId={props.childId} snapshot={runtime.payload} snapshotFingerprint={props.snapshotFingerprint} checkpoint={props.r6SpecialistCheckpoint} /> : runtime.adapterKey === "ing_endings_v1" ? <IngPart key={props.assignmentId} session={props} lesson={runtime.payload} /> : runtime.adapterKey === "comparative_superlative_v1" ? <ComparativePart session={props} lesson={runtime.payload} /> : runtime.rendererKey === "morphology_guided" ? (
+        runtime.adapterKey === "latin_root_v1" ? <LatinRootPart key={props.assignmentId} session={props} lesson={runtime.payload} /> : runtime.adapterKey === "weak_vowel_v1" ? <WeakVowelPart key={props.assignmentId} session={props} lesson={runtime.payload} /> : runtime.adapterKey === "homophone_v2" ? <HomophonePart key={props.assignmentId} session={props} snapshot={runtime.payload} /> : runtime.adapterKey === "homophone_contextual_v1" ? <ContextualChoiceLesson key={props.assignmentId} assignmentId={props.assignmentId} childId={props.childId} snapshot={runtime.payload} snapshotFingerprint={props.snapshotFingerprint} checkpoint={props.r6SpecialistCheckpoint} /> : runtime.adapterKey === "ing_endings_v1" ? <IngPart key={props.assignmentId} session={props} lesson={runtime.payload} /> : runtime.adapterKey === "comparative_superlative_v1" ? <ComparativePart session={props} lesson={runtime.payload} /> : runtime.rendererKey === "morphology_guided" ? (
           <MorphologyGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} payload={runtime.payload} durableResumeState={durableState} onDurableResumeStateChange={(state) => saveR6Checkpoint(runtime.adapterKey, "morphology_resume_v1", state)} />
         ) : (
           <LessonPart childId={props.childId} assignmentId={props.assignmentId} snapshotFingerprint={props.snapshotFingerprint} durableGenericV3Enabled={props.durableGenericV3Enabled} durableGenericV3Checkpoints={props.durableGenericV3Checkpoints} items={partTwo.items} />

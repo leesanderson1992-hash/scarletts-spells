@@ -1,3 +1,4 @@
+import { latinRootRouteSelectedForChild, prepareLatinRootAssignment } from "./loaders/latin-root-assignment-loader";
 import "server-only";
 
 import { createHash } from "node:crypto";
@@ -101,6 +102,7 @@ export function resolveParentManualAdleRoute(microSkillKey: string): string | nu
     && candidate.newAssignmentCapable
     && candidate.routeId !== "generic_composer"
     && candidate.routeId !== "homophone_word_lab" // child-scoped activation selects this route separately
+    && candidate.routeId !== "latin_root_word_lab"
     && candidate.routeId !== "weak_vowel_word_lab" // child-scoped activation selects this route separately
     && candidate.supportedMicroSkillKeys.includes(microSkillKey),
   )?.routeId ?? null;
@@ -436,7 +438,8 @@ export async function ensureParentAdleTodayAssignment(params: {
 
     const environmentKey = process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging" ? "staging"
       : process.env.NODE_ENV === "production" ? "production" : "local";
-    routeId = await contextualHomophoneRouteSelectedForChild({ client: params.serviceClient, childId: params.childId,
+    routeId = await latinRootRouteSelectedForChild({ client: params.serviceClient, childId: params.childId, microSkillKey: selection.microSkillKey, environmentKey }) ? "latin_root_word_lab"
+      : await contextualHomophoneRouteSelectedForChild({ client: params.serviceClient, childId: params.childId,
       microSkillKey: selection.microSkillKey, environmentKey }) ? "homophone_contextual_choice"
       : await weakVowelRouteSelectedForChild({ client: params.serviceClient, childId: params.childId,
       microSkillKey: selection.microSkillKey, environmentKey }) ? "weak_vowel_word_lab"
@@ -547,6 +550,14 @@ export async function ensureParentAdleTodayAssignment(params: {
       if (prepared.status !== "ready") blockerCode = prepared.reason;
       else generatedAssignmentId = await persistContextualHomophoneAssignment({ client: params.serviceClient,
         parentUserId: params.parentUserId, childId: params.childId, date: practiceDate, prepared });
+    } else if (routeId === "latin_root_word_lab") {
+      const prepared = await prepareLatinRootAssignment({ client: params.serviceClient,
+        childId: params.childId, parentUserId: params.parentUserId, date: practiceDate,
+        microSkillKey: selection.microSkillKey, learningItems: facts.learningItems, environmentKey });
+      if (prepared.status !== "ready") blockerCode = prepared.reason;
+      else generatedAssignmentId = await persistSpecialistSnapshotV3(supabaseSpecialistSnapshotV3PersistencePort(params.serviceClient), {
+        parentUserId: params.parentUserId, childId: params.childId, planDate: practiceDate,
+        header: prepared.header, items: prepared.items, snapshot: prepared.snapshot, intakes: [] });
     } else if (routeId === "weak_vowel_word_lab") {
       const prepared = await prepareWeakVowelAssignment({ client: params.serviceClient,
         childId: params.childId, parentUserId: params.parentUserId, date: practiceDate,

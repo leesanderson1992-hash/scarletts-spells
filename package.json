@@ -95,6 +95,7 @@
     "adle:teaching-dictionary-manager-regression": "node --experimental-test-module-mocks --import tsx scripts/teaching-dictionary-manager-regression.ts",
     "adle:route-content-contract-regression": "tsx scripts/adle-route-content-contract-regression.ts && tsx scripts/generate-adle-route-content-contracts.ts --check",
     "adle:route-content-contract-generate": "tsx scripts/generate-adle-route-content-contracts.ts",
+    "adle:latin-root-lesson-regression": "tsx scripts/latin-root-lesson-regression.ts",
     "adle:family-tree-detective-regression": "tsx scripts/family-tree-detective-regression.ts",
     "adle:lesson-release-sql-regression": "npx --yes --package=@electric-sql/pglite@0.5.8 -c 'node scripts/adle-lesson-release-sql-regression.mjs'",
     "adle:teaching-dictionary-bulk-regression": "tsx scripts/teaching-dictionary-bulk-assignment-regression.ts",
@@ -469,7 +470,8 @@
     "writing:authentic-use-production-canary": "node scripts/authentic-use-production-canary.mjs",
     "adle:teaching-dictionary-workspace-regression": "tsx scripts/teaching-dictionary-workspace-regression.ts",
     "adle:teaching-dictionary-governed-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/teaching-dictionary-governed-regression.ts",
-    "adle:teaching-dictionary-workspace-sql-regression": "npx --yes --package=@electric-sql/pglite@0.5.8 -c 'node scripts/teaching-dictionary-workspace-sql-regression.mjs'"
+    "adle:teaching-dictionary-workspace-sql-regression": "npx --yes --package=@electric-sql/pglite@0.5.8 -c 'node scripts/teaching-dictionary-workspace-sql-regression.mjs'",
+    "adle:latin-root-canonical-regression": "tsx scripts/latin-root-canonical-regression.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.2",

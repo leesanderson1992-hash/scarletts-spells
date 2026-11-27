@@ -1,5 +1,8 @@
 "use server";
 
+import { isLatinRootSnapshotV3, validateLatinRootSnapshotV3 } from "@/lib/adle/morphology/latin-root-snapshot";
+import { latinRootProgressTransitionValid } from "@/lib/adle/morphology/latin-root-progress";
+
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -269,6 +272,25 @@ export async function persistAdleSpecialistCheckpointR6Action(request: {
       && previous.data.checkpoint_schema_version === request.checkpointSchemaVersion
       && previous.data.lesson_snapshot_fingerprint === request.lessonSnapshotFingerprint) {
       const replayVersion = homophoneCheckpointReplayVersion(previous.data.checkpoint_payload,
+        request.checkpointPayload, previous.data.state_version, request.expectedStateVersion);
+      if (replayVersion !== null) return { stateVersion: replayVersion };
+    }
+  }
+  if (isLatinRootSnapshotV3(header.data.compiled_lesson_snapshot) || request.adapterKey === "latin_root_v1") {
+    const validated = validateLatinRootSnapshotV3(header.data.compiled_lesson_snapshot);
+    if (!validated.ok || !isLatinRootSnapshotV3(validated.snapshot) || request.adapterKey !== "latin_root_v1"
+      || request.checkpointSchemaVersion !== "latin_root_progress_v1" ||
+      request.lessonSnapshotFingerprint !== validated.snapshot.provenance.sourceFingerprint)
+      throw new Error("latin_root_checkpoint_contract_invalid");
+    const previous = await serviceClient.from("adle_specialist_stage_checkpoints")
+      .select("checkpoint_payload,state_version,adapter_key,checkpoint_schema_version,lesson_snapshot_fingerprint")
+      .eq("daily_assignment_id", request.assignmentId).maybeSingle();
+    if (previous.error || !latinRootProgressTransitionValid(previous.data?.checkpoint_payload?.state,
+      request.checkpointPayload.state, validated.snapshot.payload.resolvedLesson.content))
+      throw new Error("latin_root_checkpoint_answer_lock_conflict");
+    if (previous.data?.adapter_key === request.adapterKey && previous.data.checkpoint_schema_version === request.checkpointSchemaVersion
+      && previous.data.lesson_snapshot_fingerprint === request.lessonSnapshotFingerprint) {
+      const replayVersion = weakVowelCheckpointReplayVersion(previous.data.checkpoint_payload,
         request.checkpointPayload, previous.data.state_version, request.expectedStateVersion);
       if (replayVersion !== null) return { stateVersion: replayVersion };
     }

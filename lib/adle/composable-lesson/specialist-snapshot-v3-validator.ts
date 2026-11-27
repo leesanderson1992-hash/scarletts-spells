@@ -1,3 +1,4 @@
+import { isLatinRootSnapshotV3, validateLatinRootSnapshotV3 } from "../morphology/latin-root-snapshot";
 import { canonicalSnapshotJson, fingerprintSnapshotValue } from "./canonical-fingerprint";
 import {
   SPECIALIST_SNAPSHOT_V3_COMPILER_VERSION,
@@ -369,6 +370,7 @@ export function validateCompiledSpecialistSnapshotV3(
   if (isComparativeSnapshotV3(value)) return validateComparativeSnapshotV3(value, context);
   if (isIngSnapshotV3(value)) return validateIngSnapshotV3(value, context);
   if (isHomophoneSnapshotV3(value)) return validateHomophoneSnapshotV3(value, context);
+  if (isLatinRootSnapshotV3(value)) return validateLatinRootSnapshotV3(value, context);
   if (isWeakVowelSnapshotV3(value)) return validateWeakVowelSnapshotV3(value, context);
   if (record(value) && record(value.route) && (value.route.routeId === "dynamic_prefix_word_lab" || value.route.routeId === "base_word_lab")) {
     return validatePrefixOrBaseSnapshot(value, context);
@@ -469,5 +471,5 @@ export function isBaseWordSpecialistSnapshotV3(value: unknown): value is Compile
 }
 
 export function isSpecialistSnapshotV3(value: unknown): value is CompiledSpecialistSnapshotV3 {
-  return isCompoundWordSpecialistSnapshotV3(value) || isDynamicAffixSpecialistSnapshotV3(value) || isDynamicPrefixSpecialistSnapshotV3(value) || isBaseWordSpecialistSnapshotV3(value) || isComparativeSnapshotV3(value) || isIngSnapshotV3(value) || isHomophoneSnapshotV3(value) || isWeakVowelSnapshotV3(value);
+  return isLatinRootSnapshotV3(value) || isCompoundWordSpecialistSnapshotV3(value) || isDynamicAffixSpecialistSnapshotV3(value) || isDynamicPrefixSpecialistSnapshotV3(value) || isBaseWordSpecialistSnapshotV3(value) || isComparativeSnapshotV3(value) || isIngSnapshotV3(value) || isHomophoneSnapshotV3(value) || isWeakVowelSnapshotV3(value);
 }

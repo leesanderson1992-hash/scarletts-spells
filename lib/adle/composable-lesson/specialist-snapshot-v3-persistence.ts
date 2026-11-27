@@ -33,6 +33,7 @@ export function supabaseSpecialistSnapshotV3PersistencePort(
       if (prefix && !environmentKey) throw new Error("persistSpecialistSnapshotV3:prefix environment unavailable");
       const rpc = routeId === "comparative_superlative_word_lab" ? "persist_adle_comparative_daily_plan_v3"
         : routeId === "ing_endings_word_lab" ? "persist_adle_ing_daily_plan_v3"
+        : routeId === "latin_root_word_lab" ? "persist_adle_latin_root_daily_plan_v3"
         : routeId === "weak_vowel_word_lab" ? "persist_adle_weak_vowel_daily_plan_v3"
         : prefix ? "persist_adle_dynamic_prefix_daily_plan_v3_current_pair"
         : routeId === "homophone_word_lab" ? "persist_adle_homophone_daily_plan_v3" : "persist_adle_specialist_daily_plan_v3";
@@ -88,7 +89,7 @@ export async function persistSpecialistSnapshotV3(
       || item.domainModule !== "spelling"
       || item.sourceType !== (baseWord ? "adle_base_word_family_pilot" : "adle_composer")
       || item.status !== "ready")
-    || ((baseWord || input.snapshot.route.routeId === "comparative_superlative_word_lab" || input.snapshot.route.routeId === "ing_endings_word_lab" || input.snapshot.route.routeId === "homophone_word_lab" || input.snapshot.route.routeId === "weak_vowel_word_lab") && input.intakes.length !== 0)
+    || ((baseWord || input.snapshot.route.routeId === "comparative_superlative_word_lab" || input.snapshot.route.routeId === "ing_endings_word_lab" || input.snapshot.route.routeId === "homophone_word_lab" || input.snapshot.route.routeId === "weak_vowel_word_lab" || input.snapshot.route.routeId === "latin_root_word_lab") && input.intakes.length !== 0)
     || input.intakes.some((intake) => intake.childId !== input.childId)) {
     throw new Error("persistSpecialistSnapshotV3: durable assignment identity mismatch");
   }

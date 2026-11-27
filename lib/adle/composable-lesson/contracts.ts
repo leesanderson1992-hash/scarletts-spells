@@ -30,7 +30,8 @@ export type LessonRouteId =
   | "ing_endings_word_lab"
   | "homophone_word_lab"
   | "homophone_contextual_choice"
-  | "weak_vowel_word_lab";
+  | "weak_vowel_word_lab"
+  | "latin_root_word_lab";
 
 export type LessonPayloadKind =
   | "composed_daily_plan"
@@ -42,7 +43,8 @@ export type LessonPayloadKind =
   | "ing_endings_lesson_v1"
   | "homophone_lesson_v2"
   | "homophone_contextual_lesson_v1"
-  | "weak_vowel_lesson_v1";
+  | "weak_vowel_lesson_v1"
+  | "latin_root_lesson_v1";
 
 export type VersionedLessonRouteReference = {
   routeId: LessonRouteId;
@@ -96,7 +98,8 @@ export type LessonRuntimeAdapterKey =
   | "ing_endings_v1"
   | "homophone_v2"
   | "homophone_contextual_v1"
-  | "weak_vowel_v1";
+  | "weak_vowel_v1"
+  | "latin_root_v1";
 
 export type LessonRendererKey =
   | "generic_session"
@@ -107,7 +110,8 @@ export type LessonRendererKey =
   | "ing_endings_guided"
   | "homophone_guided"
   | "homophone_contextual_guided"
-  | "weak_vowel_guided";
+  | "weak_vowel_guided"
+  | "latin_root_guided";
 
 export type LessonRouteResolutionSource =
   | "persisted_metadata"

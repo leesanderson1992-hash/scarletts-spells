@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "scope": "First PORT lesson: five assessed words. Preserve transport's existing reviewed noun sense.",
+  "familyKey": "port_root_port_carry_root_base_family",
+  "root": "port",
+  "meaning": "Carry",
+  "origin": "Latin",
+  "approvalReference": "Owner authorised proceeding with canonical PORT content and production-readiness work after reviewing the lesson design on 2026-11-27. Definitions and sentences below are original authored teaching copy; lexical sense and British pronunciation checked against Cambridge Dictionary.",
+  "existingAnchor": { "word": "transport", "senseId": "review", "partOfSpeech": "noun", "sentence": "The bus is our transport to school." },
+  "newEntries": [
+    { "word": "portable", "senseId": "port-carry-adjective", "partOfSpeech": "adjective", "definition": "Easy to carry or move from place to place.", "ipa": "/ˈpɔː.tə.bəl/", "spokenSyllableCount": 3, "stressPattern": "primary-unstressed-unstressed", "sentence": "The portable lamp fits in my bag.", "parts": [{ "text": "port", "role": "root", "meaning": "Carry" }, { "text": "able", "role": "suffix", "meaning": "able to be" }], "sourceUrl": "https://dictionary.cambridge.org/dictionary/english/portable" },
+    { "word": "import", "senseId": "port-carry-verb", "partOfSpeech": "verb", "definition": "Bring goods into a country from another country.", "ipa": "/ɪmˈpɔːt/", "spokenSyllableCount": 2, "stressPattern": "unstressed-primary", "sentence": "We import fruit from other countries.", "parts": [{ "text": "im", "role": "prefix", "meaning": "in or into" }, { "text": "port", "role": "root", "meaning": "Carry" }], "sourceUrl": "https://dictionary.cambridge.org/dictionary/english/import" },
+    { "word": "export", "senseId": "port-carry-verb", "partOfSpeech": "verb", "definition": "Send goods to another country to be sold.", "ipa": "/ɪkˈspɔːt/", "spokenSyllableCount": 2, "stressPattern": "unstressed-primary", "sentence": "They export apples to other countries.", "parts": [{ "text": "ex", "role": "prefix", "meaning": "out" }, { "text": "port", "role": "root", "meaning": "Carry" }], "sourceUrl": "https://dictionary.cambridge.org/dictionary/english/export" },
+    { "word": "porter", "senseId": "port-carry-person", "partOfSpeech": "noun", "definition": "A person whose job includes carrying travellers' bags.", "ipa": "/ˈpɔː.tə/", "spokenSyllableCount": 2, "stressPattern": "primary-unstressed", "sentence": "The porter carried our bags.", "parts": [{ "text": "port", "role": "root", "meaning": "Carry" }, { "text": "er", "role": "suffix", "meaning": "person who" }], "sourceUrl": "https://dictionary.cambridge.org/dictionary/english/porter" }
+  ]
+}

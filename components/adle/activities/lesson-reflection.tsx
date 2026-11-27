@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, type ReactNode } from "react";
+import { DiffReveal } from "./shared/diff-reveal";
 
 import {
   LESSON_REFLECTION_MAX_RESPONSE_LENGTH,
@@ -36,6 +37,7 @@ export interface LessonReflectionProps {
   sentenceComparisons?: readonly NormalizedLessonReflectionSentenceComparison[];
   specialistRecaps?: readonly LessonReflectionSpecialistRecap[];
   showMistakeSection?: boolean;
+  highlightDifferences?: boolean;
   appearance?: "weak-vowel-neon";
 }
 
@@ -77,6 +79,7 @@ export function LessonReflection(props: LessonReflectionProps) {
             <div className="mt-4 grid gap-3">
               {props.mistakes.map((mistake) => (
                 <article key={mistake.id} className="reflection-review-card rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 text-slate-950" aria-label={`Compare your spelling of ${mistake.correctSpelling}`}>
+                  {mistake.activityLabel ? <p className="text-xs font-bold">{mistake.activityLabel}</p> : null}
                   <h3 className="text-xl font-black">{mistake.correctSpelling}</h3>
                   <dl className="mt-3 grid gap-3 sm:grid-cols-2">
                     <div className="reflection-review-attempt rounded-xl bg-white/80 p-3">
@@ -88,6 +91,7 @@ export function LessonReflection(props: LessonReflectionProps) {
                       <dd className="mt-1 break-words text-lg font-black text-emerald-950">{mistake.correctSpelling}</dd>
                     </div>
                   </dl>
+                  {props.highlightDifferences ? <div className="mt-3"><DiffReveal attempt={mistake.attempt} expected={mistake.correctSpelling} /></div> : null}
                   {mistake.sentenceComparison ? (
                     <div className="mt-3 rounded-xl border border-amber-200 bg-white/70 p-3 text-sm">
                       <p><span className="font-black">You wrote the sentence:</span> “{mistake.sentenceComparison.attempt || "nothing yet"}”</p>
@@ -113,8 +117,8 @@ export function LessonReflection(props: LessonReflectionProps) {
           <div className="mt-4 grid gap-3">
             {props.sentenceComparisons.map((comparison) => (
               <article key={comparison.id} className="reflection-sentence-card rounded-2xl border border-cyan-200/50 bg-white/10 p-4">
-                <p><span className="font-black text-white">Your sentence:</span> “{comparison.attempt || "nothing yet"}”</p>
-                <p className="mt-2"><span className="font-black text-white">Correct sentence:</span> “{comparison.correct}”</p>
+                {props.highlightDifferences ? <DiffReveal attempt={comparison.attempt} expected={comparison.correct} mode="sentence" /> : <><p><span className="font-black text-white">Your sentence:</span> “{comparison.attempt || "nothing yet"}”</p>
+                <p className="mt-2"><span className="font-black text-white">Correct sentence:</span> “{comparison.correct}”</p></>}
               </article>
             ))}
           </div>

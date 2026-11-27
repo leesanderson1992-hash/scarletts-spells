@@ -13,6 +13,7 @@ import type { CompiledLessonSnapshotV3 } from "./generic-snapshot-v3-contracts";
 import type { ComparativeLessonV1 } from "../inflection/contracts";
 import type { IngLessonV1 } from "../ing/contracts";
 import type { HomophoneLessonSnapshotV1 } from "../homophone/lesson";
+import type { LatinRootCanonicalLessonV1 } from "../morphology/latin-root-canonical";
 import type { WeakVowelLessonV1 } from "../weak-vowel/lesson";
 
 export const SPECIALIST_SNAPSHOT_V3_COMPILER_VERSION =
@@ -163,7 +164,8 @@ export type CompiledSpecialistSnapshotV3 =
   | CompiledComparativeSpecialistSnapshotV3
   | CompiledIngSpecialistSnapshotV3
   | CompiledHomophoneSpecialistSnapshotV3
-  | CompiledWeakVowelSpecialistSnapshotV3;
+  | CompiledWeakVowelSpecialistSnapshotV3
+  | CompiledLatinRootSpecialistSnapshotV3;
 
 export type CompiledWeakVowelSpecialistSnapshotV3 = Omit<CompiledDynamicAffixSpecialistSnapshotV3,
   "route" | "recipe" | "payload" | "runtime" | "assignment"> & {
@@ -172,6 +174,14 @@ export type CompiledWeakVowelSpecialistSnapshotV3 = Omit<CompiledDynamicAffixSpe
   payload: { kind: "weak_vowel_lesson_v1"; version: 1; resolvedLesson: WeakVowelLessonV1 };
   runtime: { adapterKey: "weak_vowel_v1"; rendererKey: "weak_vowel_guided" };
   assignment: { generationSource: "adle_composer_v1"; itemCount: number };
+};
+
+export type CompiledLatinRootSpecialistSnapshotV3 = Omit<CompiledWeakVowelSpecialistSnapshotV3,
+  "route" | "recipe" | "payload" | "runtime"> & {
+  route: { routeId: "latin_root_word_lab"; routeVersion: "v1" };
+  recipe: { recipeKey: "latin_root_word_lab"; recipeVersion: "v1" };
+  payload: { kind: "latin_root_lesson_v1"; version: 1; resolvedLesson: LatinRootCanonicalLessonV1 };
+  runtime: { adapterKey: "latin_root_v1"; rendererKey: "latin_root_guided" };
 };
 
 export type CompiledHomophoneSpecialistSnapshotV3 = Omit<CompiledDynamicAffixSpecialistSnapshotV3,

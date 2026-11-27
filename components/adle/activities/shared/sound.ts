@@ -1,7 +1,7 @@
 "use client";
 
-export type InteractionSound = "select" | "lift" | "attraction" | "snap" | "cleave" | "resist" | "sparkle" | "fusion" | "shutter" | "reveal" | "complete";
-const FREQUENCY: Record<Exclude<InteractionSound, "cleave" | "sparkle">, number> = { select: 360, lift: 280, attraction: 340, snap: 440, resist: 120, fusion: 520, shutter: 190, reveal: 390, complete: 620 };
+export type InteractionSound = "select" | "lift" | "attraction" | "snap" | "cleave" | "resist" | "sparkle" | "fusion" | "shutter" | "reveal" | "complete" | "spell_cast";
+const FREQUENCY: Record<Exclude<InteractionSound, "cleave" | "sparkle" | "spell_cast">, number> = { select: 360, lift: 280, attraction: 340, snap: 440, resist: 120, fusion: 520, shutter: 190, reveal: 390, complete: 620 };
 let sharedContext: AudioContext | null = null;
 
 export function playInteractionSound(kind: InteractionSound, muted = false): void {
@@ -13,12 +13,12 @@ export function playInteractionSound(kind: InteractionSound, muted = false): voi
     sharedContext = context;
     if (context.state === "suspended") void context.resume().catch(() => undefined);
     const now = context.currentTime;
-    const tones = kind === "sparkle" ? [660, 880, 1100] : [kind === "cleave" ? 360 : FREQUENCY[kind]];
+    const tones = kind === "spell_cast" ? [392, 523, 659, 784, 1047, 1319] : kind === "sparkle" ? [660, 880, 1100] : [kind === "cleave" ? 360 : FREQUENCY[kind]];
     tones.forEach((frequency, index) => {
       const oscillator = context.createOscillator();
       const gain = context.createGain();
-      const start = now + (kind === "sparkle" ? index * 0.045 : 0);
-      const duration = kind === "cleave" || kind === "resist" ? 0.16 : kind === "sparkle" ? 0.22 : 0.1;
+      const start = now + (kind === "spell_cast" ? index * 0.07 : kind === "sparkle" ? index * 0.045 : 0);
+      const duration = kind === "cleave" || kind === "resist" ? 0.16 : kind === "spell_cast" ? 0.5 : kind === "sparkle" ? 0.22 : 0.1;
       oscillator.type = kind === "cleave" ? "sawtooth" : kind === "resist" ? "triangle" : "sine";
       oscillator.frequency.setValueAtTime(frequency, start);
       if (kind === "cleave") oscillator.frequency.exponentialRampToValueAtTime(105, start + duration);

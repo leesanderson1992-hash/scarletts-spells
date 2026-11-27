@@ -157,6 +157,8 @@ export function validateAdleCurriculumReleaseManifestV2(
             ? route.routeVersion === "v1" && input.route.activationRouteKey === "ing_endings_word_lab:v1" && Number(input.route.payloadVersion) === 1
           : route.routeId === "homophone_word_lab"
             ? route.routeVersion === "v2" && input.route.activationRouteKey === "homophone_word_lab:v2" && Number(input.route.payloadVersion) === 2
+          : route.routeId === "latin_root_word_lab"
+            ? route.routeVersion === "v1" && input.route.activationRouteKey === "latin_root_word_lab:v1" && Number(input.route.payloadVersion) === 1
           : route.routeId === "weak_vowel_word_lab"
             ? route.routeVersion === "v1" && input.route.activationRouteKey === "weak_vowel_word_lab:v1" && Number(input.route.payloadVersion) === 1
           : route.routeId === "compound_word_lab" &&

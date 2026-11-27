@@ -1,0 +1,300 @@
+{
+  "status": "Coded presentation template and gated development preview. Production dictionary readiness, assignment composer, evidence/resume integration and deployment are not completed by this template.",
+  "title": "Advanced Spells \u2014 Latin Roots",
+  "microSkillKey": "D4_MOR_ROOTS_COMMON_LATIN_ROOTS",
+  "pedagogy": [
+    "Identify the reviewed Latin root within a real English word",
+    "Retrieve the root meaning",
+    "Use the meaning and spelling of the root to understand and spell related words"
+  ],
+  "recommendedCapacity": {
+    "rootFamilies": [
+      1,
+      2
+    ],
+    "coreAssessedWords": [
+      5,
+      6
+    ],
+    "optionalRecognitionOnlyWords": 0,
+    "durationPriority": "User approved longer lessons to retain full-sentence dictation on 2026-11-27. The former 10\u201312 minute target is no longer a hard ceiling.",
+    "measuredWithChildren": false
+  },
+  "scope": {
+    "authenticTargetWords": "Verified corrected target words anchor the selected one or two families; fill the total five or six words with reviewed related words.",
+    "additionalFamilies": "One or two root families per lesson. With two families, use 3+2 words for five, or 3+3 for six, with at least two words per family. A second family must be relevant to the child\u2019s learning needs.",
+    "triggerDecision": "A root-specific one-authentic-target policy is proposed. It needs an explicit composer contract; do not change the released Base lesson's two-authentic-target, six-word, 18-item contract.",
+    "noPadding": "If five suitable reviewed words across the selected one or two families are unavailable, record a content gap; do not invent membership or add an unrelated family merely to pad the lesson."
+  },
+  "example": {
+    "root": "port",
+    "meaning": "Carry",
+    "origin": "Latin",
+    "illustrativeTargets": [
+      "transport",
+      "portable"
+    ],
+    "core": [
+      "transport",
+      "portable",
+      "import",
+      "export",
+      "porter",
+      "transportation"
+    ],
+    "realChildWriting": false,
+    "dictionaryReadiness": "Only transport is currently an approved linked PORT family member; the other five proposed words need dictionary entries, reviewed senses, morphology, family membership and assessment/audio content before lesson use."
+  },
+  "stages": [
+    {
+      "stage": "Learn and discover",
+      "component": "FirstImpressionLesson and TeachingPages; reviewed root boundaries using SplitHandle",
+      "magicalTreatment": "ADIE wizard hat; optional short storybook hook; wand glow reveals reviewed boundaries",
+      "task": "Brief root concept, then identify port in the corrected target words. A root is a meaningful part; it need not be a standalone word with this meaning. When two roots are selected, introduce and contrast both meanings."
+    },
+    {
+      "stage": "Grow and build the family tree",
+      "component": "New branching-tree composition reusing reviewed family expansion, SplitHandle and canonical definition-to-word build.",
+      "magicalTreatment": "An enchanted family tree grows one reviewed word at a time",
+      "task": "The child chooses a reviewed affix from a meaning cue, builds a valid preselected word, and adds that word as a branch to its root. Incorrect combinations do not create branches. Tap and keyboard access are primary; dragging is optional. Teach all five or six words, showing parts, meaning and pronunciation. Two families use separate labelled trunks."
+    },
+    {
+      "stage": "Spell class",
+      "component": "New small guided root-meaning retrieval and creative choice activity",
+      "magicalTreatment": "Root is the fixed spell ingredient; choose o/os/is/um and a compatible friendly effect",
+      "task": "Choose a root meaning, match its full Latin root from five options, add a fictional ending and cast. Keep all root letters. The optional collapsed second-root menu combines two powers. Invented names do not enter spelling evidence.",
+      "optional": true
+    },
+    {
+      "stage": "Cover and check",
+      "component": "Existing canonical COVER_CHECK whole_word renderer / CoverShutter",
+      "magicalTreatment": "Calm ADLE assessment surface; no magic animation or root clues",
+      "task": "All five or six lesson words. On cover, remove spelling, parts, root labels and answer-bearing family displays. Reveal the answer only after submission."
+    },
+    {
+      "stage": "Dictation",
+      "component": "Existing canonical DICTATION target_token binding and SentenceDictation whole-sentence surface",
+      "magicalTreatment": "Standard ADLE listening and writing; no invented spells or theatrical effects",
+      "task": "Retain full-sentence dictation for all five or six focus words, with separately bound evidence for each word. The user accepts longer lessons; do not substitute word gaps to meet a time target."
+    },
+    {
+      "stage": "Recall and reflect, including transitions",
+      "component": "Existing reflection component plus a small proposed answer-safe root-meaning check",
+      "magicalTreatment": "ADIE closes the spellbook; ordinary spelling reflection remains private",
+      "task": "Retrieve the meaning of each taught root without its gloss displayed elsewhere, then reflect briefly. Keep concept evidence separate from spelling outcomes."
+    },
+    {
+      "stage": "Help and replay allowance",
+      "component": "Existing audio, clue, repeat and reduced-motion affordances",
+      "magicalTreatment": "Optional, brief, non-looping feedback",
+      "task": "A planning allowance, not a child countdown. Assistance must not expose independent answers."
+    }
+  ],
+  "timingModel": {
+    "assessmentFormat": "Full-sentence dictation retained, explicitly confirmed by user.",
+    "oneFamilyFiveWordsSeconds": 770,
+    "oneFamilySixWordsSeconds": 860,
+    "twoFamiliesFiveWordsSeconds": 905,
+    "twoFamiliesSixWordsSeconds": 995,
+    "assumptions": "Provisional arithmetic from the earlier four-word estimate: each additional word adds about 90 seconds across guided building, cover/check and full-sentence dictation; a second new family adds about 135 seconds. Tree/build integration may reduce duplication. These figures are estimates, not measured durations or research-established limits.",
+    "planningRangeMinutes": [
+      13,
+      17
+    ],
+    "pilot": "Measure actual engaged and elapsed duration, help/replay, completion, spelling transfer and each root meaning. Refine timing after child trials; keep full-sentence assessment and avoid pressure from countdowns."
+  },
+  "reusableTemplate": {
+    "shared": "shell, stage order, accessibility, assessment components, persistence and evidence authority",
+    "dynamic": "root identity and meaning, verified targets, approved family members, word parts/joins/transformations, pronunciations, meanings, distractors, spell power, reviewed sentences/audio and target-token bindings",
+    "repeatIntroduction": "Offer skip after a recorded completed root introduction, with a reread option. A remembered introduction is not mastery of a new root.",
+    "abstractPowers": {
+      "dict": "Give a book a voice \u2014 say/speak",
+      "struct": "Assemble a bridge \u2014 build",
+      "fect": "Make a useful object \u2014 make/do",
+      "vis": "Reveal a hidden path \u2014 see",
+      "pose": "Place objects where they belong \u2014 put/place"
+    }
+  },
+  "branding": {
+    "retain": "ADLE pink, cyan, lilac, DM Sans, existing ADIE identity, side guide, stage pills, clear rounded controls and light/dark appearance",
+    "add": "A removable plum/lilac wizard hat, tiny gold star, subtle finite sparkle feedback and an enchanted word-family tree",
+    "avoid": "A replacement Hogwarts-style brand, dark/scary scenes, collectible points, mandatory narration, decorative countdowns or long spell animations",
+    "fictionBoundary": "Optional Harry Potter connection is a short intro hook, not the lesson's navigation, required knowledge or vocabulary assessment."
+  },
+  "contentReview": [
+    "port here is the carry root, not Port's unrelated harbour noun sense",
+    "import needs a reviewed in/im meaning of in/into, not the negative in/im meaning; retain canonical source/surface transformation facts",
+    "porter must use the person-who-carries sense",
+    "transportation segmentation and suffix analysis require dictionary review",
+    "Only genuine approved family members enter teaching; reference examples alone confer no membership",
+    "All displayed word parts and meanings come from reviewed facts; no arbitrary root+affix combination generator"
+  ],
+  "sources": [
+    {
+      "url": "https://ies.ed.gov/ncee/rel/reading-intervention-grades-6-8/pro-learning-module2",
+      "supports": "Explicit word-part instruction and combining part meanings; not an exact root count or session duration."
+    },
+    {
+      "url": "https://educationendowmentfoundation.org.uk/education-evidence/guidance-reports/literacy-ks2",
+      "supports": "KS2 literacy guidance and morpheme instruction; not the invented timing estimates."
+    },
+    {
+      "url": "https://www.harrypotter.com/features/your-guide-to-the-best-spells-in-harry-potter",
+      "supports": "Optional Expelliarmus Latin-inspired hook only."
+    },
+    {
+      "url": "https://www.open.edu/openlearn/history-the-arts/classical-studies/how-does-jk-rowling-use-latin-and-other-classical-languages-harry-potter",
+      "supports": "Lumos as an adaptation of lumen (light); Expelliarmus as a creative blend of expello (drive out) and arma (weapons). No invented Latin ending rules are taught."
+    }
+  ],
+  "implementationAcceptance": [
+    "Use the user-approved five/six-word, one/two-family capacity. Define the root-specific trigger and evidence contract before runtime work.",
+    "Review missing dictionary and lesson content",
+    "Use one immutable root-family lesson snapshot and existing shared assessment/evidence/resume boundaries",
+    "Do not produce ordinary spelling targets for root-only dictionary entries",
+    "Only independent real-word outcomes affect spelling progress; guided spell play is not mastery",
+    "Test resumed assessment for answer leaks, audio and reduced-motion behavior",
+    "No production activation is authorised by this design proposal",
+    "The mockup stage tabs are author review controls. Live independent assessment must lock any navigation that would reveal covered answers."
+  ],
+  "twoFamilyExample": {
+    "roots": {
+      "port": "Carry",
+      "struct": "Build"
+    },
+    "fiveWords": {
+      "port": [
+        "transport",
+        "portable",
+        "import"
+      ],
+      "struct": [
+        "construct",
+        "structure"
+      ]
+    },
+    "sixWords": {
+      "port": [
+        "transport",
+        "portable",
+        "import"
+      ],
+      "struct": [
+        "construct",
+        "structure",
+        "construction"
+      ]
+    },
+    "status": "Illustrative fixtures only. STRUCT entries, senses, morphology and membership have not been audited for this mockup."
+  },
+  "branchingTree": {
+    "interaction": "One root family per page inside the normal shared WordLabScene ADLE progress, guide and workspace panels. Every branch and meaning cue is visible from the start. The root is fixed in each word box; drag or select-and-tap the remaining word parts from a shared bank into branch spaces. The branch checks automatically as soon as its last space is filled.",
+    "initialBranches": "Six real illustrated branches are present in the background; lesson word boxes sit on the needed branches. No synthetic connector paths or grow-to-reveal slots.",
+    "feedback": "Automatic correct or incorrect feedback shows meanings of the actual chosen parts and root. Partial builds are not checked. Affix bank glosses stay hidden until an attempt. Incorrect full builds remain editable; no Check branch action is needed.",
+    "sharedBuilder": "Reuse DraggableTile and useOrderedBuildEngine from the canonical word builder. Equivalent copies of the same affix are interchangeable; completed placements cannot be stolen.",
+    "twoFamilies": "Sequential pages; complete the current family before moving on. Previous family retains its checked builds during the current run.",
+    "desktop": "Tree, bank, feedback and navigation fit at standard desktop viewport sizes. Preview settings are collapsed; mobile may scroll.",
+    "cap": "Five or six assessed words overall, split 3+2 or 3+3 across two families.",
+    "integration": "Family discovery and word building are one activity.",
+    "future": "Accumulated trees and durable resume require later canonical integration."
+  },
+  "mockups": {
+    "current": "branching-tree.fragment.html: focused interactive branching activity using the updated five/six-word capacity. Author preview controls are outside the depicted child activity.",
+    "historical": "mockup.fragment.html: original full-lesson flow prototype; its four-word recommendation is superseded by this plan and the branching-tree mockup.",
+    "fixtureReview": "Illustrative word forms and meanings are design fixtures, not evidence of approved dictionary content."
+  },
+  "codedTemplate": {
+    "route": "/dev/adle/latin-roots",
+    "component": "components/adle/morphology/latin-root-lesson-template.tsx",
+    "treeComponent": "components/adle/morphology/latin-root-family-tree.tsx",
+    "lessonFlow": [
+      "Introduction and corrected targets",
+      "Build one illustrated root family per page using the shared drag/tap word builder",
+      "Root-meaning retrieval and invented spell",
+      "Shared CoverShutter for every word",
+      "Shared full-sentence SentenceDictation for every word",
+      "Reflection"
+    ],
+    "content": "Dynamic five/six-word contract, one/two families, explicit same-family parent branches. Current samples remain unreviewed illustrative fixtures.",
+    "authority": "Presentation only, no live assignment routing or learner evidence writes. Development/Preview access follows canOpenAdleDesignPreview.",
+    "art": "public/adle/latin-roots/magical-tree-branches.webp; branch word boxes and fixed root labels are HTML, not image text.",
+    "layout": "Shared WordLabScene and LessonGuide, with an optional wizard portrait. Existing lessons retain their default portrait. Independent spelling uses the ordinary portrait and quiet guide.",
+    "inlineFeedback": "Activity feedback opts out of the shared miniature ADIE decoration while keeping its accessible live region.",
+    "coverAppearance": "Cover & check follows the selected shared ADLE light/dark theme. Surfaces, word, input, feedback and controls use theme colours; switching themes retains cover/check state and never reveals a covered answer.",
+    "dictationAppearance": "Dictation uses the selected shared ADLE theme for its surface, writing field and sentence feedback. Changing theme retains typed/check state.",
+    "reflection": {
+      "component": "Shared LessonReflection with opt-in highlighted differences and source activity labels.",
+      "attempts": "Only checked cover and dictation attempts from the current lesson run feed reflection. Guided tree/spell play is excluded.",
+      "model": "latinRootReflectionModel uses analyseDictationSentence to align target tokens; omissions or insertions before the target do not falsely attribute another token to it.",
+      "feedback": "What went wrong cards show actual attempts and correct words, with per-letter highlights; whole-sentence comparisons show wording, capitalization and punctuation differences separately.",
+      "response": "The canonical written response and completion requirement are retained. Reflection opens at the mistakes section, rather than auto-scrolling to the response field.",
+      "authority": "Presentation feedback only; no changes to evidence, scheduler or progress writes.",
+      "verification": "Model regressions and browser proof with deliberate cover/dictation errors, context insertions, missing punctuation, both themes, mobile widths and Finish."
+    },
+    "introduction": {
+      "component": "Route-owned LatinRootIntroduction with six slides in the normal ADLE panel. Existing Base pagination is unchanged.",
+      "content": [
+        "lib/adle/morphology/latin-root-teaching-pages.ts",
+        "lib/adle/morphology/latin-root-introduction.ts"
+      ],
+      "slides": [
+        "Welcome to Advanced Spellcraft!",
+        "What is a Latin root word? \u2014 prefix + root + suffix = whole word, meanings and total",
+        "The Magic of Latin \u2014 lumen guessing prompt",
+        "LUMOS! \u2014 wand-powered reveal",
+        "Harder guessing prompt \u2014 expello + arma",
+        "EXPELLIARMUS! \u2014 wand-powered reveal"
+      ],
+      "grid": "Current family examples plus deport, report and porter for PORT, deduplicated. Each supplied part has its own gloss, and each result has its whole-word meaning. Extra introduction examples do not become assessed words.",
+      "navigation": "Back/Next; tap the Latin ingredient tile with the wand to reveal, with no separate reveal or replay button. The reveal includes a Did you get it right? box. Next on the final reveal opens the first family tree.",
+      "magic": "Wand pointer, bounded star particles, finite comic-word reveal, shared six-note spell chime respecting mute, replay, keyboard button activation and reduced-motion styling.",
+      "sources": [
+        "https://www.open.edu/openlearn/history-the-arts/classical-studies/how-does-jk-rowling-use-latin-and-other-classical-languages-harry-potter",
+        "https://www.etymonline.com/word/deport",
+        "https://www.etymonline.com/word/porter",
+        "https://lrc.la.utexas.edu/lex/master/1490"
+      ],
+      "verification": "Model checks, six-slide browser interaction and full lesson through Finish. Desktop and mobile layout and light/dark checks recorded in intro-qa.json.",
+      "textBoxes": "Page 1 retains a single pink Base introduction panel. Page 2 follows Base spelling maths: plain introductory copy, cyan table container and header cells, gold root cells, white word cells. The Magic of Latin uses the Base long-word purple construction panel, gold question/answer band and coloured Latin ingredient tiles. Wand tap, comic reveals, sound and Next remain.",
+      "layout": "Use the shared teaching-pages reading stage, framed article with pink left accent and shadow, inset Base text panels, centered page headings, and separate bottom navigation with divider. Page 1 keeps all introduction copy in one inset panel. All six slides retain the full ADLE guide/progress/workspace shell.",
+      "page2Title": "What is this sorcery?",
+      "designReview": "Owner confirmed this design approach on 2026-11-27; next phase is lesson content readiness and runtime integration."
+    }
+  },
+  "spellClassDesign": {
+    "status": "Interactive development design; not a production assignment or mastery activity.",
+    "component": "components/adle/morphology/latin-root-spell-class.tsx",
+    "preview": "/dev/adle/latin-roots?stage=spell",
+    "steps": [
+      "Choose a root meaning: Carry or Build for the current preview",
+      "Drag the corresponding full root from five options; give immediate feedback",
+      "Add an invented ending to the full root; optionally open the collapsed second-root menu",
+      "Cast the power in the classroom and replay, edit or continue to spelling"
+    ],
+    "fictionBoundary": "The endings and game powers are explicitly invented. Spell names and creative choices are excluded from canonical spelling targets and learner evidence.",
+    "reusableContent": "Optional family spellEffects supply authored root-specific choices. Families without these can use a short free-text imagined effect. Current PORT/STRUCT options are illustrative fixtures.",
+    "branding": "One continuous classroom background fills the shared ADLE lesson. Title and activity controls sit in a single right-aligned translucent work panel with one border and internal title divider. The shared ADIE guide remains at the left. Casting opens the full-screen comic shout.",
+    "accessibility": "Native buttons/inputs, labelled root and ending choices, live recall feedback, reduced-motion casting treatment.",
+    "validation": "Browser checks cover the unified title/activity boundary, right alignment, desktop/mobile fit, simple Carry/Build choices, five roots, optional-menu state and assessment boundary.",
+    "castingAnimations": {
+      "mode": "Full-screen comic shout of the complete invented spell name; no bridge, bag or other object scene.",
+      "visual": "Large uppercase comic lettering inside a jagged gold burst, with 22 finite star particles. The themed classroom fills the backdrop.",
+      "audio": "A six-note rising spell_cast chime in the shared Web Audio interaction helper, triggered only by cast/replay gestures and respecting ADLE mute.",
+      "controls": "Cast again, Sound on/off, Change my spell, and Continue to cover & check. Native modal focuses and contains keyboard interaction; Escape returns to editing.",
+      "reducedMotion": "Static burst and stars; no movement.",
+      "assessmentBoundary": "Modal and decorative effects unmount on entry to real-word assessment.",
+      "validation": "Browser checks verify full-viewport bounds, long names at desktop/320/375px widths, oscillator scheduling, mute, replay, reduced motion, Escape and cleanup."
+    },
+    "darkEdition": {
+      "art": "Separate Gothic night classroom, used in both workspace and cast animation stage.",
+      "palette": "Charcoal stone, midnight blue, forest green, burgundy, dark oak, candle gold and parchment text.",
+      "scope": "Only dark-mode Spell Class. Light mode retains its existing artwork and controls.",
+      "verification": "Theme switching selects the correct art immediately while retaining the current spell, and the casting scene fits standard desktop sizes."
+    },
+    "title": "Let's make some of our own spells!",
+    "rootOptions": "The correct root comes from the selected lesson family. Other taught roots and Latin dict/vis/fect/port/struct ingredients fill a five-option bank. Distractors and bonus ingredients are guided spell play, not additional ordinary spelling targets.",
+    "shortening": "No root shortening controls or shortened letter forms. Keep the full root spelling in the formula and invented name.",
+    "superSpell": "Optional full second root changes the single combined spell name displayed in the comic shout. Closing the optional menu restores one root.",
+    "workPanel": "One right-aligned unit contains the title and active choose/match/craft step. Mobile uses the full available width."
+  }
+}

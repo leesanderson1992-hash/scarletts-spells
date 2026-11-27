@@ -57,6 +57,7 @@ function readinessForRoute(routeId: string): RouteContentContract["readiness"] {
     case "dynamic_prefix_word_lab":
     case "dynamic_affix_word_lab":
       return { releasePreflight: "profile_compiler", selectedWordValidation: "profile_member" };
+    case "latin_root_word_lab":
     case "weak_vowel_word_lab":
       return { releasePreflight: "teaching_template", selectedWordValidation: "published_word_and_family" };
     case "homophone_contextual_choice":

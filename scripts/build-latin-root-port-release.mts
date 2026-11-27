@@ -1,0 +1,23 @@
+import fs from "node:fs";
+import assert from "node:assert/strict";
+import { parseEnv } from "node:util";
+import { createClient } from "@supabase/supabase-js";
+import { loadCanonicalLatinRootFacts } from "../lib/adle/loaders/latin-root-canonical-loader";
+import { buildLatinRootReleasePackage, latinRootDictionaryProjection } from "../lib/adle/morphology/latin-root-release";
+import { canonicalSnapshotJson, fingerprintSnapshotValue } from "../lib/adle/composable-lesson/canonical-fingerprint";
+
+const env=parseEnv(fs.readFileSync(".env.staging.local","utf8"));
+assert.equal(env.NEXT_PUBLIC_SUPABASE_URL,"https://qkpjbajicacbrphthibk.supabase.co");
+const db=createClient(env.NEXT_PUBLIC_SUPABASE_URL,env.SUPABASE_SERVICE_ROLE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+const plan=JSON.parse(fs.readFileSync("data/teaching-dictionary/latin-root-port-first-lesson-v1.json","utf8"));
+const facts=await loadCanonicalLatinRootFacts(db,[plan.familyKey]);
+const canonical=latinRootDictionaryProjection(facts);
+const sql=await db.rpc("adle_latin_root_dictionary_v1",{p_family_keys:[plan.familyKey]});
+if(sql.error)throw Error(sql.error.message);
+assert.equal(canonicalSnapshotJson(canonical),canonicalSnapshotJson(sql.data),"TypeScript and database canonical projections must agree");
+assert.equal(canonical.words.length,5);
+const pkg=buildLatinRootReleasePackage({releaseKey:"latin_roots_port_v1_2026_11_27",approvalRefs:[plan.approvalReference],...facts});
+fs.mkdirSync("outputs/latin-root-release-20261127",{recursive:true});
+fs.writeFileSync("outputs/latin-root-release-20261127/staging-port-canonical-facts.json",JSON.stringify(facts,null,2));
+fs.writeFileSync("outputs/latin-root-release-20261127/staging-port-release.json",JSON.stringify(pkg,null,2));
+console.log({environment:"staging",words:canonical.words.map(w=>({word:w.spelling,sense:w.senseId})),packageSha256:pkg.packageSha256,dictionaryFingerprint:fingerprintSnapshotValue(canonical),activation:"inactive"});

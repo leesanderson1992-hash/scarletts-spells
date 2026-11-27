@@ -1,3 +1,5 @@
+import { isLatinRootSnapshotV3, validateLatinRootSnapshotV3 } from "../morphology/latin-root-snapshot";
+import type { LatinRootCanonicalLessonV1 } from "../morphology/latin-root-canonical";
 import type {
   LessonRendererKey,
   LessonRouteId,
@@ -81,6 +83,7 @@ export const ADLE_IMPLEMENTED_RUNTIME_ADAPTER_KEYS = [
   // Explicitly registered as a gated adapter so persisted route metadata
   // cannot fall through to the generic composer before publication.
   "weak_vowel_v1",
+  "latin_root_v1",
   "dynamic_prefix_v2",
   "dynamic_affix_v3",
   "compound_word_v2",
@@ -92,6 +95,7 @@ export const ADLE_IMPLEMENTED_RUNTIME_ADAPTER_KEYS = [
 ] as const satisfies readonly LessonRuntimeAdapterKey[];
 
 export type ResolvedLessonRuntime =
+  | { adapterKey: "latin_root_v1"; rendererKey: "latin_root_guided"; payload: LatinRootCanonicalLessonV1 }
   | { adapterKey: "weak_vowel_v1"; rendererKey: "weak_vowel_guided"; payload: WeakVowelLessonV1 }
   | { adapterKey: "comparative_superlative_v1"; rendererKey: "comparative_superlative_guided"; payload: ComparativeLessonV1 }
   | { adapterKey: "ing_endings_v1"; rendererKey: "ing_endings_guided"; payload: IngLessonV1 }
@@ -252,6 +256,7 @@ function runAdapter(
   context: LessonRouteRuntimeContext,
 ): AdapterResult {
   switch (route.runtimeAdapterKey) {
+    case "latin_root_v1":
     case "weak_vowel_v1":
       // A new weak-vowel lesson must carry an immutable V3 payload. There is
       // no mutable item fallback for this route.
@@ -482,6 +487,15 @@ export function resolvePersistedLessonRoute(input: {
     detected.length > 0
   ) {
     return blocked("persisted_metadata", "explicit_legacy_disagreement");
+  }
+  if (route.routeId === "latin_root_word_lab") {
+    if (parsed.metadata.metadataSchemaVersion !== 2 || !isLatinRootSnapshotV3(input.compiledLessonSnapshot)) return blocked("persisted_metadata", "persisted_payload_missing");
+    const validation = validateLatinRootSnapshotV3(input.compiledLessonSnapshot, { lessonRouteMetadata,
+      assignmentGenerationSource: "adle_composer_v1", items: items.map(i => ({ sourceEntityId: i.sourceEntityId ?? "", position: i.position ?? 0, sectionKey: i.sectionKey,
+        canonicalWordId: i.canonicalWordId, templateKey: i.templateKey, targetWord: i.targetWord, promptData: i.promptData, metadata: i.itemMetadata })) });
+    if (!validation.ok) return blocked("persisted_metadata", "persisted_payload_malformed");
+    return { status: "resolved_explicit", source: "persisted_metadata", route: parsed.metadata.route, recipe: parsed.metadata.recipe, payloadRef: parsed.metadata.payload,
+      runtime: { adapterKey: "latin_root_v1", rendererKey: "latin_root_guided", payload: input.compiledLessonSnapshot.payload.resolvedLesson } };
   }
   if (route.routeId === "weak_vowel_word_lab") {
     if (parsed.metadata.metadataSchemaVersion !== 2 || !isWeakVowelSnapshotV3(input.compiledLessonSnapshot)) return blocked("persisted_metadata", "persisted_payload_missing");

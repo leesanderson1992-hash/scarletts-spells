@@ -11,6 +11,7 @@ const lessons = [
   { name: "Prefix Word Lab", href: "/dev/adle/prefix-word-lab", detail: "Four-word lesson: discover, split, sort, build, cover, dictate and reflect" },
   { name: "Suffix Word Lab", href: "/dev/adle/dynamic-affix-v3", detail: "The reviewed -ment lesson" },
   { name: "Base word families", href: "/dev/adle/base-word-family", detail: "Build words from a base" },
+  { name: "Common Latin roots", href: "/dev/adle/latin-roots", detail: "Grow illustrated word trees, build five or six words, then cover, dictate and reflect" },
   { name: "Compound words", href: "/dev/adle/compound-word", detail: "Combine two words" },
   { name: "-ing endings", href: "/dev/adle/ing-endings", detail: "Add -ing and practise the spelling change" },
   { name: "Comparatives and superlatives", href: "/dev/adle/comparative-superlative", detail: "Compare with -er and -est" },
