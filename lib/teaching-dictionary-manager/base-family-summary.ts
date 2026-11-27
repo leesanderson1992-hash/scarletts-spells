@@ -5,7 +5,7 @@ import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activati
 import { familyDisplayName, lexicalFamilyDisplayName, legacyFamilyBase } from "./family-display-name";
 
 export type FamilySummary = { name: string; displayName?: string; meaning?: string; pronunciation?: string;
-  baseWordId?: string; baseKind?: string; aliases?: string[]; compatibilityMeanings?: string[];
+  rootOrigin?: string; rootExamples?: string[]; baseWordId?: string; baseKind?: string; aliases?: string[]; compatibilityMeanings?: string[];
   words: { id: string; word: string }[] };
 
 /** The latest approved lexical revision owns shared family facts. Registry and
@@ -69,7 +69,7 @@ export async function loadWordBaseFamilies(
     const rootKeys = rootAliases.map((row) => String(row.source_key));
     const rootDetails = rootKeys.length ? await read(
       db.from("canonical_teaching_dictionary_lexical_root_metadata")
-        .select("family_key,revision,pronunciation_ipa,pronunciation_applicability").in("family_key", rootKeys),
+        .select("family_key,revision,pronunciation_ipa,pronunciation_applicability,origin_language,teaching_examples").in("family_key", rootKeys),
     ) : [];
     const pronunciation = new Map(rootAliases.flatMap((alias) => {
       const detail = rootDetails.find((row) => row.family_key === alias.source_key &&
@@ -150,9 +150,11 @@ export async function loadWordBaseFamilies(
         const rootKeys = activeKeys.filter((key) => latest.get(key)?.base_kind === "bound_root");
         const rootDetails = rootKeys.length ? await read(
           db.from("canonical_teaching_dictionary_lexical_root_metadata")
-            .select("family_key,revision,pronunciation_ipa,pronunciation_applicability")
+            .select("family_key,revision,pronunciation_ipa,pronunciation_applicability,origin_language,teaching_examples")
             .in("family_key", rootKeys),
         ) : [];
+        const currentRootDetails = new Map(rootDetails.filter(row => latest.get(row.family_key)?.revision === row.revision)
+          .map(row => [row.family_key, row]));
         const rootPronunciation = new Map(rootDetails
           .filter((row) => latest.get(row.family_key)?.revision === row.revision)
           .map((row) => [row.family_key, row.pronunciation_applicability === "not_applicable"
@@ -190,6 +192,8 @@ export async function loadWordBaseFamilies(
           baseWordId: latest.get(key)?.canonical_base_word_id ?? undefined,
           baseKind: latest.get(key)?.base_kind,
           pronunciation: rootPronunciation.get(key),
+          rootOrigin: currentRootDetails.get(key)?.origin_language || undefined,
+          rootExamples: currentRootDetails.get(key)?.teaching_examples ?? [],
           words: currentMembers.filter((row) => row.family_key === key)
             .flatMap((row) => display.has(row.canonical_word_id)
               ? [{ id: String(row.canonical_word_id), word: display.get(row.canonical_word_id)! }] : [])

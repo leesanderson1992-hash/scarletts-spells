@@ -236,3 +236,20 @@ The mapping `urnlocked -> unlocked` remains exact while the missing reviewed
 `unlocked` package is reported as `canonical_word_missing`,
 `teaching_content`, and `pending_content`. Runtime code must not substitute
 `unlock` or infer missing teaching facts.
+
+### Root teaching reference examples
+
+Reviewed root revisions may include `teaching_examples` alongside their origin
+and short root meaning. These are display references: they do not create a
+word, approve a family membership, or admit an ordinary spelling target.
+Existing member and variant snapshots remain governed separately. Revision
+writers that omit examples inherit the preceding revision's references;
+explicit `[]` removes them. Earlier origins and definitions remain in immutable
+family revisions. Mixed entries retain their independently reviewed ordinary
+senses when a root sense is edited.
+
+The owner-approved 2026-11-27 wording package covers all 36 current production
+root families. Its first 13 rows reproduce the supplied teaching table; the
+remaining rows simplify existing reviewed meanings and cite existing member
+words as examples. `chem` retains its mixed origin; `pose` displays
+`Latin-derived`, with the historical Latin-via-French provenance retained.

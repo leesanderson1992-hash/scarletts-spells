@@ -1,0 +1,400 @@
+{
+  "approvalReference": "Owner-supplied root/origin/meaning/examples table, 2026-11-27; owner follow-up: maintain and update all 36 families",
+  "scope": "Update all 36 production root families. Preserve the 13 owner-supplied rows exactly; simplify remaining reviewed meanings and reuse existing approved whole-word members as reference examples. References confer no membership or lesson approval.",
+  "originNote": "The asterisk on Latin-derived is a footnote marker; pose retains its recorded Latin-via-French provenance in earlier immutable revisions.",
+  "roots": [
+    {
+      "root": "bio",
+      "origin": "Greek",
+      "meaning": "Life",
+      "examples": [
+        "Biology",
+        "biography"
+      ],
+      "expectedPriorMeaning": "Greek: bios — “life”.",
+      "expectedPriorOrigin": "Greek"
+    },
+    {
+      "root": "graph",
+      "origin": "Greek",
+      "meaning": "Write, record",
+      "examples": [
+        "Autograph",
+        "photograph"
+      ],
+      "expectedPriorMeaning": "to write, draw, or record information",
+      "expectedPriorOrigin": "Greek"
+    },
+    {
+      "root": "phon",
+      "origin": "Greek",
+      "meaning": "Sound, voice",
+      "examples": [
+        "Telephone",
+        "microphone"
+      ],
+      "expectedPriorMeaning": "Greek: phōnē — “a voice or sound”.",
+      "expectedPriorOrigin": "Greek"
+    },
+    {
+      "root": "psych",
+      "origin": "Greek",
+      "meaning": "Mind, soul",
+      "examples": [
+        "Psychology",
+        "psychic"
+      ],
+      "expectedPriorMeaning": "the mind",
+      "expectedPriorOrigin": "Greek"
+    },
+    {
+      "root": "tele",
+      "origin": "Greek",
+      "meaning": "Far, distant",
+      "examples": [
+        "Television",
+        "telescope"
+      ],
+      "expectedPriorMeaning": "Greek: tēle — “far away or at a distance”.",
+      "expectedPriorOrigin": "Greek"
+    },
+    {
+      "root": "politic",
+      "origin": "Greek",
+      "meaning": "Citizens, government",
+      "examples": [
+        "Political",
+        "politician"
+      ],
+      "expectedPriorMeaning": "Greek via Latin: polis or politikos — “a city or citizens' affairs”.",
+      "expectedPriorOrigin": "Greek via Latin"
+    },
+    {
+      "root": "dict",
+      "origin": "Latin",
+      "meaning": "Say, speak",
+      "examples": [
+        "Dictate",
+        "predict"
+      ],
+      "expectedPriorMeaning": "Latin: dicere or dictus — “to say or speak”.",
+      "expectedPriorOrigin": "Latin"
+    },
+    {
+      "root": "fect",
+      "origin": "Latin",
+      "meaning": "Make, do",
+      "examples": [
+        "Affect",
+        "perfect"
+      ],
+      "expectedPriorMeaning": "make or do",
+      "expectedPriorOrigin": "Latin"
+    },
+    {
+      "root": "port",
+      "origin": "Latin",
+      "meaning": "Carry",
+      "examples": [
+        "Transport",
+        "portable"
+      ],
+      "expectedPriorMeaning": "to carry",
+      "expectedPriorOrigin": "Latin"
+    },
+    {
+      "root": "struct",
+      "origin": "Latin",
+      "meaning": "Build",
+      "examples": [
+        "Construct",
+        "structure"
+      ],
+      "expectedPriorMeaning": "Latin: struere or structus — “to build, arrange or put together”.",
+      "expectedPriorOrigin": "Latin"
+    },
+    {
+      "root": "vis",
+      "origin": "Latin",
+      "meaning": "See",
+      "examples": [
+        "Visible",
+        "vision"
+      ],
+      "expectedPriorMeaning": "Latin: videre or visus — “to see”.",
+      "expectedPriorOrigin": "Latin"
+    },
+    {
+      "root": "ceive",
+      "origin": "Latin",
+      "meaning": "Take",
+      "examples": [
+        "Receive",
+        "perceive"
+      ],
+      "expectedPriorMeaning": "Latin via Old French: capere or recipere through recevoir — “to take or receive”.",
+      "expectedPriorOrigin": "Latin via Old French"
+    },
+    {
+      "root": "pose",
+      "origin": "Latin-derived",
+      "meaning": "Put, place",
+      "examples": [
+        "Compose",
+        "impose"
+      ],
+      "expectedPriorMeaning": "Latin via French: ponere or poser — “to put or place”.",
+      "expectedPriorOrigin": "Latin via French"
+    },
+    {
+      "root": "chem",
+      "origin": "Arabic through Medieval Latin and Greek",
+      "meaning": "Alchemy",
+      "examples": [
+        "Chemist"
+      ],
+      "expectedPriorMeaning": "Arabic through Medieval Latin and Greek: al-kīmiyā or alchemy — “the old practice of alchemy”.",
+      "expectedPriorOrigin": "Arabic through Medieval Latin and Greek"
+    },
+    {
+      "root": "combust",
+      "origin": "Latin",
+      "meaning": "Burn",
+      "examples": [
+        "Combustion"
+      ],
+      "expectedPriorMeaning": "Latin: comburere or combustus — “to burn up”.",
+      "expectedPriorOrigin": "Latin"
+    },
+    {
+      "root": "electr",
+      "origin": "Greek",
+      "meaning": "Amber",
+      "examples": [
+        "Electric",
+        "electrician",
+        "electricity"
+      ],
+      "expectedPriorMeaning": "Greek: ēlektron — “amber”.",
+      "expectedPriorOrigin": "Greek"
+    },
+    {
+      "root": "geo",
+      "origin": "Greek",
+      "meaning": "Earth",
+      "examples": [
+        "Geography"
+      ],
+      "expectedPriorMeaning": "Greek: gē — “earth or land”.",
+      "expectedPriorOrigin": "Greek"
+    },
+    {
+      "root": "iatr",
+      "origin": "Greek",
+      "meaning": "Medicine, treatment",
+      "examples": [
+        "Psychiatrist"
+      ],
+      "expectedPriorMeaning": "medicine or treatment",
+      "expectedPriorOrigin": "Greek"
+    },
+    {
+      "root": "initi",
+      "origin": "Latin",
+      "meaning": "Begin",
+      "examples": [
+        "Initial"
+      ],
+      "expectedPriorMeaning": "Latin: initium or inire — “a beginning or to start”.",
+      "expectedPriorOrigin": "Latin"
+    },
+    {
+      "root": "ject",
+      "origin": "Latin",
+      "meaning": "Throw",
+      "examples": [
+        "Object"
+      ],
+      "expectedPriorMeaning": "Latin: iacere or iectus — “to throw or cast”.",
+      "expectedPriorOrigin": "Latin"
+    },
+    {
+      "root": "meter",
+      "origin": "Greek",
+      "meaning": "Measure",
+      "examples": [
+        "Thermometer"
+      ],
+      "expectedPriorMeaning": "Greek: metron — “a measure”.",
+      "expectedPriorOrigin": "Greek"
+    },
+    {
+      "root": "numer",
+      "origin": "Latin",
+      "meaning": "Number, count",
+      "examples": [
+        "Numerous"
+      ],
+      "expectedPriorMeaning": "number or count",
+      "expectedPriorOrigin": "Latin"
+    },
+    {
+      "root": "physic",
+      "origin": "Greek",
+      "meaning": "Nature, natural world",
+      "examples": [
+        "Physical"
+      ],
+      "expectedPriorMeaning": "nature or the natural world",
+      "expectedPriorOrigin": "Greek"
+    },
+    {
+      "root": "picto",
+      "origin": "Latin",
+      "meaning": "Paint, image",
+      "examples": [
+        "Picture"
+      ],
+      "expectedPriorMeaning": "Latin: pingere or pictus — “to paint or make an image”.",
+      "expectedPriorOrigin": "Latin"
+    },
+    {
+      "root": "ple",
+      "origin": "Latin",
+      "meaning": "Fill",
+      "examples": [
+        "Complement"
+      ],
+      "expectedPriorMeaning": "fill",
+      "expectedPriorOrigin": "Latin"
+    },
+    {
+      "root": "popul",
+      "origin": "Latin",
+      "meaning": "People",
+      "examples": [
+        "Popular"
+      ],
+      "expectedPriorMeaning": "Latin: populus — “people or a population”.",
+      "expectedPriorOrigin": "Latin"
+    },
+    {
+      "root": "poten",
+      "origin": "Latin",
+      "meaning": "Power, ability",
+      "examples": [
+        "Potential"
+      ],
+      "expectedPriorMeaning": "Latin: potens or potentis — “powerful or able to act”.",
+      "expectedPriorOrigin": "Latin"
+    },
+    {
+      "root": "sci",
+      "origin": "Latin",
+      "meaning": "Know",
+      "examples": [
+        "Science"
+      ],
+      "expectedPriorMeaning": "Latin: scire — “to know”.",
+      "expectedPriorOrigin": "Latin"
+    },
+    {
+      "root": "soci",
+      "origin": "Latin",
+      "meaning": "Companion",
+      "examples": [
+        "Social"
+      ],
+      "expectedPriorMeaning": "Latin: socius or socialis — “a companion or relating to companions”.",
+      "expectedPriorOrigin": "Latin"
+    },
+    {
+      "root": "stat",
+      "origin": "Latin",
+      "meaning": "Stand",
+      "examples": [
+        "Station"
+      ],
+      "expectedPriorMeaning": "Latin: stare or status — “to stand or remain standing”.",
+      "expectedPriorOrigin": "Latin"
+    },
+    {
+      "root": "techn",
+      "origin": "Greek",
+      "meaning": "Skill, craft",
+      "examples": [
+        "Technology"
+      ],
+      "expectedPriorMeaning": "skill, craft or making things",
+      "expectedPriorOrigin": "Greek"
+    },
+    {
+      "root": "tend",
+      "origin": "Latin",
+      "meaning": "Stretch",
+      "examples": [
+        "Extension"
+      ],
+      "expectedPriorMeaning": "Latin: tendere — “to stretch or reach”.",
+      "expectedPriorOrigin": "Latin"
+    },
+    {
+      "root": "thermo",
+      "origin": "Greek",
+      "meaning": "Heat",
+      "examples": [
+        "Thermometer"
+      ],
+      "expectedPriorMeaning": "Greek: thermos — “warm or hot”.",
+      "expectedPriorOrigin": "Greek"
+    },
+    {
+      "root": "un",
+      "origin": "Latin",
+      "meaning": "One",
+      "examples": [
+        "Unit"
+      ],
+      "expectedPriorMeaning": "Latin: unus — “one”.",
+      "expectedPriorOrigin": "Latin"
+    },
+    {
+      "root": "veget",
+      "origin": "Latin",
+      "meaning": "Grow, live",
+      "examples": [
+        "Vegetable"
+      ],
+      "expectedPriorMeaning": "To grow or live",
+      "expectedPriorOrigin": "Latin"
+    },
+    {
+      "root": "vent",
+      "origin": "Latin",
+      "meaning": "Come, find",
+      "examples": [
+        "Invention"
+      ],
+      "expectedPriorMeaning": "Latin: venire or invenire — “to come or come upon”.",
+      "expectedPriorOrigin": "Latin"
+    }
+  ],
+  "additionalRowsProvenance": "Existing reviewed root metadata and family members, captured in outputs/root-teaching-details-20261127/production-before.json and existing-member-references.json. Chem retains its multi-language provenance; its root meaning refers to historical alchemy.",
+  "sources": [
+    {
+      "root": "chem",
+      "url": "https://www.ahdictionary.com/word/search.html?q=alchemy",
+      "note": "Arabic via Medieval Latin from Late Greek; ultimate etymology uncertain."
+    },
+    {
+      "root": "ple",
+      "url": "https://www.etymonline.com/word/complement",
+      "note": "Latin plere: fill."
+    },
+    {
+      "root": "tend",
+      "url": "https://www.etymonline.com/word/extend",
+      "note": "Latin tendere: stretch."
+    }
+  ]
+}

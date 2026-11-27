@@ -110,7 +110,7 @@ type Skill = {
   skill_family_key: string;
   skill_cluster_key: string;
 };
-type Family = { name: string; displayName?: string; meaning?: string; pronunciation?: string; baseWordId?: string; words: { id: string; word: string }[] };
+type Family = { rootOrigin?: string; rootExamples?: string[]; name: string; displayName?: string; meaning?: string; pronunciation?: string; baseWordId?: string; words: { id: string; word: string }[] };
 type Field = {
   key: string;
   label: string;
@@ -1170,6 +1170,8 @@ export function WordWorkspace(props: {
                 >
                   <strong>Family: {item.displayName ?? item.name}</strong>
                   {!item.displayName && item.meaning ? <span className="text-[color:var(--mid)]">{item.meaning}</span> : null}
+                  {item.rootOrigin ? <span className="text-[color:var(--mid)]">Origin: {item.rootOrigin}</span> : null}
+                  {item.rootExamples?.length ? <span className="basis-full text-[color:var(--mid)]">Examples: {item.rootExamples.join(", ")}</span> : null}
                   {item.pronunciation ? <span className="text-[color:var(--mid)]">{item.pronunciation}</span> : null}
                   {item.words.map((word) => (
                     <span key={word.id} className="inline-flex items-center rounded-full bg-[var(--paper)] pl-3 pr-1 py-1">
