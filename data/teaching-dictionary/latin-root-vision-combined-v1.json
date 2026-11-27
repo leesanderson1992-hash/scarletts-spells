@@ -1,0 +1,13 @@
+{
+  "word": "vision",
+  "senseId": "vis-see-noun",
+  "familyKey": "vis_bound_root_base_family",
+  "definition": "The ability to see.",
+  "partOfSpeech": "noun",
+  "ipa": "/ˈvɪʒ.ən/",
+  "sentence": "My glasses help my vision.",
+  "targetTokenIndex": 4,
+  "sourceUrl": "https://dictionary.cambridge.org/dictionary/english/vision",
+  "pronunciationSourceUrl": "https://dictionary.cambridge.org/pronunciation/english/vision",
+  "approvalReference": "Owner requested combining reviewed Latin root families, 2026-11-27. Complete the existing dictionary word vision; preserve invisible's existing Base analysis. Original teaching copy; meaning and British pronunciation checked against Cambridge Dictionary."
+}

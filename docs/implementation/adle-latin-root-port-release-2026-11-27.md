@@ -3,7 +3,7 @@
 This is a release receipt, not a replacement for the ADLE composer, evidence,
 review, proficiency or reward contracts.
 
-Production serves commit `07a4712e6775ed337c8be9f69a0da24b73a1805b` from deployment
+This initial release served commit `07a4712e6775ed337c8be9f69a0da24b73a1805b` from deployment
 `dpl_DxmL4RVGQwdEP374tzfDnCaR35x8`. The public alias is
 https://scarletts-spells.vercel.app. The build was staged from a clean Git archive,
 verified with the authenticated side-effect-free recovery HEAD, then promoted.
@@ -72,3 +72,5 @@ Machine receipts are in the ignored local directory
 `outputs/latin-root-release-20261127/`; reproducible staging checks are in
 `scripts/latin-root-staging-*.{mjs,mts}`. Credentials and browser sessions are not
 part of the receipt.
+
+The later [combined-family release](adle-latin-root-combined-release-2026-11-27.md) expands the live pool and selection; this receipt records the initial PORT proof.
