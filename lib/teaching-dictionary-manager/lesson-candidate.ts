@@ -75,7 +75,8 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
     status, ruleRevision: LESSON_CANDIDATE_RULE_REVISION, evidence, issues,
     ...(doublingPattern ? { doublingPattern } : {}),
   });
-  if (input.senseSet?.senses.length && input.senseSet.senses.every(sense => sense.partOfSpeech === "root")) {
+  if (input.senseSet?.senses.find(sense => sense.id === input.senseId)?.partOfSpeech === "root" ||
+    input.senseSet?.senses.length && input.senseSet.senses.every(sense => sense.partOfSpeech === "root")) {
     add("ROOT_SUPPORT_ONLY", "Bound-root entries provide teaching support and cannot be ordinary spelling targets.", "td-definition");
     return done("not_match");
   }

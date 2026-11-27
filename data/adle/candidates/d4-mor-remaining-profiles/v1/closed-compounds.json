@@ -422,7 +422,7 @@
     "approvedMorphemeCatalog": "data/adle/approved/d4-mor/v1/d4-mor-v1-morpheme-catalog.json",
     "currentTaxonomy": "docs/implementation/seed-data/domain4-seed-expansion/micro-skills.json",
     "approvedManifestSha256": "c279282665e8653ae18a4d72d7c9c35424a8e84224513d093ee62fb150d6af7a",
-    "currentTaxonomySha256": "b91de6ebb3a6e41fb8bf1f41792187dd4bebedcc6837ec86cb1c395ed5235511"
+    "currentTaxonomySha256": "c53ff4aa5891d496a5a08573cded9b89575075303c2b4275cf480159c29ebf2f"
   },
   "compoundKind": "closed",
   "compoundContract": {

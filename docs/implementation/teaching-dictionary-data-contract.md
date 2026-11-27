@@ -251,5 +251,27 @@ senses when a root sense is edited.
 The owner-approved 2026-11-27 wording package covers all 36 current production
 root families. Its first 13 rows reproduce the supplied teaching table; the
 remaining rows simplify existing reviewed meanings and cite existing member
-words as examples. `chem` retains its mixed origin; `pose` displays
-`Latin-derived`, with the historical Latin-via-French provenance retained.
+words as examples. The later owner-approved root-language policy classifies
+`chem` as Greek. `pose` displays `Latin-derived`, with its earlier
+Latin-via-French provenance retained in history.
+
+### Root micro-skills from historical language
+
+Only `D4_MOR_ROOTS_COMMON_LATIN_ROOTS` and
+`D4_MOR_ROOTS_COMMON_GREEK_ROOTS` remain active in the Roots cluster.
+Root-family spelling and science/maths root keys are retired from new work;
+old mappings, support rows and learner history remain immutable evidence.
+
+The latest approved root-family historical language owns automatic assignment.
+Latin and Latin-derived map to Common Latin roots; Greek maps to Common Greek
+roots. Unknown languages remain unassigned. The owner explicitly classified
+chem as Greek on 2026-11-27. All 36 production root families therefore classify
+as 22 Latin and 14 Greek. Changing language creates an immutable family revision
+and recalculates the root and reviewed member-word grouping immediately.
+
+`teaching_dictionary_root_language_assignments` distinguishes root teaching
+support from whole-word family members. Only member words enter the lesson
+review queue. Reference examples confer no membership. Automatic assignment
+does not publish a lesson, approve evidence, or make a root sense a spelling
+target. Mixed entries such as Port keep root support separate from their noun
+meaning. The existing ordinary-target guards remain authoritative.

@@ -2,7 +2,7 @@
   "actual_counts": {
     "clusters": 46,
     "family_level_template_mappings": 40,
-    "micro_skills": 241,
+    "micro_skills": 240,
     "ready_families": 8,
     "task_templates": 12
   },
@@ -119,7 +119,7 @@
   "expected_counts": {
     "clusters": 46,
     "family_level_template_mappings": 40,
-    "micro_skills": 241,
+    "micro_skills": 240,
     "ready_families": 8,
     "task_templates": 12
   },
@@ -127,10 +127,10 @@
     "D4_HOM": 13,
     "D4_INF": 28,
     "D4_IRRE": 5,
-    "D4_MOR": 25,
+    "D4_MOR": 23,
     "D4_PAT": 28,
     "D4_PG": 116,
-    "D4_SCHWA": 9,
+    "D4_SCHWA": 10,
     "D4_SYL": 17
   },
   "notes": [
@@ -166,12 +166,13 @@
       "D4_MOR_SUFFIXES_TION"
     ],
     "retired_cluster_count": 1,
-    "retired_micro_skill_count": 2,
+    "retired_micro_skill_count": 4,
     "retirement_receipt": "docs/implementation/qa/adle-d4-mor-word-families-staging-retirement-receipt-2026-07-29.json",
-    "source": "live staging and production taxonomy audit 2026-07-29"
+    "root_retirement_policy": "data/teaching-dictionary/root-language-policy-2026-11-27.json",
+    "source": "2026-07-29 taxonomy audit; owner root simplification 2026-11-27"
   },
   "artifact_sha256": {
     "clusters": "0637f900a26420ba53fe97d8b2ebb12ea8fda3a548f0594c9af7542d1e503319",
-    "micro_skills": "b91de6ebb3a6e41fb8bf1f41792187dd4bebedcc6837ec86cb1c395ed5235511"
+    "micro_skills": "c53ff4aa5891d496a5a08573cded9b89575075303c2b4275cf480159c29ebf2f"
   }
 }

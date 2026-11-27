@@ -81,6 +81,8 @@ EXPECTED_COUNTS = {
 RETIRED_CURRENT_TAXONOMY_KEYS = {
     "D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT",
     "D4_MOR_WORD_FAMILIES_RELATED_WORD_SUPPORT",
+    "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING",
+    "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS",
 }
 POST_PACKAGE_CURRENT_TAXONOMY_KEYS = {
     "D4_MOR_SUFFIXES_LY",
@@ -529,8 +531,8 @@ def validate_package(
     }
     if len(historical_keys) != 24:
         errors.append("immutable historical package must retain its original 24-key coverage")
-    if len(current_keys) != 25:
-        errors.append("current live taxonomy must contain 25 D4_MOR keys")
+    if len(current_keys) != 23:
+        errors.append("current live taxonomy must contain 23 D4_MOR keys")
     if not RETIRED_CURRENT_TAXONOMY_KEYS.issubset(historical_keys):
         errors.append("historical package lost retired word-family evidence")
     if RETIRED_CURRENT_TAXONOMY_KEYS & current_keys:
@@ -539,10 +541,10 @@ def validate_package(
         errors.append("current taxonomy is missing later -ly, -tion, or -sion additions")
     if POST_PACKAGE_CURRENT_TAXONOMY_KEYS & historical_keys:
         errors.append("historical package was rewritten with post-package suffix additions")
-    if len(historical_keys & current_keys) != 22:
-        errors.append("historical/current D4_MOR overlap must be exactly 22 keys")
-    if "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING" not in current_keys:
-        errors.append("current taxonomy must retain root-family spelling")
+    if len(historical_keys & current_keys) != 20:
+        errors.append("historical/current D4_MOR overlap must be exactly 20 keys")
+    if {key for key in current_keys if key.startswith("D4_MOR_ROOTS_")} != {"D4_MOR_ROOTS_COMMON_LATIN_ROOTS", "D4_MOR_ROOTS_COMMON_GREEK_ROOTS"}:
+        errors.append("current root taxonomy must contain exactly Latin and Greek roots")
 
     if errors:
         raise RuntimeError("; ".join(errors))
@@ -693,8 +695,8 @@ def main() -> None:
                 "package": manifest_data["packageKey"],
                 "content_version": manifest_data["contentVersion"],
                 "micro_skills": manifest_data["counts"]["microSkills"],
-                "current_taxonomy_micro_skills": 25,
-                "current_taxonomy_overlap_with_historical_package": 22,
+                "current_taxonomy_micro_skills": 23,
+                "current_taxonomy_overlap_with_historical_package": 20,
                 "retired_historical_micro_skills": sorted(RETIRED_CURRENT_TAXONOMY_KEYS),
                 "word_analyses": manifest_data["counts"]["wordAnalyses"],
                 "morphemes": manifest_data["counts"]["morphemes"],

@@ -11351,7 +11351,7 @@
       "T11",
       "T12"
     ],
-    "display_name": "Spell common Latin roots",
+    "display_name": "Common Latin roots",
     "is_active": true,
     "is_assignable": true,
     "mastery_domain_key": "D4",
@@ -11412,7 +11412,7 @@
       "T11",
       "T12"
     ],
-    "display_name": "Spell common Greek roots",
+    "display_name": "Common Greek roots",
     "is_active": true,
     "is_assignable": true,
     "mastery_domain_key": "D4",
@@ -11456,128 +11456,6 @@
       ]
     },
     "micro_skill_key": "D4_MOR_ROOTS_COMMON_GREEK_ROOTS",
-    "practice_route": "word_practice",
-    "skill_cluster_key": "D4_MOR_ROOTS",
-    "skill_family_key": "D4_MOR"
-  },
-  {
-    "allowed_template_keys": [
-      "T02",
-      "T01",
-      "T04",
-      "T03",
-      "T05",
-      "T06",
-      "T09",
-      "T10",
-      "T11",
-      "T12"
-    ],
-    "display_name": "Spell roots in science and maths words",
-    "is_active": true,
-    "is_assignable": true,
-    "mastery_domain_key": "D4",
-    "metadata": {
-      "cluster_name": "Greek and Latin roots",
-      "developmental_foundation": "Morphological awareness",
-      "example_words": [
-        "biology",
-        "geography",
-        "thermometer",
-        "triangle"
-      ],
-      "seed_version": "domain4-seed-expansion-v1",
-      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
-      "starter_word_bank": [
-        {
-          "common_wrong_spellings": [],
-          "difficulty": "seed",
-          "word": "biology"
-        },
-        {
-          "common_wrong_spellings": [],
-          "difficulty": "seed",
-          "word": "geography"
-        },
-        {
-          "common_wrong_spellings": [],
-          "difficulty": "seed",
-          "word": "thermometer"
-        },
-        {
-          "common_wrong_spellings": [],
-          "difficulty": "seed",
-          "word": "triangle"
-        }
-      ],
-      "teaching_point": "Subject words often use stable Greek or Latin roots; recognising the root helps children spell the word accurately.",
-      "unsupported_runtime_notes": [
-        "Task templates and family-level mappings are repo artifacts/config until dedicated schema exists.",
-        "Resolver adoption is intentionally separate from taxonomy seeding."
-      ]
-    },
-    "micro_skill_key": "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS",
-    "practice_route": "word_practice",
-    "skill_cluster_key": "D4_MOR_ROOTS",
-    "skill_family_key": "D4_MOR"
-  },
-  {
-    "allowed_template_keys": [
-      "T02",
-      "T01",
-      "T04",
-      "T03",
-      "T05",
-      "T06",
-      "T09",
-      "T10",
-      "T11",
-      "T12"
-    ],
-    "display_name": "Use root families to support spelling",
-    "is_active": true,
-    "is_assignable": true,
-    "mastery_domain_key": "D4",
-    "metadata": {
-      "cluster_name": "Greek and Latin roots",
-      "developmental_foundation": "Morphological awareness",
-      "example_words": [
-        "sign/signal/signature",
-        "electric/electricity",
-        "photograph/photography",
-        "act/action"
-      ],
-      "seed_version": "domain4-seed-expansion-v1",
-      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
-      "starter_word_bank": [
-        {
-          "common_wrong_spellings": [],
-          "difficulty": "seed",
-          "word": "sign/signal/signature"
-        },
-        {
-          "common_wrong_spellings": [],
-          "difficulty": "seed",
-          "word": "electric/electricity"
-        },
-        {
-          "common_wrong_spellings": [],
-          "difficulty": "seed",
-          "word": "photograph/photography"
-        },
-        {
-          "common_wrong_spellings": [],
-          "difficulty": "seed",
-          "word": "act/action"
-        }
-      ],
-      "teaching_point": "Words in the same root family often preserve spelling even when pronunciation or word endings change.",
-      "unsupported_runtime_notes": [
-        "Task templates and family-level mappings are repo artifacts/config until dedicated schema exists.",
-        "Resolver adoption is intentionally separate from taxonomy seeding."
-      ]
-    },
-    "micro_skill_key": "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING",
     "practice_route": "word_practice",
     "skill_cluster_key": "D4_MOR_ROOTS",
     "skill_family_key": "D4_MOR"

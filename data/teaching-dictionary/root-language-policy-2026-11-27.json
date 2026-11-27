@@ -1,0 +1,9 @@
+{
+  "version": "reviewed_historical_language_v1",
+  "approvalReference": "Owner: keep only Common Latin roots and Common Greek roots; historical language auto-assigns; change chem to Greek, 2026-11-27",
+  "activeSkills": ["D4_MOR_ROOTS_COMMON_LATIN_ROOTS", "D4_MOR_ROOTS_COMMON_GREEK_ROOTS"],
+  "retiredSkills": ["D4_MOR_ROOTS_ROOT_FAMILY_SPELLING", "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS"],
+  "originOverrides": {"chem": "Greek"},
+  "assignments": {"Latin":"D4_MOR_ROOTS_COMMON_LATIN_ROOTS","Latin-derived":"D4_MOR_ROOTS_COMMON_LATIN_ROOTS","Greek":"D4_MOR_ROOTS_COMMON_GREEK_ROOTS"},
+  "classificationIsNotSpellingTargetApproval": true
+}

@@ -17,6 +17,7 @@ import {
   type WordDraftPayload,
 } from "@/lib/teaching-dictionary-manager/contracts";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
+import { loadWordRootLanguageAssignments } from "@/lib/teaching-dictionary-manager/root-language-loader";
 import { loadWordBaseFamilies } from "@/lib/teaching-dictionary-manager/base-family-summary";
 import { loadWeakVowelFamilyPrefill } from "@/lib/teaching-dictionary-manager/weak-vowel-family-prefill";
 import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
@@ -85,6 +86,7 @@ export async function TeachingDictionaryDetail({
     grammaticalLinks,
     weakFamilyPrefill,
     morphologyFamilyLinks,
+    rootLanguageAssignments,
   ] = await Promise.all([
     wordId
       ? db
@@ -209,6 +211,7 @@ export async function TeachingDictionaryDetail({
     wordId ? db.from("teaching_dictionary_spelling_lexical_members")
       .select("canonical_morphology_id").eq("canonical_word_id", wordId)
       : Promise.resolve({ data: [], error: null }),
+    wordId ? loadWordRootLanguageAssignments(db, wordId) : Promise.resolve([]),
   ]);
   for (const result of [
     wordResult,
@@ -652,6 +655,7 @@ export async function TeachingDictionaryDetail({
         }}
         partSuggestions={partSuggestions}
         baseFamilies={baseFamilies}
+        rootLanguageAssignments={rootLanguageAssignments}
         grammaticalLinks={grammaticalLinks}
         familyReviewContext={{ error: params.family_error }}
         overviewReviewed={

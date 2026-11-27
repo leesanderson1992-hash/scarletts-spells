@@ -43,3 +43,24 @@ export async function createRecommendedRootEntry(form: FormData) {
   scheduleFamilyDependencyRecheck(created.data);
   redirect(`/admin/teaching-dictionary/${created.data}`);
 }
+
+export async function reviewRootHistoricalLanguage(input: { wordId: string; familyKey: string;
+  revision: number; origin: string }): Promise<{ ok: boolean; error?: string }> {
+  const actor = await requireAdminUser();
+  if (!isUuid(input.wordId) || !input.familyKey || !Number.isInteger(input.revision)
+    || !["Latin", "Greek", "Latin-derived"].includes(input.origin))
+    return { ok: false, error: "Choose the reviewed historical language." };
+  const db = createServiceRoleClient();
+  const family = await db.from("teaching_dictionary_families_with_current_meaning")
+    .select("family_key").eq("family_key", input.familyKey).eq("revision", input.revision)
+    .eq("canonical_base_word_id", input.wordId).eq("is_current_family", true).maybeSingle();
+  if (family.error || !family.data) return { ok: false, error: "The root family changed. Reload before saving." };
+  const result = await db.rpc("review_root_historical_language", { p_family: input.familyKey,
+    p_expected_revision: input.revision, p_origin: input.origin, p_actor: actor.id,
+    p_source: "Admin reviewed historical language; automatic Latin/Greek root assignment" });
+  if (result.error) return { ok: false, error: "The root family changed. Reload before saving." };
+  updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
+  revalidatePath(`/admin/teaching-dictionary/${input.wordId}`);
+  revalidatePath("/admin/teaching-dictionary/lesson-updates");
+  return { ok: true };
+}

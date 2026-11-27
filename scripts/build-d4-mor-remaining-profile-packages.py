@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build six disabled D4_MOR first-impression profile candidates.
+"""Build current disabled D4_MOR first-impression profile candidates.
 
 The frozen July package is an immutable reviewed source. These derived profile
 candidates do not alter it, activate runtime selection, or claim that missing
@@ -222,6 +222,8 @@ def main() -> None:
     for config in PROFILE_CONFIGS:
         key = config["microSkillKey"]
         if key not in current_keys:
+            if key in {"D4_MOR_ROOTS_ROOT_FAMILY_SPELLING", "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS"}:
+                continue  # Retired source profiles remain historical evidence.
             raise RuntimeError(f"current taxonomy lacks {key}")
         approved_content = content_by_key[key]
         selected_analyses = [analysis_by_key[(key, word)] for word in config["words"]]

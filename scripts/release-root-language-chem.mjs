@@ -1,0 +1,22 @@
+import fs from 'node:fs';import pg from 'pg';import {parseEnv} from 'node:util';import assert from 'node:assert/strict';
+const environment=process.argv[2],apply=process.argv.includes('--apply');assert(['staging','production'].includes(environment));
+const e=parseEnv(fs.readFileSync(environment==='staging'?'.env.staging.local':'.env.local','utf8'));
+const url=environment==='staging'?e.SUPABASE_STAGING_DB_URL:e.SUPABASE_PRODUCTION_DB_URL_POOLER_SHARED;
+assert(new URL(url).username.includes(environment==='staging'?'qkpjbajicacbrphthibk':'wwohrqtunajrbwxyssjf'));
+const actor=environment==='staging'?e.STAGING_ADMIN_USER_ID:'a28d4885-8328-4853-ba11-6c676619b9ea';
+const policy=JSON.parse(fs.readFileSync('data/teaching-dictionary/root-language-policy-2026-11-27.json','utf8'));
+const db=new pg.Client({connectionString:url,ssl:{rejectUnauthorized:false}}),q=async(s,p=[])=>(await db.query(s,p)).rows;
+await db.connect();try{await q('begin isolation level serializable');
+const f=(await q("select * from teaching_dictionary_families_with_current_meaning where base_lemma='chem' and is_current_family order by revision desc limit 1"))[0];assert(f);
+const before=(await q('select * from teaching_dictionary_reviewed_sense_sets where canonical_word_id=$1',[f.canonical_base_word_id]))[0];
+const snapshots=async revision=>q("select to_jsonb(m)-'revision' row from canonical_teaching_dictionary_lexical_base_family_members m where family_key=$1 and revision=$2 order by to_jsonb(m)-'revision'",[f.family_key,revision]);
+const members=await snapshots(f.revision);const metadata=(await q('select * from canonical_teaching_dictionary_lexical_root_metadata where family_key=$1 and revision=$2',[f.family_key,f.revision]))[0];
+assert(['Arabic through Medieval Latin and Greek','Greek'].includes(metadata.origin_language));
+const revision=(await q('select review_root_historical_language($1,$2,$3,$4,$5) revision',[f.family_key,f.revision,'Greek',actor,policy.approvalReference]))[0].revision;
+assert.deepEqual(await snapshots(revision),members);
+assert.deepEqual((await q('select * from teaching_dictionary_reviewed_sense_sets where canonical_word_id=$1',[f.canonical_base_word_id]))[0],before);
+const after=(await q('select * from canonical_teaching_dictionary_lexical_root_metadata where family_key=$1 and revision=$2',[f.family_key,revision]))[0];
+assert.equal(after.origin_language,'Greek');assert.deepEqual(after.teaching_examples,metadata.teaching_examples);assert.equal(after.root_meaning,metadata.root_meaning);
+assert.equal((await q('select micro_skill_key from teaching_dictionary_root_skill_families where family_key=$1',[f.family_key]))[0].micro_skill_key,'D4_MOR_ROOTS_COMMON_GREEK_ROOTS');
+await q(apply?'commit':'rollback');const report={environment,applied:apply,root:'chem',familyKey:f.family_key,revision,origin:'Greek',microSkill:'D4_MOR_ROOTS_COMMON_GREEK_ROOTS',membersAndMeaningsPreserved:true};fs.writeFileSync(`outputs/root-micro-skills-20261127/${environment}-chem${apply?'':'-rollback'}.json`,JSON.stringify(report,null,2));console.log(report);
+}catch(err){await q('rollback');throw err;}finally{await db.end()}

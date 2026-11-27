@@ -46,7 +46,7 @@ Validation summary:
 
 - `8` Ready Domain 4 families
 - `46` current clusters
-- `241` current micro-skills
+- `240` current micro-skills
 - `12` task templates in repo artifact/config
 - `40` family-level mappings in repo artifact/config
 - no duplicate family, cluster, or micro-skill IDs
@@ -101,14 +101,14 @@ Rows upserted from these artifacts:
 
 - `micro_skill_families`: `8`
 - `micro_skill_clusters`: `46`
-- `micro_skill_catalog`: `241`
+- `micro_skill_catalog`: `240`
 
 Final live validation:
 
 - `8` Domain 4 families
 - `46` current Domain 4 clusters
-- `241` current Domain 4 micro-skills
-- `241` active assignable Domain 4 micro-skills
+- `240` current Domain 4 micro-skills
+- `240` active assignable Domain 4 micro-skills
 - `0` `D4_PROOF` taxonomy rows
 - stale direct column references: `0`
 - stale linked rows: `0`

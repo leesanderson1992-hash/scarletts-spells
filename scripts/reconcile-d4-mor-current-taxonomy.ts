@@ -21,14 +21,14 @@ const RETIRED_CLUSTER = "D4_MOR_WORD_FAMILIES";
 const RETIRED_KEYS = new Set([
   "D4_MOR_WORD_FAMILIES_PRONUNCIATION_SHIFT",
   "D4_MOR_WORD_FAMILIES_RELATED_WORD_SUPPORT",
+  "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING",
+  "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS",
 ]);
 const CLOSED_COMPOUND_KEY = "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS";
 const AWAITING_PROFILE_KEYS = new Set([
   "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
   "D4_MOR_ROOTS_COMMON_GREEK_ROOTS",
   "D4_MOR_ROOTS_COMMON_LATIN_ROOTS",
-  "D4_MOR_ROOTS_ROOT_FAMILY_SPELLING",
-  "D4_MOR_ROOTS_SCIENCE_MATH_ROOTS",
 ]);
 const PRODUCTION_STATUS_RECONCILIATIONS = new Map([
   [
@@ -251,6 +251,10 @@ function main() {
       (row) => !existingKeys.has(String(row.micro_skill_key)),
     ),
   );
+  for (const row of existing) {
+    if (row.micro_skill_key === "D4_MOR_ROOTS_COMMON_LATIN_ROOTS") row.display_name = "Common Latin roots";
+    if (row.micro_skill_key === "D4_MOR_ROOTS_COMMON_GREEK_ROOTS") row.display_name = "Common Greek roots";
+  }
   writeJson(MICRO_SKILLS, existing);
 
   const clusters = readJson<JsonRow[]>(CLUSTERS).filter(
@@ -415,7 +419,7 @@ function main() {
   validation.expected_counts = {
     ...(validation.expected_counts as Record<string, unknown>),
     clusters: 46,
-    micro_skills: 241,
+    micro_skills: 240,
   };
   validation.actual_counts = {
     ...(validation.actual_counts as Record<string, unknown>),
@@ -429,7 +433,8 @@ function main() {
     retired_micro_skill_count: RETIRED_KEYS.size,
     retirement_receipt:
       "docs/implementation/qa/adle-d4-mor-word-families-staging-retirement-receipt-2026-07-29.json",
-    source: "live staging and production taxonomy audit 2026-07-29",
+    root_retirement_policy: "data/teaching-dictionary/root-language-policy-2026-11-27.json",
+    source: "2026-07-29 taxonomy audit; owner root simplification 2026-11-27",
   };
   writeJson(VALIDATION, validation);
   validation.artifact_sha256 = {
@@ -462,14 +467,15 @@ function main() {
       /- `240` active assignable Domain 4 micro-skills/g,
       "- `241` active assignable Domain 4 micro-skills",
     );
+  readme = readme.replace(/`241` current/g, "`240` current").replace(/`241` active assignable/g, "`240` active assignable").replace(/`micro_skill_catalog`: `241`/g, "`micro_skill_catalog`: `240`");
   writeFileSync(README, readme, "utf8");
 
   if (
-    existing.length !== 241 ||
-    familyCounts.D4_MOR !== 25 ||
+    existing.length !== 240 ||
+    familyCounts.D4_MOR !== 23 ||
     clusters.length !== 46 ||
-    globalRows !== 241 ||
-    morphologyRows !== 25 ||
+    globalRows !== 239 ||
+    morphologyRows !== 23 ||
     legacy.morphology_node_count !== 96
   ) {
     throw new Error(

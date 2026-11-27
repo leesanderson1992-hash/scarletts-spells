@@ -1,4 +1,6 @@
 "use client";
+import { rootSkillsForMeaning, type RootLanguageAssignment } from "@/lib/teaching-dictionary-manager/root-language";
+import { RootLanguageReview } from "./root-language-review";
 import type { GrammaticalLink } from "@/lib/teaching-dictionary-manager/grammatical-links";
 import { normaliseWrittenSyllableBreakdown } from "@/lib/teaching-dictionary-manager/authoring";
 import { TransformationEditor } from "./transformation-editor";
@@ -110,7 +112,7 @@ type Skill = {
   skill_family_key: string;
   skill_cluster_key: string;
 };
-type Family = { rootOrigin?: string; rootExamples?: string[]; name: string; displayName?: string; meaning?: string; pronunciation?: string; baseWordId?: string; baseSenseId?: string; words: { id: string; word: string }[] };
+type Family = { revision?: number; rootOrigin?: string; rootExamples?: string[]; name: string; displayName?: string; meaning?: string; pronunciation?: string; baseWordId?: string; baseSenseId?: string; words: { id: string; word: string }[] };
 type Field = {
   key: string;
   label: string;
@@ -349,6 +351,7 @@ export function WordWorkspace(props: {
     choices: string[];
   }[];
   baseFamilies: Family[];
+  rootLanguageAssignments: RootLanguageAssignment[];
   grammaticalLinks?: GrammaticalLink[];
   familyReviewContext: { error?: string };
   advanced: ReactNode;
@@ -388,6 +391,7 @@ export function WordWorkspace(props: {
   const [overviewView, setOverviewView] = useState<OverviewView>(props.pronunciationSaved ? "pronunciation" : props.initialSenseId ? "parts" : props.wordId ? "meaning" : "details");
   const activeSense = props.approvedSenseSet?.senses.find(sense => sense.id === activeSenseId);
   const selectedMeaning = payload.senseSet?.senses.find(sense => sense.id === activeSenseId);
+  const automaticRootSkills = rootSkillsForMeaning(props.rootLanguageAssignments, activeSenseId, selectedMeaning?.partOfSpeech === "root");
   const definitionChanged = Boolean(activeSense && selectedMeaning && activeSense.definition !== selectedMeaning.definition);
   const familyMeanings = props.senseFamilyMemberships;
   const dictationRecordingSources = new Map(props.dictationRecordingSources);
@@ -1172,7 +1176,9 @@ export function WordWorkspace(props: {
                 >
                   <strong>Family: {item.displayName ?? item.name}</strong>
                   {!item.displayName && item.meaning ? <span className="text-[color:var(--mid)]">{item.meaning}</span> : null}
-                  {item.rootOrigin ? <span className="text-[color:var(--mid)]">Origin: {item.rootOrigin}</span> : null}
+                  {item.rootOrigin && item.revision && item.baseWordId === props.wordId && item.baseSenseId === activeSenseId
+                    ? <RootLanguageReview wordId={props.wordId!} familyKey={item.name} revision={item.revision} origin={item.rootOrigin} />
+                    : item.rootOrigin ? <span className="text-[color:var(--mid)]">Historical language: {item.rootOrigin}</span> : null}
                   {item.rootExamples?.length ? <span className="basis-full text-[color:var(--mid)]">Examples: {item.rootExamples.join(", ")}</span> : null}
                   {item.pronunciation ? <span className="text-[color:var(--mid)]">{item.pronunciation}</span> : null}
                   {item.words.map((word) => (
@@ -1515,7 +1521,16 @@ export function WordWorkspace(props: {
           Readiness for this meaning
         </h2>
         <div className="px-4 pb-4">
-          {!payload.skillKeys.length && <p className="text-sm text-[color:var(--mid)]">No micro-skills assigned yet.</p>}
+          {automaticRootSkills.length > 0 && <section aria-label="Automatic root micro-skills" className="mb-4 text-sm">
+            <h3 className="font-semibold">Assigned from historical language</h3>
+            <ul className="mt-1 space-y-1">{automaticRootSkills.map(skill => <li key={skill.key}>
+              <strong>{skill.name}</strong>{" · "}{skill.roots.map(root => `${root.root} (${root.origin})`).join(", ")}
+            </li>)}</ul>
+            <p className="mt-1 text-[color:var(--mid)]">{selectedMeaning?.partOfSpeech === "root"
+              ? "Root teaching support. Member words provide the spelling targets."
+              : "Assigned through reviewed root families. Lesson readiness is reviewed separately."}</p>
+          </section>}
+          {!payload.skillKeys.length && !automaticRootSkills.length && <p className="text-sm text-[color:var(--mid)]">No micro-skills assigned yet.</p>}
           <div className="grid gap-2">
               {payload.skillKeys.map((key) => {
                 const route = routeForSkill(key);
