@@ -4,7 +4,7 @@ import type {createServiceRoleClient} from "@/lib/supabase/service-role";
 import {loadCanonicalLatinRootFacts} from "@/lib/adle/loaders/latin-root-canonical-loader";
 import {buildLatinRootReleasePackage,latinRootDictionaryProjection,latinRootTeachingAuthority} from "@/lib/adle/morphology/latin-root-release";
 import {fingerprintSnapshotValue} from "@/lib/adle/composable-lesson/canonical-fingerprint";
-import {latinRootReviewIssues,LATIN_ROOT_REVIEW_SKILL,LATIN_ROOT_REVIEW_ROUTE} from "./latin-root-review";
+import {latinRootReviewIssues,latinRootSpellingReviewEligible,LATIN_ROOT_REVIEW_SKILL,LATIN_ROOT_REVIEW_ROUTE} from "./latin-root-review";
 import {loadReviewedMeaningBundles} from "./multi-sense-export";
 import type {MultiSenseCsvBundle} from "./multi-sense-csv";
 import {ingReviewEnvironment} from "./ing-staging-scope";
@@ -29,7 +29,7 @@ export async function loadLatinRootBulkReview(db:Db) {
  if(wordRows.error)throw Error("Could not read the existing Latin root dictionary words.");
  const reviewed=await loadReviewedMeaningBundles(db,ids);
  const bundles:MultiSenseCsvBundle[]=wordRows.data!.filter(w=>w.review_status==="approved_for_first_exposure").map(w=>reviewed.find(b=>b.wordId===w.id)??{
-  wordId:w.id,displayWord:w.display_word,sourceSenseReviewedAt:"",senseSet:{pronunciations:[{id:"british-1",ipa:"",spokenSyllableCount:null,stressPattern:""}],senses:[{id:"review",definition:"",partOfSpeech:"",pronunciationId:"british-1"}]},analyses:[]}).filter(bundle=>!bundle.senseSet.senses.every(s=>s.partOfSpeech==="root")&&!requests.data!.some(r=>r.canonical_word_id===bundle.wordId&&bundle.senseSet.senses.some(s=>s.id===r.sense_id&&s.partOfSpeech==="root")&&!associations.data!.some(a=>a.canonical_word_id===bundle.wordId)));
+  wordId:w.id,displayWord:w.display_word,sourceSenseReviewedAt:"",senseSet:{pronunciations:[{id:"british-1",ipa:"",spokenSyllableCount:null,stressPattern:""}],senses:[{id:"review",definition:"",partOfSpeech:"",pronunciationId:"british-1"}]},analyses:[]}).filter(bundle=>latinRootSpellingReviewEligible(bundle,facts.families,new Set(facts.words.map(w=>w.canonicalWordId)))&&!requests.data!.some(r=>r.canonical_word_id===bundle.wordId&&bundle.senseSet.senses.some(s=>s.id===r.sense_id&&s.partOfSpeech==="root")&&!associations.data!.some(a=>a.canonical_word_id===bundle.wordId)));
  const senseIds=new Map<string,string>();for(const row of bindings.data!){const old=senseIds.get(row.canonical_word_id);if(old&&old!==row.sense_id)throw Error("A Latin root word has conflicting teaching meanings.");senseIds.set(row.canonical_word_id,row.sense_id);}
  const requested=new Map(requests.data!.filter(r=>r.sense_id).map(r=>[r.canonical_word_id,r.sense_id as string]));
  const vetoed=new Set([...decisions.data!.filter(d=>d.action==="deassign").map(r=>r.canonical_word_id),...exclusions.data!.map(r=>r.canonical_word_id)]);

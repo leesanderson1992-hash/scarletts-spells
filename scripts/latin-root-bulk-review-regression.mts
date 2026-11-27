@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';import ExcelJS from 'exceljs';
-import {latinRootReviewIssues,LATIN_ROOT_REVIEW_SKILL} from '../lib/teaching-dictionary-manager/latin-root-review';
+import {latinRootReviewIssues,latinRootSpellingReviewEligible,LATIN_ROOT_REVIEW_SKILL} from '../lib/teaching-dictionary-manager/latin-root-review';
 import {buildReviewWorkbook,readReviewWorkbook} from '../lib/teaching-dictionary-manager/review-workbook';
 import {supportsReviewWorkbook} from '../lib/teaching-dictionary-manager/bulk-review-scope';
 import type {CanonicalLatinRootFamily} from '../lib/adle/morphology/latin-root-word-facts';
@@ -9,6 +9,8 @@ const family:CanonicalLatinRootFamily={familyKey:'synthetic-port',revision:1,roo
 const bundle:MultiSenseCsvBundle={wordId:'00000000-0000-4000-8000-000000000002',displayWord:'portable',sourceSenseReviewedAt:'2026-11-27T00:00:00.000Z',senseSet:{pronunciations:[{id:'british',ipa:'/ˈpɔː.tə.bəl/',spokenSyllableCount:3,stressPattern:'primary-unstressed-unstressed'}],senses:[{id:'carry',definition:'Easy to carry.',partOfSpeech:'adjective',pronunciationId:'british',dictationSentence:'The portable lamp is small.',dictationTargetTokenIndex:1}]},analyses:[{senseId:'carry',parts:[{id:'root',kind:'root',sourceText:'port',surfaceText:'port',gloss:'Carry',displayRange:{start:0,end:4}},{id:'suffix',kind:'suffix',sourceText:'able',surfaceText:'able',gloss:'able to be',displayRange:{start:4,end:8}}],joins:[{afterPartId:'root',beforePartId:'suffix',joinType:'none'}],transformations:[],wordSum:'port + able → portable',familyKey:family.familyKey,componentPartId:'root',relationshipKind:'derived',requestedSkillKeys:[]}]};
 assert(supportsReviewWorkbook(LATIN_ROOT_REVIEW_SKILL));assert.deepEqual(latinRootReviewIssues(bundle,'carry',[family]),[]);
 assert(latinRootReviewIssues(bundle,'carry',[{...family,origin:'Greek'}]).length);
+assert(latinRootSpellingReviewEligible(bundle,[family],new Set([bundle.wordId])));
+const mixedAnchor={...bundle,wordId:family.rootWordId};assert(!latinRootSpellingReviewEligible(mixedAnchor,[family],new Set([bundle.wordId])),"Mixed root anchors must not enter the ordinary root spelling workbook merely through a saved request");
 const root=structuredClone(bundle);root.senseSet.senses[0].partOfSpeech='root';assert(latinRootReviewIssues(root,'carry',[family])[0].includes('root-only'));
 const noStress=structuredClone(bundle);noStress.senseSet.pronunciations[0].stressPattern='';assert(latinRootReviewIssues(noStress,'carry',[family]).some(i=>i.includes('stress')));
 const base=structuredClone(bundle);base.analyses[0].parts[0].kind='base';assert(latinRootReviewIssues(base,'carry',[family]).length);

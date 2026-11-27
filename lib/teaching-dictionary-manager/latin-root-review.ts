@@ -32,3 +32,7 @@ export function latinRootReviewIssues(bundle: MultiSenseCsvBundle | undefined, s
   if(!pronunciation?.spokenSyllableCount||!pronunciation.stressPattern?.trim())issues.push("Complete British spoken syllable count and stress.");
   return issues;
 }
+
+export function latinRootSpellingReviewEligible(bundle:MultiSenseCsvBundle,families:readonly CanonicalLatinRootFamily[],ordinaryMemberIds:ReadonlySet<string>):boolean{
+  return !bundle.senseSet.senses.every(s=>s.partOfSpeech==="root")&&(!families.some(f=>f.rootWordId===bundle.wordId)||ordinaryMemberIds.has(bundle.wordId));
+}
