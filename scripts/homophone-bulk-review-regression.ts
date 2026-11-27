@@ -43,7 +43,7 @@ async function main() {
   assert.equal(homophoneReviewCandidate(multi,skill,undefined).status,"needs_facts");
   assert.equal(homophoneReviewCandidate(multi,skill,"other").status,"needs_facts","Each meaning needs its own approved parts");
   const bytes=await buildReviewWorkbook({skill,title:"Homophone review",bundles:[bundle],notes:new Map(),families:new Map(),requestedSenses:new Map([[bundle.wordId,"meaning"]])});
-  const wb=new ExcelJS.Workbook();await wb.xlsx.load(bytes);
+  const wb=new ExcelJS.Workbook();await wb.xlsx.load(bytes as unknown as Parameters<typeof wb.xlsx.load>[0]);
   const sheet=wb.getWorksheet("Words to review")!;
   assert.equal(sheet.getCell('D4').text,'Yes');
   const headers=sheet.getRow(3).values as string[];assert(sheet.getColumn(headers.indexOf('Word family')).hidden);

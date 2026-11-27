@@ -50,7 +50,7 @@ const rootWord = structuredClone(original);
 const component = rootWord.parts.find(part => part.role === "base" || part.role === "root")!;
 component.role = "root";
 component.sourceText = rootWord.baseWord;
-selection.profile.wordsByCanonicalId.set(rootWord.canonicalWordId, rootWord);
+selection.profile.wordsByCanonicalId = new Map(selection.profile.wordsByCanonicalId).set(rootWord.canonicalWordId, rootWord);
 const projection = normaliseDynamicPrefixSelection(selection);
 assert(projection.ok);
 assert.equal(projection.input.words.find(word => word.canonicalWordId === rootWord.canonicalWordId)?.semanticBaseKind, "root");

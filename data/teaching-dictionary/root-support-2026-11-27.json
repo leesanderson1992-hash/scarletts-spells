@@ -1,0 +1,214 @@
+{
+  "releaseKey": "root-support-2026-11-27",
+  "approvalReference": "Owner authorised 2026-11-27: create the 29 audited missing root entries using existing reviewed family meanings; consolidate Graph; block root-only spelling targets.",
+  "roots": [
+    {
+      "root": "bio",
+      "familyKey": "bio_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Greek: bios \u2014 \u201clife\u201d.",
+      "origin": "Greek"
+    },
+    {
+      "root": "ceive",
+      "familyKey": "ceive_bound_root_base_family",
+      "expectedRevision": 2,
+      "definition": "Latin via Old French: capere or recipere through recevoir \u2014 \u201cto take or receive\u201d.",
+      "origin": "Latin via Old French"
+    },
+    {
+      "root": "chem",
+      "familyKey": "chem_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Arabic through Medieval Latin and Greek: al-k\u012bmiy\u0101 or alchemy \u2014 \u201cthe old practice of alchemy\u201d.",
+      "origin": "Arabic through Medieval Latin and Greek"
+    },
+    {
+      "root": "combust",
+      "familyKey": "combust_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Latin: comburere or combustus \u2014 \u201cto burn up\u201d.",
+      "origin": "Latin"
+    },
+    {
+      "root": "dict",
+      "familyKey": "dict_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Latin: dicere or dictus \u2014 \u201cto say or speak\u201d.",
+      "origin": "Latin"
+    },
+    {
+      "root": "electr",
+      "familyKey": "electr_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Greek: \u0113lektron \u2014 \u201camber\u201d.",
+      "origin": "Greek"
+    },
+    {
+      "root": "fect",
+      "familyKey": "fect_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "make or do",
+      "origin": "Latin"
+    },
+    {
+      "root": "geo",
+      "familyKey": "geo_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Greek: g\u0113 \u2014 \u201cearth or land\u201d.",
+      "origin": "Greek"
+    },
+    {
+      "root": "initi",
+      "familyKey": "initi_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Latin: initium or inire \u2014 \u201ca beginning or to start\u201d.",
+      "origin": "Latin"
+    },
+    {
+      "root": "ject",
+      "familyKey": "ject_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Latin: iacere or iectus \u2014 \u201cto throw or cast\u201d.",
+      "origin": "Latin"
+    },
+    {
+      "root": "meter",
+      "familyKey": "meter_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Greek: metron \u2014 \u201ca measure\u201d.",
+      "origin": "Greek"
+    },
+    {
+      "root": "phon",
+      "familyKey": "phon_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Greek: ph\u014dn\u0113 \u2014 \u201ca voice or sound\u201d.",
+      "origin": "Greek"
+    },
+    {
+      "root": "picto",
+      "familyKey": "picto_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Latin: pingere or pictus \u2014 \u201cto paint or make an image\u201d.",
+      "origin": "Latin"
+    },
+    {
+      "root": "ple",
+      "familyKey": "ple_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "fill",
+      "origin": "Latin"
+    },
+    {
+      "root": "politic",
+      "familyKey": "politic_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Greek via Latin: polis or politikos \u2014 \u201ca city or citizens' affairs\u201d.",
+      "origin": "Greek via Latin"
+    },
+    {
+      "root": "popul",
+      "familyKey": "popul_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Latin: populus \u2014 \u201cpeople or a population\u201d.",
+      "origin": "Latin"
+    },
+    {
+      "root": "pose",
+      "familyKey": "pose_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Latin via French: ponere or poser \u2014 \u201cto put or place\u201d.",
+      "origin": "Latin via French"
+    },
+    {
+      "root": "poten",
+      "familyKey": "poten_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Latin: potens or potentis \u2014 \u201cpowerful or able to act\u201d.",
+      "origin": "Latin"
+    },
+    {
+      "root": "sci",
+      "familyKey": "sci_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Latin: scire \u2014 \u201cto know\u201d.",
+      "origin": "Latin"
+    },
+    {
+      "root": "soci",
+      "familyKey": "soci_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Latin: socius or socialis \u2014 \u201ca companion or relating to companions\u201d.",
+      "origin": "Latin"
+    },
+    {
+      "root": "stat",
+      "familyKey": "stat_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Latin: stare or status \u2014 \u201cto stand or remain standing\u201d.",
+      "origin": "Latin"
+    },
+    {
+      "root": "struct",
+      "familyKey": "struct_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Latin: struere or structus \u2014 \u201cto build, arrange or put together\u201d.",
+      "origin": "Latin"
+    },
+    {
+      "root": "tele",
+      "familyKey": "tele_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Greek: t\u0113le \u2014 \u201cfar away or at a distance\u201d.",
+      "origin": "Greek"
+    },
+    {
+      "root": "tend",
+      "familyKey": "tend_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Latin: tendere \u2014 \u201cto stretch or reach\u201d.",
+      "origin": "Latin"
+    },
+    {
+      "root": "thermo",
+      "familyKey": "thermo_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Greek: thermos \u2014 \u201cwarm or hot\u201d.",
+      "origin": "Greek"
+    },
+    {
+      "root": "un",
+      "familyKey": "un_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Latin: unus \u2014 \u201cone\u201d.",
+      "origin": "Latin"
+    },
+    {
+      "root": "veget",
+      "familyKey": "veget_bound_root_base_family",
+      "expectedRevision": 2,
+      "definition": "To grow or live",
+      "origin": "Latin"
+    },
+    {
+      "root": "vent",
+      "familyKey": "vent_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Latin: venire or invenire \u2014 \u201cto come or come upon\u201d.",
+      "origin": "Latin"
+    },
+    {
+      "root": "vis",
+      "familyKey": "vis_bound_root_base_family",
+      "expectedRevision": 1,
+      "definition": "Latin: videre or visus \u2014 \u201cto see\u201d.",
+      "origin": "Latin"
+    }
+  ],
+  "graph": {
+    "old": "graph_noun_base_family",
+    "target": "graph_root_graph_root_write_base_family",
+    "senseId": "graph-root-write"
+  }
+}

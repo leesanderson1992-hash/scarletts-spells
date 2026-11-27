@@ -22,6 +22,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- conditional nested route select is ahead of generated Supabase types */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { loadRootOnlyWordIds } from "./root-only-entries";
 import { recordAdleReadPage, withAdleReadMetrics } from "../observability/read-metrics";
 
 import type { ChildBandProfile } from "../dictionary-eligibility";
@@ -538,7 +539,9 @@ async function loadDailyPlanFactsUnmeasured(
   const learningItems = learningItemRows.map(learningItemFromRow);
   const { selectable: lessonLearningItems, withdrawn: withdrawnLearningItems } =
     partitionWithdrawnLearningItems(learningItems, deassignedPairs);
-  const words = wordRows.map(dictionaryWordFromRow);
+  const rootOnlyIds = await loadRootOnlyWordIds(client);
+  const words = wordRows.map(row => ({ ...dictionaryWordFromRow(row),
+    ordinaryTargetEligible: !rootOnlyIds.has(row.id) }));
   let supports = excludeWithdrawnTeachingSupports(
     supportRows.filter((row) => row.row_status === "active").map(wordSupportFromRow), deassignedPairs);
   if (authenticControl.data?.mode === "enabled" && authenticControl.data.proficiency_enabled) {

@@ -40,7 +40,7 @@ const skills = new Set([...Object.keys(prefixWorkbooks), "D4_MOR_PREFIXES_UN", .
 async function checkWorkbooks() {
 for (const skill of skills) {
   const book = new ExcelJS.Workbook();
-  await book.xlsx.load(await buildReviewWorkbook({ skill, title: skill, bundles: [], notes: new Map(), families: new Map() }));
+  await book.xlsx.load(await buildReviewWorkbook({ skill, title: skill, bundles: [], notes: new Map(), families: new Map() }) as unknown as Parameters<typeof book.xlsx.load>[0]);
   const sheet = book.getWorksheet("Words to review")!;
   const headers = sheet.getRow(3).values as string[];
   for (const row of [4, 103]) for (const part of [1, 6]) {

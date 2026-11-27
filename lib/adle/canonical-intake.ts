@@ -36,6 +36,7 @@ export type IntakeTargetIdentityStatus = "unresolved" | "established";
 export type IntakeCandidateState = "pending_mapping" | "pending_content";
 
 export type IntakeReadinessBlockerCode =
+  | "root_support_only"
   | "candidate_not_approved"
   | "mapping_missing"
   | "mapping_hidden"
@@ -148,6 +149,7 @@ export interface CanonicalIntakeMappingFact {
 }
 
 export interface CanonicalIntakeWordFact {
+  ordinaryTargetEligible?: boolean;
   canonicalWordId: string;
   normalisedWord: string;
   rowStatus: string;
@@ -560,6 +562,10 @@ export function evaluateCanonicalIntakeReadiness(
     });
   }
   const word = activeRows[0];
+  if (word.ordinaryTargetEligible === false) {
+    return blockedOutcome({ facts, codes: ["root_support_only"], targetIdentityStatus: "established",
+      targetToken, canonicalWordId: word.canonicalWordId, canonicalMappingId: mapping.mappingId });
+  }
   if (!APPROVED_REVIEW_STATUSES.has(word.reviewStatus)) {
     return blockedOutcome({
       facts,

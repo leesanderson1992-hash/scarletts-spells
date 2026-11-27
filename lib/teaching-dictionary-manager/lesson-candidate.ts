@@ -75,6 +75,10 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
     status, ruleRevision: LESSON_CANDIDATE_RULE_REVISION, evidence, issues,
     ...(doublingPattern ? { doublingPattern } : {}),
   });
+  if (input.senseSet?.senses.length && input.senseSet.senses.every(sense => sense.partOfSpeech === "root")) {
+    add("ROOT_SUPPORT_ONLY", "Bound-root entries provide teaching support and cannot be ordinary spelling targets.", "td-definition");
+    return done("not_match");
+  }
   const homophone = isHomophoneReviewSkill(input.skillKey);
   const identifyBase = input.skillKey === IDENTIFY_BASE_SKILL;
   if (!identifyBase && !hasCandidateRule(input.skillKey)) return done("legacy_review");

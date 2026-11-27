@@ -2,6 +2,7 @@ import "server-only";
 /* eslint-disable @typescript-eslint/no-explicit-any -- additive tables are intentionally ahead of generated Supabase types */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { loadRootOnlyWordIds } from "./root-only-entries";
 
 import {
   canonicalWordSkillPair,
@@ -756,6 +757,7 @@ async function intakeApprovedParentVerifiedCorrections(params: {
       ),
     ),
   ];
+  const rootOnlyIds = await loadRootOnlyWordIds(client);
   const [
     { data: words, error: wordsError },
     { data: skills, error: skillsError },
@@ -893,14 +895,14 @@ async function intakeApprovedParentVerifiedCorrections(params: {
         verifiedOn: isoDate(candidate.updated_at),
       },
       canonicalMappings: mappingFacts,
-      words: exactBaseWordWords ?? (words ?? []).map((word: any) => ({
+      words: (exactBaseWordWords ?? (words ?? []).map((word: any) => ({
         canonicalWordId: word.id,
         normalisedWord: word.normalised_word,
         rowStatus: word.row_status,
         reviewStatus: word.review_status,
         frequencyBand: word.frequency_band,
         ageBand: word.age_band,
-      })),
+      }))).map(word => ({ ...word, ordinaryTargetEligible: !rootOnlyIds.has(word.canonicalWordId) })),
       microSkills: (skills ?? []).map((skill: any) => ({
         microSkillKey: skill.micro_skill_key,
         masteryDomainKey: skill.mastery_domain_key,

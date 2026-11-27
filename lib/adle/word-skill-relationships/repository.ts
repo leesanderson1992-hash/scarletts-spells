@@ -2,6 +2,7 @@ import "server-only";
 /* eslint-disable @typescript-eslint/no-explicit-any -- governed tables intentionally lead generated database types */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { loadRootOnlyWordIds } from "../loaders/root-only-entries";
 import { recordAdleReadPage, withAdleReadMetrics } from "../observability/read-metrics";
 
 import {
@@ -263,7 +264,9 @@ async function loadCanonicalWordSkillRelationshipAuthorityUnmeasured(params: {
   for (const row of wordRows.filter((word) => word.row_status === "active")) {
     wordCountByNormalised.set(row.normalised_word, (wordCountByNormalised.get(row.normalised_word) ?? 0) + 1);
   }
+  const rootOnlyIds = await loadRootOnlyWordIds(client);
   const words: CanonicalWordIdentityFact[] = wordRows.map((row) => ({
+    ordinaryTargetEligible: !rootOnlyIds.has(row.id),
     canonicalWordId: row.id,
     normalisedWord: row.normalised_word,
     state: row.row_status === "active" ? "active" : "inactive",

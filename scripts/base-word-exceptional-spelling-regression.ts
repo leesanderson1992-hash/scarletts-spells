@@ -36,7 +36,7 @@ for (const [name,base,projection,sum] of [['children','child',projected,'child â
   authenticTargets:[{canonicalWordId:name,learningItemId:'target-exception',sourceRef:'fixture'},{canonicalWordId:'cleaned',learningItemId:'target-regular',sourceRef:'fixture'}],
   familySections:[{baseFamilyKey:base,baseWord:support,baseMeaning:'Reviewed base meaning',etymologyRoute:{},authenticTargetWordIds:[name],guidedWords:[support,exceptional]},
    {baseFamilyKey:'clean',baseWord:regular[0],baseMeaning:'Reviewed base meaning',etymologyRoute:{},authenticTargetWordIds:['cleaned'],guidedWords:regular}],
-  independentSlots:all.map(w=>({canonicalWordId:w.canonicalWordId,baseFamilyKey:[name,base].includes(w.displayWord)?base:'clean',provenance:w.displayWord===name||w.displayWord==='cleaned'?'authentic_target':'transfer',learningItemId:w.displayWord===name?'target-exception':w.displayWord==='cleaned'?'target-regular':null}))});
+  independentSlots:all.map(w=>({canonicalWordId:w.canonicalWordId,baseFamilyKey:new Set<string>([name,base]).has(w.displayWord)?base:'clean',provenance:w.displayWord===name||w.displayWord==='cleaned'?'authentic_target':'transfer',learningItemId:w.displayWord===name?'target-exception':w.displayWord==='cleaned'?'target-regular':null}))});
  assert(validateBaseWordFamilyLessonSnapshot(payload));assert.equal(payload.independentWords.length,6);
  const build=baseWordDefinitionBuild([exceptional,...regular],0);assert.deepEqual(build.tiles.filter(t=>build.expectedIds.includes(t.id)).map(t=>t.text).sort(),projection.parts.map(p=>(p as {surfaceText:string}).surfaceText).sort());
  assert.equal(payload.independentWords.find(w=>w.displayWord===name)!.transformations[0].sourceText,base);

@@ -42,6 +42,25 @@ Phase 5A and Phase 5B define the current accepted planning truth:
 It exists to prevent a word-bank or dictionary import from becoming accidental
 truth for taxonomy, resolver behavior, mastery, assignments, or child progress.
 
+## Root support entries and ordinary spelling targets
+
+A reviewed bound root has a dictionary entry and a sense-specific family anchor.
+Approving that entry does not approve lesson content, word–skill assignments or
+learner progress. Historical family revisions remain immutable; adding a missing
+root anchor preserves their existing member and variant snapshots.
+
+An entry whose reviewed senses are exclusively `root` remains available as
+teaching support but is excluded from ordinary target, probe and positive
+word–skill relationship selection. New ordinary learning items and assignment
+targets enforce the same exclusion in the database. An entry with a separately
+reviewed whole-word sense, such as the noun sense of `port`, is not excluded
+merely because it also has a root sense. Missing classification reads fail closed.
+Historical issued lessons remain readable and their completion state is unchanged.
+
+Reviewed duplicate families use explicit succession records. Current family
+selection resolves the canonical key and unions its historical memberships;
+old workbook references and immutable lesson snapshots retain compatibility.
+
 ## Current Phase 5 Teaching Dictionary boundary
 
 ### Reviewed adjective-degree family v1 (2026-09-29)

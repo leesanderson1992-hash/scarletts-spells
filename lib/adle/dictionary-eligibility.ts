@@ -40,6 +40,8 @@ export const ASSIGNMENT_APPROVED_WORD_REVIEW_STATUSES: readonly DictionaryReview
 ];
 
 export interface DictionaryWordFact {
+  /** False when every reviewed meaning is a bound-root support sense. */
+  ordinaryTargetEligible?: boolean;
   canonicalWordId: string;
   wordKey: string;
   /** Canonical stripped-lowercase identity — used for matching/dedup, never
@@ -177,7 +179,7 @@ export function isCanonicalWordReadyForAssignment(
   activeTeachingSkillKeys: ReadonlySet<string>,
   microSkillKey: string,
 ): boolean {
-  return isRecognisable(word) && ASSIGNMENT_APPROVED_WORD_REVIEW_STATUSES.includes(word.reviewStatus) &&
+  return word.ordinaryTargetEligible !== false && isRecognisable(word) && ASSIGNMENT_APPROVED_WORD_REVIEW_STATUSES.includes(word.reviewStatus) &&
     childBand.allowedFrequencyBands.includes(word.frequencyBand ?? "") && childBand.allowedAgeBands.includes(word.ageBand ?? "") &&
     activeTeachingSkillKeys.has(microSkillKey);
 }
@@ -189,7 +191,7 @@ export function isAuthenticTargetReadyForAssignment(
   activeTeachingSkillKeys: ReadonlySet<string>,
   microSkillKey: string,
 ): boolean {
-  return isRecognisable(word) && ASSIGNMENT_APPROVED_WORD_REVIEW_STATUSES.includes(word.reviewStatus) &&
+  return word.ordinaryTargetEligible !== false && isRecognisable(word) && ASSIGNMENT_APPROVED_WORD_REVIEW_STATUSES.includes(word.reviewStatus) &&
     activeTeachingSkillKeys.has(microSkillKey);
 }
 
@@ -212,7 +214,7 @@ export function isEvidenceEligible(
   word: DictionaryWordFact,
   supports: readonly WordSupportFact[],
 ): boolean {
-  return isRecognisable(word) && hasApprovedSupportMapping(word, supports);
+  return word.ordinaryTargetEligible !== false && isRecognisable(word) && hasApprovedSupportMapping(word, supports);
 }
 
 /** The obscure-word firewall gate: frequency/AoA bands act here (statuses 3

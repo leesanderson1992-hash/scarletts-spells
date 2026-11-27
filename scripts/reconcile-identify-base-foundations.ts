@@ -39,12 +39,12 @@ async function main() {
   const anchorsBefore = await loadBaseWordFamilyAnchors(db, ids);
   const report: Array<{ word: string; wordId: string; status: string; detail: string; familyKey?: string }> = [];
   for (const id of ids) {
-    const word = words.find(row => row.id === id);
+    const word = (words ?? []).find(row => row.id === id);
     if (!word) throw Error(`Released base entry is missing: ${id}`);
     const log = { word: word.display_word, wordId: id, status: '', detail: '' };
     const prior = anchorsBefore.filter(row => row.wordId === id);
     if (prior.length) { report.push({ ...log, status: 'already_anchored', detail: `${prior.length} approved sense-specific families` }); continue; }
-    const current = reviewed.find(row => row.canonical_word_id === id);
+    const current = (reviewed ?? []).find(row => row.canonical_word_id === id);
     const source = release.family.families.filter(f => f.baseWordId === id);
     const meanings = [...new Set(source.map(f => f.baseMeaning))];
     const existingSet = current?.sense_set as DictionarySenseSet | undefined;
@@ -68,8 +68,8 @@ async function main() {
     const meaning = meanings.length === 1 ? meanings[0] : '';
     const pos = /^to /i.test(meaning) ? 'verb' : nounBases.has(word.normalised_word) ? 'noun' : word.normalised_word === 'one' ? 'numeral' : '';
     if (blocked || !meaning || !pos) { report.push({ ...log, status: 'review', detail: blocked ?? 'The reviewed source does not identify one clear base meaning and part of speech.' }); continue; }
-    const facts = metadata.find(row => row.canonical_word_id === id);
-    const sentence = dictation.find(row => row.canonical_word_id === id)?.dictation_sentence ?? '';
+    const facts = (metadata ?? []).find(row => row.canonical_word_id === id);
+    const sentence = (dictation ?? []).find(row => row.canonical_word_id === id)?.dictation_sentence ?? '';
     const targets = targetOccurrences(sentence, word.display_word);
     const pronunciationId = `base-pronunciation:${id}`;
     const senseId = `base-${pos}:${id}`;

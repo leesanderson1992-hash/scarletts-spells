@@ -101,13 +101,17 @@ export async function loadWordBaseFamilies(
   // Lexical families are canonical dictionary facts. Read only the families
   // touching this word, then resolve their latest approved revision so older
   // immutable revisions do not appear as duplicate memberships.
-  const [legacyLexicalMatches, senseLexicalMatches] = await Promise.all([
+  const [legacyLexicalMatches, senseLexicalMatches, rootAnchors, rootOnlyEntry] = await Promise.all([
     read(db.from("teaching_dictionary_spelling_lexical_members")
       .select("family_key,revision").eq("canonical_word_id", wordId)),
     read(db.from("teaching_dictionary_current_sense_family_memberships")
       .select("family_key,current_family_revision").eq("canonical_word_id", wordId)),
+    read(db.from("teaching_dictionary_families_with_current_meaning")
+      .select("family_key,revision").eq("canonical_base_word_id", wordId)
+      .eq("base_kind", "bound_root").eq("is_current_family", true).eq("review_status", "approved")),
+    read(db.from("teaching_dictionary_root_only_entries").select("canonical_word_id").eq("canonical_word_id", wordId)),
   ]);
-  const lexicalMatches = [...legacyLexicalMatches, ...senseLexicalMatches.map(row => ({
+  const lexicalMatches = [...legacyLexicalMatches, ...rootAnchors, ...senseLexicalMatches.map(row => ({
     family_key: row.family_key, revision: row.current_family_revision }))];
   let lexicalFamilies: FamilySummary[] = [];
   const lexicalSuccessorKeys = new Set<string>();
@@ -140,7 +144,8 @@ export async function loadWordBaseFamilies(
           return [`${key}:${row.canonical_word_id}`, { ...row, family_key: key, revision: latest.get(key)?.revision ?? row.revision }];
         })).values()];
       const activeKeys = [...latest.keys()].filter((key) =>
-        currentMembers.some((row) => row.family_key === key && row.canonical_word_id === wordId));
+        currentMembers.some((row) => row.family_key === key && row.canonical_word_id === wordId) ||
+        latest.get(key)?.base_kind === "bound_root" && latest.get(key)?.canonical_base_word_id === wordId);
       if (activeKeys.length) {
         const rootKeys = activeKeys.filter((key) => latest.get(key)?.base_kind === "bound_root");
         const rootDetails = rootKeys.length ? await read(
@@ -193,6 +198,9 @@ export async function loadWordBaseFamilies(
       }
     }
   }
+  // Root-only support has canonical root families, not ordinary lesson-family
+  // projections. Entries with a separate whole-word meaning retain both.
+  if (rootOnlyEntry.length && lexicalFamilies.length) return lexicalFamilies;
   const environment = resolveAdleRouteActivationEnvironment();
   // First find only families touching this word. The previous read fetched
   // every legacy membership, review and withdrawal on every word page.

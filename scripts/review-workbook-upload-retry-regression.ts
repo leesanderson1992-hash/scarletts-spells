@@ -16,9 +16,9 @@ const bundle = (word: string): MultiSenseCsvBundle => ({
 
 async function main() {
   const book = new ExcelJS.Workbook();
-  await book.xlsx.load(await buildReviewWorkbook({ skill, title: "Upload regression", bundles: [bundle("play"), bundle("jump")], notes: new Map(), families: new Map() }));
+  await book.xlsx.load(await buildReviewWorkbook({ skill, title: "Upload regression", bundles: [bundle("play"), bundle("jump")], notes: new Map(), families: new Map() }) as unknown as Parameters<typeof book.xlsx.load>[0]);
   const sheet = book.getWorksheet("Words to review")!;
-  const bytes = async () => Uint8Array.from(await book.xlsx.writeBuffer()).buffer;
+  const bytes = async () => Uint8Array.from(await book.xlsx.writeBuffer() as unknown as Uint8Array).buffer;
   sheet.getCell("D4").value = "Yes";
   sheet.getCell("D5").value = "No";
   const stale = await readReviewWorkbook(await bytes(), skill, { decisions: [], resolve: async () => null });

@@ -86,6 +86,7 @@ function initialDecision(
   const word = words.get(fact.canonicalWordId);
   if (!word) return decision(fact, "BLOCKED", "CANONICAL_WORD_ID_UNKNOWN");
   if (!word.identityStable) return decision(fact, "BLOCKED", "CANONICAL_WORD_ID_UNSTABLE");
+  if (word.ordinaryTargetEligible === false) return decision(fact, "EXCLUDED", "ROOT_SUPPORT_ONLY");
   if (word.state === "inactive") return decision(fact, "EXCLUDED", "SOURCE_INACTIVE");
   if (word.state === "unknown") return decision(fact, "BLOCKED", "SOURCE_STATE_UNKNOWN");
   if (!fact.microSkillKey?.trim()) return decision(fact, "BLOCKED", "MICRO_SKILL_KEY_MISSING");

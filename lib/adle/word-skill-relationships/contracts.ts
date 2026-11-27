@@ -26,6 +26,7 @@ export type RelationshipDisposition =
   | "AMBIGUOUS";
 
 export type RelationshipDecisionReason =
+  | "ROOT_SUPPORT_ONLY"
   | "ADMITTED_EXACT_PAIR"
   | "MANAGER_PAIR_DEASSIGNED"
   | "CONTRAST_ONLY"
@@ -57,6 +58,7 @@ export type ReleaseState = "released" | "unreleased" | "unknown" | "not_applicab
 export type ExactPairApprovalState = "approved" | "unapproved" | "ambiguous" | "unknown";
 
 export interface CanonicalWordIdentityFact {
+  ordinaryTargetEligible?: boolean;
   canonicalWordId: string;
   normalisedWord: string;
   state: AuthorityState;

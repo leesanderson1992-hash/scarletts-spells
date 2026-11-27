@@ -28,7 +28,7 @@ assert.deepEqual(weakVowelRouteBlockers(facts, { displayWord: sample.spelling,
   microSkillKey: sample.microSkillKey }), []);
 const html = renderToStaticMarkup(React.createElement(WeakVowelRouteEditor, {
   skillKey: sample.microSkillKey, word: sample.spelling, sentence,
-  facts, dictionaryFingerprint: "a".repeat(64), dictionarySyllables: "3", blockers: [], onChange: () => {},
+  facts, dictionaryFingerprint: "a".repeat(64), dictionarySyllables: "3", dictionaryWrittenDivisions: "", blockers: [], onChange: () => {},
 }));
 for (const label of ["Reviewed pronunciation ID", "Accepted cut positions", "Vowel letter selected in Dinner",
   "Sentence recording SHA-256", "Family exploration", "Activity eligibility"]) {
