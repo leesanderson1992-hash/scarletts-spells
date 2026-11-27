@@ -23,7 +23,7 @@ export async function loadLatinRootBulkReview(db:Db) {
  ]);
  for(const result of [roots,associations,requests,head,bindings,decisions,exclusions])if(result.error)throw Error("Could not read the Latin root review queue.");
  if([roots,associations,requests,bindings,decisions,exclusions].some(r=>(r.data?.length??0)>=1000))throw Error("The Latin root review queue needs pagination before exporting more words.");
- const facts=await loadCanonicalLatinRootFacts(db,roots.data!.map(r=>r.family_key));
+ const facts=latinRootDictionaryProjection(await loadCanonicalLatinRootFacts(db,roots.data!.map(r=>r.family_key)));
  const ids=[...new Set([...associations.data!.map(r=>r.canonical_word_id),...requests.data!.map(r=>r.canonical_word_id),...facts.words.map(w=>w.canonicalWordId)])];
  const wordRows=ids.length?await db.from("canonical_teaching_dictionary_words").select("id,display_word,review_status").in("id",ids).eq("row_status","active").eq("dialect_code","en-GB"): {data:[],error:null};
  if(wordRows.error)throw Error("Could not read the existing Latin root dictionary words.");
@@ -45,7 +45,7 @@ export async function loadLatinRootBulkReview(db:Db) {
   const issues=latinRootReviewIssues(bundle,choice,facts.families);if(bundle.senseSet.senses.length>1&&!senseIds.has(bundle.wordId))issues.push("Approve the selected teaching meaning before publishing this multi-meaning word.");if(vetoed.has(bundle.wordId))issues.push("Excluded or deassigned. Explicitly approve this word again before publishing it.");
   const word=facts.words.find(w=>w.canonicalWordId===bundle.wordId&&w.senseId===choice);
   const family=word?facts.families.find(f=>f.familyKey===word.familyKey):facts.families.find(f=>associations.data!.some(a=>a.canonical_word_id===bundle.wordId&&a.family_key===f.familyKey));
-  const active=Boolean(word&&publishedWords.some(w=>w.canonicalWordId===word.canonicalWordId&&w.senseId===word.senseId&&w.sourceFingerprint===fingerprintSnapshotValue(word)));
+  const active=Boolean(!vetoed.has(bundle.wordId)&&word&&publishedWords.some(w=>w.canonicalWordId===word.canonicalWordId&&w.senseId===word.senseId&&w.sourceFingerprint===fingerprintSnapshotValue(word)));
   return {id:bundle.wordId,word:bundle.displayWord,senseId:choice,familyKey:word?.familyKey??family?.familyKey,root:family?.root??"",origin:family?.origin??"",rootMeaning:family?.meaning??"",issues,ready:!issues.length,active,href:`/admin/teaching-dictionary/${bundle.wordId}#td-overview`,note:issues.join(" ")|| (active?"Published in ADLE.":"Reviewed facts complete; preview family readiness and publish.")};
  }).sort((a,b)=>a.root.localeCompare(b.root)||a.word.localeCompare(b.word));
  const current=rows.filter(r=>r.active).map(r=>{const w=facts.words.find(w=>w.canonicalWordId===r.id&&w.senseId===r.senseId)!;return {canonicalWordId:r.id,word:r.word,base:r.root,meaning:w.definition,dictationSentence:w.sentence};});
