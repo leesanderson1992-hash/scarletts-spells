@@ -5,7 +5,7 @@ import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activati
 import { familyDisplayName, lexicalFamilyDisplayName, legacyFamilyBase } from "./family-display-name";
 
 export type FamilySummary = { name: string; displayName?: string; meaning?: string; pronunciation?: string;
-  rootOrigin?: string; rootExamples?: string[]; baseWordId?: string; baseKind?: string; aliases?: string[]; compatibilityMeanings?: string[];
+  rootOrigin?: string; rootExamples?: string[]; baseWordId?: string; baseSenseId?: string; baseKind?: string; aliases?: string[]; compatibilityMeanings?: string[];
   words: { id: string; word: string }[] };
 
 /** The latest approved lexical revision owns shared family facts. Registry and
@@ -190,6 +190,7 @@ export async function loadWordBaseFamilies(
           displayName: lexicalFamilyDisplayName(latest.get(key)),
           meaning: String(latest.get(key)?.base_meaning ?? ""),
           baseWordId: latest.get(key)?.canonical_base_word_id ?? undefined,
+          baseSenseId: latest.get(key)?.canonical_base_sense_id ?? undefined,
           baseKind: latest.get(key)?.base_kind,
           pronunciation: rootPronunciation.get(key),
           rootOrigin: currentRootDetails.get(key)?.origin_language || undefined,

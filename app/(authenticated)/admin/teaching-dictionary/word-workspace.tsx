@@ -110,7 +110,7 @@ type Skill = {
   skill_family_key: string;
   skill_cluster_key: string;
 };
-type Family = { rootOrigin?: string; rootExamples?: string[]; name: string; displayName?: string; meaning?: string; pronunciation?: string; baseWordId?: string; words: { id: string; word: string }[] };
+type Family = { rootOrigin?: string; rootExamples?: string[]; name: string; displayName?: string; meaning?: string; pronunciation?: string; baseWordId?: string; baseSenseId?: string; words: { id: string; word: string }[] };
 type Field = {
   key: string;
   label: string;
@@ -394,7 +394,9 @@ export function WordWorkspace(props: {
   const activeSenseFamilyKeys = new Set((props.approvedCandidateSenseFacts[activeSenseId]?.familyLinks ?? [])
     .map(link => link.family_key));
   const activeSenseFamilies = props.approvedSenseSet && props.approvedSenseSet.senses.length > 1
-    ? props.baseFamilies.filter(family => activeSenseFamilyKeys.has(family.name)) : props.baseFamilies;
+    ? props.baseFamilies.filter(family => activeSenseFamilyKeys.has(family.name) ||
+      selectedMeaning?.partOfSpeech === "root" && family.baseWordId === props.wordId &&
+      family.baseSenseId === activeSenseId) : props.baseFamilies;
   const [dirty, setDirty] = useState(false);
   const workspace = useRef<HTMLDivElement>(null);
   const [checksLoadedMs, setChecksLoadedMs] = useState<number | null>(null);
