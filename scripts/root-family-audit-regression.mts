@@ -1,0 +1,13 @@
+import assert from "node:assert/strict";
+import { ROOT_REVIEW_FOCUS, focusRootForFamily, rootBreakdownIssues } from "../lib/teaching-dictionary-manager/root-family-audit";
+import type { MultiSenseCsvBundle } from "../lib/teaching-dictionary-manager/multi-sense-csv";
+assert.equal(ROOT_REVIEW_FOCUS.length,18);
+assert.equal(focusRootForFamily("picto"),"pict");assert.equal(focusRootForFamily("pose"),"pos");
+assert.equal(focusRootForFamily("fect"),undefined);assert.equal(focusRootForFamily("ceive"),undefined);
+const analysis:MultiSenseCsvBundle["analyses"][number]={senseId:"test",parts:[{id:"p",kind:"prefix",sourceText:"in",surfaceText:"in",gloss:"not",displayRange:{start:0,end:2}},{id:"base",kind:"base",sourceText:"visible",surfaceText:"visible",gloss:"able to be seen",displayRange:{start:2,end:9}}],joins:[{afterPartId:"p",beforePartId:"base",joinType:"none"}],transformations:[],wordSum:"in + visible → invisible",familyKey:"visible_base_family",componentPartId:"base",relationshipKind:"derived",requestedSkillKeys:[]};
+const nested=rootBreakdownIssues({word:"invisible",forms:["vis"],familyRoots:["vis"],analysis,linked:false,reviewed:true});
+assert(nested.some(s=>s.includes("Spelling match only")));assert(nested.some(s=>s.includes("larger base")));
+assert(rootBreakdownIssues({word:"opportunity",forms:["port"],familyRoots:["port"],linked:false,reviewed:false}).some(s=>s.includes("Confirm the root relationship")));
+const picture=structuredClone(analysis);picture.parts=[{id:"root",kind:"root",sourceText:"pict",surfaceText:"pict",gloss:"paint",displayRange:{start:0,end:4}},{id:"s",kind:"suffix",sourceText:"ure",surfaceText:"ure",gloss:"result",displayRange:{start:4,end:7}}];
+assert(rootBreakdownIssues({word:"picture",forms:["pict","picto"],familyRoots:["picto"],analysis:picture,linked:true,reviewed:true}).some(s=>s.includes("differs")));
+console.log("PASS: focus partition, aliases, unverified letter matches, nested bases and related-root review.");

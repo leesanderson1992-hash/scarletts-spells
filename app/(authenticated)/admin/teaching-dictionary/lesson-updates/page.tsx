@@ -168,6 +168,7 @@ export default async function LessonUpdates({ searchParams }: {
         </details>
       </> : null}
       batches={specialist || base || suffix || review ? Math.ceil(wordsToReview.length / ING_REVIEW_BATCH_SIZE) : null}>
+    {latinRoots && <p className="my-4"><Link className="font-semibold underline" href="/admin/teaching-dictionary/root-review">Review dictionary candidates for your 18 roots</Link>{" · "}<Link className="font-semibold underline" href="/admin/teaching-dictionary/root-review/other">Review other assigned root families</Link></p>}
     {specialist && view === "preview" && <section className={card}>
       <h2 className="text-xl font-semibold">{specialist.title} publish status</h2>
       {isHomophoneReviewSkill(selected) && <p>Review and approve the Dictionary facts for every word in the contrast set. Family assignment is not required for this lesson.</p>}
