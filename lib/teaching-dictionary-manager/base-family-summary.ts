@@ -8,6 +8,20 @@ export type FamilySummary = { name: string; displayName?: string; meaning?: stri
   revision?: number; rootOrigin?: string; rootExamples?: string[]; baseWordId?: string; baseSenseId?: string; baseKind?: string; aliases?: string[]; compatibilityMeanings?: string[];
   words: { id: string; word: string }[] };
 
+/** A failed compatibility read must not masquerade as an empty family list or
+ * make the word's meaning/pronunciation editor unusable. Publication readers
+ * continue to use the strict loader below. */
+export async function loadWordBaseFamiliesForEditor(db: SupabaseClient, wordId: string) {
+  try { return { families: await loadWordBaseFamilies(db, wordId), unavailable: false }; }
+  catch (error) {
+    console.warn("teaching_family_summary_unavailable", {
+      code: error instanceof Error && error.cause && typeof error.cause === "object" && "code" in error.cause
+        ? String(error.cause.code).replace(/[^A-Z0-9_]/g, "").slice(0,40) : "READ_FAILED",
+    });
+    return { families: [] as FamilySummary[], unavailable: true };
+  }
+}
+
 /** The latest approved lexical revision owns shared family facts. Registry and
  * lesson families remain compatibility sources only when no lexical successor exists. */
 export function mergeWordFamilySummaries(
@@ -47,12 +61,11 @@ export async function loadWordBaseFamilies(
 ): Promise<FamilySummary[]> {
   const read = async (query: PromiseLike<any>): Promise<any[]> => {
     const result = await query;
-    if (result.error) throw new Error("TEACHING_FAMILY_SUMMARY_READ_FAILED");
+    if (result.error) throw new Error("TEACHING_FAMILY_SUMMARY_READ_FAILED", { cause: { code: result.error.code } });
     return result.data ?? [];
   };
   const canonicalLinks = await read(
-    db.from("teaching_dictionary_spelling_registry_members")
-      .select("canonical_family_id").eq("canonical_word_id", wordId),
+    db.rpc("teaching_dictionary_registry_members_read_v1", { p_word: wordId }),
   );
   let registryFamilies: FamilySummary[] = [];
   if (canonicalLinks.length) {
@@ -60,8 +73,7 @@ export async function loadWordBaseFamilies(
     const [families, members, rootAliases] = await Promise.all([
       read(db.from("canonical_teaching_dictionary_base_family_registry")
         .select("id,family_key,base_lemma,base_kind,meaning_variants").in("id", familyIds)),
-      read(db.from("teaching_dictionary_spelling_registry_members")
-        .select("canonical_family_id,canonical_word_id").in("canonical_family_id", familyIds)),
+      read(db.rpc("teaching_dictionary_registry_members_read_v1", { p_families: familyIds })),
       read(db.from("canonical_teaching_dictionary_base_family_registry_aliases")
         .select("canonical_family_id,source_key,source_revision")
         .in("canonical_family_id", familyIds).eq("source_type", "lexical_root")),
@@ -102,8 +114,7 @@ export async function loadWordBaseFamilies(
   // touching this word, then resolve their latest approved revision so older
   // immutable revisions do not appear as duplicate memberships.
   const [legacyLexicalMatches, senseLexicalMatches, rootAnchors, rootOnlyEntry] = await Promise.all([
-    read(db.from("teaching_dictionary_spelling_lexical_members")
-      .select("family_key,revision").eq("canonical_word_id", wordId)),
+    read(db.rpc("teaching_dictionary_lexical_members_read_v1", { p_word: wordId })),
     read(db.from("teaching_dictionary_current_sense_family_memberships")
       .select("family_key,current_family_revision").eq("canonical_word_id", wordId)),
     read(db.from("teaching_dictionary_families_with_current_meaning")
@@ -130,8 +141,7 @@ export async function loadWordBaseFamilies(
     for (const key of bySource.keys()) lexicalSuccessorKeys.add(key);
     if (latest.size) {
       const historicalMembers = (await read(
-        db.from("teaching_dictionary_spelling_lexical_members")
-          .select("family_key,revision,canonical_word_id").in("family_key", [...bySource.keys()]),
+        db.rpc("teaching_dictionary_lexical_members_read_v1", { p_families: [...bySource.keys()] }),
       )).filter((row) => bySource.get(row.family_key)?.revision === row.revision);
       const reviewedSenseMembers = await read(db.from("teaching_dictionary_current_sense_family_memberships")
         .select("family_key,current_family_revision,canonical_word_id")

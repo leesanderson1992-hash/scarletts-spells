@@ -18,7 +18,7 @@ import {
 } from "@/lib/teaching-dictionary-manager/contracts";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { loadWordRootLanguageAssignments } from "@/lib/teaching-dictionary-manager/root-language-loader";
-import { loadWordBaseFamilies } from "@/lib/teaching-dictionary-manager/base-family-summary";
+import { loadWordBaseFamiliesForEditor } from "@/lib/teaching-dictionary-manager/base-family-summary";
 import { loadWeakVowelFamilyPrefill } from "@/lib/teaching-dictionary-manager/weak-vowel-family-prefill";
 import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
 import { approvedFactsSupersedeDraft } from "@/lib/teaching-dictionary-manager/draft-freshness";
@@ -82,7 +82,7 @@ export async function TeachingDictionaryDetail({
     dictationHead,
     overviewReview,
     submissions,
-    baseFamilies,
+    baseFamilyRead,
     grammaticalLinks,
     weakFamilyPrefill,
     morphologyFamilyLinks,
@@ -205,11 +205,10 @@ export async function TeachingDictionaryDetail({
           .order("imported_at", { ascending: false })
           .limit(50)
       : null,
-    wordId ? loadWordBaseFamilies(db, wordId) : Promise.resolve([]),
+    wordId ? loadWordBaseFamiliesForEditor(db, wordId) : Promise.resolve({ families: [], unavailable: false }),
     wordId ? loadWordGrammaticalLinks(db, wordId) : Promise.resolve([]),
     wordId ? loadWeakVowelFamilyPrefill(db, wordId) : Promise.resolve({ status: "none" as const, authorityId: null, members: [] }),
-    wordId ? db.from("teaching_dictionary_spelling_lexical_members")
-      .select("canonical_morphology_id").eq("canonical_word_id", wordId)
+    wordId ? db.rpc("teaching_dictionary_lexical_members_read_v1", { p_word: wordId })
       : Promise.resolve({ data: [], error: null }),
     wordId ? loadWordRootLanguageAssignments(db, wordId) : Promise.resolve([]),
   ]);
@@ -599,7 +598,7 @@ export async function TeachingDictionaryDetail({
         stagingWordPublishing={canUpdateIngLesson()}
         currentMorphologyId={morphology?.id ?? null}
         currentMorphologyLinkedToFamily={Boolean(morphology && morphologyFamilyLinks.data?.some(
-          (link) => link.canonical_morphology_id === morphology.id))}
+          (link: { canonical_morphology_id: string }) => link.canonical_morphology_id === morphology.id))}
         currentApprovedPartOfSpeech={morphology?.raw_morpholex_pos ?? ""}
         draftId={activeDraft?.id ?? null}
         normalisedWord={draft?.normalised_word ?? word?.normalised_word ?? ""}
@@ -654,7 +653,8 @@ export async function TeachingDictionaryDetail({
           suffix: reviewedAffixMeanings([], suffixProfiles.data ?? [], dictionaryAffixMeanings.data ?? [], "suffix"),
         }}
         partSuggestions={partSuggestions}
-        baseFamilies={baseFamilies}
+        baseFamilies={baseFamilyRead.families}
+        baseFamiliesUnavailable={baseFamilyRead.unavailable}
         rootLanguageAssignments={rootLanguageAssignments}
         grammaticalLinks={grammaticalLinks}
         familyReviewContext={{ error: params.family_error }}

@@ -351,6 +351,7 @@ export function WordWorkspace(props: {
     choices: string[];
   }[];
   baseFamilies: Family[];
+  baseFamiliesUnavailable?: boolean;
   rootLanguageAssignments: RootLanguageAssignment[];
   grammaticalLinks?: GrammaticalLink[];
   familyReviewContext: { error?: string };
@@ -1155,6 +1156,10 @@ export function WordWorkspace(props: {
             </div>
           ))}
           <div data-overview-view="family" hidden={overviewView !== "family"}>
+          {props.baseFamiliesUnavailable ? <p role="alert" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm">
+            Family details could not be loaded. Your existing links are kept. Family editing is paused until this check succeeds.
+            {" "}<button type="button" className="font-semibold underline" onClick={() => router.refresh()}>Retry family details</button>
+          </p> : <>
           {!!props.grammaticalLinks?.length && <details className="mt-4 rounded-lg border border-[var(--border)] p-3">
             <summary className="cursor-pointer font-semibold">Grammatical relationships</summary>
             <p className="mt-2 text-sm text-[color:var(--mid)]">Related forms are preserved here. These links are separate from spelling families and are not used as spelling clues.</p>
@@ -1204,6 +1209,7 @@ export function WordWorkspace(props: {
             </button>}
             </div>
           </details>
+          </>}
           </div>
           <div data-overview-view="details" hidden={overviewView !== "details"} className="space-y-4">
             <h3 className="text-base font-semibold">Word details</h3>
