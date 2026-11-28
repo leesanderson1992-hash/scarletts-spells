@@ -130,3 +130,32 @@ and successful reload. TypeScript and targeted script lint passed. Receipts:
 `outputs/port-pict-cred-20261128/`. This is a content-only change using existing
 review functions; the live application deployment and published Latin pool
 remain unchanged.
+
+## Clear resolved sections from the review page
+
+Application SHA `7cd194ea5fb3dc5c9785fe1a266f8a1cd8945aa4`, deployment
+`dpl_HkBo2BtngH6izkjzaz4UdF1rnqQJ`, hides completed groups from the default
+view and jump links. A group is complete when its recorded review is complete
+and no unlinked candidates remain. New unlinked candidates reopen it. The
+`?completed=1` view restores completed groups through “Show completed”; “Hide
+completed” returns to the pending view. Counts reflect the displayed groups.
+No dictionary facts, assignments, completion records or lesson pools changed.
+
+Eight completed groups are cleared: vis, dict, spect, aud, min, max, port and
+pict. Cred's support entry is resolved but its member-word review is still
+open. The live pending page shows 55 distinct words across ten groups: scribe,
+struct, cred, initi, ple, popul, pos, sci, soci and vent.
+
+Regression covers empty completed groups, linked completed groups, unfinished
+groups and new candidates reopening a completed group. TypeScript, targeted
+ESLint and the React review passed. Authenticated staging load/reload verified
+10 default groups and all 18 with completed groups included; the other page
+also loaded. Production browser checks verified both links and the final
+pending view after reload. Receipts: `outputs/root-review-cleanup-20261128/`.
+
+Exact-SHA approval `aff053f4-3320-4b41-aff7-316e2fb004cb` cites standing owner
+permission of 2026-10-09, preserving terms and limits. Candidate/public HEAD
+checks passed before cutover to policy revision
+`2367fb2f-66f1-4087-aaa4-c111146005ff`. Recovery request 47904 returned 200,
+monitor passed and unrecorded sends remained zero. The existing Latin lesson
+activation and manifest remain unchanged.
