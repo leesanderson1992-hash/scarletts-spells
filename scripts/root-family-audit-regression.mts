@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { ROOT_REVIEW_FOCUS, focusRootForFamily, rootBreakdownIssues,rootCandidateFingerprint } from "../lib/teaching-dictionary-manager/root-family-audit";
+import { ROOT_REVIEW_FOCUS, focusRootForFamily, rootBreakdownIssues,rootCandidateFingerprint, rootReviewGroupIsComplete } from "../lib/teaching-dictionary-manager/root-family-audit";
 import type { MultiSenseCsvBundle } from "../lib/teaching-dictionary-manager/multi-sense-csv";
 assert.equal(ROOT_REVIEW_FOCUS.length,18);
 assert.equal(focusRootForFamily("picto"),"pict");assert.equal(focusRootForFamily("pose"),"pos");
@@ -14,3 +14,9 @@ console.log("PASS: focus partition, aliases, unverified letter matches, nested b
 const row={wordId:'word',word:'visible',senseId:'see',meaning:'Able to be seen.',partOfSpeech:'adjective',wordSum:'visible → visible',parts:'visible (base)',source:'Reviewed meaning' as const,linked:false,excluded:false,issues:[]};
 assert.notEqual(rootCandidateFingerprint(row),rootCandidateFingerprint({...row,wordSum:'vis + ible → visible',parts:'vis (root) + ible (suffix)'}));
 assert.equal(rootCandidateFingerprint(row),rootCandidateFingerprint({...row,linked:true}));
+
+assert(rootReviewGroupIsComplete({reviewed:true,rows:[{linked:true}]}));
+assert(rootReviewGroupIsComplete({reviewed:true,rows:[]}));
+assert(!rootReviewGroupIsComplete({reviewed:false,rows:[{linked:true}]}));
+assert(!rootReviewGroupIsComplete({reviewed:true,rows:[{linked:true},{linked:false}]}));
+console.log("PASS: completed groups clear from review; new candidates reopen reviewed groups.");

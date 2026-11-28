@@ -56,3 +56,8 @@ export function rootBreakdownIssues(input: {
   if (analysis.transformations.length) issues.push("Spelling transformations need review for the current root lesson.");
   return issues;
 }
+
+/** Completion hides a group only while no unselected candidates need review. */
+export function rootReviewGroupIsComplete(group: { reviewed: boolean; rows: { linked: boolean }[] }) {
+  return group.reviewed && group.rows.every(row => row.linked);
+}
