@@ -22,6 +22,8 @@ export async function RootReviewPage({ other = false }: { other?: boolean }) {
     {audit.groups.map(group => <section key={group.root} id={`root-${group.root}`} aria-labelledby={`heading-${group.root}`} className="scroll-mt-6 space-y-3 border-t border-[var(--border)] pt-5">
       <h2 id={`heading-${group.root}`} className="text-xl font-bold">{group.root}</h2>
       <p className="text-sm">{group.registered.length ? `Registered family: ${group.registered.join(", ")}.` : "No reviewed Latin-root family registered yet."} {group.assigned} linked words without an exclusion{group.excluded ? ` · ${group.excluded} already excluded or deassigned` : ""}.</p>
+      {group.dismissed > 0 && <p className="text-sm">{group.dismissed} unselected candidates reviewed and dismissed. Your assigned words remain. Changed word facts will be offered for review again.</p>}
+      {group.reviewed && <p className="text-sm font-semibold">{group.rows.some(row => !row.linked) ? "New or changed candidates since your review." : "Review complete. No further candidates selected."}</p>}
       {!group.rows.length ? <p>No ordinary dictionary candidates found for the searched forms. No entries were created.</p> : <div className="overflow-x-auto">
         <table className="w-full min-w-[850px] border-collapse text-left text-sm">
           <caption className="sr-only">{group.root} dictionary candidates and their current breakdowns</caption>

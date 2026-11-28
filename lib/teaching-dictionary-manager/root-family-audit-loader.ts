@@ -2,20 +2,22 @@ import "server-only";
 import type { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { ingReviewEnvironment } from "./ing-staging-scope";
 import { loadReviewedMeaningBundles } from "./multi-sense-export";
-import { ROOT_REVIEW_FOCUS, focusRootForFamily, rootBreakdownIssues, type RootAuditRow } from "./root-family-audit";
+import { ROOT_REVIEW_FOCUS, focusRootForFamily, rootBreakdownIssues, rootCandidateFingerprint, type RootAuditRow } from "./root-family-audit";
 import { LATIN_ROOT_SKILL } from "./root-language";
 type Db = ReturnType<typeof createServiceRoleClient>;
 
 export async function loadRootFamilyAudit(db: Db, other = false) {
   const environment = ingReviewEnvironment();
   if (!environment) throw new Error("Root review is unavailable in this environment.");
-  const [familyResult, assignmentResult, exclusionResult, decisionResult] = await Promise.all([
+  const [familyResult, assignmentResult, exclusionResult, decisionResult, dismissalResult, completionResult] = await Promise.all([
     db.from("teaching_dictionary_root_skill_families").select("family_key,root_text,root_word_id,root_sense_id,origin_language").eq("micro_skill_key", LATIN_ROOT_SKILL),
     db.from("teaching_dictionary_root_language_assignments").select("canonical_word_id,sense_id,family_key,root_text").eq("micro_skill_key", LATIN_ROOT_SKILL).eq("assignment_role", "family_member"),
     db.from("teaching_dictionary_bulk_review_exclusions").select("canonical_word_id").eq("environment_key", environment).eq("micro_skill_key", LATIN_ROOT_SKILL),
     db.from("teaching_dictionary_pair_latest_decisions").select("canonical_word_id,action").eq("environment_key", environment).eq("micro_skill_key", LATIN_ROOT_SKILL),
+    db.from("teaching_dictionary_root_candidate_dismissals").select("root_text,canonical_word_id,sense_id,source_fingerprint").eq("environment_key", environment),
+    db.from("teaching_dictionary_root_review_completions").select("root_text").eq("environment_key", environment),
   ]);
-  for (const result of [familyResult, assignmentResult, exclusionResult, decisionResult]) {
+  for (const result of [familyResult, assignmentResult, exclusionResult, decisionResult, dismissalResult, completionResult]) {
     if (result.error) throw new Error("Could not read the root-family review inventory.");
     if ((result.data?.length ?? 0) >= 1000) throw new Error("The root review inventory needs pagination.");
   }
@@ -91,8 +93,13 @@ export async function loadRootFamilyAudit(db: Db, other = false) {
           linked, excluded: excluded.has(word.id), issues });
       }
     }
-    rows.sort((a, b) => Number(b.issues.length > 0) - Number(a.issues.length > 0) || a.word.localeCompare(b.word) || String(a.senseId).localeCompare(String(b.senseId)));
-    return { root: group.root, forms: [...group.forms], registered: registered.map(family => family.root_text), rows,
+    const visible = rows.filter(row => row.linked || !dismissalResult.data!.some(decision =>
+      decision.root_text === group.root && decision.canonical_word_id === row.wordId
+      && decision.sense_id === (row.senseId ?? "") && decision.source_fingerprint === rootCandidateFingerprint(row)));
+    visible.sort((a, b) => Number(b.issues.length > 0) - Number(a.issues.length > 0) || a.word.localeCompare(b.word) || String(a.senseId).localeCompare(String(b.senseId)));
+    return { root: group.root, forms: [...group.forms], registered: registered.map(family => family.root_text), rows: visible,
+      dismissed: rows.length - visible.length,
+      reviewed: completionResult.data!.some(row => row.root_text === group.root),
       assigned: new Set(rows.filter(row => row.linked && !row.excluded).map(row => row.wordId)).size,
       excluded: new Set(rows.filter(row => row.linked && row.excluded).map(row => row.wordId)).size };
   });

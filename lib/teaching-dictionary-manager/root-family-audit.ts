@@ -1,4 +1,5 @@
 import type { MultiSenseCsvBundle } from "./multi-sense-csv";
+import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
 
 export const ROOT_REVIEW_FOCUS = [
   { root: "vis", forms: ["vis"] }, { root: "dict", forms: ["dict"] },
@@ -22,6 +23,11 @@ export type RootAuditRow = {
   wordSum: string; parts: string; source: "Reviewed meaning" | "Spelling-level facts" | "No analysis";
   linked: boolean; excluded: boolean; issues: string[];
 };
+
+export function rootCandidateFingerprint(row: RootAuditRow) {
+  return fingerprintSnapshotValue({ word: row.word, senseId: row.senseId, meaning: row.meaning,
+    partOfSpeech: row.partOfSpeech, wordSum: row.wordSum, parts: row.parts, source: row.source });
+}
 
 /** An audit hint never confers a family relationship or a word–skill approval. */
 export function rootBreakdownIssues(input: {
