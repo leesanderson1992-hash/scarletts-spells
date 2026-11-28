@@ -104,3 +104,29 @@ before policy/scheduler cutover. Policy revision
 Recovery request 47837 returned 200; safety monitor passed with zero unrecorded
 sends. Existing Latin activation `266ed9f2-3bf1-41b6-b0dd-ed78dda5c62e` remains
 enabled and its published manifest is unchanged.
+
+## Port/Pict completion and Cred support entry
+
+On the owner's subsequent instruction, completed port and pict review and
+dismissed five currently unlinked Production candidates. Assigned words were
+compared before/after and preserved. Pict continues to include the existing
+picto family. Cred remains open for reviewing member words.
+
+No existing cred word or family was found. Created approved bound-root support
+entry `07cae33d-a686-4b5f-8dc1-824d2ab516b2`, meaning **to believe or trust**,
+with root-only parts `cred → cred`. Created approved family
+`cred_root_root_base_family` with Latin historical language. The canonical
+language classification view maps it to
+`D4_MOR_ROOTS_COMMON_LATIN_ROOTS`. This creates curriculum support, not an
+ordinary spelling target or publication of member words.
+
+Operator script: `scripts/review-port-pict-create-cred-20261128.mts` (rollback
+by default, explicit `--production --apply` for the authorised content change).
+Staging and Production rollback plans passed before each apply. Staging page
+load/reload passed; a disposable staging learning-item attempt was rejected
+with `ROOT_SUPPORT_ONLY` and its fixture rolled back. Production browser
+readback verified the approved meaning, linked family, selected Latin origin
+and successful reload. TypeScript and targeted script lint passed. Receipts:
+`outputs/port-pict-cred-20261128/`. This is a content-only change using existing
+review functions; the live application deployment and published Latin pool
+remain unchanged.
