@@ -57,3 +57,50 @@ cutover. Approved terms, model, rate card and limits were preserved. Policy
 revision `144c1529-20f3-414d-84bb-5b177a943ee3` and scheduler job 154 are active.
 The recovery delivery returned 200 and the safety monitor passed with zero
 unrecorded sends. The Latin lesson activation and published pool are unchanged.
+
+## Owner review decisions and editor recovery — 28 November
+
+Superseding application release: `f56dc96a4dff0c72d50e96cf0ba9983315cb93c2`,
+deployment `dpl_EMdfqtY8BFkJxgMvoWpZoxUuR15Q`.
+
+Recorded completion of vis, dict, spect, aud, min and max. Dismissed 25
+currently unlinked candidates (vis 7, spect 3, min 15); assigned words were
+compared before/after and preserved. Dismissals fingerprint the displayed
+word facts so changed breakdowns return for review. Completion is stored
+separately, including roots with no remaining candidates. Production browser
+readback shows all six complete and 77 distinct words across the 18 groups.
+Port remains open for review.
+
+The incorrect legacy `port_noun_base_family` (free base, “to carry”) now has
+an explicit reviewed succession to `port_root_port_carry_root_base_family`.
+The shared dictionary word and anchored harbour noun family are preserved.
+Validation allows this cross-kind succession only for an unanchored legacy
+duplicate of the same word and equivalent meaning, with an explicit reason.
+An implicit cross-kind merge was tested and rejected in a savepoint.
+
+Family-summary reads now use service-only bounded RPC wrappers over the
+existing views, disabling JIT locally. Staging equality checks compared both
+wrappers with their source views and verified empty scopes return no rows.
+The word editor catches unavailable family reads and presents a retry message
+while retaining other editor sections; strict consumers still fail closed.
+This addresses the observed family-summary failure, not unrelated auth/network
+timeouts. No learner evidence or published lesson pool was changed.
+
+Migrations 20261128080000, 20261128080500 and 20261128081000 were applied and
+recorded in staging and production. Staging reproduced the duplicate with an
+explicit disposable fixture, applied the owner decisions and checked page
+load/reload. Regression, TypeScript and targeted lint checks passed. The
+server-only regression runs with `NODE_OPTIONS=--conditions=react-server`.
+Authenticated staging readbacks covered both review pages and port, reported
+and transport entries. Production browser verification loaded/reloaded port
+and transport, showed transport linked to “port (bound root) — Carry”, retained
+both port senses, and reloaded the completed-review page successfully.
+Receipts and screenshots: `outputs/root-review-decisions-20261128/`.
+
+Exact-SHA approval `3e9f5b9d-bdaf-4534-a7d8-ff9811bf8fc9` cites owner standing
+permission dated 2026-10-09. Candidate and public HEAD identity checks passed
+before policy/scheduler cutover. Policy revision
+`9df17f0a-0aef-4b6e-b7ed-f8e2f7800cd3` uses unchanged provider terms and limits.
+Recovery request 47837 returned 200; safety monitor passed with zero unrecorded
+sends. Existing Latin activation `266ed9f2-3bf1-41b6-b0dd-ed78dda5c62e` remains
+enabled and its published manifest is unchanged.
